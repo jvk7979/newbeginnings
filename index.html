@@ -210,21 +210,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 
       window.__openNewProjectModal = openModal;
 
-      const bindNewProjectButtons = () => {
-        document.querySelectorAll('button').forEach((btn) => {
-          const label = (btn.textContent || '').trim();
-          if (label !== '+ New Project' || btn.dataset.newProjectBound === '1') return;
-          btn.dataset.newProjectBound = '1';
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal();
-          });
-        });
-      };
-
-      bindNewProjectButtons();
-      const observer = new MutationObserver(bindNewProjectButtons);
-      observer.observe(document.documentElement, { childList: true, subtree: true });
+      if (!window.__newProjectDelegatedClickBound) {
+        window.__newProjectDelegatedClickBound = true;
+        document.addEventListener('click', (e) => {
+          const trigger = e.target && e.target.closest ? e.target.closest('button,[role="button"]') : null;
+          if (!trigger) return;
+          const label = (trigger.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+          if (!label.includes('new project')) return;
+          e.preventDefault();
+          openModal();
+        }, true);
+      }
     };
 
     let template = applyTemplateHotfixes(parseBundlerTemplate(templateEl.textContent));
@@ -319,6 +315,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // preserve ordering (React before ReactDOM before Babel before text/babel).
     const doc = new DOMParser().parseFromString(template, 'text/html');
     document.documentElement.replaceWith(doc.documentElement);
+    setupProjectsPdfUpload();
     const dead = Array.from(document.scripts);
     for (const old of dead) {
       const s = document.createElement('script');
@@ -342,10 +339,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (window.Babel && typeof window.Babel.transformScriptTags === 'function') {
       window.Babel.transformScriptTags();
     }
-    setupProjectsPdfUpload();
   } catch (err) {
     setStatus('Loaded fallback mode.');
     console.error('Bundle unpack error:', err);
+    try { setupProjectsPdfUpload(); } catch (_) {}
     // Avoid browser toast loops in constrained in-app browsers (e.g. mobile webviews).
   }
 });
