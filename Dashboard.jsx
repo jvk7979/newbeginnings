@@ -32,10 +32,6 @@ const Dashboard = ({ onNavigate }) => {
   return (
     <div style={s.wrap}>
       <div style={s.header}>
-        <div>
-          <div style={s.title}>Good afternoon.</div>
-          <div style={s.subtitle}>Apr 25, 2026 · {activeProjects} active project{activeProjects !== 1 ? 's' : ''} · {window.AppData.ideas.length} ideas tracked</div>
-        </div>
         <button style={s.btn}
           onMouseEnter={e => e.currentTarget.style.background = '#E8C47A'}
           onMouseLeave={e => e.currentTarget.style.background = '#D4A853'}
