@@ -99,8 +99,116 @@ document.addEventListener('DOMContentLoaded', async function() {
       hotfixed = hotfixed.replaceAll("gridTemplateColumns: '340px 1fr'", "gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : '340px 1fr'");
       hotfixed = hotfixed.replaceAll("padding: '32px 36px'", "padding: window.innerWidth <= 768 ? '20px 14px' : '32px 36px'");
       hotfixed = hotfixed.replaceAll("padding: '32px 48px'", "padding: window.innerWidth <= 768 ? '20px 14px' : '32px 48px'");
+      hotfixed = hotfixed.replace(
+        "onMouseLeave={e => e.currentTarget.style.background = C.accent}>+ New Project</button>",
+        "onMouseLeave={e => e.currentTarget.style.background = C.accent} onClick={() => window.__openNewProjectModal && window.__openNewProjectModal()}>+ New Project</button>"
+      );
 
       return hotfixed;
+    };
+
+    const ensurePdfJs = (() => {
+      let pdfJsPromise = null;
+      return () => {
+        if (window.pdfjsLib && window.pdfjsLib.getDocument) return Promise.resolve(window.pdfjsLib);
+        if (pdfJsPromise) return pdfJsPromise;
+        pdfJsPromise = new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.mjs';
+          script.type = 'module';
+          script.onload = async () => {
+            try {
+              if (!window.pdfjsLib || !window.pdfjsLib.getDocument) {
+                const mod = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.mjs');
+                window.pdfjsLib = mod;
+              }
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.worker.min.mjs';
+              resolve(window.pdfjsLib);
+            } catch (err) {
+              reject(err);
+            }
+          };
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+        return pdfJsPromise;
+      };
+    })();
+
+    const extractPdfText = async (file) => {
+      const pdfjsLib = await ensurePdfJs();
+      const buffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const chunks = [];
+      for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+        const page = await pdf.getPage(pageNo);
+        const content = await page.getTextContent();
+        chunks.push(content.items.map(i => i.str).join(' '));
+      }
+      return chunks.join('\n').replace(/\s+\n/g, '\n').trim();
+    };
+
+    const setupProjectsPdfUpload = () => {
+      const modalId = '__new_project_modal';
+      const fileId = '__new_project_pdf_input';
+
+      const injectProjectCard = (title, text) => {
+        const grid = Array.from(document.querySelectorAll('div')).find((el) => {
+          const s = el.getAttribute('style') || '';
+          return s.includes('grid-template-columns: 1fr 1fr') && s.includes('gap: 12px');
+        });
+        if (!grid) return false;
+        const card = document.createElement('div');
+        card.style.cssText = 'background:#fff;border:1px solid #E9E4D9;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;';
+        card.innerHTML =
+          '<div style="font:600 16px/1.3 \'DM Sans\',sans-serif;color:#1f1f1f;">' + title + '</div>' +
+          '<div style="font:12px/1.4 \'DM Sans\',sans-serif;color:#6b6b6b;">Status: Draft · Source: Uploaded PDF</div>' +
+          '<div style="font:13px/1.5 \'DM Sans\',sans-serif;color:#3d3d3d;">' + (text.slice(0, 180) || 'PDF parsed successfully.') + (text.length > 180 ? '…' : '') + '</div>';
+        grid.prepend(card);
+        return true;
+      };
+
+      const openModal = () => {
+        let modal = document.getElementById(modalId);
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = modalId;
+          modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,20,20,0.45);display:flex;align-items:center;justify-content:center;z-index:100000;';
+          modal.innerHTML = '<div style="width:min(560px,92vw);background:#fff;border-radius:12px;padding:20px;border:1px solid #E9E4D9;box-shadow:0 14px 40px rgba(0,0,0,0.22)">' +
+            '<div style="font:700 22px/1.2 \'Playfair Display\',serif;color:#1f1f1f;margin-bottom:8px;">New Project</div>' +
+            '<div style="font:14px/1.5 \'DM Sans\',sans-serif;color:#666;margin-bottom:14px;">Upload a PDF feasibility or project note. We will extract text and create a project card.</div>' +
+            '<input id="' + fileId + '" type="file" accept="application/pdf" style="display:block;width:100%;font:13px \'DM Sans\',sans-serif;margin-bottom:14px;" />' +
+            '<div id="__new_project_status" style="min-height:20px;font:12px/1.4 \'JetBrains Mono\',monospace;color:#6b6b6b;margin-bottom:14px;"></div>' +
+            '<div style="display:flex;justify-content:flex-end;gap:8px;">' +
+            '<button id="__new_project_cancel" style="padding:8px 12px;border:1px solid #E9E4D9;background:#fff;border-radius:6px;cursor:pointer;">Cancel</button>' +
+            '<button id="__new_project_create" style="padding:8px 14px;border:none;background:#B8892A;color:#fff;border-radius:6px;cursor:pointer;">Create Project</button>' +
+            '</div></div>';
+          document.body.appendChild(modal);
+          modal.querySelector('#__new_project_cancel').onclick = () => modal.remove();
+          modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+          modal.querySelector('#__new_project_create').onclick = async () => {
+            const status = modal.querySelector('#__new_project_status');
+            const file = modal.querySelector('#' + fileId).files[0];
+            if (!file) {
+              status.textContent = 'Please choose a PDF file first.';
+              return;
+            }
+            try {
+              status.textContent = 'Extracting text from PDF...';
+              const extracted = await extractPdfText(file);
+              const firstLine = (extracted.split('\n').find(Boolean) || file.name.replace(/\.pdf$/i, '')).slice(0, 80);
+              const created = injectProjectCard(firstLine, extracted);
+              status.textContent = created ? 'Project created successfully.' : 'PDF parsed, but projects grid was not found.';
+              if (created) setTimeout(() => modal.remove(), 400);
+            } catch (err) {
+              console.error('PDF extraction failed', err);
+              status.textContent = 'Could not read this PDF. Try a text-based PDF file.';
+            }
+          };
+        }
+      };
+
+      window.__openNewProjectModal = openModal;
     };
 
     let template = applyTemplateHotfixes(parseBundlerTemplate(templateEl.textContent));
@@ -218,6 +326,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (window.Babel && typeof window.Babel.transformScriptTags === 'function') {
       window.Babel.transformScriptTags();
     }
+    setupProjectsPdfUpload();
   } catch (err) {
     setStatus('Loaded fallback mode.');
     console.error('Bundle unpack error:', err);
