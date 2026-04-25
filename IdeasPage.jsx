@@ -1,13 +1,7 @@
 // IdeasPage.jsx — Ideas listing + detail view
 const IdeasPage = ({ onNavigate }) => {
   const [filter, setFilter] = React.useState('all');
-  const ideas = [
-    { id: 1, title: 'AI-Powered Meal Planner', status: 'draft', date: 'Apr 25, 2026', tags: ['SaaS', 'B2C', 'Early Stage'], desc: 'Personalized weekly meal plans from pantry inventory and dietary goals. Integrates with grocery delivery APIs.' },
-    { id: 2, title: 'Freelance Contract Generator', status: 'validating', date: 'Mar 18, 2026', tags: ['B2B', 'Legal-Tech'], desc: 'Auto-generate client contracts from a simple form. Export to PDF. Stripe payment for templates.' },
-    { id: 3, title: 'Local Event Newsletter', status: 'archived', date: 'Jan 5, 2026', tags: ['Media', 'Newsletter'], desc: 'Curated weekly digest of local events via email. Abandoned — market too fragmented.' },
-    { id: 4, title: 'Remote Team Standup Bot', status: 'validating', date: 'Apr 10, 2026', tags: ['SaaS', 'B2B', 'Productivity'], desc: 'Slack bot that collects daily standups, summarizes blockers, and sends digests to team leads.' },
-    { id: 5, title: 'Micro-SaaS Idea Tracker', status: 'draft', date: 'Apr 22, 2026', tags: ['Meta', 'Personal'], desc: 'Track all my SaaS ideas, notes, and validation status. Basically this app.' },
-  ];
+  const [ideas, setIdeas] = React.useState(window.AppData.ideas);
 
   const filters = ['all', 'draft', 'validating', 'active', 'archived'];
   const filtered = filter === 'all' ? ideas : ideas.filter(i => i.status === filter);
@@ -42,7 +36,7 @@ const IdeasPage = ({ onNavigate }) => {
         <button style={s.btn}
           onMouseEnter={e => e.currentTarget.style.background = '#E8C47A'}
           onMouseLeave={e => e.currentTarget.style.background = '#D4A853'}
-          onClick={() => onNavigate('new-idea')}>
+          onClick={() => onNavigate('new-idea', { onSave: (idea) => { setIdeas([...window.AppData.ideas]); } })}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New Idea
         </button>
@@ -66,12 +60,28 @@ const IdeasPage = ({ onNavigate }) => {
 // New Idea form
 const NewIdeaPage = ({ onNavigate }) => {
   const [form, setForm] = React.useState({ title: '', status: 'draft', tags: '', desc: '' });
+  const [error, setError] = React.useState('');
+
   const inputStyle = {
     background: '#18160F', border: '1px solid #2E2B23', borderRadius: 6,
     color: '#F2EDE0', fontFamily: "'DM Sans', sans-serif", fontSize: 14,
     padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms, box-shadow 150ms',
   };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: '#A39888', marginBottom: 5, display: 'block' };
+
+  const handleSave = () => {
+    if (!form.title.trim()) {
+      setError('Idea title is required.');
+      return;
+    }
+    window.AppData.addIdea({
+      title: form.title.trim(),
+      status: form.status,
+      tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+      desc: form.desc.trim(),
+    });
+    onNavigate('ideas');
+  };
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', background: '#0D0C0A' }}>
@@ -83,9 +93,13 @@ const NewIdeaPage = ({ onNavigate }) => {
       <div style={{ maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
           <label style={labelStyle}>Idea Title *</label>
-          <input style={inputStyle} value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="What's the idea?"
+          <input style={{ ...inputStyle, borderColor: error ? '#C45E5E' : '#2E2B23' }}
+            value={form.title}
+            onChange={e => { setForm({...form, title: e.target.value}); setError(''); }}
+            placeholder="What's the idea?"
             onFocus={e => { e.target.style.borderColor = '#9A7530'; e.target.style.boxShadow = '0 0 0 1px #9A7530, 0 4px 16px rgba(212,168,83,0.12)'; }}
-            onBlur={e => { e.target.style.borderColor = '#2E2B23'; e.target.style.boxShadow = 'none'; }} />
+            onBlur={e => { e.target.style.borderColor = error ? '#C45E5E' : '#2E2B23'; e.target.style.boxShadow = 'none'; }} />
+          {error && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: '#C45E5E', marginTop: 4 }}>{error}</div>}
         </div>
         <div>
           <label style={labelStyle}>Stage</label>
@@ -113,7 +127,7 @@ const NewIdeaPage = ({ onNavigate }) => {
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: '#D4A853', color: '#0D0C0A', border: 'none', cursor: 'pointer' }}
             onMouseEnter={e => e.currentTarget.style.background = '#E8C47A'}
             onMouseLeave={e => e.currentTarget.style.background = '#D4A853'}
-            onClick={() => onNavigate('ideas')}>
+            onClick={handleSave}>
             Save Idea
           </button>
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: '#6A6055', border: '1px solid #2E2B23', cursor: 'pointer' }}

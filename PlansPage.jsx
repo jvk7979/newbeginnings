@@ -1,9 +1,6 @@
 // PlansPage.jsx — Business Plans listing + detail
 const PlansPage = ({ onNavigate }) => {
-  const plans = [
-    { id: 1, title: 'Freelance Invoice Tool — Business Plan', updated: 'Mar 30, 2026', sections: 6, status: 'active', summary: 'Micro-SaaS targeting freelancers and solopreneurs. Stripe-integrated invoicing with client portal. Revenue model: $9/mo subscription.' },
-    { id: 2, title: 'AI Meal Planner — Draft Plan', updated: 'Apr 20, 2026', sections: 3, status: 'draft', summary: 'Early-stage ideation. Target market: health-conscious adults aged 28–45. Monetization TBD — subscription or freemium.' },
-  ];
+  const plans = window.AppData.plans;
 
   const s = {
     wrap: { flex: 1, overflowY: 'auto', padding: '32px 36px', background: '#0D0C0A' },
@@ -28,7 +25,7 @@ const PlansPage = ({ onNavigate }) => {
           <div style={s.planTitle}>{plan.title}</div>
           <Badge status={plan.status} />
         </div>
-        <div style={s.meta}>Updated {plan.updated} · {plan.sections} sections</div>
+        <div style={s.meta}>Updated {plan.updated} · {plan.sectionCount} sections</div>
         <div style={s.summary}>{plan.summary}</div>
       </div>
     );
@@ -43,7 +40,8 @@ const PlansPage = ({ onNavigate }) => {
         </div>
         <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 6, background: '#D4A853', color: '#0D0C0A', border: 'none', cursor: 'pointer' }}
           onMouseEnter={e => e.currentTarget.style.background = '#E8C47A'}
-          onMouseLeave={e => e.currentTarget.style.background = '#D4A853'}>
+          onMouseLeave={e => e.currentTarget.style.background = '#D4A853'}
+          onClick={() => onNavigate('new-plan')}>
           + New Plan
         </button>
       </div>
@@ -52,14 +50,10 @@ const PlansPage = ({ onNavigate }) => {
   );
 };
 
-// Plan detail — reading view
+// Plan detail — reading view with dynamic sections from plan data
 const PlanDetailPage = ({ plan, onNavigate }) => {
-  const sections = [
-    { title: 'Executive Summary', content: 'A simple, powerful invoicing tool for freelancers. Generate professional invoices, accept Stripe payments, and track outstanding balances — all in one place. Target MRR: $10K within 12 months of full launch.' },
-    { title: 'Problem & Market', content: 'Freelancers spend ~3 hours/month on invoicing using Google Docs or generic tools. 59M Americans freelance; 28% earn over $75K/year. No tool nails the UX for solo operators.' },
-    { title: 'Solution', content: 'A focused web app: create invoice in 60 seconds, send via email, accept card payment via Stripe. No bloat. Mobile-friendly. Client portal for payment status.' },
-    { title: 'Revenue Model', content: '$9/month subscription. Free tier: 3 invoices/month. Paid: unlimited. Annual plan at $80/year. Target: 1,200 paying users by end of 2026.' },
-  ];
+  const resolvedPlan = plan || window.AppData.plans[0];
+  const sections = resolvedPlan.sections || [];
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '32px 48px', background: '#0D0C0A', maxWidth: 760 }}>
@@ -69,10 +63,10 @@ const PlanDetailPage = ({ plan, onNavigate }) => {
       </button>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: '#6A6055', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Business Plan</div>
       <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 600, color: '#F2EDE0', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>
-        {plan ? plan.title : 'Freelance Invoice Tool — Business Plan'}
+        {resolvedPlan.title}
       </div>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: '#6A6055', marginBottom: 32 }}>
-        Updated Mar 30, 2026 · 6 sections · <span style={{ color: '#6BAF8A' }}>Active</span>
+        Updated {resolvedPlan.updated} · {resolvedPlan.sectionCount} sections · <span style={{ color: '#6BAF8A' }}>{resolvedPlan.status.charAt(0).toUpperCase() + resolvedPlan.status.slice(1)}</span>
       </div>
       {sections.map((sec, i) => (
         <div key={i} style={{ marginBottom: 32, paddingBottom: 32, borderBottom: i < sections.length - 1 ? '1px solid #2E2B23' : 'none' }}>
