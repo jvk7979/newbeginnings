@@ -1,14 +1,7 @@
 // Dashboard.jsx — Main dashboard screen
 const Dashboard = ({ onNavigate }) => {
-  const ideas = [
-    { id: 1, title: 'AI-Powered Meal Planner', status: 'draft', date: 'Apr 25, 2026', tags: ['SaaS', 'B2C', 'Early Stage'], desc: 'Personalized weekly meal plans from pantry inventory and dietary goals. Integrates with grocery delivery APIs.' },
-    { id: 2, title: 'Freelance Contract Generator', status: 'validating', date: 'Mar 18, 2026', tags: ['B2B', 'Legal-Tech'], desc: 'Auto-generate client contracts from a simple form. Export to PDF. Stripe payment for templates.' },
-    { id: 3, title: 'Local Event Newsletter', status: 'archived', date: 'Jan 5, 2026', tags: ['Media', 'Newsletter'], desc: 'Curated weekly digest of local events via email. Abandoned — market too fragmented.' },
-  ];
-  const projects = [
-    { id: 1, title: 'Freelance Invoice Tool', status: 'active', date: 'Updated Mar 12, 2026', desc: 'MVP shipped Feb 2026. Stripe-integrated. 47 paying users.', kpis: [{ value: '$3.2K', label: 'MRR' }, { value: '47', label: 'Users' }, { value: '↑ 18%', label: 'Growth' }] },
-    { id: 2, title: 'Portfolio Site Redesign', status: 'progress', date: 'Updated Apr 20, 2026', desc: 'Redesigning personal site with Astro. New case studies section in progress.', kpis: null },
-  ];
+  const ideas = window.AppData.ideas.slice(0, 3);
+  const projects = window.AppData.projects;
 
   const s = {
     wrap: { flex: 1, overflowY: 'auto', padding: '32px 36px', background: '#0D0C0A' },
@@ -33,12 +26,15 @@ const Dashboard = ({ onNavigate }) => {
     statLabel: { fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: '#6A6055', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4 },
   };
 
+  const activeProjects = projects.filter(p => p.status === 'active').length;
+  const mrr = projects.flatMap(p => p.kpis || []).find(k => k.label === 'MRR')?.value || '$0';
+
   return (
     <div style={s.wrap}>
       <div style={s.header}>
         <div>
           <div style={s.title}>Good afternoon.</div>
-          <div style={s.subtitle}>Apr 25, 2026 · 2 active projects · 3 ideas tracked</div>
+          <div style={s.subtitle}>Apr 25, 2026 · {activeProjects} active project{activeProjects !== 1 ? 's' : ''} · {window.AppData.ideas.length} ideas tracked</div>
         </div>
         <button style={s.btn}
           onMouseEnter={e => e.currentTarget.style.background = '#E8C47A'}
@@ -52,10 +48,10 @@ const Dashboard = ({ onNavigate }) => {
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 32 }}>
         {[
-          { val: '6', label: 'Total Ideas' },
-          { val: '2', label: 'Active Projects' },
-          { val: '$3.2K', label: 'MRR (All)' },
-          { val: '1', label: 'Business Plans' },
+          { val: String(window.AppData.ideas.length), label: 'Total Ideas' },
+          { val: String(projects.length), label: 'Active Projects' },
+          { val: mrr, label: 'MRR (All)' },
+          { val: String(window.AppData.plans.length), label: 'Business Plans' },
         ].map(s2 => (
           <div key={s2.label} style={s.statCard}>
             <div style={s.statVal}>{s2.val}</div>
