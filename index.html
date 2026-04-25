@@ -209,6 +209,22 @@ document.addEventListener('DOMContentLoaded', async function() {
       };
 
       window.__openNewProjectModal = openModal;
+
+      const bindNewProjectButtons = () => {
+        document.querySelectorAll('button').forEach((btn) => {
+          const label = (btn.textContent || '').trim();
+          if (label !== '+ New Project' || btn.dataset.newProjectBound === '1') return;
+          btn.dataset.newProjectBound = '1';
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+          });
+        });
+      };
+
+      bindNewProjectButtons();
+      const observer = new MutationObserver(bindNewProjectButtons);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
     };
 
     let template = applyTemplateHotfixes(parseBundlerTemplate(templateEl.textContent));
