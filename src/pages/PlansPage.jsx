@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { C } from '../tokens';
-import { plans } from '../data/AppData';
+import { useAppData } from '../context/AppContext';
 import Badge from '../components/Badge';
 
 function PlanCard({ plan, onNavigate }) {
@@ -20,6 +20,7 @@ function PlanCard({ plan, onNavigate }) {
 }
 
 export default function PlansPage({ onNavigate }) {
+  const { plans } = useAppData();
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', background: C.bg0 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>

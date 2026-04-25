@@ -1,7 +1,8 @@
 import { C } from '../tokens';
-import { plans } from '../data/AppData';
+import { useAppData } from '../context/AppContext';
 
 export default function PlanDetailPage({ plan, onNavigate }) {
+  const { plans } = useAppData();
   const resolved = plan || plans[0];
   const sections = resolved.sections || [];
 

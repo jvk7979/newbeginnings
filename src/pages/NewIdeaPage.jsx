@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { C } from '../tokens';
-import { addIdea } from '../data/AppData';
+import { useAppData } from '../context/AppContext';
 
 const loadPdfJs = () => new Promise((resolve, reject) => {
   if (window.pdfjsLib) { resolve(); return; }
@@ -15,6 +15,7 @@ const loadPdfJs = () => new Promise((resolve, reject) => {
 });
 
 export default function NewIdeaPage({ onNavigate }) {
+  const { addIdea } = useAppData();
   const [form, setForm] = useState({ title: '', status: 'draft', tags: '', desc: '' });
   const [error, setError] = useState('');
   const [pdfState, setPdfState] = useState({ loading: false, error: '' });
@@ -102,6 +103,7 @@ export default function NewIdeaPage({ onNavigate }) {
             <option value="draft">Draft</option>
             <option value="validating">Validating</option>
             <option value="active">Active</option>
+            <option value="archived">Archived</option>
           </select>
         </div>
         <div>
