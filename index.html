@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>The New Beginning — Rajahmundry Ventures</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,10 +10,6 @@
     #__bundler_thumbnail { position: fixed; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #faf9f5; z-index: 9999; }
     #__bundler_thumbnail svg { width: 100%; height: 100%; object-fit: contain; }
     #__bundler_placeholder { color: #999; font-size: 14px; }
-    @media (max-width: 768px) {
-      #__bundler_loading { bottom: 12px; right: 12px; font-size: 12px; padding: 6px 10px; }
-      #__bundler_thumbnail svg { max-width: 92vw; max-height: 92vh; }
-    }
   </style>
   <noscript>
     <style>#__bundler_loading { display: none; }</style>
@@ -64,166 +59,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     const manifest = JSON.parse(manifestEl.textContent);
-
-    const parseBundlerTemplate = (rawTemplate) => {
-      try {
-        return JSON.parse(rawTemplate);
-      } catch (err) {
-        const cleaned = (rawTemplate || '').trim().replace(/^﻿/, '');
-        return JSON.parse(cleaned);
-      }
-    };
-
-    const applyTemplateHotfixes = (templateHtml) => {
-      let hotfixed = templateHtml;
-      // Make dashboard cards always navigate to Projects instead of unresolved detail routes.
-      hotfixed = hotfixed.replaceAll("onClick={() => onNavigate('project-detail', p)}", "onClick={() => onNavigate('projects')}");
-      hotfixed = hotfixed.replaceAll("onClick={() => {}}", "onClick={() => onNavigate('projects')}");
-
-      // Mobile layout fixes: narrower left rail + stacked content grids.
-      hotfixed = hotfixed.replace(
-        "<div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>",
-        "<div style={{ display: 'flex', height: '100dvh', minHeight: '100vh', overflow: 'hidden' }}>"
-      );
-      hotfixed = hotfixed.replace(
-        "<div style={{ width: 220, background: C.bg2, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>",
-        "<div style={{ width: window.innerWidth <= 768 ? 74 : 220, background: C.bg2, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>",
-      );
-      hotfixed = hotfixed.replace(
-        "{item.icon}{item.label}",
-        "{item.icon}{window.innerWidth <= 768 ? null : item.label}",
-      );
-      hotfixed = hotfixed.replaceAll("gridTemplateColumns: 'repeat(4,1fr)'", "gridTemplateColumns: window.innerWidth <= 768 ? '1fr 1fr' : 'repeat(4,1fr)'");
-      hotfixed = hotfixed.replaceAll("gridTemplateColumns: '1fr 1fr 1fr'", "gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr 1fr'");
-      hotfixed = hotfixed.replaceAll("gridTemplateColumns: '1fr 1fr'", "gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr'");
-      hotfixed = hotfixed.replaceAll("gridTemplateColumns: '340px 1fr'", "gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : '340px 1fr'");
-      hotfixed = hotfixed.replaceAll("padding: '32px 36px'", "padding: window.innerWidth <= 768 ? '20px 14px' : '32px 36px'");
-      hotfixed = hotfixed.replaceAll("padding: '32px 48px'", "padding: window.innerWidth <= 768 ? '20px 14px' : '32px 48px'");
-      hotfixed = hotfixed.replace(
-        "onMouseLeave={e => e.currentTarget.style.background = C.accent}>+ New Project</button>",
-        "onMouseLeave={e => e.currentTarget.style.background = C.accent} onClick={() => window.__openNewProjectModal && window.__openNewProjectModal()}>+ New Project</button>"
-      );
-
-      return hotfixed;
-    };
-
-    const ensurePdfJs = (() => {
-      let pdfJsPromise = null;
-      return () => {
-        if (window.pdfjsLib && window.pdfjsLib.getDocument) return Promise.resolve(window.pdfjsLib);
-        if (pdfJsPromise) return pdfJsPromise;
-        pdfJsPromise = new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.mjs';
-          script.type = 'module';
-          script.onload = async () => {
-            try {
-              if (!window.pdfjsLib || !window.pdfjsLib.getDocument) {
-                const mod = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.mjs');
-                window.pdfjsLib = mod;
-              }
-              window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.worker.min.mjs';
-              resolve(window.pdfjsLib);
-            } catch (err) {
-              reject(err);
-            }
-          };
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-        return pdfJsPromise;
-      };
-    })();
-
-    const extractPdfText = async (file) => {
-      const pdfjsLib = await ensurePdfJs();
-      const buffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-      const chunks = [];
-      for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
-        const page = await pdf.getPage(pageNo);
-        const content = await page.getTextContent();
-        chunks.push(content.items.map(i => i.str).join(' '));
-      }
-      return chunks.join('\n').replace(/\s+\n/g, '\n').trim();
-    };
-
-    const setupProjectsPdfUpload = () => {
-      const modalId = '__new_project_modal';
-      const fileId = '__new_project_pdf_input';
-
-      const injectProjectCard = (title, text) => {
-        const grid = Array.from(document.querySelectorAll('div')).find((el) => {
-          const s = el.getAttribute('style') || '';
-          return s.includes('grid-template-columns: 1fr 1fr') && s.includes('gap: 12px');
-        });
-        if (!grid) return false;
-        const card = document.createElement('div');
-        card.style.cssText = 'background:#fff;border:1px solid #E9E4D9;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;';
-        card.innerHTML =
-          '<div style="font:600 16px/1.3 \'DM Sans\',sans-serif;color:#1f1f1f;">' + title + '</div>' +
-          '<div style="font:12px/1.4 \'DM Sans\',sans-serif;color:#6b6b6b;">Status: Draft · Source: Uploaded PDF</div>' +
-          '<div style="font:13px/1.5 \'DM Sans\',sans-serif;color:#3d3d3d;">' + (text.slice(0, 180) || 'PDF parsed successfully.') + (text.length > 180 ? '…' : '') + '</div>';
-        grid.prepend(card);
-        return true;
-      };
-
-      const openModal = () => {
-        let modal = document.getElementById(modalId);
-        if (!modal) {
-          modal = document.createElement('div');
-          modal.id = modalId;
-          modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,20,20,0.45);display:flex;align-items:center;justify-content:center;z-index:100000;';
-          modal.innerHTML = '<div style="width:min(560px,92vw);background:#fff;border-radius:12px;padding:20px;border:1px solid #E9E4D9;box-shadow:0 14px 40px rgba(0,0,0,0.22)">' +
-            '<div style="font:700 22px/1.2 \'Playfair Display\',serif;color:#1f1f1f;margin-bottom:8px;">New Project</div>' +
-            '<div style="font:14px/1.5 \'DM Sans\',sans-serif;color:#666;margin-bottom:14px;">Upload a PDF feasibility or project note. We will extract text and create a project card.</div>' +
-            '<input id="' + fileId + '" type="file" accept="application/pdf" style="display:block;width:100%;font:13px \'DM Sans\',sans-serif;margin-bottom:14px;" />' +
-            '<div id="__new_project_status" style="min-height:20px;font:12px/1.4 \'JetBrains Mono\',monospace;color:#6b6b6b;margin-bottom:14px;"></div>' +
-            '<div style="display:flex;justify-content:flex-end;gap:8px;">' +
-            '<button id="__new_project_cancel" style="padding:8px 12px;border:1px solid #E9E4D9;background:#fff;border-radius:6px;cursor:pointer;">Cancel</button>' +
-            '<button id="__new_project_create" style="padding:8px 14px;border:none;background:#B8892A;color:#fff;border-radius:6px;cursor:pointer;">Create Project</button>' +
-            '</div></div>';
-          document.body.appendChild(modal);
-          modal.querySelector('#__new_project_cancel').onclick = () => modal.remove();
-          modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-          modal.querySelector('#__new_project_create').onclick = async () => {
-            const status = modal.querySelector('#__new_project_status');
-            const file = modal.querySelector('#' + fileId).files[0];
-            if (!file) {
-              status.textContent = 'Please choose a PDF file first.';
-              return;
-            }
-            try {
-              status.textContent = 'Extracting text from PDF...';
-              const extracted = await extractPdfText(file);
-              const firstLine = (extracted.split('\n').find(Boolean) || file.name.replace(/\.pdf$/i, '')).slice(0, 80);
-              const created = injectProjectCard(firstLine, extracted);
-              status.textContent = created ? 'Project created successfully.' : 'PDF parsed, but projects grid was not found.';
-              if (created) setTimeout(() => modal.remove(), 400);
-            } catch (err) {
-              console.error('PDF extraction failed', err);
-              status.textContent = 'Could not read this PDF. Try a text-based PDF file.';
-            }
-          };
-        }
-      };
-
-      window.__openNewProjectModal = openModal;
-
-      if (!window.__newProjectDelegatedClickBound) {
-        window.__newProjectDelegatedClickBound = true;
-        document.addEventListener('click', (e) => {
-          const trigger = e.target && e.target.closest ? e.target.closest('button,[role="button"]') : null;
-          if (!trigger) return;
-          const label = (trigger.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
-          if (!label.includes('new project')) return;
-          e.preventDefault();
-          openModal();
-        }, true);
-      }
-    };
-
-    let template = applyTemplateHotfixes(parseBundlerTemplate(templateEl.textContent));
+    let template = JSON.parse(templateEl.textContent);
 
     const uuids = Object.keys(manifest);
     setStatus('Unpacking ' + uuids.length + ' assets...');
@@ -277,19 +113,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     setStatus('Rendering...');
     for (const uuid of uuids) template = template.split(uuid).join(blobUrls[uuid]);
 
-    // Ensure unpacked page is mobile/browser responsive even if source omitted viewport/base rules.
-    const hasViewport = /<meta[^>]*name=["']viewport["']/i.test(template);
-    const hasResponsiveStyle = /id=["']__bundler_responsive["']/i.test(template);
-    if (!hasViewport || !hasResponsiveStyle) {
-      const headOpen = template.match(/<head[^>]*>/i);
-      if (headOpen) {
-        const i = headOpen.index + headOpen[0].length;
-        const inject = (hasViewport ? '' : '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">') +
-          (hasResponsiveStyle ? '' : '<style id="__bundler_responsive">html,body,#root{width:100%;max-width:100%;margin:0;overflow-x:hidden;}*{max-width:100%;}@media (max-width:768px){body{font-size:14px;}}</style>');
-        template = template.slice(0, i) + inject + template.slice(i);
-      }
-    }
-
     // Strip integrity + crossorigin — blob URLs from a file:// document inherit
     // a null origin, so crossorigin forces a CORS fetch that SRI then rejects.
     // The manifest bytes are ours; SRI protects against CDN compromise, not this.
@@ -315,7 +138,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     // preserve ordering (React before ReactDOM before Babel before text/babel).
     const doc = new DOMParser().parseFromString(template, 'text/html');
     document.documentElement.replaceWith(doc.documentElement);
-    setupProjectsPdfUpload();
     const dead = Array.from(document.scripts);
     for (const old of dead) {
       const s = document.createElement('script');
@@ -340,10 +162,8 @@ document.addEventListener('DOMContentLoaded', async function() {
       window.Babel.transformScriptTags();
     }
   } catch (err) {
-    setStatus('Loaded fallback mode.');
+    setStatus('Error unpacking: ' + err.message);
     console.error('Bundle unpack error:', err);
-    try { setupProjectsPdfUpload(); } catch (_) {}
-    // Avoid browser toast loops in constrained in-app browsers (e.g. mobile webviews).
   }
 });
 
