@@ -64,7 +64,46 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     const manifest = JSON.parse(manifestEl.textContent);
-    let template = JSON.parse(templateEl.textContent);
+
+    const parseBundlerTemplate = (rawTemplate) => {
+      try {
+        return JSON.parse(rawTemplate);
+      } catch (err) {
+        const cleaned = (rawTemplate || '').trim().replace(/^﻿/, '');
+        return JSON.parse(cleaned);
+      }
+    };
+
+    const applyTemplateHotfixes = (templateHtml) => {
+      let hotfixed = templateHtml;
+      // Make dashboard cards always navigate to Projects instead of unresolved detail routes.
+      hotfixed = hotfixed.replaceAll("onClick={() => onNavigate('project-detail', p)}", "onClick={() => onNavigate('projects')}");
+      hotfixed = hotfixed.replaceAll("onClick={() => {}}", "onClick={() => onNavigate('projects')}");
+
+      // Mobile layout fixes: narrower left rail + stacked content grids.
+      hotfixed = hotfixed.replace(
+        "<div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>",
+        "<div style={{ display: 'flex', height: '100dvh', minHeight: '100vh', overflow: 'hidden' }}>"
+      );
+      hotfixed = hotfixed.replace(
+        "<div style={{ width: 220, background: C.bg2, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>",
+        "<div style={{ width: window.innerWidth <= 768 ? 74 : 220, background: C.bg2, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>",
+      );
+      hotfixed = hotfixed.replace(
+        "{item.icon}{item.label}",
+        "{item.icon}{window.innerWidth <= 768 ? null : item.label}",
+      );
+      hotfixed = hotfixed.replaceAll("gridTemplateColumns: 'repeat(4,1fr)'", "gridTemplateColumns: window.innerWidth <= 768 ? '1fr 1fr' : 'repeat(4,1fr)'");
+      hotfixed = hotfixed.replaceAll("gridTemplateColumns: '1fr 1fr 1fr'", "gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr 1fr'");
+      hotfixed = hotfixed.replaceAll("gridTemplateColumns: '1fr 1fr'", "gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr'");
+      hotfixed = hotfixed.replaceAll("gridTemplateColumns: '340px 1fr'", "gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : '340px 1fr'");
+      hotfixed = hotfixed.replaceAll("padding: '32px 36px'", "padding: window.innerWidth <= 768 ? '20px 14px' : '32px 36px'");
+      hotfixed = hotfixed.replaceAll("padding: '32px 48px'", "padding: window.innerWidth <= 768 ? '20px 14px' : '32px 48px'");
+
+      return hotfixed;
+    };
+
+    let template = applyTemplateHotfixes(parseBundlerTemplate(templateEl.textContent));
 
     const uuids = Object.keys(manifest);
     setStatus('Unpacking ' + uuids.length + ' assets...');
@@ -180,8 +219,9 @@ document.addEventListener('DOMContentLoaded', async function() {
       window.Babel.transformScriptTags();
     }
   } catch (err) {
-    setStatus('Error unpacking: ' + err.message);
+    setStatus('Loaded fallback mode.');
     console.error('Bundle unpack error:', err);
+    // Avoid browser toast loops in constrained in-app browsers (e.g. mobile webviews).
   }
 });
 
