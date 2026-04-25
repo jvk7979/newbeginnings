@@ -205,10 +205,10 @@ document.addEventListener('DOMContentLoaded', async function() {
               status.textContent = 'Could not read this PDF. Try a text-based PDF file.';
             }
           };
-        }
-      };
+      }
+    };
 
-      window.__openNewProjectModal = openModal;
+    window.__openNewProjectModal = openModal;
 
       if (!window.__newProjectDelegatedClickBound) {
         window.__newProjectDelegatedClickBound = true;
@@ -221,6 +221,102 @@ document.addEventListener('DOMContentLoaded', async function() {
           openModal();
         }, true);
       }
+    };
+
+    const setupIdeasEditing = () => {
+      const state = {
+        editingCard: null,
+      };
+
+      const styleEditButton = (btn) => {
+        btn.style.cssText = 'padding:4px 10px;border:1px solid #D4C8AF;background:#fff;color:#8A6A24;border-radius:999px;cursor:pointer;font:600 11px/1.2 "DM Sans",sans-serif;';
+      };
+
+      const findIdeaCards = () => {
+        const ideaHeading = Array.from(document.querySelectorAll('div,span,h1,h2,h3,h4,h5')).find((el) => {
+          const t = (el.textContent || '').trim().toLowerCase();
+          return t === 'ideas';
+        });
+        if (!ideaHeading) return [];
+        const sectionRoot = ideaHeading.closest('div');
+        if (!sectionRoot) return [];
+        return Array.from(sectionRoot.querySelectorAll('div')).filter((el) => {
+          if (!el.firstElementChild || !el.lastElementChild || el === sectionRoot) return false;
+          const s = el.getAttribute('style') || '';
+          return s.includes('border') && s.includes('padding') && el.textContent.length > 30;
+        });
+      };
+
+      const closeEditor = () => {
+        if (!state.editingCard) return;
+        const editor = state.editingCard.querySelector('[data-idea-editor="true"]');
+        if (editor) editor.remove();
+        state.editingCard = null;
+      };
+
+      const openEditor = (card) => {
+        closeEditor();
+        state.editingCard = card;
+        const textNode = Array.from(card.querySelectorAll('div,span,p')).find((el) => {
+          const style = (el.getAttribute('style') || '').toLowerCase();
+          const text = (el.textContent || '').trim();
+          return text.length > 20 && style.includes('line-height');
+        }) || card.lastElementChild;
+        if (!textNode) return;
+        const original = textNode.textContent || '';
+
+        const wrap = document.createElement('div');
+        wrap.setAttribute('data-idea-editor', 'true');
+        wrap.style.cssText = 'margin-top:10px;display:flex;flex-direction:column;gap:8px;';
+        wrap.innerHTML =
+          '<textarea style="width:100%;min-height:96px;resize:vertical;border:1px solid #D9D2C4;border-radius:8px;padding:10px 12px;font:13px/1.5 \'DM Sans\',sans-serif;color:#2e2e2e;">' +
+          original.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') +
+          '</textarea>' +
+          '<div style="display:flex;justify-content:flex-end;gap:8px;">' +
+          '<button data-idea-cancel="true" style="padding:6px 10px;border:1px solid #E9E4D9;background:#fff;border-radius:6px;cursor:pointer;font:500 12px \'DM Sans\',sans-serif;">Cancel</button>' +
+          '<button data-idea-save="true" style="padding:6px 12px;border:none;background:#B8892A;color:#fff;border-radius:6px;cursor:pointer;font:600 12px \'DM Sans\',sans-serif;">Save</button>' +
+          '</div>';
+
+        card.appendChild(wrap);
+
+        const textarea = wrap.querySelector('textarea');
+        const save = wrap.querySelector('[data-idea-save="true"]');
+        const cancel = wrap.querySelector('[data-idea-cancel="true"]');
+        if (textarea) textarea.focus();
+        if (save) {
+          save.onclick = () => {
+            textNode.textContent = (textarea.value || '').trim() || original;
+            closeEditor();
+          };
+        }
+        if (cancel) cancel.onclick = closeEditor;
+      };
+
+      const ensureEditButtons = () => {
+        const cards = findIdeaCards();
+        cards.forEach((card) => {
+          if (card.querySelector('[data-idea-edit="true"]')) return;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.setAttribute('data-idea-edit', 'true');
+          btn.textContent = 'Edit';
+          styleEditButton(btn);
+          btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openEditor(card);
+          };
+          card.appendChild(btn);
+        });
+      };
+
+      ensureEditButtons();
+      const observer = new MutationObserver(() => ensureEditButtons());
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeEditor();
+      });
     };
 
     let template = applyTemplateHotfixes(parseBundlerTemplate(templateEl.textContent));
@@ -316,6 +412,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const doc = new DOMParser().parseFromString(template, 'text/html');
     document.documentElement.replaceWith(doc.documentElement);
     setupProjectsPdfUpload();
+    setupIdeasEditing();
     const dead = Array.from(document.scripts);
     for (const old of dead) {
       const s = document.createElement('script');
@@ -343,6 +440,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     setStatus('Loaded fallback mode.');
     console.error('Bundle unpack error:', err);
     try { setupProjectsPdfUpload(); } catch (_) {}
+    try { setupIdeasEditing(); } catch (_) {}
     // Avoid browser toast loops in constrained in-app browsers (e.g. mobile webviews).
   }
 });
