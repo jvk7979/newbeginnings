@@ -1,5 +1,5 @@
 import { C } from '../tokens';
-import { ideas, projects, plans } from '../data/AppData';
+import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
 import ProjectCard from '../components/ProjectCard';
 
@@ -7,6 +7,7 @@ const btnStyle = { display: 'inline-flex', alignItems: 'center', gap: 6, fontFam
 const statCard = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 20px' };
 
 export default function Dashboard({ onNavigate }) {
+  const { ideas, projects, plans } = useAppData();
   const recentIdeas = ideas.slice(0, 3);
   const activeProjects = projects.filter(p => p.status === 'active' || p.status === 'progress');
 
@@ -24,10 +25,10 @@ export default function Dashboard({ onNavigate }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 32 }}>
         {[
-          { val: String(ideas.length),   label: 'Total Ideas' },
-          { val: String(ideas.filter(i => i.status === 'validating').length), label: 'In Evaluation' },
-          { val: String(projects.length), label: 'Active Projects' },
-          { val: String(plans.length),   label: 'Business Plans' },
+          { val: String(ideas.length),                                                           label: 'Total Ideas' },
+          { val: String(ideas.filter(i => i.status === 'validating').length),                    label: 'In Evaluation' },
+          { val: String(activeProjects.length),                                                  label: 'Active Projects' },
+          { val: String(plans.length),                                                           label: 'Business Plans' },
         ].map(s => (
           <div key={s.label} style={statCard}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 500, color: C.accent }}>{s.val}</div>

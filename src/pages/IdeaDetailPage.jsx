@@ -1,13 +1,22 @@
 import { useState } from 'react';
 import { C } from '../tokens';
 import Tag from '../components/Tag';
+import { useAppData } from '../context/AppContext';
 
 const STATUS_OPTIONS = ['draft', 'validating', 'active', 'archived'];
 
 export default function IdeaDetailPage({ idea, onNavigate }) {
+  const { updateIdea } = useAppData();
   const i = idea || { title: 'Integrated Coconut Processing Plant', status: 'validating', date: 'Apr 20, 2026', tags: ['Manufacturing'], desc: '' };
   const [status, setStatus] = useState(i.status);
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(i.notes || '');
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    if (i.id) updateIdea(i.id, { status, notes });
+    setSaved(true);
+    setTimeout(() => { setSaved(false); onNavigate('ideas'); }, 800);
+  };
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '32px 48px', background: C.bg0 }}>
@@ -38,11 +47,11 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
           onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; }}
           onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }} />
       </div>
-      <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
-        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-          onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-          onMouseLeave={e => e.currentTarget.style.background = C.accent}
-          onClick={() => onNavigate('ideas')}>Save Changes</button>
+      <div style={{ marginTop: 20, display: 'flex', gap: 10, alignItems: 'center' }}>
+        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: saved ? C.success : C.accent, color: '#fff', border: 'none', cursor: 'pointer', transition: 'background 200ms' }}
+          onMouseEnter={e => { if (!saved) e.currentTarget.style.background = C.accentDim; }}
+          onMouseLeave={e => { if (!saved) e.currentTarget.style.background = C.accent; }}
+          onClick={handleSave}>{saved ? 'Saved!' : 'Save Changes'}</button>
         <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '8px 18px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
           onClick={() => onNavigate('ideas')}>Discard</button>
       </div>
