@@ -1,14 +1,17 @@
-// Shared UI primitives
-const Badge = ({ status }) => {
+import { useState } from 'react';
+
+export const Badge = ({ status }) => {
   const configs = {
-    active:     { label: 'Active',      bg: '#0F1A14', color: '#6BAF8A', border: '#6BAF8A33' },
-    progress:   { label: 'In Progress', bg: '#1A1208', color: '#E8924A', border: '#E8924A33' },
-    stalled:    { label: 'Stalled',     bg: '#1A0C0C', color: '#C45E5E', border: '#C45E5E33' },
-    draft:      { label: 'Draft',       bg: '#0C1220', color: '#5B8FCC', border: '#5B8FCC33' },
-    validating: { label: 'Validating',  bg: '#1E1A0F', color: '#D4A853', border: '#D4A85333' },
-    archived:   { label: 'Archived',    bg: '#22201A', color: '#6A6055', border: '#2E2B23' },
+    active: { label: 'Active', bg: '#0F1A14', color: '#6BAF8A', border: '#6BAF8A33' },
+    progress: { label: 'In Progress', bg: '#1A1208', color: '#E8924A', border: '#E8924A33' },
+    stalled: { label: 'Stalled', bg: '#1A0C0C', color: '#C45E5E', border: '#C45E5E33' },
+    draft: { label: 'Draft', bg: '#0C1220', color: '#5B8FCC', border: '#5B8FCC33' },
+    validating: { label: 'Validating', bg: '#1E1A0F', color: '#D4A853', border: '#D4A85333' },
+    archived: { label: 'Archived', bg: '#22201A', color: '#6A6055', border: '#2E2B23' },
   };
+
   const c = configs[status] || configs.draft;
+
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -23,7 +26,7 @@ const Badge = ({ status }) => {
   );
 };
 
-const Tag = ({ label, accent }) => (
+export const Tag = ({ label, accent }) => (
   <span style={{
     fontFamily: "'DM Sans', sans-serif", fontSize: '11px',
     padding: '3px 9px', borderRadius: '999px',
@@ -33,8 +36,8 @@ const Tag = ({ label, accent }) => (
   }}>{label}</span>
 );
 
-const IdeaCard = ({ title, date, tags, status, desc, onClick }) => {
-  const [hov, setHov] = React.useState(false);
+export const IdeaCard = ({ title, date, tags, status, desc, onClick }) => {
+  const [hov, setHov] = useState(false);
   return (
     <div onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
@@ -51,22 +54,22 @@ const IdeaCard = ({ title, date, tags, status, desc, onClick }) => {
       </div>
       {desc && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: '#A39888', lineHeight: 1.5, marginBottom: 10 }}>{desc}</div>}
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-        {(tags || []).map(t => <Tag key={t} label={t} />)}
+        {(tags || []).map((t) => <Tag key={t} label={t} />)}
       </div>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#6A6055' }}>{date}</div>
     </div>
   );
 };
 
-const ProjectCard = ({ title, date, status, desc, kpis, onClick }) => {
-  const [hov, setHov] = React.useState(false);
+export const ProjectCard = ({ title, date, status, desc, kpis, onClick }) => {
+  const [hov, setHov] = useState(false);
   return (
     <div onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
         background: '#18160F',
         border: `1px solid ${hov ? '#3E3A30' : '#2E2B23'}`,
         borderRadius: '8px', padding: '18px 20px',
-        cursor: 'pointer',
+        cursor: onClick ? 'pointer' : 'default',
         boxShadow: hov ? '0 4px 16px rgba(0,0,0,0.45)' : '0 1px 3px rgba(0,0,0,0.5)',
         transition: 'all 180ms cubic-bezier(0.16,1,0.3,1)',
       }}>
@@ -77,7 +80,7 @@ const ProjectCard = ({ title, date, status, desc, kpis, onClick }) => {
       {desc && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: '#A39888', lineHeight: 1.5, marginBottom: 12 }}>{desc}</div>}
       {kpis && (
         <div style={{ display: 'flex', gap: 16, borderTop: '1px solid #2E2B23', paddingTop: 12 }}>
-          {kpis.map(k => (
+          {kpis.map((k) => (
             <div key={k.label}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 500, color: '#D4A853' }}>{k.value}</div>
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: '#6A6055', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 2 }}>{k.label}</div>
@@ -89,5 +92,3 @@ const ProjectCard = ({ title, date, status, desc, kpis, onClick }) => {
     </div>
   );
 };
-
-Object.assign(window, { Badge, Tag, IdeaCard, ProjectCard });

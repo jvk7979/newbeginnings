@@ -1,30 +1,33 @@
-# Venture Log — UI Kit
+# Venture Log — React App
 
-A high-fidelity click-through prototype of the Venture Log personal website.
+This project is now organized as a standard React + Vite app with client-side routing.
 
-## Screens
+## Tech stack
 
-- **Dashboard** — overview with stats, recent ideas, active projects
-- **Ideas** — filterable list of all business ideas
-- **New Idea** — capture form with title, stage, tags, description
-- **Idea Detail** — view + edit an idea with notes
-- **Projects** — list of active and archived projects with KPIs
-- **Business Plans** — long-form document list
-- **Plan Detail** — reading view of a business plan
+- React 18
+- React Router DOM 6
+- Vite 5
 
-## Components
+## Project structure
 
-| File | Contents |
-|---|---|
-| `Sidebar.jsx` | Fixed left navigation with logo, nav items, settings |
-| `Cards.jsx` | `Badge`, `Tag`, `IdeaCard`, `ProjectCard` |
-| `Dashboard.jsx` | Main dashboard screen |
-| `IdeasPage.jsx` | Ideas list + filter + new idea form |
-| `PlansPage.jsx` | Business plans list + reading view |
-| `index.html` | App shell — wires all screens together |
+- `src/main.jsx` — app bootstrap + router provider
+- `src/App.jsx` — top-level layout and route table
+- `src/components/` — reusable UI components (`Sidebar`, `Cards`)
+- `src/pages/` — route pages (`Dashboard`, `Ideas`, `Projects`, `Plans`)
+- `src/styles.css` — global styles and resets
 
-## Design Tokens
+## Scripts
 
-All color and type tokens live in `../../colors_and_type.css`.
-Fonts: Playfair Display (display), DM Sans (body), JetBrains Mono (mono).
-Accent: `#D4A853` amber gold. Background: `#0D0C0A` warm near-black.
+- `npm install` — install dependencies
+- `npm run dev` — run locally
+- `npm run build` — production build
+- `npm run preview` — preview production build
+
+## Routes
+
+- `/` Dashboard
+- `/ideas` Ideas list
+- `/ideas/new` New idea form
+- `/projects` Projects list
+- `/plans` Plans list
+- `/plans/:planId` Plan details
