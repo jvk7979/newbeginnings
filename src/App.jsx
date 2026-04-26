@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { C } from './tokens';
 import { useAuth } from './context/AuthContext';
 import { useAppData } from './context/AppContext';
-import Sidebar from './components/Sidebar';
-import BottomNav from './components/BottomNav';
+import TopNav from './components/TopNav';
 import SignInPage from './pages/SignInPage';
 import Dashboard from './pages/Dashboard';
 import IdeasPage from './pages/IdeasPage';
@@ -58,14 +57,6 @@ export default function App() {
 
   const [page,    setPage]    = useState(() => parseHash().page);
   const [itemId,  setItemId]  = useState(() => parseHash().itemId);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -81,7 +72,6 @@ export default function App() {
     setPage(dest); setItemId(id);
     const newHash = id ? `#/${dest}/${id}` : `#/${dest}`;
     if (window.location.hash !== newHash) window.location.hash = newHash;
-    if (isMobile) setSidebarOpen(false);
   };
 
   if (authLoading) return <Spinner />;
@@ -113,19 +103,11 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      {!isMobile && <Sidebar currentPage={page} onNavigate={navigate} isMobile={false} isOpen={true} onClose={() => {}} />}
-      {isMobile && sidebarOpen && <Sidebar currentPage={page} onNavigate={navigate} isMobile={true} isOpen={true} onClose={() => setSidebarOpen(false)} />}
-      {isMobile && !sidebarOpen && (
-        <button onClick={() => setSidebarOpen(true)} aria-label="Open menu"
-          style={{ position: 'fixed', top: 12, left: 12, zIndex: 50, width: 36, height: 36, borderRadius: 6, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke={C.fg2} strokeWidth="1.5" strokeLinecap="round" width="18" height="18">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-      )}
-      {renderPage()}
-      {isMobile && <BottomNav currentPage={page} onNavigate={navigate} />}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      <TopNav currentPage={page} onNavigate={navigate} />
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+        {renderPage()}
+      </div>
     </div>
   );
 }

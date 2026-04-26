@@ -1,5 +1,10 @@
 /* Responsive layout — colors/fonts stay in inline styles */
 
+/* TopNav visibility helpers */
+.hide-on-mobile { display: flex; }
+.hide-on-desktop { display: none; }
+.show-on-desktop { display: flex !important; }
+
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -73,8 +78,12 @@
 }
 
 @media (max-width: 768px) {
+  .hide-on-mobile { display: none !important; }
+  .hide-on-desktop { display: flex !important; }
+  .show-on-desktop { display: none !important; }
+
   .page-pad {
-    padding: 60px 16px 80px; /* top: clear hamburger, bottom: clear nav bar */
+    padding: 24px 16px 32px;
   }
   .grid-4 {
     grid-template-columns: 1fr 1fr;
