@@ -14,9 +14,9 @@ export default function Dashboard({ onNavigate }) {
     <div className="page-pad" style={{ background: C.bg0 }}>
 
       {/* Hero */}
-      <div className="hero-bleed" style={{ position: 'relative', background: '#1a1612' }}>
+      <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015' }}>
         <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', maxHeight: 'clamp(320px, 60vh, 540px)', objectFit: 'contain', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.85) 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.60) 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,4vw,42px)', fontWeight: 700, fontStyle: 'italic', color: '#D4A853', lineHeight: 1.15, marginBottom: 6, textShadow: '0 2px 16px rgba(0,0,0,0.6)', letterSpacing: '-0.01em' }}>The New Beginnings</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(13px,2vw,17px)', color: 'rgba(255,255,255,0.92)', marginBottom: 20, letterSpacing: '0.06em', fontWeight: 300, fontStyle: 'italic' }}>A Fresh Start. Endless Possibilities.</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

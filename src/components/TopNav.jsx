@@ -115,25 +115,21 @@ export default function TopNav({ currentPage, onNavigate }) {
 
   return (
     <>
-      <header style={{ height: 62, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 16, flexShrink: 0, position: 'relative', zIndex: 100 }}>
+      <header style={{ height: 70, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 16, flexShrink: 0, position: 'relative', zIndex: 100 }}>
 
         {/* Logo */}
         <button
           onClick={() => onNavigate('dashboard')}
-          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 8, cursor: 'pointer', padding: '3px 10px 3px 6px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
+          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10, cursor: 'pointer', padding: '4px 12px 4px 6px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
           aria-label="Go to Home">
-          <img
-            src={logoImg}
-            alt="The New Beginnings"
-            style={{ height: 40, width: 'auto', display: 'block' }}
-          />
-          <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 13, fontWeight: 700, fontStyle: 'italic', color: C.accent, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }} className="hide-on-mobile">
+          <img src={logoImg} alt="The New Beginnings" style={{ height: 52, width: 'auto', display: 'block' }} />
+          <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 14, fontWeight: 700, fontStyle: 'italic', color: C.accent, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }} className="hide-on-mobile">
             The New Beginnings
           </span>
         </button>
 
         {/* Divider */}
-        <div style={{ width: 1, height: 22, background: C.border, flexShrink: 0 }} />
+        <div style={{ width: 1, height: 24, background: C.border, flexShrink: 0 }} />
 
         {/* Desktop nav */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, overflowX: 'auto' }} className="hide-on-mobile" aria-label="Main navigation">
@@ -147,56 +143,58 @@ export default function TopNav({ currentPage, onNavigate }) {
           ))}
         </nav>
 
-        {/* Right: settings + hamburger */}
+        {/* Right: avatar (desktop) + hamburger (mobile) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto', flexShrink: 0 }} ref={settingsRef}>
 
-          {/* Settings gear */}
-          <button onClick={() => setSettingsOpen(o => !o)}
-            style={{ width: 34, height: 34, borderRadius: 6, background: settingsOpen ? C.accentBg : 'transparent', border: `1px solid ${settingsOpen ? C.accent + '44' : C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: settingsOpen ? C.accent : C.fg3, transition: 'all 120ms' }}
-            aria-label="Settings" aria-expanded={settingsOpen}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          {/* User avatar button — desktop */}
+          <button onClick={() => setSettingsOpen(o => !o)} className="hide-on-mobile"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px 5px 6px', borderRadius: 99, background: settingsOpen ? C.accentBg : C.bg1, border: `1px solid ${settingsOpen ? C.accent + '55' : C.border}`, cursor: 'pointer', transition: 'all 140ms' }}
+            aria-label="Account menu" aria-expanded={settingsOpen}>
+            {user?.photoURL
+              ? <img src={user.photoURL} alt="" width={28} height={28} style={{ borderRadius: '50%' }} />
+              : <div style={{ width: 28, height: 28, borderRadius: '50%', background: C.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>
+                  {(user?.displayName || user?.email || '?')[0].toUpperCase()}
+                </div>
+            }
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.displayName?.split(' ')[0] || 'Account'}
+            </span>
+            <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
 
           {/* Mobile hamburger */}
           <button onClick={() => setMobileOpen(o => !o)} className="hide-on-desktop"
-            style={{ width: 34, height: 34, borderRadius: 6, background: 'transparent', border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg2 }}
+            style={{ width: 40, height: 40, borderRadius: 8, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg1 }}
             aria-label="Open menu" aria-expanded={mobileOpen}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="16" height="16">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="18" height="18">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
 
-          {/* Settings dropdown */}
+          {/* Account dropdown */}
           {settingsOpen && (
-            <div style={{ position: 'absolute', top: 66, right: 20, width: 220, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.10)', padding: '8px 6px', zIndex: 200 }}>
+            <div style={{ position: 'absolute', top: 74, right: 20, width: 230, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: '0 6px 24px rgba(0,0,0,0.12)', padding: '6px', zIndex: 200 }}>
               {user && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px 10px' }}>
-                    {user.photoURL
-                      ? <img src={user.photoURL} alt="" width={28} height={28} style={{ borderRadius: '50%', flexShrink: 0 }} />
-                      : <div style={{ width: 28, height: 28, borderRadius: '50%', background: C.accent, flexShrink: 0 }} />
-                    }
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {user.displayName || user.email}
-                    </div>
-                  </div>
-                  <div style={{ height: 1, background: C.border, margin: '0 8px 6px' }} />
-                </>
+                <div style={{ padding: '10px 12px 10px', marginBottom: 4, background: C.bg1, borderRadius: 6 }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1 }}>{user.displayName || 'Account'}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 2 }}>{user.email}</div>
+                </div>
               )}
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.fg3, padding: '2px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Data</div>
+              <div style={{ height: 1, background: C.border, margin: '6px 0' }} />
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '2px 12px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Data</div>
               <button style={dropBtn} onClick={handleExport}
-                onMouseEnter={e => e.currentTarget.style.background = C.bg3}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}>↓ Export backup (JSON)</button>
+                onMouseEnter={e => e.currentTarget.style.background = C.bg2}
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}>↓ Export backup</button>
               <label style={{ ...dropBtn, display: 'block', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = C.bg3}
+                onMouseEnter={e => e.currentTarget.style.background = C.bg2}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-                ↑ Import backup (JSON)
+                ↑ Import backup
                 <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
               </label>
-              <div style={{ height: 1, background: C.border, margin: '6px 8px' }} />
+              <div style={{ height: 1, background: C.border, margin: '6px 0' }} />
               <button style={{ ...dropBtn, color: C.warning }} onClick={handleClearAll}
                 onMouseEnter={e => e.currentTarget.style.background = C.warningBg}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}>Start fresh (clear all)</button>
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}>Clear all data</button>
               <button style={{ ...dropBtn, color: C.danger }} onClick={handleSignOut}
                 onMouseEnter={e => e.currentTarget.style.background = C.dangerBg}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}>Sign out</button>
