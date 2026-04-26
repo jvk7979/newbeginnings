@@ -81,7 +81,7 @@ export function AppProvider({ children }) {
     const u1 = onSnapshot(col(uid, 'ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
     const u2 = onSnapshot(col(uid, 'projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
     const u3 = onSnapshot(col(uid, 'plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
-    const u4 = onSnapshot(col(uid, 'files'),    s => { setFiles(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+    const u4 = onSnapshot(collection(db, 'sharedFiles'), s => { setFiles(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
 
     return () => { u1(); u2(); u3(); u4(); clearTimeout(timeout); };
   }, [user]);
@@ -178,21 +178,23 @@ export function AppProvider({ children }) {
     }
   }, [user]);
 
-  // ── Files ────────────────────────────────────────────────────────────────
+  // ── Shared Files (visible to all authenticated users) ────────────────────
+  const sharedRef = (id) => doc(db, 'sharedFiles', String(id));
+
   const addFile = useCallback(async (file) => {
     if (!user) return;
-    const item = { ...file, id: Date.now(), date: todayStr() };
-    await setDoc(ref(user.uid, 'files', item.id), item);
+    const item = { ...file, id: Date.now(), date: todayStr(), addedBy: user.email || user.uid };
+    await setDoc(sharedRef(item.id), item);
   }, [user]);
 
   const updateFile = useCallback(async (id, patch) => {
     if (!user) return;
-    await updateDoc(ref(user.uid, 'files', id), patch);
+    await updateDoc(sharedRef(id), patch);
   }, [user]);
 
   const deleteFile = useCallback(async (id) => {
     if (!user) return;
-    await deleteDoc(ref(user.uid, 'files', id));
+    await deleteDoc(sharedRef(id));
   }, [user]);
 
   return (
