@@ -75,8 +75,8 @@ export function AppProvider({ children }) {
     const tick = () => { loadedCount.current++; if (loadedCount.current >= 3) setDataLoading(false); };
     const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
 
-    // Safety timeout — if Firestore doesn't respond in 8s, unblock the UI
-    const timeout = setTimeout(() => setDataLoading(false), 8000);
+    // Safety timeout — if Firestore doesn't respond in 5s, unblock the UI
+    const timeout = setTimeout(() => setDataLoading(false), 5000);
 
     const u1 = onSnapshot(col(uid, 'ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
     const u2 = onSnapshot(col(uid, 'projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
