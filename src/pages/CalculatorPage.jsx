@@ -37,18 +37,18 @@ export default function CalculatorPage() {
   );
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ marginBottom: 28 }}>
         <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em' }}>Financial Calculator</div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>Model revenue and EBITDA based on feasibility data</div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 20, alignItems: 'start' }}>
+      <div className="grid-calc">
         {/* Inputs */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={card(false)}>
             <span style={lbl}>Plant Model</span>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <ToggleBtn active={plant === 'large'} onClick={() => setPlant('large')}>₹2 Cr Integrated</ToggleBtn>
               <ToggleBtn active={plant === 'small'} onClick={() => setPlant('small')}>₹50–60 L Unit</ToggleBtn>
             </div>
@@ -95,7 +95,7 @@ export default function CalculatorPage() {
                 <span style={lbl}>Government Subsidies</span>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>CITUS 25% + AP MSME 4.0 {plant === 'large' ? '20%' : '15%'}</div>
               </div>
-              <button onClick={() => setSubsidy(s => !s)} style={{ width: 40, height: 22, borderRadius: 999, border: 'none', background: subsidy ? C.accent : C.border, cursor: 'pointer', position: 'relative', transition: 'background 200ms' }}>
+              <button onClick={() => setSubsidy(s => !s)} style={{ width: 40, height: 22, borderRadius: 999, border: 'none', background: subsidy ? C.accent : C.border, cursor: 'pointer', position: 'relative', transition: 'background 200ms', flexShrink: 0 }}>
                 <span style={{ position: 'absolute', top: 2, left: subsidy ? 20 : 2, width: 18, height: 18, borderRadius: '50%', background: '#fff', transition: 'left 200ms' }} />
               </button>
             </div>
@@ -133,10 +133,10 @@ export default function CalculatorPage() {
             <span style={lbl}>P&amp;L Summary (Annual)</span>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
               {[
-                { label: 'Revenue',        val: fmtCr(totalRev),          color: 'acc' },
-                { label: 'Variable Costs', val: `−${fmtCr(varCosts)}`,    color: 'neg' },
-                { label: 'Fixed Costs',    val: `−${fmt(model.fixedCosts)}`, color: 'neg' },
-                { label: 'EBITDA',         val: fmtCr(ebitda),            color: ebitda >= 0 ? 'pos' : 'neg', big: true },
+                { label: 'Revenue',        val: fmtCr(totalRev),             color: 'acc' },
+                { label: 'Variable Costs', val: `−${fmtCr(varCosts)}`,       color: 'neg' },
+                { label: 'Fixed Costs',    val: `−${fmt(model.fixedCosts)}`,  color: 'neg' },
+                { label: 'EBITDA',         val: fmtCr(ebitda),               color: ebitda >= 0 ? 'pos' : 'neg', big: true },
               ].map(row => (
                 <div key={row.label} style={{ padding: '10px 14px', background: row.big ? (ebitda >= 0 ? C.successBg : C.dangerBg) : C.bg2, borderRadius: 6, gridColumn: row.big ? 'span 2' : undefined }}>
                   <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>{row.label}</div>

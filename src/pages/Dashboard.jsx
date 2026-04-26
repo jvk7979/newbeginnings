@@ -12,7 +12,7 @@ export default function Dashboard({ onNavigate }) {
   const activeProjects = projects.filter(p => p.status === 'active' || p.status === 'progress');
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 28 }}>
         <button style={btnStyle}
           onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
@@ -23,14 +23,14 @@ export default function Dashboard({ onNavigate }) {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 32 }}>
+      <div className="grid-4">
         {[
-          { val: String(ideas.length),                                                           label: 'Total Ideas' },
-          { val: String(ideas.filter(i => i.status === 'validating').length),                    label: 'In Evaluation' },
-          { val: String(activeProjects.length),                                                  label: 'Active Projects' },
-          { val: String(plans.length),                                                           label: 'Business Plans' },
+          { val: String(ideas.length),                                    label: 'Total Ideas',    onClick: () => onNavigate('ideas') },
+          { val: String(ideas.filter(i => i.status === 'validating').length), label: 'In Evaluation', onClick: () => onNavigate('ideas') },
+          { val: String(activeProjects.length),                           label: 'Active Projects', onClick: () => onNavigate('projects') },
+          { val: String(plans.length),                                    label: 'Business Plans', onClick: () => onNavigate('plans') },
         ].map(s => (
-          <div key={s.label} style={statCard}>
+          <div key={s.label} style={{ ...statCard, cursor: 'pointer' }} onClick={s.onClick}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 500, color: C.accent }}>{s.val}</div>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4 }}>{s.label}</div>
           </div>
@@ -38,12 +38,12 @@ export default function Dashboard({ onNavigate }) {
       </div>
 
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 12 }}>Recent Ideas</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 32 }}>
+      <div className="grid-3">
         {recentIdeas.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
       </div>
 
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 12 }}>Active Projects</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="grid-2">
         {activeProjects.map(p => <ProjectCard key={p.id} {...p} onClick={() => onNavigate('project-detail', p)} />)}
       </div>
     </div>

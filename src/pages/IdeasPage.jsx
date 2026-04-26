@@ -11,7 +11,7 @@ export default function IdeasPage({ onNavigate }) {
   const filtered = filter === 'all' ? ideas : ideas.filter(i => i.status === filter);
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20 }}>
         <div>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em' }}>Ideas</div>
@@ -24,7 +24,7 @@ export default function IdeasPage({ onNavigate }) {
           onMouseLeave={e => e.currentTarget.style.background = C.accent}
           onClick={() => onNavigate('new-idea')}>+ New Idea</button>
       </div>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
         {FILTERS.map(f => (
           <button key={f} onClick={() => setFilter(f)}
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f ? '#B8892A33' : C.border}`, background: filter === f ? C.accentBg : 'transparent', color: filter === f ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f ? 500 : 400 }}>
@@ -33,9 +33,11 @@ export default function IdeasPage({ onNavigate }) {
         ))}
       </div>
       {filtered.length === 0 ? (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 40, textAlign: 'center' }}>No ideas with status "{filter}".</div>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 40, textAlign: 'center' }}>
+          No ideas with status "{filter}".
+        </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid-2">
           {filtered.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
         </div>
       )}
