@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { C } from '../tokens';
+import { useAppData } from '../context/AppContext';
+import { useToast } from '../context/ToastContext';
 
 const NAV_ITEMS = [
   { id: 'dashboard',  label: 'Dashboard',     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
@@ -10,24 +12,73 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar({ currentPage, onNavigate, isMobile, isOpen, onClose }) {
+  const { ideas, projects, plans, importData } = useAppData();
+  const { showToast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
   const isActive = (id) => currentPage === id;
 
   if (isMobile && !isOpen) return null;
 
+  const handleExport = () => {
+    const data = { ideas, projects, plans, exportedAt: new Date().toISOString(), version: 1 };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `newbeginnings-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${ideas.length + projects.length + plans.length} items`, 'success');
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data.ideas) && !Array.isArray(data.projects) && !Array.isArray(data.plans)) {
+          alert('Invalid backup file. Please use a file exported from this app.');
+          return;
+        }
+        const count = (data.ideas?.length || 0) + (data.projects?.length || 0) + (data.plans?.length || 0);
+        if (window.confirm(`Import ${count} items? This will replace all current data.`)) {
+          importData(data);
+          showToast('Data imported successfully', 'success');
+        }
+      } catch {
+        alert('Could not read the file. Make sure it is a valid backup JSON.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleClearAll = () => {
+    if (window.confirm('Clear all data and start completely fresh? This removes everything including the example data. Export first if you want a backup.')) {
+      importData({ ideas: [], projects: [], plans: [] });
+      showToast('All data cleared', 'info');
+    }
+  };
+
+  const handleResetToSeed = () => {
+    if (window.confirm('Reset to default examples? Your data will be lost.')) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
+  const btnRow = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, borderRadius: 5, cursor: 'pointer', padding: '7px 10px', width: '100%', border: `1px solid ${C.border}`, background: C.bg0, color: C.fg2, textAlign: 'left', marginBottom: 6 };
+
   return (
     <>
       {isMobile && (
-        <div
-          onClick={onClose}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.45)', zIndex: 99, backdropFilter: 'blur(2px)' }}
-        />
+        <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.45)', zIndex: 99, backdropFilter: 'blur(2px)' }} />
       )}
-      <div style={{
-        width: 220, background: C.bg2, borderRight: `1px solid ${C.border}`,
-        display: 'flex', flexDirection: 'column', flexShrink: 0, height: '100vh',
-        ...(isMobile ? { position: 'fixed', left: 0, top: 0, zIndex: 100 } : {}),
-      }}>
+      <div style={{ width: 220, background: C.bg2, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, height: '100vh', ...(isMobile ? { position: 'fixed', left: 0, top: 0, zIndex: 100 } : {}) }}>
         <div style={{ padding: '18px 16px 14px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
           <svg width="28" height="28" viewBox="0 0 46 46" fill="none">
             <path d="M23 2 C23 2 18 9 23 16 C28 9 23 2 23 2Z" fill={C.accent}/>
@@ -53,21 +104,31 @@ export default function Sidebar({ currentPage, onNavigate, isMobile, isOpen, onC
 
         {showSettings && (
           <div style={{ margin: '0 8px 8px', padding: '14px', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg1, marginBottom: 10 }}>Settings</div>
-            <button
-              onClick={() => { if (window.confirm('Reset all data to defaults? This cannot be undone.')) { localStorage.clear(); window.location.reload(); } }}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: C.dangerBg, border: `1px solid ${C.danger}33`, borderRadius: 4, padding: '6px 10px', cursor: 'pointer', width: '100%', marginBottom: 8 }}>
-              Reset all data
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg1, marginBottom: 10 }}>Data</div>
+
+            <button style={btnRow} onClick={handleExport}>
+              ↓ Export backup (JSON)
             </button>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, lineHeight: 1.5 }}>
-              Restores seed ideas, projects &amp; plans. Cannot be undone.
-            </div>
+
+            <label style={{ ...btnRow, display: 'block', cursor: 'pointer', marginBottom: 6 }}>
+              ↑ Import backup (JSON)
+              <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
+            </label>
+
+            <div style={{ borderTop: `1px solid ${C.border}`, margin: '8px 0' }} />
+
+            <button style={{ ...btnRow, color: C.warning, borderColor: C.warning + '44', background: C.warningBg, marginBottom: 6 }} onClick={handleClearAll}>
+              Start fresh (clear all)
+            </button>
+
+            <button style={{ ...btnRow, color: C.danger, borderColor: C.danger + '44', background: C.dangerBg, marginBottom: 0 }} onClick={handleResetToSeed}>
+              Reset to example data
+            </button>
           </div>
         )}
 
         <div style={{ borderTop: `1px solid ${C.border}`, padding: '10px 8px' }}>
-          <button
-            onClick={() => setShowSettings(s => !s)}
+          <button onClick={() => setShowSettings(s => !s)}
             style={{ display: 'flex', alignItems: 'center', gap: 9, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: showSettings ? C.accent : C.fg3, padding: '7px 10px', borderRadius: 4, cursor: 'pointer', background: showSettings ? C.accentBg : 'transparent', border: 'none', width: '100%', transition: 'all 120ms' }}
             onMouseEnter={e => { if (!showSettings) { e.currentTarget.style.background = C.bg3; e.currentTarget.style.color = C.fg2; }}}
             onMouseLeave={e => { if (!showSettings) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}}>

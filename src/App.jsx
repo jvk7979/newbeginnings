@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { C } from './tokens';
+import { useAppData } from './context/AppContext';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
 import Dashboard from './pages/Dashboard';
@@ -14,15 +15,34 @@ import NewPlanPage from './pages/NewPlanPage';
 import CalculatorPage from './pages/CalculatorPage';
 
 const LINKABLE = ['dashboard', 'ideas', 'projects', 'plans', 'calculator'];
+const DETAIL   = ['idea-detail', 'project-detail', 'plan-detail', 'new-idea', 'new-plan'];
 
-const getPageFromHash = () => {
+const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
-  return LINKABLE.includes(hash) ? hash : 'dashboard';
+  const [page, idStr] = hash.split('/');
+  const id = idStr ? parseInt(idStr) : null;
+  if (LINKABLE.includes(page)) return { page, itemId: null };
+  if (DETAIL.includes(page))   return { page, itemId: id };
+  return { page: 'dashboard', itemId: null };
 };
 
+function NotFound({ label, dest, onNavigate }) {
+  return (
+    <div className="page-pad" style={{ background: C.bg0 }}>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 60, textAlign: 'center' }}>
+        {label} not found.
+        <button onClick={() => onNavigate(dest)} style={{ display: 'block', margin: '12px auto 0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer' }}>
+          ← Go back
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
-  const [page, setPage] = useState(getPageFromHash);
-  const [pageData, setPageData] = useState(null);
+  const { ideas, projects, plans } = useAppData();
+  const [page,    setPage]    = useState(() => parseHash().page);
+  const [itemId,  setItemId]  = useState(() => parseHash().itemId);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -33,30 +53,50 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const onHashChange = () => { setPage(getPageFromHash()); setPageData(null); };
+    const onHashChange = () => {
+      const { page: p, itemId: id } = parseHash();
+      setPage(p);
+      setItemId(id);
+    };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   const navigate = (dest, data = null) => {
-    setPage(dest); setPageData(data);
+    const id = data?.id || null;
+    setPage(dest);
+    setItemId(id);
+
+    let newHash;
     if (LINKABLE.includes(dest)) {
-      const h = '#/' + dest;
-      if (window.location.hash !== h) window.location.hash = h;
+      newHash = '#/' + dest;
+    } else if (id) {
+      newHash = '#/' + dest + '/' + id;
+    } else {
+      newHash = '#/' + dest;
     }
+    if (window.location.hash !== newHash) window.location.hash = newHash;
     if (isMobile) setSidebarOpen(false);
   };
 
   const renderPage = () => {
+    const idea    = ideas.find(i => i.id == itemId);
+    const project = projects.find(p => p.id == itemId);
+    const plan    = plans.find(p => p.id == itemId);
+
     switch (page) {
       case 'dashboard':      return <Dashboard onNavigate={navigate} />;
       case 'ideas':          return <IdeasPage onNavigate={navigate} />;
       case 'new-idea':       return <NewIdeaPage onNavigate={navigate} />;
-      case 'idea-detail':    return <IdeaDetailPage idea={pageData} onNavigate={navigate} />;
+      case 'idea-detail':
+        if (itemId && !idea) return <NotFound label="Idea" dest="ideas" onNavigate={navigate} />;
+        return <IdeaDetailPage idea={idea || ideas[0]} onNavigate={navigate} />;
       case 'projects':       return <ProjectsPage onNavigate={navigate} />;
-      case 'project-detail': return <ProjectDetailPage project={pageData} onNavigate={navigate} />;
+      case 'project-detail':
+        if (itemId && !project) return <NotFound label="Project" dest="projects" onNavigate={navigate} />;
+        return <ProjectDetailPage project={project || projects[0]} onNavigate={navigate} />;
       case 'plans':          return <PlansPage onNavigate={navigate} />;
-      case 'plan-detail':    return <PlanDetailPage plan={pageData} onNavigate={navigate} />;
+      case 'plan-detail':    return <PlanDetailPage plan={plan} onNavigate={navigate} />;
       case 'new-plan':       return <NewPlanPage onNavigate={navigate} />;
       case 'calculator':     return <CalculatorPage />;
       default:               return <Dashboard onNavigate={navigate} />;
@@ -65,15 +105,12 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      {/* Desktop sidebar */}
       {!isMobile && (
         <Sidebar currentPage={page} onNavigate={navigate} isMobile={false} isOpen={true} onClose={() => {}} />
       )}
-      {/* Mobile sidebar overlay */}
       {isMobile && sidebarOpen && (
         <Sidebar currentPage={page} onNavigate={navigate} isMobile={true} isOpen={true} onClose={() => setSidebarOpen(false)} />
       )}
-      {/* Mobile hamburger (only when sidebar closed and on a non-bottom-nav-linkable page) */}
       {isMobile && !sidebarOpen && (
         <button onClick={() => setSidebarOpen(true)} aria-label="Open menu"
           style={{ position: 'fixed', top: 12, left: 12, zIndex: 50, width: 36, height: 36, borderRadius: 6, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}>
@@ -83,7 +120,6 @@ export default function App() {
         </button>
       )}
       {renderPage()}
-      {/* Mobile bottom navigation */}
       {isMobile && <BottomNav currentPage={page} onNavigate={navigate} />}
     </div>
   );

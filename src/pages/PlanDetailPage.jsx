@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 
 export default function PlanDetailPage({ plan, onNavigate }) {
-  const { plans, updatePlan, deletePlan } = useAppData();
+  const { plans, updatePlan, deletePlan, restorePlan } = useAppData();
   const { showToast } = useToast();
 
   const resolved = plan ?? (plans.length > 0 ? plans[0] : null);
@@ -22,10 +22,10 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     );
   }
 
-  return <PlanEditor plan={resolved} onNavigate={onNavigate} updatePlan={updatePlan} deletePlan={deletePlan} showToast={showToast} />;
+  return <PlanEditor plan={resolved} onNavigate={onNavigate} updatePlan={updatePlan} deletePlan={deletePlan} restorePlan={restorePlan} showToast={showToast} />;
 }
 
-function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
+function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, showToast }) {
   const [title, setTitle]       = useState(plan.title);
   const [summary, setSummary]   = useState(plan.summary || '');
   const [status, setStatus]     = useState(plan.status || 'draft');
@@ -34,6 +34,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
   const [editing, setEditing]   = useState(false);
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
+  const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
   const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; };
   const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
@@ -57,9 +58,10 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
   };
 
   const handleDelete = () => {
-    if (!window.confirm('Delete this business plan? This cannot be undone.')) return;
+    if (!window.confirm('Delete this business plan?')) return;
+    const backup = { ...plan, sections: [...(plan.sections || [])] };
     deletePlan(plan.id);
-    showToast('Plan deleted', 'info');
+    showToast('Plan deleted', 'info', { label: 'Undo', onClick: () => restorePlan(backup) });
     onNavigate('plans');
   };
 
@@ -71,7 +73,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
           Business Plans
         </button>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setEditing(e => !e)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: editing ? C.fg2 : C.accent, background: 'none', border: `1px solid ${editing ? C.border : C.accent}33`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
+          <button onClick={() => setEditing(e => !e)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: editing ? C.fg2 : C.accent, background: 'none', border: `1px solid ${editing ? C.border : C.accent + '44'}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
             {editing ? 'Cancel Edit' : 'Edit Plan'}
           </button>
           <button onClick={handleDelete} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${C.danger}33`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>Delete</button>
@@ -83,11 +85,11 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
       {editing ? (
         <div style={{ maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
-            <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' }}>Plan Title</label>
+            <label style={labelStyle}>Plan Title</label>
             <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} onFocus={focus} onBlur={blur} />
           </div>
           <div>
-            <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' }}>Status</label>
+            <label style={labelStyle}>Status</label>
             <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
               <option value="draft">Draft</option>
               <option value="active">Active</option>
@@ -95,7 +97,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
           </div>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2 }}>Executive Summary</label>
+              <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
               {summary.trim() && (
                 <button type="button" onClick={() => setSummary(s => formatText(s))}
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
@@ -104,8 +106,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
               )}
             </div>
             <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={summary}
-              onChange={e => setSummary(e.target.value)}
-              onFocus={focus} onBlur={blur} />
+              onChange={e => setSummary(e.target.value)} onFocus={focus} onBlur={blur} />
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{summary.length} characters</div>
           </div>
 
@@ -125,9 +126,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
                   </div>
                 </div>
                 <input style={{ ...inputStyle, marginBottom: 10, background: C.bg0 }} value={sec.title}
-                  onChange={e => updateSection(i, 'title', e.target.value)}
-                  placeholder="Section title"
-                  onFocus={focus} onBlur={blur} />
+                  onChange={e => updateSection(i, 'title', e.target.value)} placeholder="Section title" onFocus={focus} onBlur={blur} />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
                   {sec.content.trim() && (
                     <button type="button" onClick={() => updateSection(i, 'content', formatText(sec.content))}
@@ -137,9 +136,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
                   )}
                 </div>
                 <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6, background: C.bg0 }} value={sec.content}
-                  onChange={e => updateSection(i, 'content', e.target.value)}
-                  placeholder="Section content…"
-                  onFocus={focus} onBlur={blur} />
+                  onChange={e => updateSection(i, 'content', e.target.value)} placeholder="Section content…" onFocus={focus} onBlur={blur} />
                 {sec.content.length > 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginTop: 4 }}>{sec.content.length} characters</div>}
               </div>
             ))}
@@ -149,7 +146,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
             <button
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saved ? C.success : C.accent, color: '#fff', border: 'none', cursor: 'pointer', transition: 'background 200ms' }}
               onMouseEnter={e => { if (!saved) e.currentTarget.style.background = C.accentDim; }}
-              onMouseLeave={e => { if (!saved) e.currentTarget.style.background = saved ? C.success : C.accent; }}
+              onMouseLeave={e => { e.currentTarget.style.background = saved ? C.success : C.accent; }}
               onClick={handleSave}>{saved ? 'Saved!' : 'Save Changes'}</button>
           </div>
         </div>
@@ -162,7 +159,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
           {summary && (
             <div style={{ background: C.accentBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 32 }}>
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Executive Summary</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7 }}>{summary}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{summary}</div>
             </div>
           )}
           {sections.length === 0 && (

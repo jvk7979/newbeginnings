@@ -49,59 +49,117 @@ function todayStr() {
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [ideas, setIdeas] = useState(() => load('nb_ideas', SEED_IDEAS));
+  const [ideas, setIdeas]       = useState(() => load('nb_ideas',    SEED_IDEAS));
   const [projects, setProjects] = useState(() => load('nb_projects', SEED_PROJECTS));
-  const [plans, setPlans] = useState(() => load('nb_plans', SEED_PLANS));
+  const [plans, setPlans]       = useState(() => load('nb_plans',    SEED_PLANS));
 
+  // ── Ideas ──────────────────────────────────────────────────────────────────
   const addIdea = useCallback((idea) => {
-    const next = [{ ...idea, id: Date.now(), date: todayStr() }, ...ideas];
-    setIdeas(next); save('nb_ideas', next);
-  }, [ideas]);
+    setIdeas(prev => {
+      const next = [{ ...idea, id: Date.now(), date: todayStr() }, ...prev];
+      save('nb_ideas', next); return next;
+    });
+  }, []);
 
   const updateIdea = useCallback((id, patch) => {
-    const next = ideas.map(i => i.id === id ? { ...i, ...patch } : i);
-    setIdeas(next); save('nb_ideas', next);
-  }, [ideas]);
+    setIdeas(prev => {
+      const next = prev.map(i => i.id === id ? { ...i, ...patch } : i);
+      save('nb_ideas', next); return next;
+    });
+  }, []);
 
   const deleteIdea = useCallback((id) => {
-    const next = ideas.filter(i => i.id !== id);
-    setIdeas(next); save('nb_ideas', next);
-  }, [ideas]);
+    setIdeas(prev => {
+      const next = prev.filter(i => i.id !== id);
+      save('nb_ideas', next); return next;
+    });
+  }, []);
 
+  const restoreIdea = useCallback((idea) => {
+    setIdeas(prev => {
+      if (prev.find(i => i.id === idea.id)) return prev;
+      const next = [idea, ...prev];
+      save('nb_ideas', next); return next;
+    });
+  }, []);
+
+  // ── Projects ───────────────────────────────────────────────────────────────
   const addProject = useCallback((project) => {
-    const next = [{ ...project, id: Date.now(), date: todayStr(), kpis: null }, ...projects];
-    setProjects(next); save('nb_projects', next);
-  }, [projects]);
+    setProjects(prev => {
+      const next = [{ ...project, id: Date.now(), date: todayStr(), kpis: null }, ...prev];
+      save('nb_projects', next); return next;
+    });
+  }, []);
 
   const updateProject = useCallback((id, patch) => {
-    const next = projects.map(p => p.id === id ? { ...p, ...patch } : p);
-    setProjects(next); save('nb_projects', next);
-  }, [projects]);
+    setProjects(prev => {
+      const next = prev.map(p => p.id === id ? { ...p, ...patch } : p);
+      save('nb_projects', next); return next;
+    });
+  }, []);
 
   const deleteProject = useCallback((id) => {
-    const next = projects.filter(p => p.id !== id);
-    setProjects(next); save('nb_projects', next);
-  }, [projects]);
+    setProjects(prev => {
+      const next = prev.filter(p => p.id !== id);
+      save('nb_projects', next); return next;
+    });
+  }, []);
 
+  const restoreProject = useCallback((project) => {
+    setProjects(prev => {
+      if (prev.find(p => p.id === project.id)) return prev;
+      const next = [project, ...prev];
+      save('nb_projects', next); return next;
+    });
+  }, []);
+
+  // ── Plans ──────────────────────────────────────────────────────────────────
   const addPlan = useCallback((plan) => {
     const secs = plan.sections || [];
-    const next = [{ ...plan, id: Date.now(), updated: todayStr(), sectionCount: secs.length }, ...plans];
-    setPlans(next); save('nb_plans', next);
-  }, [plans]);
+    setPlans(prev => {
+      const next = [{ ...plan, id: Date.now(), updated: todayStr(), sectionCount: secs.length }, ...prev];
+      save('nb_plans', next); return next;
+    });
+  }, []);
 
   const updatePlan = useCallback((id, patch) => {
-    const secs = patch.sections ?? plans.find(p => p.id === id)?.sections ?? [];
-    const next = plans.map(p => p.id === id ? { ...p, ...patch, updated: todayStr(), sectionCount: secs.length } : p);
-    setPlans(next); save('nb_plans', next);
-  }, [plans]);
+    setPlans(prev => {
+      const secs = patch.sections ?? prev.find(p => p.id === id)?.sections ?? [];
+      const next = prev.map(p => p.id === id ? { ...p, ...patch, updated: todayStr(), sectionCount: secs.length } : p);
+      save('nb_plans', next); return next;
+    });
+  }, []);
 
   const deletePlan = useCallback((id) => {
-    const next = plans.filter(p => p.id !== id);
-    setPlans(next); save('nb_plans', next);
-  }, [plans]);
+    setPlans(prev => {
+      const next = prev.filter(p => p.id !== id);
+      save('nb_plans', next); return next;
+    });
+  }, []);
+
+  const restorePlan = useCallback((plan) => {
+    setPlans(prev => {
+      if (prev.find(p => p.id === plan.id)) return prev;
+      const next = [plan, ...prev];
+      save('nb_plans', next); return next;
+    });
+  }, []);
+
+  // ── Bulk operations ────────────────────────────────────────────────────────
+  const importData = useCallback((data) => {
+    if (Array.isArray(data.ideas))    { setIdeas(data.ideas);       save('nb_ideas',    data.ideas); }
+    if (Array.isArray(data.projects)) { setProjects(data.projects); save('nb_projects', data.projects); }
+    if (Array.isArray(data.plans))    { setPlans(data.plans);       save('nb_plans',    data.plans); }
+  }, []);
 
   return (
-    <AppContext.Provider value={{ ideas, projects, plans, addIdea, updateIdea, deleteIdea, addProject, updateProject, deleteProject, addPlan, updatePlan, deletePlan }}>
+    <AppContext.Provider value={{
+      ideas, projects, plans,
+      addIdea, updateIdea, deleteIdea, restoreIdea,
+      addProject, updateProject, deleteProject, restoreProject,
+      addPlan, updatePlan, deletePlan, restorePlan,
+      importData,
+    }}>
       {children}
     </AppContext.Provider>
   );
