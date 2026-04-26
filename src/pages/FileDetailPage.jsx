@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -14,34 +14,10 @@ const CAT_STYLE = {
   Other:        { bg: '#EDE8DE', color: '#9A8E80' },
 };
 
-function SectionBlock({ section }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 700, color: C.fg1, marginBottom: 10, paddingBottom: 6, borderBottom: `1px solid ${C.border}` }}>
-        {section.title}
-      </div>
-      {section.bullets && section.bullets.length > 0 && (
-        <ul style={{ margin: 0, paddingLeft: 20, marginBottom: section.content ? 10 : 0 }}>
-          {section.bullets.map((b, i) => (
-            <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7, marginBottom: 3 }}>{b}</li>
-          ))}
-        </ul>
-      )}
-      {section.content && (
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.75, margin: 0 }}>{section.content}</p>
-      )}
-    </div>
-  );
-}
-
 export default function FileDetailPage({ file, onNavigate }) {
   const { deleteFile } = useAppData();
   const { showToast }  = useToast();
-  const [pdfState, setPdfState] = useState('idle'); // idle | loading | done | error
-  const [pdfError, setPdfError] = useState('');
-  const [sections, setSections] = useState([]);
-  const [rawText, setRawText]   = useState('');
-  const [showRaw, setShowRaw]   = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   if (!file) {
     return (
@@ -58,27 +34,6 @@ export default function FileDetailPage({ file, onNavigate }) {
   const fileUrl = `${import.meta.env.BASE_URL}files/${encodeURIComponent(file.fileName)}`;
   const catStyle = CAT_STYLE[file.category] || CAT_STYLE.Other;
 
-  const loadPdf = async () => {
-    if (!isPdf) return;
-    setPdfState('loading');
-    try {
-      const { extractSections } = await import('../utils/pdfParser.js');
-      const result = await extractSections(fileUrl);
-      if (result && result.sections && result.sections.length > 0) {
-        setSections(result.sections);
-        setRawText(result.rawText || '');
-        setPdfState('done');
-      } else {
-        setRawText(result?.rawText || '');
-        setPdfState('done');
-      }
-    } catch (err) {
-      console.error('PDF load error:', err);
-      setPdfError(err?.message || String(err));
-      setPdfState('error');
-    }
-  };
-
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${file.title}"?`)) return;
     await deleteFile(file.id);
@@ -87,157 +42,85 @@ export default function FileDetailPage({ file, onNavigate }) {
   };
 
   return (
-    <div className="page-pad" style={{ background: C.bg0, flex: 1, overflowY: 'auto' }}>
-      {/* Back + actions */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', background: C.bg0 }}>
+
+      {/* Compact top bar */}
+      <div style={{ flexShrink: 0, height: 48, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 12 }}>
         <button onClick={() => onNavigate('files')}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
-          ← Back to Files
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+          ← Files
         </button>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {isPdf && (
-            <a href={fileUrl} target="_blank" rel="noopener noreferrer"
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '7px 14px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', textDecoration: 'none' }}>
-              Open PDF ↗
-            </a>
-          )}
-          {!isPdf && (
-            <a href={fileUrl} download
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '7px 14px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', textDecoration: 'none' }}>
-              Download ↓
-            </a>
-          )}
-          <button onClick={handleDelete}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '7px 14px', borderRadius: 6, background: 'transparent', color: C.danger, border: `1px solid ${C.danger}44`, cursor: 'pointer' }}>
-            Delete
-          </button>
-        </div>
-      </div>
 
-      {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: catStyle.bg, color: catStyle.color }}>
-            {file.category || 'Other'}
-          </span>
-          {isPdf && (
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, background: C.bg2, padding: '2px 8px', borderRadius: 4 }}>PDF</span>
-          )}
-        </div>
-        <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 700, color: C.fg1, margin: '0 0 8px 0', lineHeight: 1.25 }}>
+        <div style={{ width: 1, height: 18, background: C.border, flexShrink: 0 }} />
+
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg1, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {file.title}
-        </h1>
-        {file.date && (
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, marginBottom: 8 }}>
-            Added {file.date}
-            {file.relatedProject && <span> · {file.relatedProject}</span>}
-          </div>
-        )}
+        </span>
+
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, padding: '2px 9px', borderRadius: 99, background: catStyle.bg, color: catStyle.color, flexShrink: 0 }}>
+          {file.category || 'Other'}
+        </span>
+
         {file.summary && (
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7, margin: 0, maxWidth: 680 }}>{file.summary}</p>
+          <button onClick={() => setShowInfo(s => !s)}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: showInfo ? C.accent : C.fg3, background: showInfo ? C.accentBg : 'transparent', border: `1px solid ${showInfo ? C.accent + '44' : C.border}`, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', flexShrink: 0 }}>
+            Info
+          </button>
         )}
-        {file.tags && file.tags.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
-            {file.tags.map(t => (
-              <span key={t} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, background: C.bg2, color: C.fg3, padding: '3px 8px', borderRadius: 99, border: `1px solid ${C.border}` }}>{t}</span>
-            ))}
-          </div>
-        )}
+
+        <a href={fileUrl} target="_blank" rel="noopener noreferrer"
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 5, background: C.accent, color: '#fff', textDecoration: 'none', flexShrink: 0 }}>
+          Open ↗
+        </a>
+
+        <button onClick={handleDelete}
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 5, background: 'transparent', color: C.danger, border: `1px solid ${C.danger}33`, cursor: 'pointer', flexShrink: 0 }}>
+          Delete
+        </button>
       </div>
 
-      <div style={{ height: 1, background: C.border, margin: '20px 0' }} />
+      {/* Info panel (collapsible) */}
+      {showInfo && (
+        <div style={{ flexShrink: 0, background: C.accentBg, borderBottom: `1px solid ${C.border}`, padding: '12px 20px', display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {file.summary && (
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.accent, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Summary</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.6 }}>{file.summary}</div>
+            </div>
+          )}
+          {file.tags && file.tags.length > 0 && (
+            <div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.accent, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Tags</div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {file.tags.map(t => (
+                  <span key={t} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, background: C.bg0, color: C.fg3, padding: '2px 8px', borderRadius: 99, border: `1px solid ${C.border}` }}>{t}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {file.relatedProject && (
+            <div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.accent, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Project</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2 }}>{file.relatedProject}</div>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* PDF content area */}
+      {/* PDF viewer — fills all remaining height */}
       {isPdf && (
-        <>
-          {pdfState === 'idle' && (
-            <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 8, padding: '32px 24px', textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, marginBottom: 14 }}>
-                Load and extract the PDF content to read it here.
-              </div>
-              <button onClick={loadPdf}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
-                Load PDF Content
-              </button>
-            </div>
-          )}
-
-          {pdfState === 'loading' && (
-            <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '32px 24px', textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>Extracting PDF content…</div>
-            </div>
-          )}
-
-          {pdfState === 'error' && (
-            <div style={{ background: C.dangerBg, border: `1px solid ${C.danger}33`, borderRadius: 8, padding: '20px 24px', marginBottom: 24 }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginBottom: 8 }}>Could not load PDF content.</div>
-              {pdfError && (
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.danger, background: C.bg0, border: `1px solid ${C.danger}33`, borderRadius: 4, padding: '8px 10px', marginBottom: 10, wordBreak: 'break-all' }}>
-                  {pdfError}
-                </div>
-              )}
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, marginBottom: 12 }}>
-                URL: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>{fileUrl}</code>
-              </div>
-              <a href={fileUrl} target="_blank" rel="noopener noreferrer"
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent }}>
-                Try opening PDF directly ↗
-              </a>
-            </div>
-          )}
-
-          {pdfState === 'done' && sections.length > 0 && (
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 16 }}>
-                Content — {sections.length} sections
-              </div>
-              {sections.map((s, i) => <SectionBlock key={i} section={s} />)}
-              {rawText && (
-                <div style={{ marginTop: 8 }}>
-                  <button onClick={() => setShowRaw(r => !r)}
-                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                    {showRaw ? '▲ Hide raw text' : '▼ Show raw text'}
-                  </button>
-                  {showRaw && (
-                    <pre style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg2, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: '16px', marginTop: 8, whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6, maxHeight: 400, overflowY: 'auto' }}>
-                      {rawText}
-                    </pre>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {pdfState === 'done' && sections.length === 0 && rawText && (
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 12 }}>
-                Extracted Text
-              </div>
-              <pre style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg2, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: '16px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6, maxHeight: 500, overflowY: 'auto' }}>
-                {rawText}
-              </pre>
-            </div>
-          )}
-
-          {pdfState === 'done' && sections.length === 0 && !rawText && (
-            <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '24px', textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>No text could be extracted from this PDF.</div>
-              <a href={fileUrl} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-block', marginTop: 10, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent }}>
-                Open PDF directly ↗
-              </a>
-            </div>
-          )}
-        </>
+        <iframe
+          src={fileUrl}
+          title={file.title}
+          style={{ flex: 1, border: 'none', width: '100%', display: 'block' }}
+        />
       )}
 
       {!isPdf && (
-        <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '24px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, marginBottom: 12 }}>
-            This file can be downloaded from GitHub.
-          </div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14 }}>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2 }}>This file type cannot be previewed.</div>
           <a href={fileUrl} download
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 20px', borderRadius: 6, background: C.accent, color: '#fff', textDecoration: 'none', display: 'inline-block' }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 20px', borderRadius: 6, background: C.accent, color: '#fff', textDecoration: 'none' }}>
             Download File ↓
           </a>
         </div>
