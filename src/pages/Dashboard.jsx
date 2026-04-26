@@ -2,7 +2,7 @@ import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
 import ProjectCard from '../components/ProjectCard';
-import heroImg from '../../THeNewBeginnings.png';
+import heroImg from '../assets/hero.png';
 
 const statCard = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 20px' };
 
