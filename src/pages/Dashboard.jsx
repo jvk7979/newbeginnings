@@ -14,16 +14,34 @@ export default function Dashboard({ onNavigate }) {
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
-      {/* Hero image banner */}
-      <div className="hero-bleed">
-        <img
-          src={heroImg}
-          alt="The New Beginnings"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
-        />
+      {/* Hero image with gradient overlay */}
+      <div className="hero-bleed" style={{ position: 'relative' }}>
+        <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', height: 'auto', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.78) 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '28px 36px' }}>
+          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,4vw,40px)', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.2, marginBottom: 6, textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>The New Beginnings</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(13px,2vw,17px)', color: 'rgba(255,255,255,0.92)', marginBottom: 8, fontWeight: 500, letterSpacing: '0.02em' }}>Ideas. Plans. Projects. Progress.</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(11px,1.5vw,13px)', color: 'rgba(255,255,255,0.72)', maxWidth: 560, lineHeight: 1.55, marginBottom: 20 }}>
+            A digital space to capture ideas, organize plans, store documents, and build meaningful projects inspired by Rajahmundry, Godavari, and Konaseema.
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Explore Ideas', dest: 'ideas' },
+              { label: 'View Projects', dest: 'projects' },
+              { label: 'Read Plans', dest: 'plans' },
+              { label: 'Open Files', dest: 'files' },
+            ].map(btn => (
+              <button key={btn.dest} onClick={() => onNavigate(btn.dest)}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)', cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'background 140ms' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}>
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 28, marginTop: 24 }}>
         {[
           { label: '+ New Idea', dest: 'new-idea', primary: true },
           { label: 'New Plan', dest: 'new-plan', primary: false },

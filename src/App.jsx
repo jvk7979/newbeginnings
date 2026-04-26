@@ -14,9 +14,12 @@ import PlansPage from './pages/PlansPage';
 import PlanDetailPage from './pages/PlanDetailPage';
 import NewPlanPage from './pages/NewPlanPage';
 import CalculatorPage from './pages/CalculatorPage';
+import FilesPage from './pages/FilesPage';
+import FileDetailPage from './pages/FileDetailPage';
+import AboutPage from './pages/AboutPage';
 
-const LINKABLE = ['dashboard', 'ideas', 'projects', 'plans', 'calculator'];
-const DETAIL   = ['idea-detail', 'project-detail', 'plan-detail', 'new-idea', 'new-plan'];
+const LINKABLE = ['dashboard', 'ideas', 'projects', 'plans', 'calculator', 'files', 'about'];
+const DETAIL   = ['idea-detail', 'project-detail', 'plan-detail', 'new-idea', 'new-plan', 'file-detail'];
 
 const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
@@ -78,9 +81,11 @@ export default function App() {
   if (!user) return <SignInPage />;
   if (dataLoading) return <Spinner label="Loading your data…" />;
 
+  const { files } = useAppData();
   const idea    = ideas.find(i => i.id == itemId);
   const project = projects.find(p => p.id == itemId);
   const plan    = plans.find(p => p.id == itemId);
+  const file    = files.find(f => f.id == itemId);
 
   const renderPage = () => {
     switch (page) {
@@ -97,6 +102,11 @@ export default function App() {
       case 'plans':          return <PlansPage onNavigate={navigate} />;
       case 'plan-detail':    return <PlanDetailPage plan={plan} onNavigate={navigate} />;
       case 'new-plan':       return <NewPlanPage onNavigate={navigate} />;
+      case 'files':          return <FilesPage onNavigate={navigate} />;
+      case 'file-detail':
+        if (itemId && !file) return <NotFound label="File" dest="files" onNavigate={navigate} />;
+        return <FileDetailPage file={file || files[0]} onNavigate={navigate} />;
+      case 'about':          return <AboutPage onNavigate={navigate} />;
       case 'calculator':     return <CalculatorPage />;
       default:               return <Dashboard onNavigate={navigate} />;
     }

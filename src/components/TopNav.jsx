@@ -5,14 +5,15 @@ import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 
 const NAV_ITEMS = [
-  { id: 'dashboard',  label: 'Dashboard' },
-  { id: 'ideas',      label: 'Ideas' },
-  { id: 'projects',   label: 'Projects' },
-  { id: 'plans',      label: 'Business Plans' },
-  { id: 'calculator', label: 'Calculator' },
+  { id: 'dashboard', label: 'Home' },
+  { id: 'ideas',     label: 'Ideas' },
+  { id: 'projects',  label: 'Projects' },
+  { id: 'plans',     label: 'Plans' },
+  { id: 'files',     label: 'Files' },
+  { id: 'about',     label: 'About' },
 ];
 
-const ACTIVE_MAP = { 'new-idea': 'ideas', 'idea-detail': 'ideas', 'project-detail': 'projects', 'plan-detail': 'plans', 'new-plan': 'plans' };
+const ACTIVE_MAP = { 'new-idea': 'ideas', 'idea-detail': 'ideas', 'project-detail': 'projects', 'plan-detail': 'plans', 'new-plan': 'plans', 'file-detail': 'files', 'calculator': 'dashboard' };
 
 export default function TopNav({ currentPage, onNavigate }) {
   const { user, signOutUser }               = useAuth();
@@ -173,6 +174,10 @@ export default function TopNav({ currentPage, onNavigate }) {
                   <div style={{ height: 1, background: C.border, margin: '0 8px 6px' }} />
                 </>
               )}
+              <button style={dropBtn} onClick={() => { onNavigate('calculator'); setSettingsOpen(false); }}
+                onMouseEnter={e => e.currentTarget.style.background = C.bg3}
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}>⊞ Calculator</button>
+              <div style={{ height: 1, background: C.border, margin: '6px 8px' }} />
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.fg3, padding: '2px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Data</div>
               <button style={dropBtn} onClick={handleExport}
                 onMouseEnter={e => e.currentTarget.style.background = C.bg3}

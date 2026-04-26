@@ -60,11 +60,12 @@ export function AppProvider({ children }) {
   const [ideas,    setIdeas]    = useState([]);
   const [projects, setProjects] = useState([]);
   const [plans,    setPlans]    = useState([]);
+  const [files,    setFiles]    = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const loadedCount = useRef(0);
 
   useEffect(() => {
-    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setDataLoading(false); return; }
+    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setFiles([]); setDataLoading(false); return; }
 
     loadedCount.current = 0;
     setDataLoading(true);
@@ -72,17 +73,17 @@ export function AppProvider({ children }) {
     const uid = user.uid;
     initializeUser(uid);
 
-    const tick = () => { loadedCount.current++; if (loadedCount.current >= 3) setDataLoading(false); };
+    const tick = () => { loadedCount.current++; if (loadedCount.current >= 4) setDataLoading(false); };
     const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
 
-    // Safety timeout — if Firestore doesn't respond in 5s, unblock the UI
     const timeout = setTimeout(() => setDataLoading(false), 5000);
 
     const u1 = onSnapshot(col(uid, 'ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
     const u2 = onSnapshot(col(uid, 'projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
     const u3 = onSnapshot(col(uid, 'plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+    const u4 = onSnapshot(col(uid, 'files'),    s => { setFiles(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
 
-    return () => { u1(); u2(); u3(); clearTimeout(timeout); };
+    return () => { u1(); u2(); u3(); u4(); clearTimeout(timeout); };
   }, [user]);
 
   // ── Ideas ────────────────────────────────────────────────────────────────
@@ -177,12 +178,30 @@ export function AppProvider({ children }) {
     }
   }, [user]);
 
+  // ── Files ────────────────────────────────────────────────────────────────
+  const addFile = useCallback(async (file) => {
+    if (!user) return;
+    const item = { ...file, id: Date.now(), date: todayStr() };
+    await setDoc(ref(user.uid, 'files', item.id), item);
+  }, [user]);
+
+  const updateFile = useCallback(async (id, patch) => {
+    if (!user) return;
+    await updateDoc(ref(user.uid, 'files', id), patch);
+  }, [user]);
+
+  const deleteFile = useCallback(async (id) => {
+    if (!user) return;
+    await deleteDoc(ref(user.uid, 'files', id));
+  }, [user]);
+
   return (
     <AppContext.Provider value={{
-      ideas, projects, plans, dataLoading,
+      ideas, projects, plans, files, dataLoading,
       addIdea, updateIdea, deleteIdea, restoreIdea,
       addProject, updateProject, deleteProject, restoreProject,
       addPlan, updatePlan, deletePlan, restorePlan,
+      addFile, updateFile, deleteFile,
       importData,
     }}>
       {children}
