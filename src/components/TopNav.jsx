@@ -112,9 +112,9 @@ export default function TopNav({ currentPage, onNavigate }) {
         {/* Logo */}
         <button
           onClick={() => onNavigate('dashboard')}
-          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
+          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 35%', maxWidth: 220, boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
           aria-label="Go to Home">
-          <img src={logoImg} alt="The New Beginnings" style={{ height: 60, width: 'auto', display: 'block' }} />
+          <img src={logoImg} alt="The New Beginnings" style={{ height: 60, width: 'auto', display: 'block', maxWidth: '100%' }} />
         </button>
 
         {/* Divider */}
