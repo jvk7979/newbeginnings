@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { C } from '../tokens';
 import { useAuth } from '../context/AuthContext';
-const logoImg = `${import.meta.env.BASE_URL}logo.png`;
+import logoImg from '../assets/logo.png';
 
 const FEATURES = [
   { icon: '💡', label: 'Ideas',     desc: 'Capture and evaluate venture ideas' },

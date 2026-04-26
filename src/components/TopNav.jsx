@@ -3,7 +3,7 @@ import { C } from '../tokens';
 import { useAuth } from '../context/AuthContext';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-const logoImg = `${import.meta.env.BASE_URL}logo.png`;
+import logoImg from '../assets/logo.png';
 
 const NAV_ITEMS = [
   { id: 'dashboard',  label: 'Home' },
