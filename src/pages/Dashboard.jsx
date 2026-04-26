@@ -19,7 +19,7 @@ export default function Dashboard({ onNavigate }) {
         <img
           src={heroImg}
           alt="The New Beginnings"
-          style={{ width: '100%', maxHeight: 320, objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
         />
       </div>
 
