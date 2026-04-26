@@ -54,7 +54,7 @@ export default function FileDetailPage({ file, onNavigate }) {
   }
 
   const isPdf = file.fileName?.toLowerCase().endsWith('.pdf');
-  const fileUrl = `${import.meta.env.BASE_URL}files/${file.fileName}`;
+  const fileUrl = `${import.meta.env.BASE_URL}files/${encodeURIComponent(file.fileName)}`;
   const catStyle = CAT_STYLE[file.category] || CAT_STYLE.Other;
 
   const loadPdf = async () => {
