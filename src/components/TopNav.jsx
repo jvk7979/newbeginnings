@@ -115,7 +115,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
   return (
     <>
-      <header style={{ height: 54, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 16, flexShrink: 0, position: 'relative', zIndex: 100 }}>
+      <header style={{ height: 62, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 16, flexShrink: 0, position: 'relative', zIndex: 100 }}>
 
         {/* Logo */}
         <button
@@ -125,7 +125,7 @@ export default function TopNav({ currentPage, onNavigate }) {
           <img
             src={logoImg}
             alt="The New Beginnings"
-            style={{ height: 36, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+            style={{ height: 46, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
           />
         </button>
 
@@ -165,7 +165,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
           {/* Settings dropdown */}
           {settingsOpen && (
-            <div style={{ position: 'absolute', top: 58, right: 20, width: 220, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.10)', padding: '8px 6px', zIndex: 200 }}>
+            <div style={{ position: 'absolute', top: 66, right: 20, width: 220, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.10)', padding: '8px 6px', zIndex: 200 }}>
               {user && (
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px 10px' }}>
@@ -206,7 +206,7 @@ export default function TopNav({ currentPage, onNavigate }) {
       {mobileOpen && (
         <>
           <div onClick={() => setMobileOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.35)', zIndex: 150 }} />
-          <nav style={{ position: 'fixed', top: 54, left: 0, right: 0, background: C.bg2, borderBottom: `1px solid ${C.border}`, zIndex: 160, padding: '8px 12px 14px', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }} aria-label="Mobile navigation">
+          <nav style={{ position: 'fixed', top: 62, left: 0, right: 0, background: C.bg2, borderBottom: `1px solid ${C.border}`, zIndex: 160, padding: '8px 12px 14px', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }} aria-label="Mobile navigation">
             {NAV_ITEMS.map(item => (
               <button key={item.id} onClick={() => { onNavigate(item.id); setMobileOpen(false); }}
                 aria-current={activeTab === item.id ? 'page' : undefined}
