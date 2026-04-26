@@ -73,14 +73,6 @@ export default function TopNav({ currentPage, onNavigate }) {
     setSettingsOpen(false);
   };
 
-  const handleClearAll = async () => {
-    if (window.confirm('Clear all data and start fresh? Export first if you want a backup.')) {
-      await importData({ ideas: [], projects: [], plans: [] });
-      showToast('All data cleared', 'info');
-    }
-    setSettingsOpen(false);
-  };
-
   const handleSignOut = async () => {
     if (window.confirm('Sign out?')) await signOutUser();
     setSettingsOpen(false);
@@ -120,12 +112,9 @@ export default function TopNav({ currentPage, onNavigate }) {
         {/* Logo */}
         <button
           onClick={() => onNavigate('dashboard')}
-          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10, cursor: 'pointer', padding: '4px 12px 4px 6px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
+          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
           aria-label="Go to Home">
-          <img src={logoImg} alt="The New Beginnings" style={{ height: 52, width: 'auto', display: 'block' }} />
-          <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 14, fontWeight: 700, fontStyle: 'italic', color: C.accent, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }} className="hide-on-mobile">
-            The New Beginnings
-          </span>
+          <img src={logoImg} alt="The New Beginnings" style={{ height: 60, width: 'auto', display: 'block' }} />
         </button>
 
         {/* Divider */}
