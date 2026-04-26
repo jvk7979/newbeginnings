@@ -24,6 +24,7 @@ export default function IdeasPage({ onNavigate }) {
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em' }}>Ideas</div>
@@ -72,6 +73,7 @@ export default function IdeasPage({ onNavigate }) {
           {filtered.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
         </div>
       )}
+      </div>
     </div>
   );
 }

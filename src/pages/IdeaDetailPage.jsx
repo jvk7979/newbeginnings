@@ -146,6 +146,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -168,7 +169,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
         {/* ── VIEW MODE ── */}
         {!isEditing && (
@@ -345,6 +346,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
           </div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 6 }}>Visible to all signed-in family members.</div>
         </div>
+      </div>
       </div>
     </div>
   );
