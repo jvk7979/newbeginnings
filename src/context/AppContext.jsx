@@ -29,25 +29,37 @@ function todayStr() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-const col = (uid, name) => collection(db, 'users', uid, name);
-const ref = (uid, name, id) => doc(db, 'users', uid, name, String(id));
+// All data lives in shared top-level collections — visible to every signed-in family member
+const SHARED = { ideas: 'sharedIdeas', projects: 'sharedProjects', plans: 'sharedPlans' };
+const sharedCol = (name) => collection(db, SHARED[name]);
+const sharedRef = (name, id) => doc(db, SHARED[name], String(id));
 
-// Write seed + any existing localStorage data to Firestore on first sign-in
-async function initializeUser(uid) {
-  const snap = await getDocs(col(uid, 'ideas'));
-  if (!snap.empty) return; // already has data
+// On first ever load, seed shared collections (migrating from per-user storage if present)
+async function ensureSharedData(uid) {
+  const snap = await getDocs(sharedCol('ideas'));
+  if (!snap.empty) return; // shared data already exists
 
-  const lsIdeas    = (() => { try { return JSON.parse(localStorage.getItem('nb_ideas'))    || SEED_IDEAS;    } catch { return SEED_IDEAS;    } })();
-  const lsProjects = (() => { try { return JSON.parse(localStorage.getItem('nb_projects')) || SEED_PROJECTS; } catch { return SEED_PROJECTS; } })();
-  const lsPlans    = (() => { try { return JSON.parse(localStorage.getItem('nb_plans'))    || SEED_PLANS;    } catch { return SEED_PLANS;    } })();
+  // Try to migrate data the primary account already saved under users/{uid}/…
+  const [uIdeas, uProjects, uPlans] = await Promise.all([
+    getDocs(collection(db, 'users', uid, 'ideas')),
+    getDocs(collection(db, 'users', uid, 'projects')),
+    getDocs(collection(db, 'users', uid, 'plans')),
+  ]);
+
+  const lsIdeas    = (() => { try { return JSON.parse(localStorage.getItem('nb_ideas'))    || null; } catch { return null; } })();
+  const lsProjects = (() => { try { return JSON.parse(localStorage.getItem('nb_projects')) || null; } catch { return null; } })();
+  const lsPlans    = (() => { try { return JSON.parse(localStorage.getItem('nb_plans'))    || null; } catch { return null; } })();
+
+  const ideas    = !uIdeas.empty    ? uIdeas.docs.map(d => d.data())    : lsIdeas    || SEED_IDEAS;
+  const projects = !uProjects.empty ? uProjects.docs.map(d => d.data()) : lsProjects || SEED_PROJECTS;
+  const plans    = !uPlans.empty    ? uPlans.docs.map(d => d.data())    : lsPlans    || SEED_PLANS;
 
   const batch = writeBatch(db);
-  lsIdeas.forEach(i    => batch.set(ref(uid, 'ideas',    i.id), i));
-  lsProjects.forEach(p => batch.set(ref(uid, 'projects', p.id), p));
-  lsPlans.forEach(p    => batch.set(ref(uid, 'plans',    p.id), p));
+  ideas.forEach(i    => batch.set(sharedRef('ideas',    i.id), i));
+  projects.forEach(p => batch.set(sharedRef('projects', p.id), p));
+  plans.forEach(p    => batch.set(sharedRef('plans',    p.id), p));
   await batch.commit();
 
-  // Clear localStorage after migration
   localStorage.removeItem('nb_ideas');
   localStorage.removeItem('nb_projects');
   localStorage.removeItem('nb_plans');
@@ -71,16 +83,16 @@ export function AppProvider({ children }) {
     setDataLoading(true);
 
     const uid = user.uid;
-    initializeUser(uid);
+    ensureSharedData(uid);
 
     const tick = () => { loadedCount.current++; if (loadedCount.current >= 4) setDataLoading(false); };
     const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
 
     const timeout = setTimeout(() => setDataLoading(false), 5000);
 
-    const u1 = onSnapshot(col(uid, 'ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
-    const u2 = onSnapshot(col(uid, 'projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
-    const u3 = onSnapshot(col(uid, 'plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+    const u1 = onSnapshot(sharedCol('ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+    const u2 = onSnapshot(sharedCol('projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
+    const u3 = onSnapshot(sharedCol('plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
     const u4 = onSnapshot(collection(db, 'sharedFiles'), s => { setFiles(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
 
     return () => { u1(); u2(); u3(); u4(); clearTimeout(timeout); };
@@ -90,44 +102,44 @@ export function AppProvider({ children }) {
   const addIdea = useCallback(async (idea) => {
     if (!user) return;
     const item = { ...idea, id: Date.now(), date: todayStr() };
-    await setDoc(ref(user.uid, 'ideas', item.id), item);
+    await setDoc(sharedRef('ideas', item.id), item);
   }, [user]);
 
   const updateIdea = useCallback(async (id, patch) => {
     if (!user) return;
-    await updateDoc(ref(user.uid, 'ideas', id), patch);
+    await updateDoc(sharedRef('ideas', id), patch);
   }, [user]);
 
   const deleteIdea = useCallback(async (id) => {
     if (!user) return;
-    await deleteDoc(ref(user.uid, 'ideas', id));
+    await deleteDoc(sharedRef('ideas', id));
   }, [user]);
 
   const restoreIdea = useCallback(async (idea) => {
     if (!user) return;
-    await setDoc(ref(user.uid, 'ideas', idea.id), idea);
+    await setDoc(sharedRef('ideas', idea.id), idea);
   }, [user]);
 
   // ── Projects ─────────────────────────────────────────────────────────────
   const addProject = useCallback(async (project) => {
     if (!user) return;
     const item = { ...project, id: Date.now(), date: todayStr(), kpis: null };
-    await setDoc(ref(user.uid, 'projects', item.id), item);
+    await setDoc(sharedRef('projects', item.id), item);
   }, [user]);
 
   const updateProject = useCallback(async (id, patch) => {
     if (!user) return;
-    await updateDoc(ref(user.uid, 'projects', id), patch);
+    await updateDoc(sharedRef('projects', id), patch);
   }, [user]);
 
   const deleteProject = useCallback(async (id) => {
     if (!user) return;
-    await deleteDoc(ref(user.uid, 'projects', id));
+    await deleteDoc(sharedRef('projects', id));
   }, [user]);
 
   const restoreProject = useCallback(async (project) => {
     if (!user) return;
-    await setDoc(ref(user.uid, 'projects', project.id), project);
+    await setDoc(sharedRef('projects', project.id), project);
   }, [user]);
 
   // ── Plans ────────────────────────────────────────────────────────────────
@@ -135,34 +147,33 @@ export function AppProvider({ children }) {
     if (!user) return;
     const secs = plan.sections || [];
     const item = { ...plan, id: Date.now(), updated: todayStr(), sectionCount: secs.length };
-    await setDoc(ref(user.uid, 'plans', item.id), item);
+    await setDoc(sharedRef('plans', item.id), item);
   }, [user]);
 
   const updatePlan = useCallback(async (id, patch) => {
     if (!user) return;
     const existing = plans.find(p => p.id === id);
     const secs = patch.sections ?? existing?.sections ?? [];
-    await setDoc(ref(user.uid, 'plans', id), {
+    await setDoc(sharedRef('plans', id), {
       ...existing, ...patch, updated: todayStr(), sectionCount: secs.length,
     });
   }, [user, plans]);
 
   const deletePlan = useCallback(async (id) => {
     if (!user) return;
-    await deleteDoc(ref(user.uid, 'plans', id));
+    await deleteDoc(sharedRef('plans', id));
   }, [user]);
 
   const restorePlan = useCallback(async (plan) => {
     if (!user) return;
-    await setDoc(ref(user.uid, 'plans', plan.id), plan);
+    await setDoc(sharedRef('plans', plan.id), plan);
   }, [user]);
 
-  // ── Bulk ─────────────────────────────────────────────────────────────────
+  // ── Bulk import ──────────────────────────────────────────────────────────
   const importData = useCallback(async (data) => {
     if (!user) return;
-    const uid = user.uid;
     for (const name of ['ideas', 'projects', 'plans']) {
-      const snap = await getDocs(col(uid, name));
+      const snap = await getDocs(sharedCol(name));
       if (!snap.empty) {
         const batch = writeBatch(db);
         snap.docs.forEach(d => batch.delete(d.ref));
@@ -171,30 +182,30 @@ export function AppProvider({ children }) {
     }
     if (Array.isArray(data.ideas) || Array.isArray(data.projects) || Array.isArray(data.plans)) {
       const batch = writeBatch(db);
-      (data.ideas    || []).forEach(i => batch.set(ref(uid, 'ideas',    i.id), i));
-      (data.projects || []).forEach(i => batch.set(ref(uid, 'projects', i.id), i));
-      (data.plans    || []).forEach(i => batch.set(ref(uid, 'plans',    i.id), i));
+      (data.ideas    || []).forEach(i => batch.set(sharedRef('ideas',    i.id), i));
+      (data.projects || []).forEach(i => batch.set(sharedRef('projects', i.id), i));
+      (data.plans    || []).forEach(i => batch.set(sharedRef('plans',    i.id), i));
       await batch.commit();
     }
   }, [user]);
 
-  // ── Shared Files (visible to all authenticated users) ────────────────────
-  const sharedRef = (id) => doc(db, 'sharedFiles', String(id));
+  // ── Shared Files ─────────────────────────────────────────────────────────
+  const fileRef = (id) => doc(db, 'sharedFiles', String(id));
 
   const addFile = useCallback(async (file) => {
     if (!user) return;
     const item = { ...file, id: Date.now(), date: todayStr(), addedBy: user.email || user.uid };
-    await setDoc(sharedRef(item.id), item);
+    await setDoc(fileRef(item.id), item);
   }, [user]);
 
   const updateFile = useCallback(async (id, patch) => {
     if (!user) return;
-    await updateDoc(sharedRef(id), patch);
+    await updateDoc(fileRef(id), patch);
   }, [user]);
 
   const deleteFile = useCallback(async (id) => {
     if (!user) return;
-    await deleteDoc(sharedRef(id));
+    await deleteDoc(fileRef(id));
   }, [user]);
 
   return (
