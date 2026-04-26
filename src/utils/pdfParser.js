@@ -27,26 +27,40 @@ function isMarkdownHeading(line) {
 // Common business-plan section headings
 const HEADING_KEYWORDS = [
   'executive summary', 'business overview', 'introduction', 'background',
-  'problem statement', 'opportunity', 'solution', 'product', 'service',
-  'market analysis', 'market opportunity', 'target market', 'customer',
-  'competition', 'competitive', 'value proposition', 'business model',
-  'revenue model', 'financial', 'financials', 'projections', 'forecast',
-  'capex', 'investment', 'subsidy', 'funding', 'cost', 'revenue',
-  'operations', 'operational', 'implementation', 'timeline', 'roadmap',
-  'team', 'management', 'organizational', 'risk', 'risks', 'mitigation',
-  'location', 'raw material', 'machinery', 'equipment', 'infrastructure',
-  'recommendation', 'conclusion', 'next steps', 'appendix',
-  'swot', 'strengths', 'weaknesses', 'opportunities', 'threats',
+  'problem statement', 'market analysis', 'market opportunity', 'target market',
+  'competitive analysis', 'value proposition', 'business model', 'revenue model',
+  'financial projections', 'financial summary', 'capex', 'investment summary',
+  'subsidy', 'funding', 'operations plan', 'operational plan', 'implementation plan',
+  'timeline', 'roadmap', 'team structure', 'management team', 'organizational',
+  'risk assessment', 'risk analysis', 'mitigation', 'next steps', 'appendix',
+  'swot analysis', 'conclusion', 'recommendation',
 ];
+
+// Detect inline citation-chip lines extracted from PDFs (e.g. "coconutboard India Atlas", "NIIR EximData")
+function isCitationLine(line) {
+  if (line.length > 80) return false;
+  // All tokens are word-chars only (no punctuation, no numbers), ≤ 6 tokens
+  const tokens = line.trim().split(/\s+/);
+  if (tokens.length > 6) return false;
+  return tokens.every(t => /^[A-Za-z][A-Za-z0-9]*$/.test(t)) &&
+    tokens.every(t => t.length <= 25) &&
+    // Must not look like an English sentence (no common English words that would appear in headings)
+    !/^(The|A|An|In|On|For|With|From|This|That|These|Those|And|But|Or)\b/i.test(line);
+}
 
 function isHeading(line) {
   if (isMarkdownHeading(line)) return true;
-  if (line.length < 3 || line.length > 120) return false;
-  const lower = line.toLowerCase().replace(/[^a-z\s]/g, ' ');
-  if (HEADING_KEYWORDS.some(kw => lower.includes(kw))) return true;
-  if (/^\d+[\.\)]\s+\w/.test(line) && line.length < 80) return true;
-  if (line === line.toUpperCase() && line.replace(/\s/g, '').length > 3) return true;
+  if (line.length < 3 || line.length > 110) return false;
+  // Numbered sections like "1. The optimal product mix..." or "Section 1 —"
+  if (/^\d+[\.\)]\s+[A-Z]/.test(line) && line.length < 90) return true;
+  // All-caps short lines (e.g. "EXECUTIVE SUMMARY", "NIIR" excluded by length)
+  if (line === line.toUpperCase() && /^[A-Z]/.test(line) && line.replace(/\s/g, '').length > 4 && line.length < 60) return true;
+  // "Title Case words ending with colon:" pattern
   if (/^[A-Z][^.!?]*:$/.test(line) && line.length < 80) return true;
+  // Keyword match — ONLY if line starts with uppercase (rules out mid-sentence fragments)
+  if (!/^[A-Z]/.test(line)) return false;
+  const lower = line.toLowerCase().replace(/[^a-z\s]/g, ' ');
+  if (line.length < 80 && HEADING_KEYWORDS.some(kw => lower.includes(kw))) return true;
   return false;
 }
 
@@ -105,7 +119,7 @@ export async function extractAllText(file) {
 
 export function parseTextForIdea(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-    .filter(l => !isTableRow(l) && !isTableSeparator(l));
+    .filter(l => !isTableRow(l) && !isTableSeparator(l) && !isCitationLine(l));
   const title = cleanMarkdown(lines[0] || '').slice(0, 120);
   const descLines = lines.slice(1).filter(l => l.length > 20).slice(0, 30);
   const desc = descLines.map(cleanMarkdown).join(' ').slice(0, 1200);
@@ -116,8 +130,8 @@ export function parseTextForPlan(text) {
   const rawLines = text.split('\n').map(l => l.trim()).filter(Boolean);
   if (rawLines.length === 0) return { title: '', summary: '', sections: [] };
 
-  // Strip table rows before processing
-  const lines = rawLines.filter(l => !isTableRow(l) && !isTableSeparator(l));
+  // Strip table rows and PDF citation chips before processing
+  const lines = rawLines.filter(l => !isTableRow(l) && !isTableSeparator(l) && !isCitationLine(l));
   if (lines.length === 0) return { title: '', summary: '', sections: [] };
 
   const title = cleanMarkdown(lines[0]).slice(0, 140);
