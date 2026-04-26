@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { C } from './tokens';
+import { useAuth } from './context/AuthContext';
 import { useAppData } from './context/AppContext';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
+import SignInPage from './pages/SignInPage';
 import Dashboard from './pages/Dashboard';
 import IdeasPage from './pages/IdeasPage';
 import NewIdeaPage from './pages/NewIdeaPage';
@@ -26,21 +28,34 @@ const parseHash = () => {
   return { page: 'dashboard', itemId: null };
 };
 
+function Spinner({ label }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: C.bg0, gap: 16 }}>
+      <svg width="36" height="36" viewBox="0 0 46 46" fill="none">
+        <path d="M23 2 C23 2 18 9 23 16 C28 9 23 2 23 2Z" fill={C.accent}/>
+        <path d="M4 24 C10 19 16 19 23 24 C30 29 36 29 42 24" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M4 32 C10 27 16 27 23 32 C30 37 36 37 42 32" stroke={C.accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
+      </svg>
+      {label && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>{label}</div>}
+    </div>
+  );
+}
+
 function NotFound({ label, dest, onNavigate }) {
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 60, textAlign: 'center' }}>
         {label} not found.
-        <button onClick={() => onNavigate(dest)} style={{ display: 'block', margin: '12px auto 0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer' }}>
-          ← Go back
-        </button>
+        <button onClick={() => onNavigate(dest)} style={{ display: 'block', margin: '12px auto 0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer' }}>← Go back</button>
       </div>
     </div>
   );
 }
 
 export default function App() {
-  const { ideas, projects, plans } = useAppData();
+  const { user, loading: authLoading } = useAuth();
+  const { ideas, projects, plans, dataLoading } = useAppData();
+
   const [page,    setPage]    = useState(() => parseHash().page);
   const [itemId,  setItemId]  = useState(() => parseHash().itemId);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -55,8 +70,7 @@ export default function App() {
   useEffect(() => {
     const onHashChange = () => {
       const { page: p, itemId: id } = parseHash();
-      setPage(p);
-      setItemId(id);
+      setPage(p); setItemId(id);
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -64,26 +78,21 @@ export default function App() {
 
   const navigate = (dest, data = null) => {
     const id = data?.id || null;
-    setPage(dest);
-    setItemId(id);
-
-    let newHash;
-    if (LINKABLE.includes(dest)) {
-      newHash = '#/' + dest;
-    } else if (id) {
-      newHash = '#/' + dest + '/' + id;
-    } else {
-      newHash = '#/' + dest;
-    }
+    setPage(dest); setItemId(id);
+    const newHash = id ? `#/${dest}/${id}` : `#/${dest}`;
     if (window.location.hash !== newHash) window.location.hash = newHash;
     if (isMobile) setSidebarOpen(false);
   };
 
-  const renderPage = () => {
-    const idea    = ideas.find(i => i.id == itemId);
-    const project = projects.find(p => p.id == itemId);
-    const plan    = plans.find(p => p.id == itemId);
+  if (authLoading) return <Spinner />;
+  if (!user) return <SignInPage />;
+  if (dataLoading) return <Spinner label="Loading your data…" />;
 
+  const idea    = ideas.find(i => i.id == itemId);
+  const project = projects.find(p => p.id == itemId);
+  const plan    = plans.find(p => p.id == itemId);
+
+  const renderPage = () => {
     switch (page) {
       case 'dashboard':      return <Dashboard onNavigate={navigate} />;
       case 'ideas':          return <IdeasPage onNavigate={navigate} />;
@@ -105,12 +114,8 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      {!isMobile && (
-        <Sidebar currentPage={page} onNavigate={navigate} isMobile={false} isOpen={true} onClose={() => {}} />
-      )}
-      {isMobile && sidebarOpen && (
-        <Sidebar currentPage={page} onNavigate={navigate} isMobile={true} isOpen={true} onClose={() => setSidebarOpen(false)} />
-      )}
+      {!isMobile && <Sidebar currentPage={page} onNavigate={navigate} isMobile={false} isOpen={true} onClose={() => {}} />}
+      {isMobile && sidebarOpen && <Sidebar currentPage={page} onNavigate={navigate} isMobile={true} isOpen={true} onClose={() => setSidebarOpen(false)} />}
       {isMobile && !sidebarOpen && (
         <button onClick={() => setSidebarOpen(true)} aria-label="Open menu"
           style={{ position: 'fixed', top: 12, left: 12, zIndex: 50, width: 36, height: 36, borderRadius: 6, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}>
