@@ -7,11 +7,11 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     setLoading(true);
     setError('');
     try {
-      signInWithGoogle(); // triggers redirect — page navigates away
+      await signInWithGoogle();
     } catch {
       setError('Sign-in failed. Please try again.');
       setLoading(false);
