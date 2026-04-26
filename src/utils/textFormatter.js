@@ -18,7 +18,17 @@ export function formatText(raw) {
     if (/^AI responses may include mistakes/i.test(line)) continue;
     // Skip lines that are purely numeric citation lists like "1. https://..."
     if (/^\d+\.\s+https?:\/\//.test(line)) continue;
-    cleaned.push(line);
+    // Skip markdown table rows and separators
+    if (/^\|.+\|/.test(line) || /^\|[\s\-:|]+\|/.test(line)) continue;
+    // Strip markdown formatting
+    const stripped = line
+      .replace(/^#{1,6}\s+/, '')
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/__(.+?)__/g, '$1')
+      .replace(/_(.+?)_/g, '$1')
+      .replace(/`(.+?)`/g, '$1');
+    cleaned.push(stripped);
   }
 
   // Join all lines into one pass so we can split on bullet markers

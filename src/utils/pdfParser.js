@@ -1,6 +1,29 @@
 // Evaluated at build time — Vite copies the worker asset
 export const PDF_WORKER_SRC = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).href;
 
+function isTableRow(line) {
+  return /^\|.+\|/.test(line);
+}
+
+function isTableSeparator(line) {
+  return /^\|[\s\-:|]+\|/.test(line);
+}
+
+function cleanMarkdown(text) {
+  return text
+    .replace(/^#{1,6}\s+/, '')       // strip leading # heading markers
+    .replace(/\*\*(.+?)\*\*/g, '$1') // **bold**
+    .replace(/\*(.+?)\*/g, '$1')     // *italic*
+    .replace(/__(.+?)__/g, '$1')     // __bold__
+    .replace(/_(.+?)_/g, '$1')       // _italic_
+    .replace(/`(.+?)`/g, '$1')       // `code`
+    .trim();
+}
+
+function isMarkdownHeading(line) {
+  return /^#{1,6}\s+/.test(line);
+}
+
 // Common business-plan section headings
 const HEADING_KEYWORDS = [
   'executive summary', 'business overview', 'introduction', 'background',
@@ -17,6 +40,7 @@ const HEADING_KEYWORDS = [
 ];
 
 function isHeading(line) {
+  if (isMarkdownHeading(line)) return true;
   if (line.length < 3 || line.length > 120) return false;
   const lower = line.toLowerCase().replace(/[^a-z\s]/g, ' ');
   if (HEADING_KEYWORDS.some(kw => lower.includes(kw))) return true;
@@ -57,18 +81,23 @@ export async function extractAllText(file) {
 }
 
 export function parseTextForIdea(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  const title = lines[0]?.slice(0, 120) || '';
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+    .filter(l => !isTableRow(l) && !isTableSeparator(l));
+  const title = cleanMarkdown(lines[0] || '').slice(0, 120);
   const descLines = lines.slice(1).filter(l => l.length > 20).slice(0, 30);
-  const desc = descLines.join(' ').slice(0, 1200);
+  const desc = descLines.map(cleanMarkdown).join(' ').slice(0, 1200);
   return { title, desc };
 }
 
 export function parseTextForPlan(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const rawLines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  if (rawLines.length === 0) return { title: '', summary: '', sections: [] };
+
+  // Strip table rows before processing
+  const lines = rawLines.filter(l => !isTableRow(l) && !isTableSeparator(l));
   if (lines.length === 0) return { title: '', summary: '', sections: [] };
 
-  const title = lines[0].slice(0, 140);
+  const title = cleanMarkdown(lines[0]).slice(0, 140);
   const sections = [];
   let currentSection = null;
   let summaryLines = [];
@@ -78,20 +107,22 @@ export function parseTextForPlan(text) {
     const line = lines[i];
     if (isHeading(line)) {
       if (currentSection) sections.push(currentSection);
-      currentSection = { title: line.replace(/:$/, '').trim(), content: '' };
+      const sectionTitle = cleanMarkdown(line).replace(/:$/, '').trim();
+      currentSection = { title: sectionTitle, content: '' };
       preambleDone = true;
     } else if (!preambleDone && summaryLines.length < 8) {
-      summaryLines.push(line);
+      summaryLines.push(cleanMarkdown(line));
     } else if (currentSection) {
+      const cleaned = cleanMarkdown(line);
       currentSection.content = currentSection.content
-        ? currentSection.content + ' ' + line
-        : line;
+        ? currentSection.content + ' ' + cleaned
+        : cleaned;
     } else {
-      // No heading detected yet — accumulate as first implicit section
       if (!currentSection) currentSection = { title: 'Overview', content: '' };
+      const cleaned = cleanMarkdown(line);
       currentSection.content = currentSection.content
-        ? currentSection.content + ' ' + line
-        : line;
+        ? currentSection.content + ' ' + cleaned
+        : cleaned;
     }
   }
   if (currentSection && (currentSection.content || currentSection.title !== 'Overview')) {
@@ -100,7 +131,7 @@ export function parseTextForPlan(text) {
 
   // Fallback: if no sections detected, split into chunks of ~20 lines
   if (sections.length === 0) {
-    const contentLines = lines.slice(1).filter(l => l.length > 10);
+    const contentLines = lines.slice(1).filter(l => l.length > 10).map(cleanMarkdown);
     const chunkSize = Math.ceil(contentLines.length / Math.max(1, Math.ceil(contentLines.length / 20)));
     for (let i = 0; i < contentLines.length; i += chunkSize) {
       sections.push({
