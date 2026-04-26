@@ -111,7 +111,7 @@ export default function AboutPage({ onNavigate }) {
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
           View Projects
         </button>
-        <button onClick={() => onNavigate('files')}
+        <button onClick={() => onNavigate('documents')}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
           Open Files
         </button>

@@ -2,17 +2,7 @@ import { useState } from 'react';
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-
-const CAT_STYLE = {
-  Business:     { bg: '#FDF5E4', color: '#B8892A' },
-  Agriculture:  { bg: '#EAF5EE', color: '#2E7D52' },
-  Technology:   { bg: '#EAF0FA', color: '#2B5FA6' },
-  Finance:      { bg: '#FDF0E4', color: '#C4681C' },
-  'Real Estate':{ bg: '#F0EAF8', color: '#6B3FA6' },
-  Community:    { bg: '#EAF5EE', color: '#2E7D52' },
-  Personal:     { bg: '#EDE8DE', color: '#9A8E80' },
-  Other:        { bg: '#EDE8DE', color: '#9A8E80' },
-};
+import { getCategoryStyle } from '../utils/categoryStyles';
 
 export default function FileDetailPage({ file, onNavigate }) {
   const { deleteFile } = useAppData();
@@ -24,7 +14,7 @@ export default function FileDetailPage({ file, onNavigate }) {
       <div className="page-pad" style={{ background: C.bg0, flex: 1, overflowY: 'auto' }}>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 60, textAlign: 'center' }}>
           File not found.
-          <button onClick={() => onNavigate('files')} style={{ display: 'block', margin: '12px auto 0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer' }}>← Back to Files</button>
+          <button onClick={() => onNavigate('documents')} style={{ display: 'block', margin: '12px auto 0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer' }}>← Back to Documents</button>
         </div>
       </div>
     );
@@ -32,13 +22,13 @@ export default function FileDetailPage({ file, onNavigate }) {
 
   const isPdf = file.fileName?.toLowerCase().endsWith('.pdf');
   const fileUrl = `${import.meta.env.BASE_URL}files/${encodeURIComponent(file.fileName)}`;
-  const catStyle = CAT_STYLE[file.category] || CAT_STYLE.Other;
+  const catStyle = getCategoryStyle(file.category);
 
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${file.title}"?`)) return;
     await deleteFile(file.id);
-    showToast('File removed', 'info');
-    onNavigate('files');
+    showToast('Document removed', 'info');
+    onNavigate('documents');
   };
 
   return (
@@ -48,7 +38,7 @@ export default function FileDetailPage({ file, onNavigate }) {
       <div style={{ flexShrink: 0, height: 48, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 12 }}>
         <button onClick={() => onNavigate('files')}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
-          ← Files
+          ← Documents
         </button>
 
         <div style={{ width: 1, height: 18, background: C.border, flexShrink: 0 }} />

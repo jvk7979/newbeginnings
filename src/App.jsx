@@ -13,13 +13,12 @@ import ProjectDetailPage from './pages/ProjectDetailPage';
 import PlansPage from './pages/PlansPage';
 import PlanDetailPage from './pages/PlanDetailPage';
 import NewPlanPage from './pages/NewPlanPage';
-import CalculatorPage from './pages/CalculatorPage';
 import FilesPage from './pages/FilesPage';
 import FileDetailPage from './pages/FileDetailPage';
 import AboutPage from './pages/AboutPage';
 
-const LINKABLE = ['dashboard', 'ideas', 'projects', 'plans', 'calculator', 'files', 'about'];
-const DETAIL   = ['idea-detail', 'project-detail', 'plan-detail', 'new-idea', 'new-plan', 'file-detail'];
+const LINKABLE = ['dashboard', 'ideas', 'projects', 'plans', 'documents', 'about'];
+const DETAIL   = ['idea-detail', 'project-detail', 'plan-detail', 'new-idea', 'new-plan', 'document-detail'];
 
 const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
@@ -56,10 +55,10 @@ function NotFound({ label, dest, onNavigate }) {
 
 export default function App() {
   const { user, loading: authLoading } = useAuth();
-  const { ideas, projects, plans, dataLoading } = useAppData();
+  const { ideas, projects, plans, files, dataLoading } = useAppData();
 
-  const [page,    setPage]    = useState(() => parseHash().page);
-  const [itemId,  setItemId]  = useState(() => parseHash().itemId);
+  const [page,   setPage]   = useState(() => parseHash().page);
+  const [itemId, setItemId] = useState(() => parseHash().itemId);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -78,37 +77,35 @@ export default function App() {
   };
 
   if (authLoading) return <Spinner />;
-  if (!user) return <SignInPage />;
-  if (dataLoading) return <Spinner label="Loading your data…" />;
+  if (!user)       return <SignInPage />;
+  if (dataLoading) return <Spinner label="Loading your workspace…" />;
 
-  const { files } = useAppData();
-  const idea    = ideas.find(i => i.id == itemId);
+  const idea    = ideas.find(i    => i.id == itemId);
   const project = projects.find(p => p.id == itemId);
-  const plan    = plans.find(p => p.id == itemId);
-  const file    = files.find(f => f.id == itemId);
+  const plan    = plans.find(p    => p.id == itemId);
+  const file    = files.find(f    => f.id == itemId);
 
   const renderPage = () => {
     switch (page) {
-      case 'dashboard':      return <Dashboard onNavigate={navigate} />;
-      case 'ideas':          return <IdeasPage onNavigate={navigate} />;
-      case 'new-idea':       return <NewIdeaPage onNavigate={navigate} />;
+      case 'dashboard':        return <Dashboard onNavigate={navigate} />;
+      case 'ideas':            return <IdeasPage onNavigate={navigate} />;
+      case 'new-idea':         return <NewIdeaPage onNavigate={navigate} />;
       case 'idea-detail':
         if (itemId && !idea) return <NotFound label="Idea" dest="ideas" onNavigate={navigate} />;
         return <IdeaDetailPage idea={idea || ideas[0]} onNavigate={navigate} />;
-      case 'projects':       return <ProjectsPage onNavigate={navigate} />;
+      case 'projects':         return <ProjectsPage onNavigate={navigate} />;
       case 'project-detail':
         if (itemId && !project) return <NotFound label="Project" dest="projects" onNavigate={navigate} />;
         return <ProjectDetailPage project={project || projects[0]} onNavigate={navigate} />;
-      case 'plans':          return <PlansPage onNavigate={navigate} />;
-      case 'plan-detail':    return <PlanDetailPage plan={plan} onNavigate={navigate} />;
-      case 'new-plan':       return <NewPlanPage onNavigate={navigate} />;
-      case 'files':          return <FilesPage onNavigate={navigate} />;
-      case 'file-detail':
-        if (itemId && !file) return <NotFound label="File" dest="files" onNavigate={navigate} />;
+      case 'plans':            return <PlansPage onNavigate={navigate} />;
+      case 'plan-detail':      return <PlanDetailPage plan={plan} onNavigate={navigate} />;
+      case 'new-plan':         return <NewPlanPage onNavigate={navigate} />;
+      case 'documents':        return <FilesPage onNavigate={navigate} />;
+      case 'document-detail':
+        if (itemId && !file) return <NotFound label="Document" dest="documents" onNavigate={navigate} />;
         return <FileDetailPage file={file || files[0]} onNavigate={navigate} />;
-      case 'about':          return <AboutPage onNavigate={navigate} />;
-      case 'calculator':     return <CalculatorPage />;
-      default:               return <Dashboard onNavigate={navigate} />;
+      case 'about':            return <AboutPage onNavigate={navigate} />;
+      default:                 return <Dashboard onNavigate={navigate} />;
     }
   };
 

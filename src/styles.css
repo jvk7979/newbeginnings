@@ -1,29 +1,44 @@
 /* Responsive layout — colors/fonts stay in inline styles */
 
 /* TopNav visibility helpers */
-.hide-on-mobile { display: flex; }
+.hide-on-mobile  { display: flex; }
 .hide-on-desktop { display: none; }
 .show-on-desktop { display: flex !important; }
 
+/* ── Animations ─────────────────────────────────────────────────────────── */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Global focus styles (P2 accessibility) ─────────────────────────────── */
+*:focus { outline: none; }
+
+*:focus-visible {
+  outline: 2px solid #8A6520;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #8A6520;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
 .page-pad {
   flex: 1;
   overflow-y: auto;
@@ -55,28 +70,15 @@
   gap: 12px;
 }
 
-.grid-calc {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 20px;
-  align-items: start;
+/* ── Card interactivity (P2 accessibility) ──────────────────────────────── */
+.card-interactive:focus-visible {
+  outline: 2px solid #8A6520;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(138, 101, 32, 0.15);
+  border-radius: 8px;
 }
 
-/* Kanban board */
-.kanban-board {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 16px;
-  align-items: flex-start;
-}
-
-.kanban-col {
-  min-width: 220px;
-  flex: 1;
-}
-
-/* Inline editable field */
+/* ── Editable field ─────────────────────────────────────────────────────── */
 .editable-field {
   border: 1px solid transparent;
   border-radius: 4px;
@@ -84,23 +86,23 @@
   transition: border 150ms, background 150ms;
   cursor: text;
 }
-
 .editable-field:hover,
 .editable-field:focus-within {
   border-color: #D8D0C4;
   background: #F8F8F8;
 }
 
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .hide-on-mobile { display: none !important; }
+  .hide-on-mobile  { display: none !important; }
   .hide-on-desktop { display: flex !important; }
   .show-on-desktop { display: none !important; }
 
   .page-pad {
-    padding: 24px 16px 32px;
+    padding: 20px 16px 40px;
   }
   .hero-bleed {
-    margin: -24px -16px 24px -16px;
+    margin: -20px -16px 20px -16px;
   }
   .grid-4 {
     grid-template-columns: 1fr 1fr;
@@ -112,11 +114,5 @@
   }
   .grid-2 {
     grid-template-columns: 1fr;
-  }
-  .grid-calc {
-    grid-template-columns: 1fr;
-  }
-  .kanban-col {
-    min-width: 200px;
   }
 }
