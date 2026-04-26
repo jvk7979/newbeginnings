@@ -38,6 +38,7 @@ export default function FileDetailPage({ file, onNavigate }) {
   const { deleteFile } = useAppData();
   const { showToast }  = useToast();
   const [pdfState, setPdfState] = useState('idle'); // idle | loading | done | error
+  const [pdfError, setPdfError] = useState('');
   const [sections, setSections] = useState([]);
   const [rawText, setRawText]   = useState('');
   const [showRaw, setShowRaw]   = useState(false);
@@ -73,6 +74,7 @@ export default function FileDetailPage({ file, onNavigate }) {
       }
     } catch (err) {
       console.error('PDF load error:', err);
+      setPdfError(err?.message || String(err));
       setPdfState('error');
     }
   };
@@ -169,8 +171,13 @@ export default function FileDetailPage({ file, onNavigate }) {
           {pdfState === 'error' && (
             <div style={{ background: C.dangerBg, border: `1px solid ${C.danger}33`, borderRadius: 8, padding: '20px 24px', marginBottom: 24 }}>
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginBottom: 8 }}>Could not load PDF content.</div>
+              {pdfError && (
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.danger, background: C.bg0, border: `1px solid ${C.danger}33`, borderRadius: 4, padding: '8px 10px', marginBottom: 10, wordBreak: 'break-all' }}>
+                  {pdfError}
+                </div>
+              )}
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, marginBottom: 12 }}>
-                Make sure the file <code style={{ fontFamily: "'JetBrains Mono', monospace" }}>{file.fileName}</code> is uploaded to <code style={{ fontFamily: "'JetBrains Mono', monospace" }}>public/files/</code> in the GitHub repo.
+                URL: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>{fileUrl}</code>
               </div>
               <a href={fileUrl} target="_blank" rel="noopener noreferrer"
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent }}>
