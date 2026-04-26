@@ -16,11 +16,7 @@ const SEED_PROJECTS = [
 
 const SEED_PLANS = [
   {
-    id: 1,
-    title: 'Coconut Processing Plant — Feasibility Report',
-    updated: 'Apr 20, 2026',
-    sectionCount: 4,
-    status: 'active',
+    id: 1, title: 'Coconut Processing Plant — Feasibility Report', updated: 'Apr 20, 2026', sectionCount: 4, status: 'active',
     summary: '₹2 crore integrated plant: cocopeat, coir fiber, shell charcoal. Year 1 revenue ₹2.86 Cr at 60% capacity. IRR 28–32%. Subsidy: ₹50–90 lakh from AP + Coir Board + CDB.',
     sections: [
       { title: 'Executive Summary', content: 'A ₹2 crore integrated coconut processing plant in Rajahmundry is financially robust: Year 1 revenue of ₹2.86 crore at 60% capacity, IRR 28–32%, break-even at 22% utilisation. Government subsidies of ₹50–90 lakh available from AP State, Coir Board, and Coconut Development Board.' },
@@ -30,11 +26,7 @@ const SEED_PLANS = [
     ],
   },
   {
-    id: 2,
-    title: 'Coco Peat Unit — Viability Analysis',
-    updated: 'Mar 30, 2026',
-    sectionCount: 3,
-    status: 'draft',
+    id: 2, title: 'Coco Peat Unit — Viability Analysis', updated: 'Mar 30, 2026', sectionCount: 3, status: 'draft',
     summary: '₹50–60 lakh small-scale unit. Marginal case EBITDA near break-even. Works only with grow bag mix, subsidy stack, and Kadiyam anchor buyers. 8–10 yr payback without subsidies.',
     sections: [
       { title: 'Executive Summary', content: 'A ₹50–60 lakh small-scale coco peat unit is a marginal opportunity. EBITDA is near break-even without subsidies. The case only works with a grow-bag focused mix, full subsidy stack, and Kadiyam nursery buyers locked in advance.' },
@@ -45,16 +37,13 @@ const SEED_PLANS = [
 ];
 
 function load(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
+  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
 }
-
 function save(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+function todayStr() {
+  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 const AppContext = createContext(null);
@@ -65,42 +54,57 @@ export function AppProvider({ children }) {
   const [plans, setPlans] = useState(() => load('nb_plans', SEED_PLANS));
 
   const addIdea = useCallback((idea) => {
-    const next = [{ ...idea, id: Date.now(), date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }, ...ideas];
-    setIdeas(next);
-    save('nb_ideas', next);
+    const next = [{ ...idea, id: Date.now(), date: todayStr() }, ...ideas];
+    setIdeas(next); save('nb_ideas', next);
   }, [ideas]);
 
   const updateIdea = useCallback((id, patch) => {
     const next = ideas.map(i => i.id === id ? { ...i, ...patch } : i);
-    setIdeas(next);
-    save('nb_ideas', next);
+    setIdeas(next); save('nb_ideas', next);
+  }, [ideas]);
+
+  const deleteIdea = useCallback((id) => {
+    const next = ideas.filter(i => i.id !== id);
+    setIdeas(next); save('nb_ideas', next);
   }, [ideas]);
 
   const addProject = useCallback((project) => {
-    const next = [{ ...project, id: Date.now(), date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), kpis: null }, ...projects];
-    setProjects(next);
-    save('nb_projects', next);
+    const next = [{ ...project, id: Date.now(), date: todayStr(), kpis: null }, ...projects];
+    setProjects(next); save('nb_projects', next);
   }, [projects]);
 
   const updateProject = useCallback((id, patch) => {
     const next = projects.map(p => p.id === id ? { ...p, ...patch } : p);
-    setProjects(next);
-    save('nb_projects', next);
+    setProjects(next); save('nb_projects', next);
+  }, [projects]);
+
+  const deleteProject = useCallback((id) => {
+    const next = projects.filter(p => p.id !== id);
+    setProjects(next); save('nb_projects', next);
   }, [projects]);
 
   const addPlan = useCallback((plan) => {
-    const next = [{ ...plan, id: Date.now(), updated: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), sectionCount: plan.sections?.length || 0 }, ...plans];
-    setPlans(next);
-    save('nb_plans', next);
+    const secs = plan.sections || [];
+    const next = [{ ...plan, id: Date.now(), updated: todayStr(), sectionCount: secs.length }, ...plans];
+    setPlans(next); save('nb_plans', next);
+  }, [plans]);
+
+  const updatePlan = useCallback((id, patch) => {
+    const secs = patch.sections ?? plans.find(p => p.id === id)?.sections ?? [];
+    const next = plans.map(p => p.id === id ? { ...p, ...patch, updated: todayStr(), sectionCount: secs.length } : p);
+    setPlans(next); save('nb_plans', next);
+  }, [plans]);
+
+  const deletePlan = useCallback((id) => {
+    const next = plans.filter(p => p.id !== id);
+    setPlans(next); save('nb_plans', next);
   }, [plans]);
 
   return (
-    <AppContext.Provider value={{ ideas, projects, plans, addIdea, updateIdea, addProject, updateProject, addPlan }}>
+    <AppContext.Provider value={{ ideas, projects, plans, addIdea, updateIdea, deleteIdea, addProject, updateProject, deleteProject, addPlan, updatePlan, deletePlan }}>
       {children}
     </AppContext.Provider>
   );
 }
 
-export function useAppData() {
-  return useContext(AppContext);
-}
+export function useAppData() { return useContext(AppContext); }

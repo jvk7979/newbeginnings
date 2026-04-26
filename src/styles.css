@@ -1,4 +1,14 @@
-/* Responsive layout classes — colors/fonts stay in inline styles */
+/* Responsive layout — colors/fonts stay in inline styles */
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .page-pad {
   flex: 1;
@@ -33,9 +43,38 @@
   align-items: start;
 }
 
+/* Kanban board */
+.kanban-board {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  align-items: flex-start;
+}
+
+.kanban-col {
+  min-width: 220px;
+  flex: 1;
+}
+
+/* Inline editable field */
+.editable-field {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 2px 4px;
+  transition: border 150ms, background 150ms;
+  cursor: text;
+}
+
+.editable-field:hover,
+.editable-field:focus-within {
+  border-color: #D8D0C4;
+  background: #F8F8F8;
+}
+
 @media (max-width: 768px) {
   .page-pad {
-    padding: 60px 16px 24px;
+    padding: 60px 16px 80px; /* top: clear hamburger, bottom: clear nav bar */
   }
   .grid-4 {
     grid-template-columns: 1fr 1fr;
@@ -50,5 +89,8 @@
   }
   .grid-calc {
     grid-template-columns: 1fr;
+  }
+  .kanban-col {
+    min-width: 200px;
   }
 }

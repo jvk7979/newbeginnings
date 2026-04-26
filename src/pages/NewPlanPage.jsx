@@ -1,26 +1,64 @@
 import { useState } from 'react';
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
+import { useToast } from '../context/ToastContext';
+import { extractAllText, parseTextForPlan } from '../utils/pdfParser';
 
 export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = useAppData();
+  const { showToast } = useToast();
   const [form, setForm] = useState({ title: '', summary: '', status: 'draft' });
   const [sections, setSections] = useState([{ title: '', content: '' }]);
   const [error, setError] = useState('');
+  const [pdfState, setPdfState] = useState({ loading: false, error: '', pages: 0 });
 
-  const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms, box-shadow 150ms' };
+  const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
   const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; };
   const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
+  const handlePdfUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPdfState({ loading: true, error: '', pages: 0 });
+    try {
+      const text = await extractAllText(file);
+      const parsed = parseTextForPlan(text);
+      setForm(f => ({
+        ...f,
+        title: parsed.title || f.title,
+        summary: parsed.summary || f.summary,
+      }));
+      if (parsed.sections.length > 0) {
+        setSections(parsed.sections.map(s => ({ title: s.title, content: s.content })));
+      }
+      const pageCount = text.split('\f').length;
+      setPdfState({ loading: false, error: '', pages: pageCount });
+      showToast(`PDF parsed — ${parsed.sections.length} sections extracted`, 'success');
+    } catch (err) {
+      setPdfState({ loading: false, error: 'Could not read PDF. Ensure it is a text-based PDF, not a scanned image.', pages: 0 });
+    }
+    e.target.value = '';
+  };
+
   const addSection = () => setSections(s => [...s, { title: '', content: '' }]);
   const removeSection = (i) => setSections(s => s.filter((_, idx) => idx !== i));
   const updateSection = (i, field, val) => setSections(s => s.map((sec, idx) => idx === i ? { ...sec, [field]: val } : sec));
+  const moveSection = (i, dir) => {
+    setSections(s => {
+      const next = [...s];
+      const j = i + dir;
+      if (j < 0 || j >= next.length) return next;
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  };
 
   const handleSave = () => {
     if (!form.title.trim()) { setError('Plan title is required.'); return; }
     const validSections = sections.filter(s => s.title.trim() || s.content.trim());
     addPlan({ ...form, title: form.title.trim(), sections: validSections });
+    showToast('Business plan saved', 'success');
     onNavigate('plans');
   };
 
@@ -32,7 +70,30 @@ export default function NewPlanPage({ onNavigate }) {
       </button>
       <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 24 }}>New Business Plan</div>
 
-      <div style={{ maxWidth: 640, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* PDF Upload */}
+      <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 8, padding: '16px 20px', marginBottom: 28 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 10 }}>Upload PDF — Auto-extract all sections</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 6, border: `1px solid ${C.border}`, color: pdfState.loading ? C.fg3 : C.fg2, cursor: pdfState.loading ? 'not-allowed' : 'pointer', background: C.bg0 }}
+            onMouseEnter={e => { if (!pdfState.loading) e.currentTarget.style.borderColor = C.accentDim; }}
+            onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            {pdfState.loading ? 'Reading all pages…' : 'Upload PDF'}
+            <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={handlePdfUpload} disabled={pdfState.loading} />
+          </label>
+          {pdfState.loading && (
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent }}>Extracting full text from all pages…</span>
+          )}
+          {pdfState.error && (
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger }}>{pdfState.error}</span>
+          )}
+        </div>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 8 }}>
+          Reads every page of the PDF and auto-detects sections (Executive Summary, Financials, etc.). Works best with text-based PDFs.
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>
           <label style={labelStyle}>Plan Title *</label>
           <input style={{ ...inputStyle, borderColor: error ? C.danger : C.border }} value={form.title}
@@ -44,44 +105,61 @@ export default function NewPlanPage({ onNavigate }) {
 
         <div>
           <label style={labelStyle}>Status</label>
-          <select style={{ ...inputStyle, appearance: 'none' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+          <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
             <option value="draft">Draft</option>
             <option value="active">Active</option>
           </select>
         </div>
 
         <div>
-          <label style={labelStyle}>Summary</label>
-          <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.55 }} value={form.summary}
+          <label style={labelStyle}>Executive Summary</label>
+          <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={form.summary}
             onChange={e => setForm({ ...form, summary: e.target.value })}
             placeholder="One-paragraph overview of the plan…"
             onFocus={focus} onBlur={blur} />
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{form.summary.length} characters</div>
         </div>
 
+        {/* Sections */}
         <div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 12 }}>Sections</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3 }}>
+              Sections ({sections.length})
+            </div>
+            <button onClick={addSection}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
+              + Add Section
+            </button>
+          </div>
           {sections.map((sec, i) => (
-            <div key={i} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px', marginBottom: 12 }}>
+            <div key={i} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 16px', marginBottom: 10, animation: 'fadeIn 200ms ease' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg3 }}>Section {i + 1}</span>
-                {sections.length > 1 && (
-                  <button onClick={() => removeSection(i)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
-                )}
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>Section {i + 1}</span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {i > 0 && (
+                    <button onClick={() => moveSection(i, -1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↑</button>
+                  )}
+                  {i < sections.length - 1 && (
+                    <button onClick={() => moveSection(i, 1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↓</button>
+                  )}
+                  {sections.length > 1 && (
+                    <button onClick={() => removeSection(i)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
+                  )}
+                </div>
               </div>
-              <input style={{ ...inputStyle, marginBottom: 10 }} value={sec.title}
+              <input style={{ ...inputStyle, marginBottom: 10, background: C.bg0 }} value={sec.title}
                 onChange={e => updateSection(i, 'title', e.target.value)}
                 placeholder="Section title (e.g. Executive Summary)"
                 onFocus={focus} onBlur={blur} />
-              <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.55 }} value={sec.content}
+              <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6, background: C.bg0 }} value={sec.content}
                 onChange={e => updateSection(i, 'content', e.target.value)}
                 placeholder="Section content…"
                 onFocus={focus} onBlur={blur} />
+              {sec.content.length > 0 && (
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginTop: 4 }}>{sec.content.length} characters</div>
+              )}
             </div>
           ))}
-          <button onClick={addSection}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: C.accentBg, border: `1px dashed #B8892A66`, borderRadius: 6, padding: '8px 16px', cursor: 'pointer', width: '100%' }}>
-            + Add Section
-          </button>
         </div>
 
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>

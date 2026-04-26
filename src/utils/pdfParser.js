@@ -1,0 +1,117 @@
+// Evaluated at build time — Vite copies the worker asset
+export const PDF_WORKER_SRC = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).href;
+
+// Common business-plan section headings
+const HEADING_KEYWORDS = [
+  'executive summary', 'business overview', 'introduction', 'background',
+  'problem statement', 'opportunity', 'solution', 'product', 'service',
+  'market analysis', 'market opportunity', 'target market', 'customer',
+  'competition', 'competitive', 'value proposition', 'business model',
+  'revenue model', 'financial', 'financials', 'projections', 'forecast',
+  'capex', 'investment', 'subsidy', 'funding', 'cost', 'revenue',
+  'operations', 'operational', 'implementation', 'timeline', 'roadmap',
+  'team', 'management', 'organizational', 'risk', 'risks', 'mitigation',
+  'location', 'raw material', 'machinery', 'equipment', 'infrastructure',
+  'recommendation', 'conclusion', 'next steps', 'appendix',
+  'swot', 'strengths', 'weaknesses', 'opportunities', 'threats',
+];
+
+function isHeading(line) {
+  if (line.length < 3 || line.length > 120) return false;
+  const lower = line.toLowerCase().replace(/[^a-z\s]/g, ' ');
+  if (HEADING_KEYWORDS.some(kw => lower.includes(kw))) return true;
+  if (/^\d+[\.\)]\s+\w/.test(line) && line.length < 80) return true;
+  if (line === line.toUpperCase() && line.replace(/\s/g, '').length > 3) return true;
+  if (/^[A-Z][^.!?]*:$/.test(line) && line.length < 80) return true;
+  return false;
+}
+
+export async function loadPdfJs() {
+  const pdfjsLib = await import('pdfjs-dist');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+  return pdfjsLib;
+}
+
+export async function extractAllText(file) {
+  const pdfjsLib = await loadPdfJs();
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pageTexts = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const ct = await page.getTextContent();
+    // Group items by Y position to reconstruct lines
+    const byY = {};
+    ct.items.forEach(item => {
+      const y = Math.round(item.transform[5]);
+      if (!byY[y]) byY[y] = [];
+      byY[y].push(item.str);
+    });
+    const linesSorted = Object.keys(byY)
+      .sort((a, b) => Number(b) - Number(a))
+      .map(y => byY[y].join(' ').trim())
+      .filter(l => l.length > 0);
+    pageTexts.push(linesSorted.join('\n'));
+  }
+  return pageTexts.join('\n');
+}
+
+export function parseTextForIdea(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const title = lines[0]?.slice(0, 120) || '';
+  const descLines = lines.slice(1).filter(l => l.length > 20).slice(0, 30);
+  const desc = descLines.join(' ').slice(0, 1200);
+  return { title, desc };
+}
+
+export function parseTextForPlan(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) return { title: '', summary: '', sections: [] };
+
+  const title = lines[0].slice(0, 140);
+  const sections = [];
+  let currentSection = null;
+  let summaryLines = [];
+  let preambleDone = false;
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (isHeading(line)) {
+      if (currentSection) sections.push(currentSection);
+      currentSection = { title: line.replace(/:$/, '').trim(), content: '' };
+      preambleDone = true;
+    } else if (!preambleDone && summaryLines.length < 8) {
+      summaryLines.push(line);
+    } else if (currentSection) {
+      currentSection.content = currentSection.content
+        ? currentSection.content + ' ' + line
+        : line;
+    } else {
+      // No heading detected yet — accumulate as first implicit section
+      if (!currentSection) currentSection = { title: 'Overview', content: '' };
+      currentSection.content = currentSection.content
+        ? currentSection.content + ' ' + line
+        : line;
+    }
+  }
+  if (currentSection && (currentSection.content || currentSection.title !== 'Overview')) {
+    sections.push(currentSection);
+  }
+
+  // Fallback: if no sections detected, split into chunks of ~20 lines
+  if (sections.length === 0) {
+    const contentLines = lines.slice(1).filter(l => l.length > 10);
+    const chunkSize = Math.ceil(contentLines.length / Math.max(1, Math.ceil(contentLines.length / 20)));
+    for (let i = 0; i < contentLines.length; i += chunkSize) {
+      sections.push({
+        title: `Section ${Math.floor(i / chunkSize) + 1}`,
+        content: contentLines.slice(i, i + chunkSize).join(' '),
+      });
+    }
+  }
+
+  const summary = summaryLines.join(' ').slice(0, 800) ||
+    (sections[0]?.content?.slice(0, 400) || '');
+
+  return { title, summary, sections: sections.slice(0, 15) };
+}
