@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
-import { extractAllText, parseTextForPlan } from '../utils/pdfParser';
 import { formatText } from '../utils/textFormatter';
+import PdfUploadZone from '../components/PdfUploadZone';
 
 export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = useAppData();
@@ -11,49 +11,32 @@ export default function NewPlanPage({ onNavigate }) {
   const [form, setForm] = useState({ title: '', summary: '', status: 'draft' });
   const [sections, setSections] = useState([{ title: '', content: '' }]);
   const [error, setError] = useState('');
-  const [pdfState, setPdfState] = useState({ loading: false, error: '', pages: 0 });
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
   const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; };
   const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
-  const handlePdfUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setPdfState({ loading: true, error: '', pages: 0 });
-    try {
-      const text = await extractAllText(file);
-      const parsed = parseTextForPlan(text);
-      setForm(f => ({
-        ...f,
-        title: parsed.title || f.title,
-        summary: parsed.summary || f.summary,
-      }));
-      if (parsed.sections.length > 0) {
-        setSections(parsed.sections.map(s => ({ title: s.title, content: s.content })));
-      }
-      const pageCount = text.split('\f').length;
-      setPdfState({ loading: false, error: '', pages: pageCount });
-      showToast(`PDF parsed — ${parsed.sections.length} sections extracted`, 'success');
-    } catch (err) {
-      setPdfState({ loading: false, error: 'Could not read PDF. Ensure it is a text-based PDF, not a scanned image.', pages: 0 });
+  const handleExtracted = (parsed) => {
+    setForm(f => ({
+      ...f,
+      title:   parsed.title   || f.title,
+      summary: parsed.summary || f.summary,
+    }));
+    if (parsed.sections?.length > 0) {
+      setSections(parsed.sections.map(s => ({ title: s.title, content: s.content })));
     }
-    e.target.value = '';
+    showToast(`PDF applied — ${parsed.sections?.length || 0} sections extracted`, 'success');
   };
 
-  const addSection = () => setSections(s => [...s, { title: '', content: '' }]);
+  const addSection    = () => setSections(s => [...s, { title: '', content: '' }]);
   const removeSection = (i) => setSections(s => s.filter((_, idx) => idx !== i));
   const updateSection = (i, field, val) => setSections(s => s.map((sec, idx) => idx === i ? { ...sec, [field]: val } : sec));
-  const moveSection = (i, dir) => {
-    setSections(s => {
-      const next = [...s];
-      const j = i + dir;
-      if (j < 0 || j >= next.length) return next;
-      [next[i], next[j]] = [next[j], next[i]];
-      return next;
-    });
-  };
+  const moveSection   = (i, dir) => setSections(s => {
+    const next = [...s]; const j = i + dir;
+    if (j < 0 || j >= next.length) return next;
+    [next[i], next[j]] = [next[j], next[i]]; return next;
+  });
 
   const handleSave = () => {
     if (!form.title.trim()) { setError('Plan title is required.'); return; }
@@ -69,30 +52,10 @@ export default function NewPlanPage({ onNavigate }) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Business Plans
       </button>
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 24 }}>New Business Plan</div>
+      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 6 }}>New Business Plan</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginBottom: 24 }}>Upload a PDF to auto-extract all sections, or build manually below.</div>
 
-      {/* PDF Upload */}
-      <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 8, padding: '16px 20px', marginBottom: 28 }}>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 10 }}>Upload PDF — Auto-extract all sections</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 6, border: `1px solid ${C.border}`, color: pdfState.loading ? C.fg3 : C.fg2, cursor: pdfState.loading ? 'not-allowed' : 'pointer', background: C.bg0 }}
-            onMouseEnter={e => { if (!pdfState.loading) e.currentTarget.style.borderColor = C.accentDim; }}
-            onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-            {pdfState.loading ? 'Reading all pages…' : 'Upload PDF'}
-            <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={handlePdfUpload} disabled={pdfState.loading} />
-          </label>
-          {pdfState.loading && (
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent }}>Extracting full text from all pages…</span>
-          )}
-          {pdfState.error && (
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger }}>{pdfState.error}</span>
-          )}
-        </div>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 8 }}>
-          Reads every page of the PDF and auto-detects sections (Executive Summary, Financials, etc.). Works best with text-based PDFs.
-        </div>
-      </div>
+      <PdfUploadZone mode="plan" onExtracted={handleExtracted} />
 
       <div style={{ maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>
@@ -145,15 +108,9 @@ export default function NewPlanPage({ onNavigate }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>Section {i + 1}</span>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {i > 0 && (
-                    <button onClick={() => moveSection(i, -1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↑</button>
-                  )}
-                  {i < sections.length - 1 && (
-                    <button onClick={() => moveSection(i, 1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↓</button>
-                  )}
-                  {sections.length > 1 && (
-                    <button onClick={() => removeSection(i)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
-                  )}
+                  {i > 0 && <button onClick={() => moveSection(i, -1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↑</button>}
+                  {i < sections.length - 1 && <button onClick={() => moveSection(i, 1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↓</button>}
+                  {sections.length > 1 && <button onClick={() => removeSection(i)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>}
                 </div>
               </div>
               <input style={{ ...inputStyle, marginBottom: 10, background: C.bg0 }} value={sec.title}
@@ -172,9 +129,7 @@ export default function NewPlanPage({ onNavigate }) {
                 onChange={e => updateSection(i, 'content', e.target.value)}
                 placeholder="Section content…"
                 onFocus={focus} onBlur={blur} />
-              {sec.content.length > 0 && (
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginTop: 4 }}>{sec.content.length} characters</div>
-              )}
+              {sec.content.length > 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginTop: 4 }}>{sec.content.length} characters</div>}
             </div>
           ))}
         </div>
