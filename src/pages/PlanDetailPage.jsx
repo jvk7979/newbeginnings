@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
+import { formatText } from '../utils/textFormatter';
 
 export default function PlanDetailPage({ plan, onNavigate }) {
   const { plans, updatePlan, deletePlan } = useAppData();
@@ -93,7 +94,15 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
             </select>
           </div>
           <div>
-            <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' }}>Executive Summary</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+              <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2 }}>Executive Summary</label>
+              {summary.trim() && (
+                <button type="button" onClick={() => setSummary(s => formatText(s))}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                  ✦ Format
+                </button>
+              )}
+            </div>
             <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={summary}
               onChange={e => setSummary(e.target.value)}
               onFocus={focus} onBlur={blur} />
@@ -119,6 +128,14 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, showToast }) {
                   onChange={e => updateSection(i, 'title', e.target.value)}
                   placeholder="Section title"
                   onFocus={focus} onBlur={blur} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+                  {sec.content.trim() && (
+                    <button type="button" onClick={() => updateSection(i, 'content', formatText(sec.content))}
+                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                      ✦ Format
+                    </button>
+                  )}
+                </div>
                 <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6, background: C.bg0 }} value={sec.content}
                   onChange={e => updateSection(i, 'content', e.target.value)}
                   placeholder="Section content…"

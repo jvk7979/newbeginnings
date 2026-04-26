@@ -11,7 +11,7 @@ export default function ProjectCard({ title, date, status, desc, kpis, onClick }
         <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 500, color: C.fg1, lineHeight: 1.3 }}>{title}</div>
         <Badge status={status} />
       </div>
-      {desc && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.5, marginBottom: 12 }}>{desc}</div>}
+      {desc && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.5, marginBottom: 12, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>{desc}</div>}
       {kpis && (
         <div style={{ display: 'flex', gap: 16, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
           {kpis.map(k => (

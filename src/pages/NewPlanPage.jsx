@@ -3,6 +3,7 @@ import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { extractAllText, parseTextForPlan } from '../utils/pdfParser';
+import { formatText } from '../utils/textFormatter';
 
 export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = useAppData();
@@ -112,7 +113,15 @@ export default function NewPlanPage({ onNavigate }) {
         </div>
 
         <div>
-          <label style={labelStyle}>Executive Summary</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+            <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
+            {form.summary.trim() && (
+              <button type="button" onClick={() => setForm(f => ({ ...f, summary: formatText(f.summary) }))}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                ✦ Format
+              </button>
+            )}
+          </div>
           <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={form.summary}
             onChange={e => setForm({ ...form, summary: e.target.value })}
             placeholder="One-paragraph overview of the plan…"
@@ -151,6 +160,14 @@ export default function NewPlanPage({ onNavigate }) {
                 onChange={e => updateSection(i, 'title', e.target.value)}
                 placeholder="Section title (e.g. Executive Summary)"
                 onFocus={focus} onBlur={blur} />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+                {sec.content.trim() && (
+                  <button type="button" onClick={() => updateSection(i, 'content', formatText(sec.content))}
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                    ✦ Format
+                  </button>
+                )}
+              </div>
               <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6, background: C.bg0 }} value={sec.content}
                 onChange={e => updateSection(i, 'content', e.target.value)}
                 placeholder="Section content…"

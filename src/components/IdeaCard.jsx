@@ -12,7 +12,7 @@ export default function IdeaCard({ title, date, tags, status, desc, onClick }) {
         <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 500, color: C.fg1, lineHeight: 1.3, paddingRight: 8 }}>{title}</div>
         <Badge status={status} />
       </div>
-      {desc && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.5, marginBottom: 10 }}>{desc}</div>}
+      {desc && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.5, marginBottom: 10, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>{desc}</div>}
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
         {(tags || []).map(t => <Tag key={t} label={t} />)}
       </div>

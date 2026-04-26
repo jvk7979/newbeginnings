@@ -3,6 +3,7 @@ import { C } from '../tokens';
 import Tag from '../components/Tag';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
+import { formatText } from '../utils/textFormatter';
 
 const STATUS_OPTIONS = ['draft', 'validating', 'active', 'archived'];
 
@@ -80,7 +81,15 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
         )}
 
         <div>
-          <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' }}>Description</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+            <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2 }}>Description</label>
+            {desc.trim() && (
+              <button type="button" onClick={() => setDesc(d => formatText(d))}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                ✦ Format
+              </button>
+            )}
+          </div>
           <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.6 }} value={desc}
             onChange={e => setDesc(e.target.value)}
             placeholder="Problem being solved, target customer, rough mechanics…"

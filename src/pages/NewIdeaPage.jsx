@@ -3,6 +3,7 @@ import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { extractAllText, parseTextForIdea } from '../utils/pdfParser';
+import { formatText } from '../utils/textFormatter';
 
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useAppData();
@@ -95,12 +96,20 @@ export default function NewIdeaPage({ onNavigate }) {
           </select>
         </div>
         <div>
-          <label style={labelStyle}>Description</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+            <label style={{ ...labelStyle, marginBottom: 0 }}>Description</label>
+            {form.desc.trim() && (
+              <button type="button" onClick={() => setForm(f => ({ ...f, desc: formatText(f.desc) }))}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                ✦ Format
+              </button>
+            )}
+          </div>
           <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.6 }} value={form.desc}
             onChange={e => setForm({ ...form, desc: e.target.value })}
             placeholder="Describe the problem, target customer, rough mechanics…"
             onFocus={focus} onBlur={blur} />
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{form.desc.length} characters</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{form.desc.length} characters · Paste any text then click Format to clean it up</div>
         </div>
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
