@@ -4,6 +4,7 @@ import Tag from '../components/Tag';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
+import { analyzeIdea } from '../utils/gemini';
 
 const STATUS_OPTIONS = ['draft', 'validating', 'active', 'archived'];
 
@@ -11,12 +12,14 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const { updateIdea, deleteIdea, restoreIdea } = useAppData();
   const { showToast } = useToast();
 
-  const [status, setStatus] = useState(idea.status);
-  const [title, setTitle]   = useState(idea.title);
-  const [tags, setTags]     = useState((idea.tags || []).join(', '));
-  const [desc, setDesc]     = useState(idea.desc || '');
-  const [notes, setNotes]   = useState(idea.notes || '');
-  const [saved, setSaved]   = useState(false);
+  const [status, setStatus]     = useState(idea.status);
+  const [title, setTitle]       = useState(idea.title);
+  const [tags, setTags]         = useState((idea.tags || []).join(', '));
+  const [desc, setDesc]         = useState(idea.desc || '');
+  const [notes, setNotes]       = useState(idea.notes || '');
+  const [saved, setSaved]       = useState(false);
+  const [analysis, setAnalysis] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -34,6 +37,20 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     setSaved(true);
     showToast('Idea updated', 'success');
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleAnalyze = async () => {
+    if (!desc.trim() && !title.trim()) return;
+    setAnalyzing(true);
+    setAnalysis(null);
+    try {
+      const result = await analyzeIdea(title, desc);
+      setAnalysis(result);
+    } catch {
+      showToast('AI analysis failed. Check your connection.', 'error');
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const handleDelete = () => {
@@ -96,6 +113,23 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
             placeholder="Problem being solved, target customer, rough mechanics…"
             onFocus={focus} onBlur={blur} />
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{desc.length} characters · Captured {idea.date}</div>
+        </div>
+
+        {/* AI Analysis */}
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: analysis ? 14 : 0 }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3 }}>AI Analysis</div>
+            <button onClick={handleAnalyze} disabled={analyzing}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: analyzing ? C.fg3 : '#fff', background: analyzing ? C.bg2 : C.accent, border: 'none', borderRadius: 5, cursor: analyzing ? 'not-allowed' : 'pointer', padding: '6px 14px', transition: 'all 150ms' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              {analyzing ? 'Analyzing…' : 'Analyze with AI'}
+            </button>
+          </div>
+          {analysis && (
+            <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px', whiteSpace: 'pre-wrap', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7 }}>
+              {analysis}
+            </div>
+          )}
         </div>
 
         <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>

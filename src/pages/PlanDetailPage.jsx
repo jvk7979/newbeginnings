@@ -3,6 +3,7 @@ import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
+import { generatePlanSection, improveSummary } from '../utils/gemini';
 
 export default function PlanDetailPage({ plan, onNavigate }) {
   const { plans, updatePlan, deletePlan, restorePlan } = useAppData();
@@ -26,12 +27,14 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 }
 
 function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, showToast }) {
-  const [title, setTitle]       = useState(plan.title);
-  const [summary, setSummary]   = useState(plan.summary || '');
-  const [status, setStatus]     = useState(plan.status || 'draft');
-  const [sections, setSections] = useState(plan.sections || []);
-  const [saved, setSaved]       = useState(false);
-  const [editing, setEditing]   = useState(false);
+  const [title, setTitle]           = useState(plan.title);
+  const [summary, setSummary]       = useState(plan.summary || '');
+  const [status, setStatus]         = useState(plan.status || 'draft');
+  const [sections, setSections]     = useState(plan.sections || []);
+  const [saved, setSaved]           = useState(false);
+  const [editing, setEditing]       = useState(false);
+  const [generatingIdx, setGeneratingIdx] = useState(null);
+  const [improvingSummary, setImprovingSummary] = useState(false);
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -63,6 +66,33 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
     deletePlan(plan.id);
     showToast('Plan deleted', 'info', { label: 'Undo', onClick: () => restorePlan(backup) });
     onNavigate('plans');
+  };
+
+  const handleGenerateSection = async (i) => {
+    const sec = sections[i];
+    if (!sec.title.trim()) { showToast('Add a section title first', 'info'); return; }
+    setGeneratingIdx(i);
+    try {
+      const result = await generatePlanSection(sec.title, title, sec.content);
+      updateSection(i, 'content', result);
+    } catch {
+      showToast('AI generation failed. Check your connection.', 'error');
+    } finally {
+      setGeneratingIdx(null);
+    }
+  };
+
+  const handleImproveSummary = async () => {
+    if (!summary.trim()) { showToast('Add a summary first', 'info'); return; }
+    setImprovingSummary(true);
+    try {
+      const result = await improveSummary(title, summary);
+      setSummary(result);
+    } catch {
+      showToast('AI improvement failed. Check your connection.', 'error');
+    } finally {
+      setImprovingSummary(false);
+    }
   };
 
   return (
@@ -98,12 +128,18 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
               <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
-              {summary.trim() && (
-                <button type="button" onClick={() => setSummary(s => formatText(s))}
-                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
-                  ✦ Format
+              <div style={{ display: 'flex', gap: 6 }}>
+                {summary.trim() && (
+                  <button type="button" onClick={() => setSummary(s => formatText(s))}
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                    ✦ Format
+                  </button>
+                )}
+                <button type="button" onClick={handleImproveSummary} disabled={improvingSummary}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: improvingSummary ? C.fg3 : '#fff', background: improvingSummary ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: improvingSummary ? 'not-allowed' : 'pointer', padding: '3px 10px' }}>
+                  {improvingSummary ? 'Improving…' : '✦ AI Improve'}
                 </button>
-              )}
+              </div>
             </div>
             <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={summary}
               onChange={e => setSummary(e.target.value)} onFocus={focus} onBlur={blur} />
@@ -127,13 +163,17 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
                 </div>
                 <input style={{ ...inputStyle, marginBottom: 10, background: C.bg0 }} value={sec.title}
                   onChange={e => updateSection(i, 'title', e.target.value)} placeholder="Section title" onFocus={focus} onBlur={blur} />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, marginBottom: 4 }}>
                   {sec.content.trim() && (
                     <button type="button" onClick={() => updateSection(i, 'content', formatText(sec.content))}
                       style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
                       ✦ Format
                     </button>
                   )}
+                  <button type="button" onClick={() => handleGenerateSection(i)} disabled={generatingIdx === i}
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: generatingIdx === i ? C.fg3 : '#fff', background: generatingIdx === i ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: generatingIdx === i ? 'not-allowed' : 'pointer', padding: '3px 10px' }}>
+                    {generatingIdx === i ? 'Generating…' : '✦ AI Generate'}
+                  </button>
                 </div>
                 <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6, background: C.bg0 }} value={sec.content}
                   onChange={e => updateSection(i, 'content', e.target.value)} placeholder="Section content…" onFocus={focus} onBlur={blur} />
