@@ -1,16 +1,14 @@
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
-import ProjectCard from '../components/ProjectCard';
 import heroImg from '../assets/hero.png';
 
 const statCard = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 20px', cursor: 'pointer', transition: 'border-color 150ms' };
 
 export default function Dashboard({ onNavigate }) {
-  const { ideas, projects, plans } = useAppData();
-  const recentIdeas      = ideas.slice(0, 3);
-  const activeProjects   = projects.filter(p => p.status === 'active' || p.status === 'progress');
-  const activePlans      = plans.filter(p => p.status === 'active');
+  const { ideas, plans } = useAppData();
+  const recentIdeas  = ideas.slice(0, 3);
+  const activePlans  = plans.filter(p => p.status === 'active');
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
@@ -20,7 +18,7 @@ export default function Dashboard({ onNavigate }) {
         <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', height: 'auto', display: 'block' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.42) 55%, rgba(0,0,0,0.76) 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(16px,4vw,32px) clamp(16px,4vw,36px)' }}>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,4vw,38px)', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: 4, textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>The New Beginnings</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(12px,2vw,15px)', color: 'rgba(255,255,255,0.85)', marginBottom: 18, letterSpacing: '0.02em' }}>Ideas. Plans. Projects. Documents.</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(12px,2vw,15px)', color: 'rgba(255,255,255,0.85)', marginBottom: 18, letterSpacing: '0.02em' }}>Ideas. Business Plans. Documents.</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button onClick={() => onNavigate('new-idea')}
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
@@ -39,12 +37,11 @@ export default function Dashboard({ onNavigate }) {
       </div>
 
       {/* Stats */}
-      <div className="grid-4" style={{ marginBottom: 32 }}>
+      <div className="grid-3" style={{ marginBottom: 32 }}>
         {[
-          { val: String(ideas.length),                                        label: 'Total Ideas',     dest: 'ideas' },
-          { val: String(ideas.filter(i => i.status === 'validating').length), label: 'In Evaluation',   dest: 'ideas' },
-          { val: String(activeProjects.length),                               label: 'Active Projects', dest: 'projects' },
-          { val: String(plans.length),                                        label: 'Business Plans',  dest: 'plans' },
+          { val: String(ideas.length),                                        label: 'Total Ideas',    dest: 'ideas' },
+          { val: String(ideas.filter(i => i.status === 'validating').length), label: 'In Evaluation',  dest: 'ideas' },
+          { val: String(plans.length),                                        label: 'Business Plans', dest: 'plans' },
         ].map(s => (
           <div key={s.label} style={statCard} onClick={() => onNavigate(s.dest)}
             role="button" tabIndex={0}
@@ -69,9 +66,7 @@ export default function Dashboard({ onNavigate }) {
         </div>
       ) : (
         <div className="grid-3" style={{ marginBottom: 8 }}>
-          {recentIdeas.map(i => (
-            <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />
-          ))}
+          {recentIdeas.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
         </div>
       )}
       {ideas.length > 3 && (
@@ -80,20 +75,6 @@ export default function Dashboard({ onNavigate }) {
         </button>
       )}
       {ideas.length > 0 && ideas.length <= 3 && <div style={{ marginBottom: 32 }} />}
-
-      {/* Active Projects */}
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 12 }}>Active Projects</div>
-      {activeProjects.length === 0 ? (
-        <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 8, padding: '28px 20px', textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, marginBottom: 12 }}>No active projects yet.</div>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '7px 16px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}
-            onClick={() => onNavigate('projects')}>Go to Projects</button>
-        </div>
-      ) : (
-        <div className="grid-2" style={{ marginBottom: 32 }}>
-          {activeProjects.map(p => <ProjectCard key={p.id} {...p} onClick={() => onNavigate('project-detail', p)} />)}
-        </div>
-      )}
 
       {/* Active Business Plans */}
       {activePlans.length > 0 && (

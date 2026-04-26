@@ -8,8 +8,7 @@ import logoImg from '../assets/logo.png';
 const NAV_ITEMS = [
   { id: 'dashboard',  label: 'Home' },
   { id: 'ideas',      label: 'Ideas' },
-  { id: 'projects',   label: 'Projects' },
-  { id: 'plans',      label: 'Plans' },
+  { id: 'plans',      label: 'Business Plan' },
   { id: 'documents',  label: 'Documents' },
   { id: 'about',      label: 'About' },
 ];
@@ -17,7 +16,6 @@ const NAV_ITEMS = [
 const ACTIVE_MAP = {
   'new-idea':        'ideas',
   'idea-detail':     'ideas',
-  'project-detail':  'projects',
   'plan-detail':     'plans',
   'new-plan':        'plans',
   'document-detail': 'documents',
