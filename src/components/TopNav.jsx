@@ -120,13 +120,16 @@ export default function TopNav({ currentPage, onNavigate }) {
         {/* Logo */}
         <button
           onClick={() => onNavigate('dashboard')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
+          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 8, cursor: 'pointer', padding: '3px 10px 3px 6px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
           aria-label="Go to Home">
           <img
             src={logoImg}
             alt="The New Beginnings"
-            style={{ height: 46, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+            style={{ height: 40, width: 'auto', display: 'block' }}
           />
+          <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 13, fontWeight: 700, fontStyle: 'italic', color: C.accent, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }} className="hide-on-mobile">
+            The New Beginnings
+          </span>
         </button>
 
         {/* Divider */}
@@ -202,23 +205,65 @@ export default function TopNav({ currentPage, onNavigate }) {
         </div>
       </header>
 
-      {/* Mobile menu */}
+      {/* Mobile drawer — slides in from right */}
       {mobileOpen && (
         <>
-          <div onClick={() => setMobileOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.35)', zIndex: 150 }} />
-          <nav style={{ position: 'fixed', top: 62, left: 0, right: 0, background: C.bg2, borderBottom: `1px solid ${C.border}`, zIndex: 160, padding: '8px 12px 14px', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }} aria-label="Mobile navigation">
-            {NAV_ITEMS.map(item => (
-              <button key={item.id} onClick={() => { onNavigate(item.id); setMobileOpen(false); }}
-                aria-current={activeTab === item.id ? 'page' : undefined}
-                style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: activeTab === item.id ? 600 : 400, color: activeTab === item.id ? C.accent : C.fg1, background: activeTab === item.id ? C.accentBg : 'transparent', border: 'none', borderRadius: 6, cursor: 'pointer', padding: '12px 14px', marginBottom: 2 }}>
-                {item.label}
+          {/* Backdrop */}
+          <div
+            onClick={() => setMobileOpen(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(20,16,10,0.5)', zIndex: 150, backdropFilter: 'blur(2px)' }}
+          />
+          {/* Drawer */}
+          <nav
+            aria-label="Mobile navigation"
+            style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(80vw, 300px)', background: C.bg0, zIndex: 160, boxShadow: '-4px 0 32px rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+
+            {/* Drawer header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px', borderBottom: `1px solid ${C.border}` }}>
+              <img src={logoImg} alt="The New Beginnings" style={{ height: 36, width: 'auto' }} />
+              <button
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close menu"
+                style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 6, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg2, fontSize: 20, lineHeight: 1 }}>
+                ×
               </button>
-            ))}
-            <div style={{ height: 1, background: C.border, margin: '8px 0' }} />
-            <button style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, background: 'none', border: 'none', cursor: 'pointer', padding: '12px 14px', borderRadius: 6 }}
-              onClick={() => { setMobileOpen(false); setSettingsOpen(o => !o); }}>
-              Settings
-            </button>
+            </div>
+
+            {/* Nav items */}
+            <div style={{ padding: '12px 12px', flex: 1 }}>
+              {NAV_ITEMS.map(item => (
+                <button key={item.id}
+                  onClick={() => { onNavigate(item.id); setMobileOpen(false); }}
+                  aria-current={activeTab === item.id ? 'page' : undefined}
+                  style={{ display: 'flex', alignItems: 'center', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: activeTab === item.id ? 600 : 400, color: activeTab === item.id ? C.accent : C.fg1, background: activeTab === item.id ? C.accentBg : 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer', padding: '14px 16px', marginBottom: 4 }}>
+                  {activeTab === item.id && (
+                    <span style={{ width: 3, height: 18, background: C.accent, borderRadius: 2, marginRight: 12, flexShrink: 0 }} />
+                  )}
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {/* User + sign out at bottom */}
+            <div style={{ padding: '12px 12px 24px', borderTop: `1px solid ${C.border}` }}>
+              {user && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', marginBottom: 8, background: C.bg1, borderRadius: 8 }}>
+                  {user.photoURL
+                    ? <img src={user.photoURL} alt="" width={32} height={32} style={{ borderRadius: '50%', flexShrink: 0 }} />
+                    : <div style={{ width: 32, height: 32, borderRadius: '50%', background: C.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 600 }}>{(user.displayName || user.email || '?')[0].toUpperCase()}</div>
+                  }
+                  <div style={{ overflow: 'hidden' }}>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.displayName || 'Account'}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={() => { setMobileOpen(false); handleSignOut(); }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${C.danger}22`, borderRadius: 8, cursor: 'pointer', padding: '12px 16px' }}>
+                Sign out
+              </button>
+            </div>
           </nav>
         </>
       )}
