@@ -2,6 +2,7 @@ import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
 import ProjectCard from '../components/ProjectCard';
+import heroImg from '../../THeNewBeginnings.png';
 
 const statCard = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 20px' };
 
@@ -13,9 +14,13 @@ export default function Dashboard({ onNavigate }) {
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 4 }}>Rajahmundry Ventures</div>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>Your coconut business dashboard</div>
+      {/* Hero image banner */}
+      <div className="hero-bleed">
+        <img
+          src={heroImg}
+          alt="The New Beginnings"
+          style={{ width: '100%', maxHeight: 320, objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+        />
       </div>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
