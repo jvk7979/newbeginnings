@@ -15,19 +15,19 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const handleSave = () => {
     if (i.id) updateIdea(i.id, { status, notes });
     setSaved(true);
-    setTimeout(() => { setSaved(false); onNavigate('ideas'); }, 800);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '32px 48px', background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0, paddingLeft: 48, paddingRight: 48 }}>
       <button onClick={() => onNavigate('ideas')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         All Ideas
       </button>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8, gap: 16 }}>
         <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', lineHeight: 1.2 }}>{i.title}</div>
         <select value={status} onChange={e => setStatus(e.target.value)}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '4px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: C.bg1, color: C.accent, cursor: 'pointer', outline: 'none' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '4px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: C.bg1, color: C.accent, cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
           {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
         </select>
       </div>
@@ -48,12 +48,13 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
           onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }} />
       </div>
       <div style={{ marginTop: 20, display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: saved ? C.success : C.accent, color: '#fff', border: 'none', cursor: 'pointer', transition: 'background 200ms' }}
+        <button
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: saved ? C.success : C.accent, color: '#fff', border: 'none', cursor: 'pointer', transition: 'background 200ms' }}
           onMouseEnter={e => { if (!saved) e.currentTarget.style.background = C.accentDim; }}
           onMouseLeave={e => { if (!saved) e.currentTarget.style.background = C.accent; }}
           onClick={handleSave}>{saved ? 'Saved!' : 'Save Changes'}</button>
         <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '8px 18px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
-          onClick={() => onNavigate('ideas')}>Discard</button>
+          onClick={() => onNavigate('ideas')}>Back to Ideas</button>
       </div>
     </div>
   );

@@ -19,12 +19,13 @@ export default function NewPlanPage({ onNavigate }) {
 
   const handleSave = () => {
     if (!form.title.trim()) { setError('Plan title is required.'); return; }
-    addPlan({ ...form, title: form.title.trim(), sections: sections.filter(s => s.title.trim() || s.content.trim()) });
+    const validSections = sections.filter(s => s.title.trim() || s.content.trim());
+    addPlan({ ...form, title: form.title.trim(), sections: validSections });
     onNavigate('plans');
   };
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0 }}>
       <button onClick={() => onNavigate('plans')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Business Plans

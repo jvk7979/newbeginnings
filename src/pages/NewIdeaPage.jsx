@@ -2,17 +2,8 @@ import { useState } from 'react';
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 
-const loadPdfJs = () => new Promise((resolve, reject) => {
-  if (window.pdfjsLib) { resolve(); return; }
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-  s.onload = () => {
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    resolve();
-  };
-  s.onerror = reject;
-  document.head.appendChild(s);
-});
+// Evaluated at build time so Vite copies the worker asset
+const WORKER_SRC = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).href;
 
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useAppData();
@@ -28,9 +19,10 @@ export default function NewIdeaPage({ onNavigate }) {
     if (!file) return;
     setPdfState({ loading: true, error: '' });
     try {
-      await loadPdfJs();
+      const pdfjsLib = await import('pdfjs-dist');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
       const buf = await file.arrayBuffer();
-      const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
       let text = '';
       for (let p = 1; p <= pdf.numPages; p++) {
         const page = await pdf.getPage(p);
@@ -62,7 +54,7 @@ export default function NewIdeaPage({ onNavigate }) {
   };
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0 }}>
       <button onClick={() => onNavigate('ideas')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Ideas
