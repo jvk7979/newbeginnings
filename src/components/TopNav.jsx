@@ -192,9 +192,6 @@ export default function TopNav({ currentPage, onNavigate }) {
                 <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
               </label>
               <div style={{ height: 1, background: C.border, margin: '6px 0' }} />
-              <button style={{ ...dropBtn, color: C.warning }} onClick={handleClearAll}
-                onMouseEnter={e => e.currentTarget.style.background = C.warningBg}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}>Clear all data</button>
               <button style={{ ...dropBtn, color: C.danger }} onClick={handleSignOut}
                 onMouseEnter={e => e.currentTarget.style.background = C.dangerBg}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}>Sign out</button>
