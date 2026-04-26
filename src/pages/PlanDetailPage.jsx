@@ -354,7 +354,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
             <div ref={commentsEndRef} />
           </div>
 
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+          <div className="comment-row">
             <textarea
               value={commentText}
               onChange={e => setCommentText(e.target.value)}

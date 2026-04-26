@@ -329,7 +329,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
             <div ref={commentsEndRef} />
           </div>
 
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+          <div className="comment-row">
             <textarea
               value={commentText}
               onChange={e => setCommentText(e.target.value)}

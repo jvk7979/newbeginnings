@@ -105,7 +105,7 @@ export default function App() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <TopNav currentPage={page} onNavigate={navigate} />
-      <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
         {renderPage()}
       </div>
     </div>
