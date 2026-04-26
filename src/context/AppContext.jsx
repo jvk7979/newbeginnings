@@ -75,11 +75,14 @@ export function AppProvider({ children }) {
     const tick = () => { loadedCount.current++; if (loadedCount.current >= 3) setDataLoading(false); };
     const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
 
-    const u1 = onSnapshot(col(uid, 'ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); });
-    const u2 = onSnapshot(col(uid, 'projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); });
-    const u3 = onSnapshot(col(uid, 'plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); });
+    // Safety timeout — if Firestore doesn't respond in 8s, unblock the UI
+    const timeout = setTimeout(() => setDataLoading(false), 8000);
 
-    return () => { u1(); u2(); u3(); };
+    const u1 = onSnapshot(col(uid, 'ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+    const u2 = onSnapshot(col(uid, 'projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
+    const u3 = onSnapshot(col(uid, 'plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+
+    return () => { u1(); u2(); u3(); clearTimeout(timeout); };
   }, [user]);
 
   // ── Ideas ────────────────────────────────────────────────────────────────
