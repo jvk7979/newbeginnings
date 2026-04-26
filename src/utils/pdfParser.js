@@ -64,16 +64,39 @@ export async function extractAllText(file) {
   for (let p = 1; p <= pdf.numPages; p++) {
     const page = await pdf.getPage(p);
     const ct = await page.getTextContent();
-    // Group items by Y position to reconstruct lines
+    // Group items by Y position (rounded to 1dp to handle slight baseline shifts)
     const byY = {};
     ct.items.forEach(item => {
-      const y = Math.round(item.transform[5]);
+      if (!item.str) return;
+      const y = Math.round(item.transform[5] * 2) / 2; // 0.5-unit buckets
       if (!byY[y]) byY[y] = [];
-      byY[y].push(item.str);
+      byY[y].push({
+        str: item.str,
+        x: item.transform[4],
+        width: Math.abs(item.width) || 0,
+        fontSize: Math.abs(item.transform[0]) || 10,
+      });
     });
     const linesSorted = Object.keys(byY)
       .sort((a, b) => Number(b) - Number(a))
-      .map(y => byY[y].join(' ').trim())
+      .map(y => {
+        const items = byY[y].sort((a, b) => a.x - b.x);
+        if (items.length === 0) return '';
+        let result = items[0].str;
+        for (let i = 1; i < items.length; i++) {
+          const prev = items[i - 1];
+          const curr = items[i];
+          const gap = curr.x - (prev.x + prev.width);
+          const fontSize = (prev.fontSize + curr.fontSize) / 2;
+          // Only insert a space if the gap between items is large enough to be a word boundary
+          // Threshold: 25% of font size (inter-char kerning is typically < 10%)
+          if (gap > fontSize * 0.25) {
+            result += ' ';
+          }
+          result += curr.str;
+        }
+        return result.trim();
+      })
       .filter(l => l.length > 0);
     pageTexts.push(linesSorted.join('\n'));
   }
