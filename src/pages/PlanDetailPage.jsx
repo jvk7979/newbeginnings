@@ -54,6 +54,8 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
   const [commentText, setCommentText] = useState('');
   const [posting, setPosting]         = useState(false);
   const commentsEndRef                = useRef(null);
+  const hadInitialLoad                = useRef(false);
+  const prevCommentCount              = useRef(0);
 
   const commentsPath = useMemo(
     () => collection(db, 'planDiscussions', String(plan.id), 'comments'),
@@ -61,6 +63,8 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
   );
 
   useEffect(() => {
+    hadInitialLoad.current = false;
+    prevCommentCount.current = 0;
     const q = query(commentsPath, orderBy('timestamp', 'asc'));
     const unsub = onSnapshot(q,
       snap => setComments(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
@@ -70,7 +74,15 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
   }, [commentsPath]);
 
   useEffect(() => {
-    if (comments.length > 0) commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!hadInitialLoad.current) {
+      hadInitialLoad.current = true;
+      prevCommentCount.current = comments.length;
+      return;
+    }
+    if (comments.length > prevCommentCount.current) {
+      commentsEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    prevCommentCount.current = comments.length;
   }, [comments]);
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
