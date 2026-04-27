@@ -8,6 +8,7 @@ import { formatText } from '../utils/textFormatter';
 import { analyzeIdea } from '../utils/gemini';
 import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
+import ConfirmModal from '../components/ConfirmModal';
 
 function timeAgo(ts) {
   if (!ts) return '';
@@ -41,6 +42,8 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [notes, setNotes]             = useState(idea.notes || '');
   const [analysis, setAnalysis]       = useState(null);
   const [analyzing, setAnalyzing]     = useState(false);
+  const [confirmDel,    setConfirmDel]    = useState(false);
+  const [confirmComDel, setConfirmComDel] = useState(null);
 
   // Discussion state
   const [comments, setComments]       = useState([]);
@@ -123,8 +126,8 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     }
   };
 
-  const handleDelete = () => {
-    if (!window.confirm('Delete this idea?')) return;
+  const handleDelete = () => setConfirmDel(true);
+  const confirmDeleteIdea = () => {
     const backup = { ...idea };
     deleteIdea(idea.id);
     showToast('Idea deleted', 'info', { label: 'Undo', onClick: () => restoreIdea(backup) });
@@ -152,18 +155,21 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     }
   };
 
-  const handleDeleteComment = async (commentId) => {
-    if (!window.confirm('Delete this comment?')) return;
+  const handleDeleteComment = (commentId) => setConfirmComDel(commentId);
+  const confirmDeleteComment = async () => {
     try {
-      await deleteDoc(doc(db, 'ideaDiscussions', String(idea.id), 'comments', commentId));
+      await deleteDoc(doc(db, 'ideaDiscussions', String(idea.id), 'comments', confirmComDel));
     } catch {
       showToast('Could not delete comment.', 'error');
+    } finally {
+      setConfirmComDel(null);
     }
   };
 
   const badge = STATUS_BADGE[idea.status] || STATUS_BADGE.draft;
 
   return (
+    <>
     <div ref={pagePadRef} className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
@@ -368,5 +374,22 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
       </div>
       </div>
     </div>
+    {confirmDel && (
+      <ConfirmModal
+        title="Delete idea?"
+        message="Are you sure you want to delete this idea? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDeleteIdea}
+        onCancel={() => setConfirmDel(false)} />
+    )}
+    {confirmComDel && (
+      <ConfirmModal
+        title="Delete comment?"
+        message="Are you sure you want to delete this comment?"
+        confirmLabel="Delete"
+        onConfirm={confirmDeleteComment}
+        onCancel={() => setConfirmComDel(null)} />
+    )}
+    </>
   );
 }

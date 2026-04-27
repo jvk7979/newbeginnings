@@ -35,23 +35,19 @@ export default function AboutPage({ onNavigate }) {
       <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
 
       {/* Hero */}
-      <div style={{ marginBottom: 36 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <svg width="40" height="40" viewBox="0 0 46 46" fill="none">
-            <path d="M23 2 C23 2 18 9 23 16 C28 9 23 2 23 2Z" fill={C.accent}/>
-            <path d="M15 6 C15 6 18 13 23 16 C20 10 15 6 15 6Z" fill={C.accent} opacity="0.6"/>
-            <path d="M31 6 C31 6 28 13 23 16 C26 10 31 6 31 6Z" fill={C.accent} opacity="0.6"/>
-            <path d="M4 24 C10 19 16 19 23 24 C30 29 36 29 42 24" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M4 32 C10 27 16 27 23 32 C30 37 36 37 42 32" stroke={C.accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
-            <path d="M4 40 C10 35 16 35 23 40 C30 45 36 45 42 40" stroke={C.accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.3"/>
-          </svg>
-          <div>
-            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>The New Beginnings</div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>A Rajahmundry Ventures Workspace</div>
-          </div>
-        </div>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.75, maxWidth: 640, margin: 0 }}>
-          A personal workspace to capture, plan, and build ventures rooted in the Godavari and Konaseema region.
+      <div style={{ textAlign: 'center', marginBottom: 40 }}>
+        <svg width="64" height="64" viewBox="0 0 46 46" fill="none" style={{ marginBottom: 16 }}>
+          <path d="M23 2 C23 2 18 9 23 16 C28 9 23 2 23 2Z" fill={C.accent}/>
+          <path d="M15 6 C15 6 18 13 23 16 C20 10 15 6 15 6Z" fill={C.accent} opacity="0.6"/>
+          <path d="M31 6 C31 6 28 13 23 16 C26 10 31 6 31 6Z" fill={C.accent} opacity="0.6"/>
+          <path d="M4 24 C10 19 16 19 23 24 C30 29 36 29 42 24" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M4 32 C10 27 16 27 23 32 C30 37 36 37 42 32" stroke={C.accent} strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
+          <path d="M4 40 C10 35 16 35 23 40 C30 45 36 45 42 40" stroke={C.accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.3"/>
+        </svg>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 700, color: C.fg1, lineHeight: 1.15, marginBottom: 10 }}>The New Beginnings</div>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(14px, 2vw, 16px)', fontStyle: 'italic', color: C.fg3, marginBottom: 20 }}>A fresh start. Endless possibilities.</div>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.75, maxWidth: 580, margin: '0 auto' }}>
+          A family workspace to capture, plan, and build ventures rooted in the Godavari and Konaseema region.
           Built for the long game — not just ideas, but the discipline to execute them.
         </p>
       </div>

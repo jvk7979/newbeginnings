@@ -4,11 +4,22 @@ import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
+import { CATEGORIES } from '../utils/categoryStyles';
+
+const PLAN_CATEGORIES = CATEGORIES.slice(1);
+
+const PLAN_STATUSES = [
+  { value: 'draft',     label: 'Draft' },
+  { value: 'active',    label: 'Active' },
+  { value: 'in-review', label: 'In Review' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'archived',  label: 'Archived' },
+];
 
 export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = useAppData();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', summary: '', status: 'draft' });
+  const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft' });
   const [sections, setSections] = useState([{ title: '', content: '' }]);
   const [error, setError] = useState('');
 
@@ -69,10 +80,16 @@ export default function NewPlanPage({ onNavigate }) {
         </div>
 
         <div>
+          <label style={labelStyle}>Category</label>
+          <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+            {PLAN_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+
+        <div>
           <label style={labelStyle}>Status</label>
           <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-            <option value="draft">Draft</option>
-            <option value="active">Active</option>
+            {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
 
@@ -91,6 +108,14 @@ export default function NewPlanPage({ onNavigate }) {
             placeholder="One-paragraph overview of the plan…"
             onFocus={focus} onBlur={blur} />
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{form.summary.length} characters</div>
+        </div>
+
+        <div>
+          <label style={labelStyle}>Notes / Additional Description</label>
+          <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.6 }} value={form.notes}
+            onChange={e => setForm({ ...form, notes: e.target.value })}
+            placeholder="Internal notes, observations, or additional context…"
+            onFocus={focus} onBlur={blur} />
         </div>
 
         {/* Sections */}

@@ -7,6 +7,19 @@ import { formatText } from '../utils/textFormatter';
 import { generatePlanSection, improveSummary } from '../utils/gemini';
 import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
+import ConfirmModal from '../components/ConfirmModal';
+import Badge from '../components/Badge';
+import { CATEGORIES } from '../utils/categoryStyles';
+
+const PLAN_CATEGORIES = CATEGORIES.slice(1);
+
+const PLAN_STATUSES = [
+  { value: 'draft',     label: 'Draft' },
+  { value: 'active',    label: 'Active' },
+  { value: 'in-review', label: 'In Review' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'archived',  label: 'Archived' },
+];
 
 function timeAgo(ts) {
   if (!ts) return '';
@@ -22,13 +35,17 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const { showToast } = useToast();
   const { user } = useAuth();
 
-  const [title, setTitle]           = useState(plan.title);
-  const [summary, setSummary]       = useState(plan.summary || '');
-  const [status, setStatus]         = useState(plan.status || 'draft');
-  const [sections, setSections]     = useState(plan.sections || []);
+  const [title,    setTitle]    = useState(plan.title);
+  const [summary,  setSummary]  = useState(plan.summary  || '');
+  const [notes,    setNotes]    = useState(plan.notes    || '');
+  const [category, setCategory] = useState(plan.category || 'Business');
+  const [status,   setStatus]   = useState(plan.status   || 'draft');
+  const [sections, setSections] = useState(plan.sections || []);
   const [isEditing, setIsEditing]   = useState(false);
   const [generatingIdx, setGeneratingIdx] = useState(null);
   const [improvingSummary, setImprovingSummary] = useState(false);
+  const [confirmDel,    setConfirmDel]    = useState(false);
+  const [confirmComDel, setConfirmComDel] = useState(null);
 
   // Discussion
   const [comments, setComments]       = useState([]);
@@ -85,21 +102,23 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   });
 
   const handleSave = () => {
-    updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), status, sections });
+    updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections });
     setIsEditing(false);
     showToast('Plan saved', 'success');
   };
 
   const handleCancel = () => {
     setTitle(plan.title);
-    setSummary(plan.summary || '');
-    setStatus(plan.status || 'draft');
+    setSummary(plan.summary   || '');
+    setNotes(plan.notes       || '');
+    setCategory(plan.category || 'Business');
+    setStatus(plan.status     || 'draft');
     setSections(plan.sections || []);
     setIsEditing(false);
   };
 
-  const handleDelete = () => {
-    if (!window.confirm('Delete this business plan?')) return;
+  const handleDelete = () => setConfirmDel(true);
+  const confirmDeletePlan = () => {
     const backup = { ...plan, sections: [...(plan.sections || [])] };
     deletePlan(plan.id);
     showToast('Plan deleted', 'info', { label: 'Undo', onClick: () => restorePlan(backup) });
@@ -154,16 +173,19 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     }
   };
 
-  const handleDeleteComment = async (commentId) => {
-    if (!window.confirm('Delete this comment?')) return;
+  const handleDeleteComment = (commentId) => setConfirmComDel(commentId);
+  const confirmDeleteComment = async () => {
     try {
-      await deleteDoc(doc(db, 'planDiscussions', String(plan.id), 'comments', commentId));
+      await deleteDoc(doc(db, 'planDiscussions', String(plan.id), 'comments', confirmComDel));
     } catch {
       showToast('Could not delete comment.', 'error');
+    } finally {
+      setConfirmComDel(null);
     }
   };
 
   return (
+    <>
     <div ref={pagePadRef} className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
@@ -194,15 +216,24 @@ export default function PlanDetailPage({ plan, onNavigate }) {
           <>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Business Plan</div>
             <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,30px)', fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 8px 0' }}>{plan.title}</h1>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, marginBottom: summary ? 20 : 32 }}>
-              Updated {plan.updated} · {sections.length} sections ·{' '}
-              <span style={{ color: status === 'active' ? C.success : C.fg3 }}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: summary ? 20 : 32 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>Updated {plan.updated} · {sections.length} sections</span>
+              {category && (
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '2px 8px' }}>{category}</span>
+              )}
+              <Badge status={status} />
             </div>
 
             {summary && (
-              <div style={{ background: C.accentBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
+              <div style={{ background: C.accentBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: notes ? 14 : 28 }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Executive Summary</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{summary}</div>
+              </div>
+            )}
+            {notes && (
+              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Notes</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{notes}</div>
               </div>
             )}
 
@@ -229,10 +260,16 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             </div>
 
             <div>
+              <label style={labelStyle}>Category</label>
+              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={category} onChange={e => setCategory(e.target.value)}>
+                {PLAN_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div>
               <label style={labelStyle}>Status</label>
               <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
-                <option value="draft">Draft</option>
-                <option value="active">Active</option>
+                {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
 
@@ -255,6 +292,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={summary}
                 onChange={e => setSummary(e.target.value)} onFocus={focus} onBlur={blur} />
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{summary.length} characters</div>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Notes / Additional Description</label>
+              <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.6 }} value={notes}
+                onChange={e => setNotes(e.target.value)} onFocus={focus} onBlur={blur}
+                placeholder="Internal notes, observations, or additional context…" />
             </div>
 
             <div>
@@ -371,5 +415,22 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       </div>
       </div>
     </div>
+    {confirmDel && (
+      <ConfirmModal
+        title="Delete business plan?"
+        message="Are you sure you want to delete this business plan? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDeletePlan}
+        onCancel={() => setConfirmDel(false)} />
+    )}
+    {confirmComDel && (
+      <ConfirmModal
+        title="Delete comment?"
+        message="Are you sure you want to delete this comment?"
+        confirmLabel="Delete"
+        onConfirm={confirmDeleteComment}
+        onCancel={() => setConfirmComDel(null)} />
+    )}
+    </>
   );
 }

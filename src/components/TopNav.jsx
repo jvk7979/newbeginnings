@@ -5,11 +5,12 @@ import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.png';
+import ConfirmModal from './ConfirmModal';
 
 const NAV_ITEMS = [
   { id: 'dashboard',  label: 'Home' },
   { id: 'ideas',      label: 'Ideas' },
-  { id: 'plans',      label: 'Business Plan' },
+  { id: 'plans',      label: 'Business Plans' },
   { id: 'documents',  label: 'Documents' },
   { id: 'about',      label: 'About' },
 ];
@@ -27,8 +28,10 @@ export default function TopNav({ currentPage, onNavigate }) {
   const { ideas, projects, plans, importData } = useAppData();
   const { showToast }                          = useToast();
   const { theme, setTheme, themes }            = useTheme();
-  const [settingsOpen, setSettingsOpen]        = useState(false);
-  const [mobileOpen,   setMobileOpen]          = useState(false);
+  const [settingsOpen,  setSettingsOpen]  = useState(false);
+  const [mobileOpen,    setMobileOpen]    = useState(false);
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [confirmImport,  setConfirmImport]  = useState(null);
   const settingsRef = useRef(null);
   const activeTab = ACTIVE_MAP[currentPage] || currentPage;
 
@@ -57,17 +60,14 @@ export default function TopNav({ currentPage, onNavigate }) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = async (ev) => {
+    reader.onload = (ev) => {
       try {
         const data  = JSON.parse(ev.target.result);
         const count = (data.ideas?.length || 0) + (data.projects?.length || 0) + (data.plans?.length || 0);
         if (!Array.isArray(data.ideas) && !Array.isArray(data.projects) && !Array.isArray(data.plans)) {
           alert('Invalid backup file.'); return;
         }
-        if (window.confirm(`Import ${count} items? This replaces all current data.`)) {
-          await importData(data);
-          showToast('Data imported', 'success');
-        }
+        setConfirmImport({ data, count });
       } catch { alert('Could not read file. Use a JSON backup exported from this app.'); }
     };
     reader.readAsText(file);
@@ -75,10 +75,15 @@ export default function TopNav({ currentPage, onNavigate }) {
     setSettingsOpen(false);
   };
 
-  const handleSignOut = async () => {
-    if (window.confirm('Sign out?')) await signOutUser();
-    setSettingsOpen(false);
+  const doImport = async () => {
+    if (!confirmImport) return;
+    await importData(confirmImport.data);
+    showToast('Data imported', 'success');
+    setConfirmImport(null);
   };
+
+  const handleSignOut = () => { setConfirmSignOut(true); setSettingsOpen(false); };
+  const doSignOut = async () => { await signOutUser(); setConfirmSignOut(false); };
 
   const navBtn = (id) => ({
     fontFamily: "'DM Sans', sans-serif",
@@ -292,13 +297,31 @@ export default function TopNav({ currentPage, onNavigate }) {
                 </div>
               )}
               <button
-                onClick={() => { setMobileOpen(false); handleSignOut(); }}
+                onClick={() => { setMobileOpen(false); setConfirmSignOut(true); }}
                 style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 22)}`, borderRadius: 8, cursor: 'pointer', padding: '12px 16px' }}>
                 Sign out
               </button>
             </div>
           </nav>
         </>
+      )}
+      {confirmSignOut && (
+        <ConfirmModal
+          title="Sign out?"
+          message="You'll need to sign back in to access your workspace."
+          confirmLabel="Sign out"
+          variant="danger"
+          onConfirm={doSignOut}
+          onCancel={() => setConfirmSignOut(false)} />
+      )}
+      {confirmImport && (
+        <ConfirmModal
+          title="Import backup?"
+          message={`Import ${confirmImport.count} items? This will replace all current data and cannot be undone.`}
+          confirmLabel="Import"
+          variant="danger"
+          onConfirm={doImport}
+          onCancel={() => setConfirmImport(null)} />
       )}
     </>
   );

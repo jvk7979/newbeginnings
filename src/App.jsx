@@ -14,6 +14,7 @@ import NewPlanPage from './pages/NewPlanPage';
 import FilesPage from './pages/FilesPage';
 import FileDetailPage from './pages/FileDetailPage';
 import AboutPage from './pages/AboutPage';
+import Footer from './components/Footer';
 
 const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about'];
 const DETAIL   = ['idea-detail', 'plan-detail', 'new-idea', 'new-plan', 'document-detail'];
@@ -110,6 +111,7 @@ export default function App() {
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
         {renderPage()}
       </div>
+      <Footer />
     </div>
   );
 }

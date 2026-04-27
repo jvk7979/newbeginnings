@@ -1,7 +1,8 @@
 export default function Badge({ status }) {
   const configs = {
     active:       { label: 'Active',       bg: '#EAF5EE', color: '#2E7D52', border: '#2E7D5233' },
-    completed:    { label: 'Completed',    bg: '#EAF5EE', color: '#2E7D52', border: '#2E7D5233' },
+    completed:    { label: 'Completed',    bg: '#E8F4FF', color: '#1D5FA6', border: '#1D5FA633' },
+    'in-review':  { label: 'In Review',    bg: '#F0EAF8', color: '#6B3FA6', border: '#6B3FA633' },
     progress:     { label: 'In Progress',  bg: '#FDF0E4', color: '#C4681C', border: '#C4681C33' },
     'in-progress':{ label: 'In Progress',  bg: '#FDF0E4', color: '#C4681C', border: '#C4681C33' },
     stalled:      { label: 'Stalled',      bg: '#FAEAEA', color: '#B03030', border: '#B0303033' },

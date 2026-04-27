@@ -3,6 +3,7 @@ import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
+import ConfirmModal from '../components/ConfirmModal';
 
 const iStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '10px 12px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' };
 const lStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -164,9 +165,10 @@ function DocumentCard({ file, onClick, onDelete }) {
 export default function FilesPage({ onNavigate }) {
   const { files, addFile, deleteFile } = useAppData();
   const { showToast } = useToast();
-  const [showModal, setShowModal] = useState(false);
-  const [search,    setSearch]    = useState('');
-  const [catFilter, setCatFilter] = useState('All');
+  const [showModal,  setShowModal]  = useState(false);
+  const [search,     setSearch]     = useState('');
+  const [catFilter,  setCatFilter]  = useState('All');
+  const [confirmDel, setConfirmDel] = useState(null);
 
   const filtered = files
     .filter(f => catFilter === 'All' || f.category === catFilter)
@@ -182,11 +184,11 @@ export default function FilesPage({ onNavigate }) {
     showToast('Document added', 'success');
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Remove this document entry?')) {
-      await deleteFile(id);
-      showToast('Document removed', 'info');
-    }
+  const handleDelete = (id) => setConfirmDel(id);
+  const confirmDelete = async () => {
+    await deleteFile(confirmDel);
+    setConfirmDel(null);
+    showToast('Document removed', 'info');
   };
 
   return (
@@ -256,6 +258,14 @@ export default function FilesPage({ onNavigate }) {
       )}
 
       {showModal && <AddDocumentModal onClose={() => setShowModal(false)} onSave={handleSave} />}
+      {confirmDel && (
+        <ConfirmModal
+          title="Remove document?"
+          message="Are you sure you want to remove this document entry? This action cannot be undone."
+          confirmLabel="Remove"
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmDel(null)} />
+      )}
       </div>
     </div>
   );

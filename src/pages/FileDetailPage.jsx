@@ -3,11 +3,13 @@ import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { getCategoryStyle } from '../utils/categoryStyles';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function FileDetailPage({ file, onNavigate }) {
   const { deleteFile } = useAppData();
   const { showToast }  = useToast();
-  const [showInfo, setShowInfo] = useState(false);
+  const [showInfo, setShowInfo]   = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
 
   if (!file) {
     return (
@@ -24,14 +26,15 @@ export default function FileDetailPage({ file, onNavigate }) {
   const fileUrl = `${import.meta.env.BASE_URL}files/${encodeURIComponent(file.fileName)}`;
   const catStyle = getCategoryStyle(file.category);
 
-  const handleDelete = async () => {
-    if (!window.confirm(`Delete "${file.title}"?`)) return;
+  const handleDelete = () => setConfirmDel(true);
+  const confirmDelete = async () => {
     await deleteFile(file.id);
     showToast('Document removed', 'info');
     onNavigate('documents');
   };
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', background: C.bg0 }}>
 
       {/* Compact top bar */}
@@ -116,5 +119,14 @@ export default function FileDetailPage({ file, onNavigate }) {
         </div>
       )}
     </div>
+    {confirmDel && (
+      <ConfirmModal
+        title="Delete document?"
+        message={`Are you sure you want to delete "${file.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmDel(false)} />
+    )}
+    </>
   );
 }
