@@ -55,6 +55,16 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
   const [posting, setPosting]         = useState(false);
   const commentsEndRef                = useRef(null);
   const justPosted                    = useRef(false);
+  const pagePadRef                    = useRef(null);
+
+  useEffect(() => {
+    const scroll = () => { pagePadRef.current?.scrollTo?.({ top: 0 }); window.scrollTo?.({ top: 0 }); };
+    scroll();
+    const t1 = setTimeout(scroll, 0);
+    const t2 = setTimeout(scroll, 100);
+    const t3 = setTimeout(scroll, 400);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [plan.id]);
 
   const commentsPath = useMemo(
     () => collection(db, 'planDiscussions', String(plan.id), 'comments'),
@@ -173,7 +183,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
   };
 
   return (
-    <div className="page-pad" style={{ background: C.bg0 }}>
+    <div ref={pagePadRef} className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
       {/* Header */}
