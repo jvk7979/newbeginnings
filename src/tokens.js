@@ -1,10 +1,30 @@
-export const C = {
-  bg0: '#FFFFFF', bg1: '#F8F8F8', bg2: '#F0EFED', bg3: '#E8E6E2',
-  fg1: '#1C1914', fg2: '#5A5248', fg3: '#9A8E80',
-  accent: '#B8892A', accentLight: '#D4A853', accentDim: '#8A6520', accentBg: '#FDF5E4',
-  border: '#D8D0C4', borderLight: '#C4BBB0',
-  success: '#2E7D52', successBg: '#EAF5EE',
-  warning: '#C4681C', warningBg: '#FDF0E4',
-  danger: '#B03030', dangerBg: '#FAEAEA',
-  info: '#2B5FA6', infoBg: '#EAF0FA',
+// Theme tokens — values resolve to CSS custom properties so the theme can be
+// switched at runtime by setting `document.documentElement.dataset.theme`.
+//
+// Every property accessed on `C` returns `var(--c-<kebab-case-name>)`, which is
+// a valid CSS value usable in inline styles, template literals, and event
+// handlers (e.g. `el.style.background = C.bg0`).
+
+const cache = {};
+const toCssVar = (key) => {
+  if (cache[key]) return cache[key];
+  const kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+  return (cache[key] = `var(--c-${kebab})`);
+};
+
+export const C = new Proxy({}, {
+  get(_, key) {
+    if (typeof key !== 'string') return undefined;
+    return toCssVar(key);
+  },
+});
+
+// Helper for translucent variants. Replaces the old `${C.accent}33` pattern.
+// Reads matching precomputed CSS vars like `--c-accent-33`, defined per theme
+// in styles.css.
+export const alpha = (cssVar, pct) => {
+  // cssVar looks like "var(--c-accent)" — extract the inner name
+  const match = /var\(--c-([a-z0-9-]+)\)/.exec(cssVar);
+  if (!match) return cssVar;
+  return `var(--c-${match[1]}-${pct})`;
 };

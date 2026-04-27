@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 import { useAuth } from '../context/AuthContext';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.png';
 
 const NAV_ITEMS = [
@@ -25,6 +26,7 @@ export default function TopNav({ currentPage, onNavigate }) {
   const { user, signOutUser }                  = useAuth();
   const { ideas, projects, plans, importData } = useAppData();
   const { showToast }                          = useToast();
+  const { theme, setTheme, themes }            = useTheme();
   const [settingsOpen, setSettingsOpen]        = useState(false);
   const [mobileOpen,   setMobileOpen]          = useState(false);
   const settingsRef = useRef(null);
@@ -138,7 +140,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
           {/* User avatar button — desktop */}
           <button onClick={() => setSettingsOpen(o => !o)} className="hide-on-mobile"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px 5px 6px', borderRadius: 99, background: settingsOpen ? C.accentBg : C.bg1, border: `1px solid ${settingsOpen ? C.accent + '55' : C.border}`, cursor: 'pointer', transition: 'all 140ms' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 12px 5px 6px', borderRadius: 99, background: settingsOpen ? C.accentBg : C.bg1, border: `1px solid ${settingsOpen ? alpha(C.accent, 55) : C.border}`, cursor: 'pointer', transition: 'all 140ms' }}
             aria-label="Account menu" aria-expanded={settingsOpen}>
             {user?.photoURL
               ? <img src={user.photoURL} alt="" width={28} height={28} style={{ borderRadius: '50%' }} />
@@ -163,7 +165,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
           {/* Account dropdown */}
           {settingsOpen && (
-            <div style={{ position: 'absolute', top: 72, right: 20, width: 230, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: '0 6px 24px rgba(0,0,0,0.12)', padding: '6px', zIndex: 200 }}>
+            <div style={{ position: 'absolute', top: 72, right: 20, width: 290, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: '0 6px 24px rgba(0,0,0,0.12)', padding: '6px', zIndex: 200 }}>
               {user && (
                 <div style={{ padding: '10px 12px 10px', marginBottom: 4, background: C.bg1, borderRadius: 6 }}>
                   <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1 }}>{user.displayName || 'Account'}</div>
@@ -171,6 +173,28 @@ export default function TopNav({ currentPage, onNavigate }) {
                 </div>
               )}
               <div style={{ height: 1, background: C.border, margin: '6px 0' }} />
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '2px 12px 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, padding: '0 8px 4px' }}>
+                {themes.map(t => {
+                  const active = theme === t.id;
+                  return (
+                    <button key={t.id} onClick={() => { setTheme(t.id); }}
+                      title={t.label}
+                      aria-pressed={active}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', borderRadius: 6, background: active ? C.accentBg : C.bg1, border: `1px solid ${active ? alpha(C.accent, 55) : C.border}`, cursor: 'pointer', textAlign: 'left', transition: 'all 120ms' }}>
+                      <span style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 4, overflow: 'hidden', border: `1px solid ${C.border}` }}>
+                        {t.swatch.map((s, i) => (
+                          <span key={i} style={{ width: 9, height: 18, background: s, display: 'block' }} />
+                        ))}
+                      </span>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {t.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ height: 1, background: C.border, margin: '8px 0 6px' }} />
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '2px 12px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Data</div>
               <button style={dropBtn} onClick={handleExport}
                 onMouseEnter={e => e.currentTarget.style.background = C.bg2}
@@ -229,6 +253,30 @@ export default function TopNav({ currentPage, onNavigate }) {
               ))}
             </div>
 
+            {/* Theme picker */}
+            <div style={{ padding: '4px 16px 12px', borderTop: `1px solid ${C.border}` }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '12px 0 8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                {themes.map(t => {
+                  const active = theme === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setTheme(t.id)}
+                      aria-pressed={active}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 9px', borderRadius: 6, background: active ? C.accentBg : C.bg1, border: `1px solid ${active ? alpha(C.accent, 55) : C.border}`, cursor: 'pointer', textAlign: 'left' }}>
+                      <span style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 4, overflow: 'hidden', border: `1px solid ${C.border}` }}>
+                        {t.swatch.map((s, i) => (
+                          <span key={i} style={{ width: 9, height: 18, background: s, display: 'block' }} />
+                        ))}
+                      </span>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {t.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* User + sign out at bottom */}
             <div style={{ padding: '12px 12px 24px', borderTop: `1px solid ${C.border}` }}>
               {user && (
@@ -245,7 +293,7 @@ export default function TopNav({ currentPage, onNavigate }) {
               )}
               <button
                 onClick={() => { setMobileOpen(false); handleSignOut(); }}
-                style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${C.danger}22`, borderRadius: 8, cursor: 'pointer', padding: '12px 16px' }}>
+                style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 22)}`, borderRadius: 8, cursor: 'pointer', padding: '12px 16px' }}>
                 Sign out
               </button>
             </div>

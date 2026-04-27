@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { getCategoryStyle } from '../utils/categoryStyles';
@@ -53,7 +53,7 @@ export default function FileDetailPage({ file, onNavigate }) {
 
         {file.summary && (
           <button onClick={() => setShowInfo(s => !s)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: showInfo ? C.accent : C.fg3, background: showInfo ? C.accentBg : 'transparent', border: `1px solid ${showInfo ? C.accent + '44' : C.border}`, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', flexShrink: 0 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: showInfo ? C.accent : C.fg3, background: showInfo ? C.accentBg : 'transparent', border: `1px solid ${showInfo ? alpha(C.accent, 44) : C.border}`, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', flexShrink: 0 }}>
             Info
           </button>
         )}
@@ -64,7 +64,7 @@ export default function FileDetailPage({ file, onNavigate }) {
         </a>
 
         <button onClick={handleDelete}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 5, background: 'transparent', color: C.danger, border: `1px solid ${C.danger}33`, cursor: 'pointer', flexShrink: 0 }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 5, background: 'transparent', color: C.danger, border: `1px solid ${alpha(C.danger, 33)}`, cursor: 'pointer', flexShrink: 0 }}>
           Delete
         </button>
       </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import Badge from '../components/Badge';
 
@@ -60,7 +60,7 @@ export default function PlansPage({ onNavigate }) {
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search plans…"
             style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '8px 12px 8px 32px', outline: 'none', width: '100%', transition: 'border 150ms' }}
-            onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; }}
+            onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}
             onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }} />
           {search && (
             <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 16, lineHeight: 1 }}>×</button>
@@ -71,7 +71,7 @@ export default function PlansPage({ onNavigate }) {
       <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
         {FILTERS.map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f ? '#B8892A33' : C.border}`, background: filter === f ? C.accentBg : 'transparent', color: filter === f ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f ? 500 : 400 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f ? alpha(C.accent, 33) : C.border}`, background: filter === f ? C.accentBg : 'transparent', color: filter === f ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f ? 500 : 400 }}>
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}

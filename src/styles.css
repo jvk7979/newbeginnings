@@ -1,3 +1,224 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * Theme tokens (CSS variables). Switching themes is a matter of setting
+ * `document.documentElement.dataset.theme = '<name>'`.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* Default — Warm Sandstone (light) */
+:root,
+:root[data-theme="sandstone"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #F8F8F8;
+  --c-bg2: #F0EFED;
+  --c-bg3: #E8E6E2;
+  --c-fg1: #1C1914;
+  --c-fg2: #5A5248;
+  --c-fg3: #9A8E80;
+  --c-accent: #B8892A;
+  --c-accent-light: #D4A853;
+  --c-accent-dim: #8A6520;
+  --c-accent-bg: #FDF5E4;
+  --c-accent-rgb: 184 137 42;
+  --c-accent-dim-rgb: 138 101 32;
+  --c-border: #D8D0C4;
+  --c-border-light: #C4BBB0;
+  --c-success: #2E7D52;
+  --c-success-bg: #EAF5EE;
+  --c-warning: #C4681C;
+  --c-warning-bg: #FDF0E4;
+  --c-danger: #B03030;
+  --c-danger-bg: #FAEAEA;
+  --c-danger-rgb: 176 48 48;
+  --c-info: #2B5FA6;
+  --c-info-bg: #EAF0FA;
+}
+
+/* Coastal Teal — calm, professional */
+:root[data-theme="teal"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #F4F8F7;
+  --c-bg2: #E8F0EE;
+  --c-bg3: #D4E2DF;
+  --c-fg1: #0B1A1A;
+  --c-fg2: #2F4948;
+  --c-fg3: #6B807F;
+  --c-accent: #0F766E;
+  --c-accent-light: #14B8A6;
+  --c-accent-dim: #0B5852;
+  --c-accent-bg: #ECFDF5;
+  --c-accent-rgb: 15 118 110;
+  --c-accent-dim-rgb: 11 88 82;
+  --c-border: #C4D5D2;
+  --c-border-light: #A8BCB8;
+  --c-success: #15803D;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #B45309;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1D4ED8;
+  --c-info-bg: #DBEAFE;
+}
+
+/* Forest & Cream — earthy, premium agri */
+:root[data-theme="forest"] {
+  --c-bg0: #FAF7F0;
+  --c-bg1: #F4EFE3;
+  --c-bg2: #EAE3D2;
+  --c-bg3: #DDD3BD;
+  --c-fg1: #1F2A14;
+  --c-fg2: #4A5240;
+  --c-fg3: #8A8674;
+  --c-accent: #5C7A3D;
+  --c-accent-light: #8FAD68;
+  --c-accent-dim: #44602B;
+  --c-accent-bg: #F0F4E8;
+  --c-accent-rgb: 92 122 61;
+  --c-accent-dim-rgb: 68 96 43;
+  --c-border: #D2C8B0;
+  --c-border-light: #BCB098;
+  --c-success: #3F6B2A;
+  --c-success-bg: #E8F0DA;
+  --c-warning: #A65A1B;
+  --c-warning-bg: #FAEAD0;
+  --c-danger: #9C2B2B;
+  --c-danger-bg: #F4DEDE;
+  --c-danger-rgb: 156 43 43;
+  --c-info: #2B5C7A;
+  --c-info-bg: #E0EAF0;
+}
+
+/* Indigo & Slate — modern SaaS */
+:root[data-theme="indigo"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #F8FAFC;
+  --c-bg2: #EEF2F7;
+  --c-bg3: #E2E8F0;
+  --c-fg1: #0F172A;
+  --c-fg2: #475569;
+  --c-fg3: #94A3B8;
+  --c-accent: #4F46E5;
+  --c-accent-light: #818CF8;
+  --c-accent-dim: #3730A3;
+  --c-accent-bg: #EEF2FF;
+  --c-accent-rgb: 79 70 229;
+  --c-accent-dim-rgb: 55 48 163;
+  --c-border: #CBD5E1;
+  --c-border-light: #94A3B8;
+  --c-success: #059669;
+  --c-success-bg: #D1FAE5;
+  --c-warning: #D97706;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0284C7;
+  --c-info-bg: #E0F2FE;
+}
+
+/* Sunset Coral — warm, vibrant */
+:root[data-theme="coral"] {
+  --c-bg0: #FFFBF8;
+  --c-bg1: #FFF4ED;
+  --c-bg2: #FCE7DC;
+  --c-bg3: #F4D2C0;
+  --c-fg1: #1F1218;
+  --c-fg2: #5C3D45;
+  --c-fg3: #9C8088;
+  --c-accent: #DC2A5C;
+  --c-accent-light: #F472B6;
+  --c-accent-dim: #A11D43;
+  --c-accent-bg: #FFF1F2;
+  --c-accent-rgb: 220 42 92;
+  --c-accent-dim-rgb: 161 29 67;
+  --c-border: #E8C8B8;
+  --c-border-light: #D4AC98;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #EA580C;
+  --c-warning-bg: #FFEDD5;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #6D28D9;
+  --c-info-bg: #EDE9FE;
+}
+
+/* Midnight — dark mode */
+:root[data-theme="midnight"] {
+  --c-bg0: #0F1115;
+  --c-bg1: #181B22;
+  --c-bg2: #21252E;
+  --c-bg3: #2C313C;
+  --c-fg1: #F2F3F5;
+  --c-fg2: #C2C8D0;
+  --c-fg3: #7C8492;
+  --c-accent: #E0A94C;
+  --c-accent-light: #F4C77A;
+  --c-accent-dim: #C48E32;
+  --c-accent-bg: #2A2218;
+  --c-accent-rgb: 224 169 76;
+  --c-accent-dim-rgb: 196 142 50;
+  --c-border: #2F3540;
+  --c-border-light: #3F4754;
+  --c-success: #4ADE80;
+  --c-success-bg: #15291E;
+  --c-warning: #FB923C;
+  --c-warning-bg: #2B1E12;
+  --c-danger: #F87171;
+  --c-danger-bg: #2B1414;
+  --c-danger-rgb: 248 113 113;
+  --c-info: #60A5FA;
+  --c-info-bg: #15203A;
+}
+
+/* Slate Dark — cooler dark */
+:root[data-theme="slate"] {
+  --c-bg0: #0B1220;
+  --c-bg1: #14192B;
+  --c-bg2: #1D2438;
+  --c-bg3: #283047;
+  --c-fg1: #F1F5F9;
+  --c-fg2: #C0C9D6;
+  --c-fg3: #7A879A;
+  --c-accent: #6366F1;
+  --c-accent-light: #A5B4FC;
+  --c-accent-dim: #4338CA;
+  --c-accent-bg: #1E1B3A;
+  --c-accent-rgb: 99 102 241;
+  --c-accent-dim-rgb: 67 56 202;
+  --c-border: #2A324A;
+  --c-border-light: #3A445C;
+  --c-success: #34D399;
+  --c-success-bg: #0F2922;
+  --c-warning: #FBBF24;
+  --c-warning-bg: #2A2010;
+  --c-danger: #F87171;
+  --c-danger-bg: #2B1414;
+  --c-danger-rgb: 248 113 113;
+  --c-info: #38BDF8;
+  --c-info-bg: #0B2238;
+}
+
+/* Translucent variants — derived from the theme's accent / danger / accent-dim
+ * RGB channels so they stay readable on whatever background the theme uses. */
+:root,
+:root[data-theme] {
+  --c-accent-22: rgb(var(--c-accent-rgb) / 0.13);
+  --c-accent-33: rgb(var(--c-accent-rgb) / 0.20);
+  --c-accent-44: rgb(var(--c-accent-rgb) / 0.27);
+  --c-accent-55: rgb(var(--c-accent-rgb) / 0.33);
+  --c-accent-dim-22: rgb(var(--c-accent-dim-rgb) / 0.13);
+  --c-accent-dim-33: rgb(var(--c-accent-dim-rgb) / 0.20);
+  --c-danger-22: rgb(var(--c-danger-rgb) / 0.13);
+  --c-danger-33: rgb(var(--c-danger-rgb) / 0.20);
+}
+
+/* Smooth color transitions when switching theme */
+html, body, .page-pad, header, nav, button, input, textarea, select {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
 /* Responsive layout — colors/fonts stay in inline styles */
 
 /* Prevent horizontal overflow on all screens */
@@ -5,6 +226,8 @@ html, body {
   max-width: 100%;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
+  background: var(--c-bg0);
+  color: var(--c-fg1);
 }
 
 /* Smoother taps on mobile — kill 300ms delay + no double-tap zoom on buttons */
@@ -36,6 +259,13 @@ button, a, [role="button"], input, select, textarea {
   transform: translateY(0);
 }
 
+/* On dark themes the logo PNG has a white background; multiply makes it blend */
+:root[data-theme="midnight"] .logo-btn img,
+:root[data-theme="slate"] .logo-btn img {
+  mix-blend-mode: screen;
+  filter: brightness(1.05);
+}
+
 /* ── Animations ─────────────────────────────────────────────────────────── */
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -56,7 +286,7 @@ button, a, [role="button"], input, select, textarea {
 *:focus { outline: none; }
 
 *:focus-visible {
-  outline: 2px solid #8A6520;
+  outline: 2px solid var(--c-accent-dim);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -67,7 +297,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 [role="button"]:focus-visible {
-  outline: 2px solid #8A6520;
+  outline: 2px solid var(--c-accent-dim);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -110,9 +340,9 @@ textarea:focus-visible,
 
 /* ── Card interactivity (P2 accessibility) ──────────────────────────────── */
 .card-interactive:focus-visible {
-  outline: 2px solid #8A6520;
+  outline: 2px solid var(--c-accent-dim);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(138, 101, 32, 0.15);
+  box-shadow: 0 0 0 4px var(--c-accent-22);
   border-radius: 8px;
 }
 
@@ -126,8 +356,8 @@ textarea:focus-visible,
 }
 .editable-field:hover,
 .editable-field:focus-within {
-  border-color: #D8D0C4;
-  background: #F8F8F8;
+  border-color: var(--c-border);
+  background: var(--c-bg1);
 }
 
 /* ── Comment input row — stacks on mobile ───────────────────────────────── */

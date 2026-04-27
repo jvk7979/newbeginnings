@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 
 const iStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '10px 12px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' };
 const lStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 5, display: 'block' };
-const onFocus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}22`; };
+const onFocus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 22)}`; };
 const onBlur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
 function AddDocumentModal({ onClose, onSave }) {
@@ -145,7 +145,7 @@ function DocumentCard({ file, onClick, onDelete }) {
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{file.date}</span>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => onClick(file)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', fontWeight: 500 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', fontWeight: 500 }}>
             View Document
           </button>
           <a href={fileUrl} target="_blank" rel="noopener noreferrer"
@@ -154,7 +154,7 @@ function DocumentCard({ file, onClick, onDelete }) {
           </a>
           <button onClick={e => { e.stopPropagation(); onDelete(file.id); }}
             aria-label="Remove document"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${C.danger}33`, borderRadius: 5, cursor: 'pointer', padding: '5px 8px' }}>×</button>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 8px' }}>×</button>
         </div>
       </div>
     </div>
@@ -224,7 +224,7 @@ export default function FilesPage({ onNavigate }) {
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 24 }}>
         {CATEGORIES.map(c => (
           <button key={c} onClick={() => setCatFilter(c)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? C.accent + '44' : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
             {c}
           </button>
         ))}

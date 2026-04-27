@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 import Tag from '../components/Tag';
 import { useAppData } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -85,7 +85,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
-  const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; };
+  const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; };
   const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
   const handleSave = () => {
@@ -177,12 +177,12 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
         <div style={{ display: 'flex', gap: 8 }}>
           {!isEditing && (
             <button onClick={() => setIsEditing(true)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 5, cursor: 'pointer', padding: '5px 14px' }}>
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 14px' }}>
               Edit
             </button>
           )}
           <button onClick={handleDelete}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${C.danger}33`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
             Delete
           </button>
         </div>
@@ -270,7 +270,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 <label style={{ ...labelStyle, marginBottom: 0 }}>Description</label>
                 {desc.trim() && (
                   <button type="button" onClick={() => setDesc(d => formatText(d))}
-                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
                     ✦ Format
                   </button>
                 )}
@@ -355,7 +355,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
               onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handlePostComment(); }}
               placeholder="Add a comment, brainstorm point, or question… (Ctrl+Enter to post)"
               style={{ flex: 1, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '10px 12px', outline: 'none', resize: 'vertical', minHeight: 72, lineHeight: 1.6, transition: 'border 150ms' }}
-              onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; }}
+              onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}
               onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }}
             />
             <button onClick={handlePostComment} disabled={posting || !commentText.trim()}

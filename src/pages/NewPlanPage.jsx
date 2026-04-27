@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
@@ -14,7 +14,7 @@ export default function NewPlanPage({ onNavigate }) {
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
-  const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}33`; };
+  const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; };
   const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
   const handleExtracted = (parsed) => {
@@ -81,7 +81,7 @@ export default function NewPlanPage({ onNavigate }) {
             <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
             {form.summary.trim() && (
               <button type="button" onClick={() => setForm(f => ({ ...f, summary: formatText(f.summary) }))}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
                 ✦ Format
               </button>
             )}
@@ -121,7 +121,7 @@ export default function NewPlanPage({ onNavigate }) {
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
                 {sec.content.trim() && (
                   <button type="button" onClick={() => updateSection(i, 'content', formatText(sec.content))}
-                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
                     ✦ Format
                   </button>
                 )}

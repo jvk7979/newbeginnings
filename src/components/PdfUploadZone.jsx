@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 import { extractAllText, parseTextForIdea, parseTextForPlan } from '../utils/pdfParser';
 
 /* ── Icons ── */
@@ -196,7 +196,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
                 <div style={{ color: C.fg3, marginBottom: 12 }}><UploadIcon /></div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, color: C.fg1, marginBottom: 6 }}>Drop your PDF here</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginBottom: 16 }}>or click to browse files</div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 6, padding: '6px 14px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 6, padding: '6px 14px' }}>
                   PDF only · All pages extracted · Auto-detects sections
                 </div>
               </>}
@@ -236,7 +236,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
       {tab === 'paste' && (
         <>
           {/* Prompt tip */}
-          <div style={{ background: C.accentBg, border: `1px solid ${C.accent}22`, borderRadius: 8, padding: '12px 14px', marginBottom: 14 }}>
+          <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 22)}`, borderRadius: 8, padding: '12px 14px', marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.accent, marginBottom: 4 }}>
@@ -247,7 +247,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
                 </div>
               </div>
               <button onClick={() => setShowPrompt(p => !p)}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: 'none', border: `1px solid ${C.accent}44`, borderRadius: 5, cursor: 'pointer', padding: '4px 10px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, cursor: 'pointer', padding: '4px 10px', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 {showPrompt ? 'Hide' : 'Show prompt'}
               </button>
             </div>
@@ -278,7 +278,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
                   lineHeight: 1.7, padding: '14px 16px', outline: 'none',
                   transition: 'border 150ms', boxSizing: 'border-box',
                 }}
-                onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${C.accentDim}22`; }}
+                onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 22)}`; }}
                 onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }}
               />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>

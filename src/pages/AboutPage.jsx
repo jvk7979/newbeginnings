@@ -1,4 +1,4 @@
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 
 const PILLARS = [
   {
@@ -57,7 +57,7 @@ export default function AboutPage({ onNavigate }) {
       </div>
 
       {/* Mission */}
-      <div style={{ background: C.accentBg, border: `1px solid ${C.accent}33`, borderRadius: 10, padding: '24px 28px', marginBottom: 32 }}>
+      <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 10, padding: '24px 28px', marginBottom: 32 }}>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>Mission</div>
         <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
           "To identify, evaluate, and build sustainable ventures that create local value —
