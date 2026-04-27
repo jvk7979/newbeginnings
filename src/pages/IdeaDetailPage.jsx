@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import Tag from '../components/Tag';
+import { getCategoryStyle, IDEA_CATEGORIES } from '../utils/categoryStyles';
 import { useAppData } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -37,6 +38,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [isEditing, setIsEditing]     = useState(false);
   const [status, setStatus]           = useState(idea.status);
   const [title, setTitle]             = useState(idea.title);
+  const [category, setCategory]       = useState(idea.category || '');
   const [tags, setTags]               = useState((idea.tags || []).join(', '));
   const [desc, setDesc]               = useState(idea.desc || '');
   const [notes, setNotes]             = useState(idea.notes || '');
@@ -95,6 +97,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     updateIdea(idea.id, {
       title: title.trim(),
       status,
+      category: category || '',
       tags: tags.split(',').map(t => t.trim()).filter(Boolean),
       desc: desc.trim(),
       notes: notes.trim(),
@@ -106,6 +109,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const handleCancel = () => {
     setTitle(idea.title);
     setStatus(idea.status);
+    setCategory(idea.category || '');
     setTags((idea.tags || []).join(', '));
     setDesc(idea.desc || '');
     setNotes(idea.notes || '');
@@ -167,6 +171,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   };
 
   const badge = STATUS_BADGE[idea.status] || STATUS_BADGE.draft;
+  const cat = getCategoryStyle(idea.category);
 
   return (
     <>
@@ -204,6 +209,9 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
               <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,28px)', fontWeight: 700, color: C.fg1, margin: '0 0 10px 0', lineHeight: 1.25 }}>{idea.title}</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: badge.bg, color: badge.color }}>{badge.label}</span>
+                {idea.category && (
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: cat.color, background: cat.bg, padding: '2px 8px', borderRadius: 4 }}>{idea.category}</span>
+                )}
                 {(idea.tags || []).map(t => <Tag key={t} label={t} />)}
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginLeft: 'auto' }}>Captured {idea.date}</span>
               </div>
@@ -253,10 +261,17 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
             </div>
 
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, minWidth: 180 }}>
+              <div style={{ flex: 1, minWidth: 160 }}>
                 <label style={labelStyle}>Stage</label>
                 <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
                   {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                </select>
+              </div>
+              <div style={{ flex: 1, minWidth: 160 }}>
+                <label style={labelStyle}>Category</label>
+                <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={category} onChange={e => setCategory(e.target.value)}>
+                  <option value="">— None —</option>
+                  {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div style={{ flex: 2, minWidth: 220 }}>

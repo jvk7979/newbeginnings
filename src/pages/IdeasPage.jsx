@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
+import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
 const FILTERS = [
   { id: 'all',       label: 'All' },
@@ -13,9 +14,10 @@ const FILTERS = [
 
 export default function IdeasPage({ onNavigate }) {
   const { ideas } = useAppData();
-  const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
-  const [sort,   setSort]   = useState('newest');
+  const [filter, setFilter]     = useState('all');
+  const [catFilter, setCatFilter] = useState('');
+  const [search, setSearch]     = useState('');
+  const [sort,   setSort]       = useState('newest');
 
   const filtered = [...ideas]
     .sort((a, b) => {
@@ -24,12 +26,14 @@ export default function IdeasPage({ onNavigate }) {
       return a.title.localeCompare(b.title);
     })
     .filter(i => filter === 'all' || i.status === filter)
+    .filter(i => !catFilter || i.category === catFilter)
     .filter(i => {
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       return (
         i.title.toLowerCase().includes(q) ||
         (i.desc || '').toLowerCase().includes(q) ||
+        (i.category || '').toLowerCase().includes(q) ||
         (i.tags || []).some(t => t.toLowerCase().includes(q))
       );
     });
@@ -41,7 +45,7 @@ export default function IdeasPage({ onNavigate }) {
         <div>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em' }}>Ideas</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
-            {search || filter !== 'all' ? `${filtered.length} of ${ideas.length} ideas` : `${ideas.length} idea${ideas.length !== 1 ? 's' : ''}`}
+            {search || filter !== 'all' || catFilter ? `${filtered.length} of ${ideas.length} ideas` : `${ideas.length} idea${ideas.length !== 1 ? 's' : ''}`}
           </div>
         </div>
         <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
@@ -57,7 +61,7 @@ export default function IdeasPage({ onNavigate }) {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by title, description, tag…"
+            placeholder="Search by title, description, category, tag…"
             aria-label="Search ideas"
             style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '8px 36px 8px 32px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' }}
             onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}
@@ -71,7 +75,7 @@ export default function IdeasPage({ onNavigate }) {
       </div>
 
       {/* Status filters + sort */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)}
@@ -86,6 +90,20 @@ export default function IdeasPage({ onNavigate }) {
           <option value="oldest">Oldest first</option>
           <option value="az">A – Z</option>
         </select>
+      </div>
+
+      {/* Category filters */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+        <button onClick={() => setCatFilter('')}
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${!catFilter ? alpha(C.accent, 44) : C.border}`, background: !catFilter ? C.accentBg : 'transparent', color: !catFilter ? C.accent : C.fg3, cursor: 'pointer', fontWeight: !catFilter ? 500 : 400 }}>
+          All Categories
+        </button>
+        {IDEA_CATEGORIES.map(c => (
+          <button key={c} onClick={() => setCatFilter(catFilter === c ? '' : c)}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
+            {c}
+          </button>
+        ))}
       </div>
 
       {/* Empty states */}

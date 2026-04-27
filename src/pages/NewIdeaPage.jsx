@@ -4,11 +4,12 @@ import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
+import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useAppData();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', status: 'draft', tags: '', desc: '' });
+  const [form, setForm] = useState({ title: '', status: 'draft', category: '', tags: '', desc: '' });
   const [error, setError] = useState('');
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms, box-shadow 150ms' };
@@ -28,10 +29,11 @@ export default function NewIdeaPage({ onNavigate }) {
   const handleSave = () => {
     if (!form.title.trim()) { setError('Idea title is required.'); return; }
     addIdea({
-      title:  form.title.trim(),
-      status: form.status,
-      tags:   form.tags.split(',').map(t => t.trim()).filter(Boolean),
-      desc:   form.desc.trim(),
+      title:    form.title.trim(),
+      status:   form.status,
+      category: form.category || '',
+      tags:     form.tags.split(',').map(t => t.trim()).filter(Boolean),
+      desc:     form.desc.trim(),
     });
     showToast('Idea saved', 'success');
     onNavigate('ideas');
@@ -58,20 +60,29 @@ export default function NewIdeaPage({ onNavigate }) {
             onFocus={focus} onBlur={blur} />
           {error && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, marginTop: 4 }}>{error}</div>}
         </div>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <label style={labelStyle}>Stage</label>
+            <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+              <option value="draft">Draft</option>
+              <option value="validating">Validating</option>
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <label style={labelStyle}>Category</label>
+            <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <option value="">— None —</option>
+              {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
         <div>
           <label style={labelStyle}>Tags (comma separated)</label>
           <input style={inputStyle} value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })}
             placeholder="Manufacturing, Export, Agri…"
             onFocus={focus} onBlur={blur} />
-        </div>
-        <div>
-          <label style={labelStyle}>Stage</label>
-          <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-            <option value="draft">Draft</option>
-            <option value="validating">Validating</option>
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
-          </select>
         </div>
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
