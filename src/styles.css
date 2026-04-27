@@ -4,6 +4,19 @@
 html, body {
   max-width: 100%;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Smoother taps on mobile — kill 300ms delay + no double-tap zoom on buttons */
+button, a, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Prevent iOS auto-zoom on focus by ensuring 16px+ on small screens */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* TopNav visibility helpers */

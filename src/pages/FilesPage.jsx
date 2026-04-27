@@ -191,6 +191,7 @@ export default function FilesPage({ onNavigate }) {
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', margin: 0 }}>Documents</h1>
@@ -255,6 +256,7 @@ export default function FilesPage({ onNavigate }) {
       )}
 
       {showModal && <AddDocumentModal onClose={() => setShowModal(false)} onSave={handleSave} />}
+      </div>
     </div>
   );
 }

@@ -135,6 +135,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   };
 
   const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Delete this comment?')) return;
     try {
       await deleteDoc(doc(db, 'ideaDiscussions', String(idea.id), 'comments', commentId));
     } catch {

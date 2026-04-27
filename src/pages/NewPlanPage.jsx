@@ -48,6 +48,7 @@ export default function NewPlanPage({ onNavigate }) {
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
       <button onClick={() => onNavigate('plans')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Business Plans
@@ -57,7 +58,7 @@ export default function NewPlanPage({ onNavigate }) {
 
       <PdfUploadZone mode="plan" onExtracted={handleExtracted} />
 
-      <div style={{ maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>
           <label style={labelStyle}>Plan Title *</label>
           <input style={{ ...inputStyle, borderColor: error ? C.danger : C.border }} value={form.title}
@@ -142,6 +143,7 @@ export default function NewPlanPage({ onNavigate }) {
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
             onClick={() => onNavigate('plans')}>Cancel</button>
         </div>
+      </div>
       </div>
     </div>
   );

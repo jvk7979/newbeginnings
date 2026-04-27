@@ -159,6 +159,7 @@ function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, sho
   };
 
   const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Delete this comment?')) return;
     try {
       await deleteDoc(doc(db, 'planDiscussions', String(plan.id), 'comments', commentId));
     } catch {

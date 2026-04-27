@@ -12,14 +12,14 @@ const PILLARS = [
     desc: 'Build structured business plans with multiple sections. Store feasibility reports, financial models, and strategic roadmaps in one place.',
   },
   {
-    icon: '🚀',
-    title: 'Projects',
-    desc: 'Track active ventures with KPIs, progress, and next actions. Turn ideas into real projects with clear milestones.',
+    icon: '📄',
+    title: 'Documents',
+    desc: 'Store PDFs, feasibility reports, and source materials. Read them directly in the app — and discuss with family.',
   },
   {
-    icon: '📁',
-    title: 'Files',
-    desc: 'Upload PDFs, reports, and documents to GitHub and link them here. Extract and read content directly in the app.',
+    icon: '💬',
+    title: 'Discussion',
+    desc: 'Every idea and plan has a comment thread. Brainstorm, ask questions, and align as a family.',
   },
 ];
 
@@ -31,7 +31,8 @@ const REGIONS = [
 
 export default function AboutPage({ onNavigate }) {
   return (
-    <div className="page-pad" style={{ background: C.bg0, flex: 1, overflowY: 'auto' }}>
+    <div className="page-pad" style={{ background: C.bg0 }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
 
       {/* Hero */}
       <div style={{ marginBottom: 36 }}>
@@ -91,13 +92,13 @@ export default function AboutPage({ onNavigate }) {
       </div>
 
       {/* How it works */}
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>How Files Work</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>How Documents Work</div>
       <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '20px 24px', marginBottom: 32 }}>
         <ol style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.8, margin: 0, paddingLeft: 20 }}>
           <li>Upload a PDF or document to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: C.bg2, padding: '1px 5px', borderRadius: 3 }}>public/files/</code></li>
-          <li>In the Files section, click <strong>+ Add File</strong> and enter the file name and details</li>
-          <li>Open the file card to extract and read the PDF content directly in the app</li>
-          <li>Documents are private — only visible when you're signed in</li>
+          <li>In the Documents section, click <strong>+ Add Document</strong> and enter the file name and details</li>
+          <li>Open the document card to read the PDF directly in the app</li>
+          <li>Documents are shared across all signed-in family members</li>
         </ol>
       </div>
 
@@ -107,14 +108,15 @@ export default function AboutPage({ onNavigate }) {
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
           Explore Ideas
         </button>
-        <button onClick={() => onNavigate('projects')}
+        <button onClick={() => onNavigate('plans')}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
-          View Projects
+          Business Plans
         </button>
         <button onClick={() => onNavigate('documents')}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
-          Open Files
+          Open Documents
         </button>
+      </div>
       </div>
     </div>
   );

@@ -36,7 +36,7 @@ export default function FileDetailPage({ file, onNavigate }) {
 
       {/* Compact top bar */}
       <div style={{ flexShrink: 0, height: 48, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 12 }}>
-        <button onClick={() => onNavigate('files')}
+        <button onClick={() => onNavigate('documents')}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
           ← Documents
         </button>

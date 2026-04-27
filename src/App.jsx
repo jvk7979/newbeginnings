@@ -72,6 +72,11 @@ export default function App() {
     setPage(dest); setItemId(id);
     const newHash = id ? `#/${dest}/${id}` : `#/${dest}`;
     if (window.location.hash !== newHash) window.location.hash = newHash;
+    // Scroll the page-pad container (and window) back to top on every navigation
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.page-pad').forEach(el => el.scrollTo?.({ top: 0 }));
+      window.scrollTo?.({ top: 0 });
+    });
   };
 
   if (authLoading) return <Spinner />;
