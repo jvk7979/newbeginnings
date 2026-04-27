@@ -5,11 +5,61 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import { generatePlanSection, improveSummary } from '../utils/gemini';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import ConfirmModal from '../components/ConfirmModal';
 import Badge from '../components/Badge';
 import { CATEGORIES } from '../utils/categoryStyles';
+
+const ALLOWED_EXTS = ['.pdf', '.doc', '.docx'];
+const ALLOWED_TYPES = {
+  'application/pdf': 'PDF',
+  'application/msword': 'DOC',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+};
+
+function formatSize(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function FileCard({ file, onReplace, onRemove, editing }) {
+  const isPdf = file.type === 'PDF';
+  return (
+    <div style={{ border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden', marginTop: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: C.bg1, flexWrap: 'wrap' }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="20" height="20" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, marginTop: 2 }}>
+            {file.type}{file.size ? ` · ${formatSize(file.size)}` : ''}{file.uploadedAt ? ` · ${file.uploadedAt}` : ''}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
+          <a href={file.url} target="_blank" rel="noopener noreferrer"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, padding: '5px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            {isPdf ? 'View PDF' : 'Open'} ↗
+          </a>
+          <a href={file.url} download={file.name}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            Download ↓
+          </a>
+          {editing && (
+            <>
+              <button onClick={onReplace}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Replace</button>
+              <button onClick={onRemove}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, padding: '5px 10px', cursor: 'pointer' }}>×</button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
 
@@ -35,12 +85,17 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const { showToast } = useToast();
   const { user } = useAuth();
 
-  const [title,    setTitle]    = useState(plan.title);
-  const [summary,  setSummary]  = useState(plan.summary  || '');
-  const [notes,    setNotes]    = useState(plan.notes    || '');
-  const [category, setCategory] = useState(plan.category || 'Business');
-  const [status,   setStatus]   = useState(plan.status   || 'draft');
-  const [sections, setSections] = useState(plan.sections || []);
+  const [title,        setTitle]        = useState(plan.title);
+  const [summary,      setSummary]      = useState(plan.summary       || '');
+  const [notes,        setNotes]        = useState(plan.notes         || '');
+  const [category,     setCategory]     = useState(plan.category      || 'Business');
+  const [status,       setStatus]       = useState(plan.status        || 'draft');
+  const [sections,     setSections]     = useState(plan.sections      || []);
+  const [attachedFile, setAttachedFile] = useState(plan.attachedFile  || null);
+  const [uploading,    setUploading]    = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError,  setUploadError]  = useState('');
+  const fileInputRef = useRef(null);
   const [isEditing, setIsEditing]   = useState(false);
   const [generatingIdx, setGeneratingIdx] = useState(null);
   const [improvingSummary, setImprovingSummary] = useState(false);
@@ -101,19 +156,50 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     return next;
   });
 
+  const handleFileSelect = async (file) => {
+    if (!file) return;
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!ALLOWED_EXTS.includes(ext)) { setUploadError('Only PDF, DOC, and DOCX files are supported.'); return; }
+    setUploadError('');
+    setUploading(true);
+    setUploadProgress(0);
+    try {
+      const path = `planFiles/${plan.id}_${Date.now()}_${file.name}`;
+      const task = uploadBytesResumable(ref(storage, path), file);
+      task.on('state_changed',
+        snap => setUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+        () => { setUploadError('Upload failed.'); setUploading(false); },
+        async () => {
+          const url = await getDownloadURL(task.snapshot.ref);
+          setAttachedFile({ name: file.name, type: ALLOWED_TYPES[file.type] || ext.replace('.', '').toUpperCase(), size: file.size, url, storagePath: path, uploadedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+          setUploading(false);
+        }
+      );
+    } catch { setUploadError('Upload failed.'); setUploading(false); }
+  };
+
+  const handleRemoveFile = () => {
+    if (attachedFile?.storagePath) {
+      try { deleteObject(ref(storage, attachedFile.storagePath)); } catch { /* ignore */ }
+    }
+    setAttachedFile(null);
+  };
+
   const handleSave = () => {
-    updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections });
+    updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, attachedFile: attachedFile || null });
     setIsEditing(false);
     showToast('Plan saved', 'success');
   };
 
   const handleCancel = () => {
     setTitle(plan.title);
-    setSummary(plan.summary   || '');
-    setNotes(plan.notes       || '');
-    setCategory(plan.category || 'Business');
-    setStatus(plan.status     || 'draft');
-    setSections(plan.sections || []);
+    setSummary(plan.summary       || '');
+    setNotes(plan.notes           || '');
+    setCategory(plan.category     || 'Business');
+    setStatus(plan.status         || 'draft');
+    setSections(plan.sections     || []);
+    setAttachedFile(plan.attachedFile || null);
+    setUploadError('');
     setIsEditing(false);
   };
 
@@ -231,9 +317,15 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               </div>
             )}
             {notes && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
+              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: attachedFile ? 14 : 28 }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Notes</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{notes}</div>
+              </div>
+            )}
+            {attachedFile && (
+              <div style={{ marginBottom: 28 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Attached Document</div>
+                <FileCard file={attachedFile} editing={false} />
               </div>
             )}
 
@@ -299,6 +391,35 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.6 }} value={notes}
                 onChange={e => setNotes(e.target.value)} onFocus={focus} onBlur={blur}
                 placeholder="Internal notes, observations, or additional context…" />
+            </div>
+
+            {/* File attachment — edit mode */}
+            <div>
+              <label style={labelStyle}>Attached Document</label>
+              <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }}
+                onChange={e => { handleFileSelect(e.target.files[0]); e.target.value = ''; }} />
+              {attachedFile ? (
+                <FileCard file={attachedFile} editing onReplace={() => fileInputRef.current?.click()} onRemove={handleRemoveFile} />
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ border: `2px dashed ${C.border}`, borderRadius: 10, padding: '22px 16px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer', background: C.bg1 }}>
+                  {uploading ? (
+                    <>
+                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg1, marginBottom: 10 }}>Uploading… {uploadProgress}%</div>
+                      <div style={{ height: 5, background: C.bg2, borderRadius: 3, overflow: 'hidden', maxWidth: 240, margin: '0 auto' }}>
+                        <div style={{ height: '100%', width: `${uploadProgress}%`, background: C.accent, borderRadius: 3, transition: 'width 200ms' }} />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 4 }}>Attach a document</div>
+                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>PDF, DOC, or DOCX</div>
+                    </>
+                  )}
+                </div>
+              )}
+              {uploadError && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, marginTop: 6 }}>{uploadError}</div>}
             </div>
 
             <div>
