@@ -15,7 +15,7 @@ export default function Dashboard({ onNavigate }) {
 
       {/* Hero */}
       <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015' }}>
-        <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', maxHeight: 'clamp(320px, 60vh, 540px)', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+        <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', display: 'block' }} />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button onClick={() => onNavigate('new-idea')}
