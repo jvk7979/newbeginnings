@@ -1,7 +1,7 @@
 import { C } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
-import heroImg from '../assets/hero.png';
+import heroImg from '../assets/hero_wide.png';
 
 const statCard = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 20px', cursor: 'pointer', transition: 'border-color 150ms' };
 
@@ -16,9 +16,7 @@ export default function Dashboard({ onNavigate }) {
       {/* Hero */}
       <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015' }}>
         <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', maxHeight: 'clamp(320px, 60vh, 540px)', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.60) 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,4vw,42px)', fontWeight: 700, fontStyle: 'italic', color: '#D4A853', lineHeight: 1.15, marginBottom: 6, textShadow: '0 2px 16px rgba(0,0,0,0.6)', letterSpacing: '-0.01em' }}>The New Beginnings</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(13px,2vw,17px)', color: 'rgba(255,255,255,0.92)', marginBottom: 20, letterSpacing: '0.06em', fontWeight: 300, fontStyle: 'italic' }}>A Fresh Start. Endless Possibilities.</div>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button onClick={() => onNavigate('new-idea')}
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
