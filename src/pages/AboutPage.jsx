@@ -46,7 +46,7 @@ export default function AboutPage({ onNavigate }) {
             <path d="M4 40 C10 35 16 35 23 40 C30 45 36 45 42 40" stroke={C.accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.3"/>
           </svg>
           <div>
-            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>The New Beginning</div>
+            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>The New Beginnings</div>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>A Rajahmundry Ventures Workspace</div>
           </div>
         </div>

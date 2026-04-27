@@ -30,7 +30,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div style={{ position: 'fixed', bottom: 80, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8, pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', bottom: 20, right: 20, left: 20, maxWidth: 400, marginLeft: 'auto', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8, pointerEvents: 'none' }}>
         {toasts.map(t => {
           const col = COLORS[t.type] || COLORS.info;
           return (

@@ -18,27 +18,8 @@ function timeAgo(ts) {
 }
 
 export default function PlanDetailPage({ plan, onNavigate }) {
-  const { plans, updatePlan, deletePlan, restorePlan } = useAppData();
+  const { updatePlan, deletePlan, restorePlan } = useAppData();
   const { showToast } = useToast();
-
-  const resolved = plan ?? (plans.length > 0 ? plans[0] : null);
-
-  if (!resolved) {
-    return (
-      <div className="page-pad" style={{ background: C.bg0 }}>
-        <button onClick={() => onNavigate('plans')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          Business Plans
-        </button>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 40, textAlign: 'center' }}>No business plans yet. Create your first plan.</div>
-      </div>
-    );
-  }
-
-  return <PlanEditor plan={resolved} onNavigate={onNavigate} updatePlan={updatePlan} deletePlan={deletePlan} restorePlan={restorePlan} showToast={showToast} />;
-}
-
-function PlanEditor({ plan, onNavigate, updatePlan, deletePlan, restorePlan, showToast }) {
   const { user } = useAuth();
 
   const [title, setTitle]           = useState(plan.title);

@@ -72,11 +72,6 @@ export default function App() {
     setPage(dest); setItemId(id);
     const newHash = id ? `#/${dest}/${id}` : `#/${dest}`;
     if (window.location.hash !== newHash) window.location.hash = newHash;
-    // Scroll the page-pad container (and window) back to top on every navigation
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.page-pad').forEach(el => el.scrollTo?.({ top: 0 }));
-      window.scrollTo?.({ top: 0 });
-    });
   };
 
   if (authLoading) return <Spinner />;
@@ -93,15 +88,17 @@ export default function App() {
       case 'ideas':          return <IdeasPage onNavigate={navigate} />;
       case 'new-idea':       return <NewIdeaPage onNavigate={navigate} />;
       case 'idea-detail':
-        if (itemId && !idea) return <NotFound label="Idea" dest="ideas" onNavigate={navigate} />;
-        return <IdeaDetailPage idea={idea || ideas[0]} onNavigate={navigate} />;
+        if (!itemId || !idea) return <NotFound label="Idea" dest="ideas" onNavigate={navigate} />;
+        return <IdeaDetailPage key={idea.id} idea={idea} onNavigate={navigate} />;
       case 'plans':          return <PlansPage onNavigate={navigate} />;
-      case 'plan-detail':    return <PlanDetailPage plan={plan} onNavigate={navigate} />;
+      case 'plan-detail':
+        if (!itemId || !plan) return <NotFound label="Business plan" dest="plans" onNavigate={navigate} />;
+        return <PlanDetailPage key={plan.id} plan={plan} onNavigate={navigate} />;
       case 'new-plan':       return <NewPlanPage onNavigate={navigate} />;
       case 'documents':      return <FilesPage onNavigate={navigate} />;
       case 'document-detail':
-        if (itemId && !file) return <NotFound label="Document" dest="documents" onNavigate={navigate} />;
-        return <FileDetailPage file={file || files[0]} onNavigate={navigate} />;
+        if (!itemId || !file) return <NotFound label="Document" dest="documents" onNavigate={navigate} />;
+        return <FileDetailPage key={file.id} file={file} onNavigate={navigate} />;
       case 'about':          return <AboutPage onNavigate={navigate} />;
       default:               return <Dashboard onNavigate={navigate} />;
     }
