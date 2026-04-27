@@ -107,18 +107,19 @@ export default function TopNav({ currentPage, onNavigate }) {
 
   return (
     <>
-      <header style={{ height: 82, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 16, flexShrink: 0, position: 'relative', zIndex: 100 }}>
+      <header style={{ height: 68, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 'clamp(12px, 2vw, 20px)', gap: 14, flexShrink: 0, position: 'relative', zIndex: 100 }}>
 
         {/* Logo */}
         <button
           onClick={() => onNavigate('dashboard')}
-          style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10, cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 35%', maxWidth: 220, boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
+          className="logo-btn"
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', flexShrink: 0, borderRadius: 8 }}
           aria-label="Go to Home">
-          <img src={logoImg} alt="The New Beginnings" style={{ height: 74, width: 'auto', display: 'block', maxWidth: '100%' }} />
+          <img src={logoImg} alt="The New Beginnings" style={{ height: 52, width: 'auto', display: 'block', mixBlendMode: 'multiply' }} />
         </button>
 
         {/* Divider */}
-        <div style={{ width: 1, height: 24, background: C.border, flexShrink: 0 }} />
+        <div style={{ width: 1, height: 28, background: C.border, flexShrink: 0 }} className="hide-on-mobile" />
 
         {/* Desktop nav */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, overflowX: 'auto' }} className="hide-on-mobile" aria-label="Main navigation">
@@ -162,7 +163,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
           {/* Account dropdown */}
           {settingsOpen && (
-            <div style={{ position: 'absolute', top: 86, right: 20, width: 230, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: '0 6px 24px rgba(0,0,0,0.12)', padding: '6px', zIndex: 200 }}>
+            <div style={{ position: 'absolute', top: 72, right: 20, width: 230, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: '0 6px 24px rgba(0,0,0,0.12)', padding: '6px', zIndex: 200 }}>
               {user && (
                 <div style={{ padding: '10px 12px 10px', marginBottom: 4, background: C.bg1, borderRadius: 6 }}>
                   <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1 }}>{user.displayName || 'Account'}</div>

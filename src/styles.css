@@ -24,6 +24,18 @@ button, a, [role="button"], input, select, textarea {
 .hide-on-desktop { display: none; }
 .show-on-desktop { display: flex !important; }
 
+/* Logo button — subtle hover so it feels clickable without a heavy frame */
+.logo-btn {
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.logo-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+.logo-btn:active {
+  transform: translateY(0);
+}
+
 /* ── Animations ─────────────────────────────────────────────────────────── */
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -130,6 +142,11 @@ textarea:focus-visible,
   .hide-on-mobile  { display: none !important; }
   .hide-on-desktop { display: flex !important; }
   .show-on-desktop { display: none !important; }
+
+  /* Logo can be a touch larger on mobile so it reads at a glance */
+  .logo-btn img {
+    height: 44px !important;
+  }
 
   .page-pad {
     padding: 16px 14px 40px;
