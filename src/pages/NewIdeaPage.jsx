@@ -9,7 +9,7 @@ import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useAppData();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', status: 'draft', category: '', tags: '', desc: '' });
+  const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '' });
   const [error, setError] = useState('');
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms, box-shadow 150ms' };
@@ -32,7 +32,6 @@ export default function NewIdeaPage({ onNavigate }) {
       title:    form.title.trim(),
       status:   form.status,
       category: form.category || '',
-      tags:     form.tags.split(',').map(t => t.trim()).filter(Boolean),
       desc:     form.desc.trim(),
     });
     showToast('Idea saved', 'success');
@@ -77,12 +76,6 @@ export default function NewIdeaPage({ onNavigate }) {
               {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-        </div>
-        <div>
-          <label style={labelStyle}>Tags (comma separated)</label>
-          <input style={inputStyle} value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })}
-            placeholder="Manufacturing, Export, Agri…"
-            onFocus={focus} onBlur={blur} />
         </div>
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>

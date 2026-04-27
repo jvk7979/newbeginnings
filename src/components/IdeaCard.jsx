@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { C } from '../tokens';
 import Badge from './Badge';
-import Tag from './Tag';
 import { getCategoryStyle } from '../utils/categoryStyles';
 
-export default function IdeaCard({ title, date, tags, status, desc, category, onClick }) {
+export default function IdeaCard({ title, date, status, desc, category, onClick }) {
   const [hov, setHov] = useState(false);
   const cat = getCategoryStyle(category);
 
@@ -29,11 +28,6 @@ export default function IdeaCard({ title, date, tags, status, desc, category, on
       </div>
       {desc && (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.55, marginBottom: 10, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', flex: 1 }}>{desc}</div>
-      )}
-      {(tags || []).length > 0 && (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-          {(tags || []).map(t => <Tag key={t} label={t} />)}
-        </div>
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{date}</div>

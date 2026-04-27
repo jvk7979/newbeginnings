@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { C, alpha } from '../tokens';
-import Tag from '../components/Tag';
 import { getCategoryStyle, IDEA_CATEGORIES } from '../utils/categoryStyles';
 import { useAppData } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -39,7 +38,6 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [status, setStatus]           = useState(idea.status);
   const [title, setTitle]             = useState(idea.title);
   const [category, setCategory]       = useState(idea.category || '');
-  const [tags, setTags]               = useState((idea.tags || []).join(', '));
   const [desc, setDesc]               = useState(idea.desc || '');
   const [notes, setNotes]             = useState(idea.notes || '');
   const [analysis, setAnalysis]       = useState(null);
@@ -98,7 +96,6 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
       title: title.trim(),
       status,
       category: category || '',
-      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
       desc: desc.trim(),
       notes: notes.trim(),
     });
@@ -110,7 +107,6 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     setTitle(idea.title);
     setStatus(idea.status);
     setCategory(idea.category || '');
-    setTags((idea.tags || []).join(', '));
     setDesc(idea.desc || '');
     setNotes(idea.notes || '');
     setIsEditing(false);
@@ -212,7 +208,6 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 {idea.category && (
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: cat.color, background: cat.bg, padding: '2px 8px', borderRadius: 4 }}>{idea.category}</span>
                 )}
-                {(idea.tags || []).map(t => <Tag key={t} label={t} />)}
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginLeft: 'auto' }}>Captured {idea.date}</span>
               </div>
             </div>
@@ -274,17 +269,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                   {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div style={{ flex: 2, minWidth: 220 }}>
-                <label style={labelStyle}>Tags (comma separated)</label>
-                <input style={inputStyle} value={tags} onChange={e => setTags(e.target.value)} placeholder="Manufacturing, Export, Agri…" onFocus={focus} onBlur={blur} />
-              </div>
             </div>
-
-            {tags && (
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <Tag key={t} label={t} />)}
-              </div>
-            )}
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
