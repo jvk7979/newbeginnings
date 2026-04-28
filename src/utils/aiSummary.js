@@ -28,7 +28,7 @@ export async function generateSummaryFromFile(file) {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   const result = await model.generateContent(SUMMARY_PROMPT + text.slice(0, 12000));
   return result.response.text().trim();
 }
