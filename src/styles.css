@@ -467,3 +467,42 @@ textarea:focus-visible,
   box-shadow: 0 4px 20px rgba(var(--c-accent-rgb) / 0.12) !important;
   background: var(--c-accent-bg) !important;
 }
+
+/* Stat grid — 3 equal columns, compact on mobile */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+@media (max-width: 768px) {
+  .stat-grid { gap: 8px; }
+  .stat-grid .stat-card {
+    padding: 10px 8px 10px 10px !important;
+    gap: 8px !important;
+  }
+  .stat-grid .stat-icon {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 7px !important;
+  }
+  .stat-grid .stat-count { font-size: 22px !important; }
+  .stat-grid .stat-label { font-size: 10px !important; }
+}
+
+/* Chip-scroll row — right-side fade gradient shows more content is available */
+.chip-scroll-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.chip-scroll-wrap::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  background: linear-gradient(to right, transparent, var(--c-bg0) 85%);
+  pointer-events: none;
+  z-index: 1;
+}

@@ -104,14 +104,16 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* Status filters + sort */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', flex: 1, paddingBottom: 2 }}>
-          {FILTERS.map(f => (
-            <button key={f.id} onClick={() => setFilter(f.id)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f.id ? alpha(C.accent, 44) : C.border}`, background: filter === f.id ? C.accentBg : 'transparent', color: filter === f.id ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f.id ? 500 : 400, flexShrink: 0 }}>
-              {f.label}
-            </button>
-          ))}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <div className="chip-scroll-wrap" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
+            {FILTERS.map(f => (
+              <button key={f.id} onClick={() => setFilter(f.id)}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f.id ? alpha(C.accent, 44) : C.border}`, background: filter === f.id ? C.accentBg : 'transparent', color: filter === f.id ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f.id ? 500 : 400, flexShrink: 0 }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
         <select value={sort} onChange={e => setSort(e.target.value)}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
@@ -122,13 +124,15 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* Category filters */}
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', marginBottom: 20, paddingBottom: 2 }}>
-        {CATEGORIES.map(c => (
-          <button key={c} onClick={() => setCatFilter(c)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400, flexShrink: 0 }}>
-            {c}
-          </button>
-        ))}
+      <div className="chip-scroll-wrap" style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
+          {CATEGORIES.map(c => (
+            <button key={c} onClick={() => setCatFilter(c)}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400, flexShrink: 0 }}>
+              {c}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Empty states */}
@@ -147,7 +151,9 @@ export default function PlansPage({ onNavigate }) {
           {search ? `No plans matching "${search}"` : `No plans with status "${filter}".`}
         </div>
       ) : (
-        filtered.map(p => <PlanCard key={p.id} plan={p} onNavigate={onNavigate} />)
+        <div className="grid-2">
+          {filtered.map(p => <PlanCard key={p.id} plan={p} onNavigate={onNavigate} />)}
+        </div>
       )}
       </div>
     </div>

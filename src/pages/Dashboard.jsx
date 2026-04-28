@@ -36,7 +36,7 @@ export default function Dashboard({ onNavigate }) {
       </div>
 
       {/* Stats bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 24 }}>
+      <div className="stat-grid">
         {[
           { label: 'Ideas', count: ideas.length, action: () => onNavigate('ideas'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg> },
           { label: 'Business Plans', count: plans.length, action: () => onNavigate('plans'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
@@ -44,10 +44,10 @@ export default function Dashboard({ onNavigate }) {
         ].map(s => (
           <button key={s.label} onClick={s.action} className="stat-card"
             style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px 14px 18px', borderRadius: 12, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'left', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', width: '100%' }}>
-            <span style={{ width: 42, height: 42, borderRadius: 10, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>{s.icon}</span>
+            <span className="stat-icon" style={{ width: 42, height: 42, borderRadius: 10, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>{s.icon}</span>
             <div>
-              <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
+              <div className="stat-count" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
+              <div className="stat-label" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
             </div>
           </button>
         ))}
@@ -119,18 +119,30 @@ export default function Dashboard({ onNavigate }) {
               View all →
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 32 }}>
+          <div className="grid-3" style={{ marginBottom: 32 }}>
             {[...files].slice(0, 3).map(f => (
               <div key={f.id}
                 role="button" tabIndex={0}
-                style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '12px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'border-color 150ms' }}
+                className="card-rich"
+                style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 18px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
                 onClick={() => onNavigate('document-detail', f)}
-                onKeyDown={e => e.key === 'Enter' && onNavigate('document-detail', f)}
-                onMouseEnter={e => e.currentTarget.style.borderColor = C.accentDim}
-                onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
-                <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" width="16" height="16" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.title}</div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, marginLeft: 'auto', flexShrink: 0 }}>{f.fileName?.split('.').pop()?.toUpperCase()}</span>
+                onKeyDown={e => e.key === 'Enter' && onNavigate('document-detail', f)}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                  </span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, padding: '2px 6px', letterSpacing: '0.05em' }}>
+                    {f.fileName?.split('.').pop()?.toUpperCase() || 'PDF'}
+                  </span>
+                </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', flex: 1 }}>{f.title}</div>
+                {f.category && (
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.fg3 }}>{f.category}</div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: `1px solid ${C.border}`, marginTop: 'auto' }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3 }}>{f.date}</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, fontWeight: 600 }}>Open →</span>
+                </div>
               </div>
             ))}
           </div>
