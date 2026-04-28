@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import Badge from '../components/Badge';
+import { CATEGORIES } from '../utils/categoryStyles';
 
 const FILTERS = [
   { id: 'all',       label: 'All' },
@@ -49,9 +50,10 @@ function PlanCard({ plan, onNavigate }) {
 
 export default function PlansPage({ onNavigate }) {
   const { plans } = useAppData();
-  const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
-  const [sort,   setSort]   = useState('newest');
+  const [filter, setFilter]     = useState('all');
+  const [catFilter, setCatFilter] = useState('All');
+  const [search, setSearch]     = useState('');
+  const [sort,   setSort]       = useState('newest');
 
   const filtered = [...plans]
     .sort((a, b) => {
@@ -60,6 +62,7 @@ export default function PlansPage({ onNavigate }) {
       return a.title.localeCompare(b.title);
     })
     .filter(p => filter === 'all' || p.status === filter)
+    .filter(p => catFilter === 'All' || p.category === catFilter)
     .filter(p => {
       if (!search.trim()) return true;
       const q = search.toLowerCase();
@@ -79,7 +82,7 @@ export default function PlansPage({ onNavigate }) {
         <div>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em' }}>Business Plans</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
-            {search || filter !== 'all' ? `${filtered.length} of ${plans.length} plans` : `${plans.length} plan${plans.length !== 1 ? 's' : ''}`}
+            {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} of ${plans.length} plans` : `${plans.length} plan${plans.length !== 1 ? 's' : ''}`}
           </div>
         </div>
         <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
@@ -104,7 +107,7 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* Status filters + sort */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)}
@@ -119,6 +122,16 @@ export default function PlansPage({ onNavigate }) {
           <option value="oldest">Oldest first</option>
           <option value="az">A – Z</option>
         </select>
+      </div>
+
+      {/* Category filters */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+        {CATEGORIES.map(c => (
+          <button key={c} onClick={() => setCatFilter(c)}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
+            {c}
+          </button>
+        ))}
       </div>
 
       {/* Empty states */}

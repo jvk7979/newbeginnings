@@ -1,17 +1,15 @@
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
-import Badge from '../components/Badge';
 import heroImg from '../assets/hero_wide.png';
 
 const sectionLabel = { fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 12 };
 
 export default function Dashboard({ onNavigate }) {
-  const { ideas, plans, files } = useAppData();
+  const { ideas, files } = useAppData();
 
   // Newest first
   const recentIdeas = [...ideas].sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0)).slice(0, 3);
-  const recentPlans = [...plans].sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0)).slice(0, 3);
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
@@ -80,44 +78,6 @@ export default function Dashboard({ onNavigate }) {
             </button>
           ) : <div style={{ marginBottom: 32 }} />}
         </>
-      )}
-
-      {/* Featured Business Plans */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={sectionLabel}>Business Plans</div>
-        {plans.length > 3 && (
-          <button onClick={() => onNavigate('plans')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 12 }}>
-            View all →
-          </button>
-        )}
-      </div>
-      {recentPlans.length === 0 ? (
-        <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 8, padding: '28px 20px', textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, marginBottom: 14 }}>No business plans yet.</div>
-          <button
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-            onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-            onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={() => onNavigate('new-plan')}>+ Create Business Plan</button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
-          {recentPlans.map(p => (
-            <div key={p.id}
-              role="button" tabIndex={0}
-              style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', cursor: 'pointer', transition: 'border-color 150ms', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}
-              onClick={() => onNavigate('plan-detail', p)}
-              onKeyDown={e => e.key === 'Enter' && onNavigate('plan-detail', p)}
-              onMouseEnter={e => e.currentTarget.style.borderColor = C.accentDim}
-              onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{p.sectionCount ?? (p.sections?.length ?? 0)} sections · Updated {p.updated}</div>
-              </div>
-              <Badge status={p.status} />
-            </div>
-          ))}
-        </div>
       )}
 
       {/* Documents snapshot */}

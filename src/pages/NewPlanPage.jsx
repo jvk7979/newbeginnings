@@ -136,7 +136,6 @@ export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = useAppData();
   const { showToast } = useToast();
   const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft' });
-  const [sections, setSections] = useState([{ title: '', content: '' }]);
   const [attachedFile, setAttachedFile] = useState(null);
   const [error, setError] = useState('');
 
@@ -147,23 +146,12 @@ export default function NewPlanPage({ onNavigate }) {
 
   const handleExtracted = (parsed) => {
     setForm(f => ({ ...f, title: parsed.title || f.title, summary: parsed.summary || f.summary }));
-    if (parsed.sections?.length > 0) setSections(parsed.sections.map(s => ({ title: s.title, content: s.content })));
-    showToast(`PDF applied — ${parsed.sections?.length || 0} sections extracted`, 'success');
+    showToast('PDF content applied — review and save', 'success');
   };
-
-  const addSection    = () => setSections(s => [...s, { title: '', content: '' }]);
-  const removeSection = (i) => setSections(s => s.filter((_, idx) => idx !== i));
-  const updateSection = (i, field, val) => setSections(s => s.map((sec, idx) => idx === i ? { ...sec, [field]: val } : sec));
-  const moveSection   = (i, dir) => setSections(s => {
-    const next = [...s]; const j = i + dir;
-    if (j < 0 || j >= next.length) return next;
-    [next[i], next[j]] = [next[j], next[i]]; return next;
-  });
 
   const handleSave = () => {
     if (!form.title.trim()) { setError('Plan title is required.'); return; }
-    const validSections = sections.filter(s => s.title.trim() || s.content.trim());
-    addPlan({ ...form, title: form.title.trim(), sections: validSections, attachedFile: attachedFile || null });
+    addPlan({ ...form, title: form.title.trim(), sections: [], attachedFile: attachedFile || null });
     showToast('Business plan saved', 'success');
     onNavigate('plans');
   };
@@ -239,48 +227,6 @@ export default function NewPlanPage({ onNavigate }) {
         <div>
           <label style={{ ...labelStyle, marginBottom: 10 }}>Attach Document (PDF / DOC / DOCX)</label>
           <FileAttachZone value={attachedFile} onChange={setAttachedFile} />
-        </div>
-
-        {/* Sections */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3 }}>
-              Sections ({sections.length})
-            </div>
-            <button onClick={addSection}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
-              + Add Section
-            </button>
-          </div>
-          {sections.map((sec, i) => (
-            <div key={i} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 16px', marginBottom: 10, animation: 'fadeIn 200ms ease' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>Section {i + 1}</span>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {i > 0 && <button onClick={() => moveSection(i, -1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↑</button>}
-                  {i < sections.length - 1 && <button onClick={() => moveSection(i, 1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↓</button>}
-                  {sections.length > 1 && <button onClick={() => removeSection(i)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>}
-                </div>
-              </div>
-              <input style={{ ...inputStyle, marginBottom: 10, background: C.bg0 }} value={sec.title}
-                onChange={e => updateSection(i, 'title', e.target.value)}
-                placeholder="Section title (e.g. Executive Summary)"
-                onFocus={focus} onBlur={blur} />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
-                {sec.content.trim() && (
-                  <button type="button" onClick={() => updateSection(i, 'content', formatText(sec.content))}
-                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
-                    ✦ Format
-                  </button>
-                )}
-              </div>
-              <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6, background: C.bg0 }} value={sec.content}
-                onChange={e => updateSection(i, 'content', e.target.value)}
-                placeholder="Section content…"
-                onFocus={focus} onBlur={blur} />
-              {sec.content.length > 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginTop: 4 }}>{sec.content.length} characters</div>}
-            </div>
-          ))}
         </div>
 
         {/* Actions */}
