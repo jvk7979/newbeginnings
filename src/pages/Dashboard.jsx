@@ -43,11 +43,11 @@ export default function Dashboard({ onNavigate }) {
           { label: 'Documents', count: files.length, action: () => onNavigate('documents'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg> },
         ].map(s => (
           <button key={s.label} onClick={s.action} className="stat-card"
-            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderRadius: 10, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'left' }}>
-            <span style={{ width: 34, height: 34, borderRadius: 8, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>{s.icon}</span>
+            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px 14px 18px', borderRadius: 12, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'left', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+            <span style={{ width: 42, height: 42, borderRadius: 10, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>{s.icon}</span>
             <div>
-              <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 2 }}>{s.label}</div>
+              <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
             </div>
           </button>
         ))}
@@ -58,26 +58,26 @@ export default function Dashboard({ onNavigate }) {
       <div className="grid-3" style={{ marginBottom: 32 }}>
         {[
           {
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/><path d="M12 17v4"/></svg>,
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="26" height="26"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/><path d="M12 17v4"/></svg>,
             label: 'Add New Idea', sub: 'Capture a venture idea', action: () => onNavigate('new-idea'),
           },
           {
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>,
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="26" height="26"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>,
             label: 'Create Business Plan', sub: 'Start a structured plan', action: () => onNavigate('new-plan'),
           },
           {
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="26" height="26"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
             label: 'Upload Document', sub: 'Add a report or PDF', action: () => onNavigate('documents'),
           },
         ].map(q => (
           <button key={q.label} onClick={q.action} className="card-rich"
-            style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '18px 20px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-            <span style={{ width: 44, height: 44, borderRadius: 10, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
+            style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '20px 22px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'flex-start', gap: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+            <span style={{ width: 52, height: 52, borderRadius: 12, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
               {q.icon}
             </span>
-            <span style={{ paddingTop: 2 }}>
-              <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, marginBottom: 3 }}>{q.label}</span>
-              <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, lineHeight: 1.4 }}>{q.sub}</span>
+            <span style={{ paddingTop: 4 }}>
+              <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: C.fg1, marginBottom: 4 }}>{q.label}</span>
+              <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, lineHeight: 1.5 }}>{q.sub}</span>
             </span>
           </button>
         ))}

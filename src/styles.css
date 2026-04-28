@@ -311,6 +311,8 @@ textarea:focus-visible,
   word-break: break-word;
   overflow-wrap: break-word;
   min-width: 0;
+  background: radial-gradient(ellipse at 60% 0%, rgba(var(--c-accent-rgb) / 0.05) 0%, transparent 60%),
+              var(--c-bg0);
 }
 
 .hero-bleed {
