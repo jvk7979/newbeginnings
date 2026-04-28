@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "fileBlobs": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}
