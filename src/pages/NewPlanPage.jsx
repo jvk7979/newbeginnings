@@ -6,6 +6,7 @@ import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
 import UploadZone from '../components/UploadZone';
 import { uploadFileToDB } from '../utils/fileStorage';
+import { generateSummaryFromFile } from '../utils/aiSummary';
 import { CATEGORIES } from '../utils/categoryStyles';
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
@@ -24,6 +25,7 @@ export default function NewPlanPage({ onNavigate }) {
   const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
   const [error, setError] = useState('');
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms', boxSizing: 'border-box' };
@@ -34,6 +36,20 @@ export default function NewPlanPage({ onNavigate }) {
   const handleExtracted = (parsed) => {
     setForm(f => ({ ...f, title: parsed.title || f.title, summary: parsed.summary || f.summary }));
     showToast('PDF content applied — review and save', 'success');
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!selectedFile) return;
+    setSummarizing(true);
+    try {
+      const summary = await generateSummaryFromFile(selectedFile);
+      setForm(f => ({ ...f, summary }));
+      showToast('AI summary generated', 'success');
+    } catch (err) {
+      showToast(err?.message || 'Failed to generate summary.', 'error');
+    } finally {
+      setSummarizing(false);
+    }
   };
 
   const handleSave = async () => {
@@ -92,20 +108,41 @@ export default function NewPlanPage({ onNavigate }) {
           </div>
         </div>
 
+        {/* File attachment — above summary so AI button activates immediately */}
+        <div>
+          <label style={labelStyle}>Attach Document (optional)</label>
+          <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
+          {selectedFile?.type === 'application/pdf' && (
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, marginTop: 6 }}>
+              ✦ PDF attached — click "Generate AI Summary" below to auto-fill the executive summary
+            </div>
+          )}
+        </div>
+
         {/* Executive Summary */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
             <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
-            {form.summary.trim() && (
-              <button type="button" onClick={() => setForm(f => ({ ...f, summary: formatText(f.summary) }))}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
-                ✦ Format
-              </button>
-            )}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              {selectedFile?.type === 'application/pdf' && (
+                <button type="button" onClick={handleGenerateSummary} disabled={summarizing}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: summarizing ? C.fg3 : '#fff', background: summarizing ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: summarizing ? 'not-allowed' : 'pointer', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
+                  {summarizing
+                    ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: `1.5px solid ${C.fg3}`, borderTopColor: C.fg1, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
+                    : <>✦ Generate AI Summary</>}
+                </button>
+              )}
+              {form.summary.trim() && (
+                <button type="button" onClick={() => setForm(f => ({ ...f, summary: formatText(f.summary) }))}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                  ✦ Format
+                </button>
+              )}
+            </div>
           </div>
           <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={form.summary}
             onChange={e => setForm({ ...form, summary: e.target.value })}
-            placeholder="One-paragraph overview of the plan…"
+            placeholder={selectedFile?.type === 'application/pdf' ? 'Attach a PDF above then click ✦ Generate AI Summary…' : 'One-paragraph overview of the plan…'}
             onFocus={focus} onBlur={blur} />
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{form.summary.length} characters</div>
         </div>
@@ -117,12 +154,6 @@ export default function NewPlanPage({ onNavigate }) {
             onChange={e => setForm({ ...form, notes: e.target.value })}
             placeholder="Internal notes, observations, or additional context…"
             onFocus={focus} onBlur={blur} />
-        </div>
-
-        {/* File attachment */}
-        <div>
-          <label style={labelStyle}>Attach Document (optional)</label>
-          <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
         </div>
 
         {/* Actions */}
