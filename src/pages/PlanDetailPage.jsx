@@ -1,23 +1,23 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react'; // useRef kept for comments scroll
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import { generatePlanSection, improveSummary } from '../utils/gemini';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import ConfirmModal from '../components/ConfirmModal';
 import Badge from '../components/Badge';
 import { CATEGORIES } from '../utils/categoryStyles';
 
-const ALLOWED_EXTS = ['.pdf', '.doc', '.docx'];
-const ALLOWED_TYPES = {
-  'application/pdf': 'PDF',
-  'application/msword': 'DOC',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
-};
+function fileFromName(fileName) {
+  if (!fileName.trim()) return null;
+  const fn = fileName.trim();
+  const ext = fn.split('.').pop().toLowerCase();
+  const type = { pdf: 'PDF', doc: 'DOC', docx: 'DOCX' }[ext] || ext.toUpperCase();
+  return { name: fn, fileName: fn, type, url: `${import.meta.env.BASE_URL}files/${encodeURIComponent(fn)}` };
+}
 
 function formatSize(bytes) {
   if (!bytes) return '';
@@ -92,10 +92,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [status,       setStatus]       = useState(plan.status        || 'draft');
   const [sections,     setSections]     = useState(plan.sections      || []);
   const [attachedFile, setAttachedFile] = useState(plan.attachedFile  || null);
-  const [uploading,    setUploading]    = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError,  setUploadError]  = useState('');
-  const fileInputRef = useRef(null);
+  const [attachedFileName, setAttachedFileName] = useState(plan.attachedFile?.fileName || plan.attachedFile?.name || '');
   const [isEditing, setIsEditing]   = useState(false);
   const [generatingIdx, setGeneratingIdx] = useState(null);
   const [improvingSummary, setImprovingSummary] = useState(false);
@@ -156,37 +153,12 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     return next;
   });
 
-  const handleFileSelect = async (file) => {
-    if (!file) return;
-    const ext = '.' + file.name.split('.').pop().toLowerCase();
-    if (!ALLOWED_EXTS.includes(ext)) { setUploadError('Only PDF, DOC, and DOCX files are supported.'); return; }
-    setUploadError('');
-    setUploading(true);
-    setUploadProgress(0);
-    try {
-      const path = `planFiles/${plan.id}_${Date.now()}_${file.name}`;
-      const task = uploadBytesResumable(ref(storage, path), file);
-      task.on('state_changed',
-        snap => setUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
-        () => { setUploadError('Upload failed.'); setUploading(false); },
-        async () => {
-          const url = await getDownloadURL(task.snapshot.ref);
-          setAttachedFile({ name: file.name, type: ALLOWED_TYPES[file.type] || ext.replace('.', '').toUpperCase(), size: file.size, url, storagePath: path, uploadedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
-          setUploading(false);
-        }
-      );
-    } catch { setUploadError('Upload failed.'); setUploading(false); }
-  };
-
-  const handleRemoveFile = () => {
-    if (attachedFile?.storagePath) {
-      try { deleteObject(ref(storage, attachedFile.storagePath)); } catch { /* ignore */ }
-    }
-    setAttachedFile(null);
-  };
+  const handleRemoveFile = () => { setAttachedFile(null); setAttachedFileName(''); };
 
   const handleSave = () => {
-    updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, attachedFile: attachedFile || null });
+    const file = attachedFileName.trim() ? fileFromName(attachedFileName) : (attachedFile || null);
+    updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, attachedFile: file });
+    setAttachedFile(file);
     setIsEditing(false);
     showToast('Plan saved', 'success');
   };
@@ -199,7 +171,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     setStatus(plan.status         || 'draft');
     setSections(plan.sections     || []);
     setAttachedFile(plan.attachedFile || null);
-    setUploadError('');
+    setAttachedFileName(plan.attachedFile?.fileName || plan.attachedFile?.name || '');
     setIsEditing(false);
   };
 
@@ -395,31 +367,21 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
             {/* File attachment — edit mode */}
             <div>
-              <label style={labelStyle}>Attached Document</label>
-              <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }}
-                onChange={e => { handleFileSelect(e.target.files[0]); e.target.value = ''; }} />
-              {attachedFile ? (
-                <FileCard file={attachedFile} editing onReplace={() => fileInputRef.current?.click()} onRemove={handleRemoveFile} />
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{ border: `2px dashed ${C.border}`, borderRadius: 10, padding: '22px 16px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer', background: C.bg1 }}>
-                  {uploading ? (
-                    <>
-                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg1, marginBottom: 10 }}>Uploading… {uploadProgress}%</div>
-                      <div style={{ height: 5, background: C.bg2, borderRadius: 3, overflow: 'hidden', maxWidth: 240, margin: '0 auto' }}>
-                        <div style={{ height: '100%', width: `${uploadProgress}%`, background: C.accent, borderRadius: 3, transition: 'width 200ms' }} />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 4 }}>Attach a document</div>
-                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>PDF, DOC, or DOCX</div>
-                    </>
-                  )}
-                </div>
+              <label style={labelStyle}>Attached Document (filename in public/files/)</label>
+              {attachedFile && !attachedFileName && (
+                <FileCard file={attachedFile} editing onReplace={() => setAttachedFile(null)} onRemove={handleRemoveFile} />
               )}
-              {uploadError && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, marginTop: 6 }}>{uploadError}</div>}
+              {(!attachedFile || attachedFileName !== '') && (
+                <>
+                  <input style={inputStyle} value={attachedFileName}
+                    onChange={e => setAttachedFileName(e.target.value)}
+                    placeholder="e.g. coconut-plan.pdf"
+                    onFocus={focus} onBlur={blur} />
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 5, lineHeight: 1.5 }}>
+                    Upload the file to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: C.bg2, padding: '1px 4px', borderRadius: 3 }}>public/files/</code>, then enter the filename here.
+                  </div>
+                </>
+              )}
             </div>
 
             <div>
