@@ -144,7 +144,7 @@ function DocumentCard({ file, onClick, onDelete }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: `1px solid ${C.border}`, marginTop: 4, gap: 8, flexWrap: 'wrap' }}>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{file.date}</span>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button onClick={() => onClick(file)}
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', fontWeight: 500 }}>
             View Document
@@ -155,7 +155,7 @@ function DocumentCard({ file, onClick, onDelete }) {
           </a>
           <button onClick={e => { e.stopPropagation(); onDelete(file.id); }}
             aria-label="Remove document"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 8px' }}>×</button>
+            style={{ color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', minWidth: 36, minHeight: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, marginLeft: 4 }}>×</button>
         </div>
       </div>
     </div>
@@ -192,7 +192,7 @@ export default function FilesPage({ onNavigate }) {
   };
 
   return (
-    <div className="page-pad" style={{ background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>

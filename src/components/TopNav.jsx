@@ -44,6 +44,12 @@ export default function TopNav({ currentPage, onNavigate }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  useEffect(() => {
+    const handleEsc = (e) => { if (e.key === 'Escape') setMobileOpen(false); };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, []);
+
   const handleExport = () => {
     const data = { ideas, projects, plans, exportedAt: new Date().toISOString(), version: 1 };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

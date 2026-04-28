@@ -38,11 +38,9 @@ function PlanCard({ plan, onNavigate }) {
           </span>
         )}
       </div>
-      {plan.summary && (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
-          {plan.summary}
-        </div>
-      )}
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, lineHeight: 1.6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', color: plan.summary ? C.fg2 : C.fg3, fontStyle: plan.summary ? 'normal' : 'italic' }}>
+        {plan.summary || 'No summary yet.'}
+      </div>
     </div>
   );
 }
@@ -75,7 +73,7 @@ export default function PlansPage({ onNavigate }) {
     });
 
   return (
-    <div className="page-pad" style={{ background: C.bg0 }}>
+    <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
@@ -106,17 +104,17 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* Status filters + sort */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', flex: 1, paddingBottom: 2 }}>
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f.id ? alpha(C.accent, 44) : C.border}`, background: filter === f.id ? C.accentBg : 'transparent', color: filter === f.id ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f.id ? 500 : 400 }}>
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f.id ? alpha(C.accent, 44) : C.border}`, background: filter === f.id ? C.accentBg : 'transparent', color: filter === f.id ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f.id ? 500 : 400, flexShrink: 0 }}>
               {f.label}
             </button>
           ))}
         </div>
         <select value={sort} onChange={e => setSort(e.target.value)}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="az">A – Z</option>
@@ -124,10 +122,10 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* Category filters */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', marginBottom: 20, paddingBottom: 2 }}>
         {CATEGORIES.map(c => (
           <button key={c} onClick={() => setCatFilter(c)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400, flexShrink: 0 }}>
             {c}
           </button>
         ))}
