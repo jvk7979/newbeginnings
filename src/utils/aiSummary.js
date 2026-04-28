@@ -1,3 +1,5 @@
+import { getGenerativeModel } from 'firebase/ai';
+import { geminiAI } from '../firebase';
 import { extractAllText } from './pdfParser';
 
 const SUMMARY_PROMPT = `You are a business analyst. Read the document below and write a concise executive summary of 2-3 paragraphs.
@@ -14,9 +16,6 @@ DOCUMENT:
 `;
 
 export async function generateSummaryFromFile(file) {
-  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-  if (!apiKey) throw new Error('AI API key not configured. Add VITE_GROQ_API_KEY to GitHub secrets.');
-
   if (file.type !== 'application/pdf') {
     throw new Error('AI summary is only supported for PDF files.');
   }
@@ -26,25 +25,7 @@ export async function generateSummaryFromFile(file) {
     throw new Error('Could not extract readable text from this PDF. It may be a scanned image.');
   }
 
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: SUMMARY_PROMPT + text.slice(0, 12000) }],
-      max_tokens: 600,
-      temperature: 0.4,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `AI request failed (${response.status})`);
-  }
-
-  const data = await response.json();
-  return data.choices[0].message.content.trim();
+  const model = getGenerativeModel(geminiAI, { model: 'gemini-2.0-flash' });
+  const result = await model.generateContent(SUMMARY_PROMPT + text.slice(0, 12000));
+  return result.response.text().trim();
 }
