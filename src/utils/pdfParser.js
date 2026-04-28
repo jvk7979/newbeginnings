@@ -1,5 +1,9 @@
-// Evaluated at build time — Vite copies the worker asset
-export const PDF_WORKER_SRC = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).href;
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.js?url';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+
+export const PDF_WORKER_SRC = pdfWorkerUrl;
 
 function isTableRow(line) {
   return /^\|.+\|/.test(line);
@@ -65,8 +69,6 @@ function isHeading(line) {
 }
 
 export async function loadPdfJs() {
-  const pdfjsLib = await import('pdfjs-dist');
-  pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
   return pdfjsLib;
 }
 
