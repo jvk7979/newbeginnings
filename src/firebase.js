@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getDatabase } from 'firebase/database';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAi5RSkSlAWy6Tu8avZeisBRjJ_PkE09jc',
@@ -10,11 +10,10 @@ const firebaseConfig = {
   storageBucket: 'newbeginnings-b4abe.firebasestorage.app',
   messagingSenderId: '161687769990',
   appId: '1:161687769990:web:9a450011384e7ab3445207',
-  databaseURL: 'https://newbeginnings-b4abe-default-rtdb.europe-west1.firebasedatabase.app',
 };
 
 export const app            = initializeApp(firebaseConfig);
 export const db             = getFirestore(app);
-export const rtdb           = getDatabase(app, 'https://newbeginnings-b4abe-default-rtdb.europe-west1.firebasedatabase.app');
+export const storage        = getStorage(app);
 export const auth           = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
