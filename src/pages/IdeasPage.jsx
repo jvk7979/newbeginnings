@@ -74,7 +74,7 @@ export default function IdeasPage({ onNavigate }) {
       </div>
 
       {/* Status filters + sort */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+      <div className="filter-bar">
         <div className="chip-scroll-wrap" style={{ flex: 1 }}>
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
             {FILTERS.map(f => (
@@ -85,7 +85,7 @@ export default function IdeasPage({ onNavigate }) {
             ))}
           </div>
         </div>
-        <select value={sort} onChange={e => setSort(e.target.value)}
+        <select value={sort} onChange={e => setSort(e.target.value)} className="filter-sort"
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>

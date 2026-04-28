@@ -506,3 +506,21 @@ textarea:focus-visible,
   pointer-events: none;
   z-index: 1;
 }
+
+/* Filter bar — chips + sort on one row desktop, stacked on mobile */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .filter-bar .filter-sort {
+    align-self: flex-end;
+  }
+}
