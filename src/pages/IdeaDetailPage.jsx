@@ -289,16 +289,20 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 160 }}>
                 <label style={labelStyle}>Stage</label>
-                <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
-                  {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-                </select>
+                <div className="select-wrap">
+                  <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
+                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                  </select>
+                </div>
               </div>
               <div style={{ flex: 1, minWidth: 160 }}>
                 <label style={labelStyle}>Category</label>
-                <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={category} onChange={e => setCategory(e.target.value)}>
-                  <option value="">— None —</option>
-                  {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <div className="select-wrap">
+                  <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={category} onChange={e => setCategory(e.target.value)}>
+                    <option value="">— None —</option>
+                    {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
 

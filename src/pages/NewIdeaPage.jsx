@@ -69,19 +69,23 @@ export default function NewIdeaPage({ onNavigate }) {
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 180 }}>
             <label style={labelStyle}>Stage</label>
-            <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-              <option value="draft">Draft</option>
-              <option value="validating">Validating</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
-            </select>
+            <div className="select-wrap">
+              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                <option value="draft">Draft</option>
+                <option value="validating">Validating</option>
+                <option value="active">Active</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
           </div>
           <div style={{ flex: 1, minWidth: 180 }}>
             <label style={labelStyle}>Category</label>
-            <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-              <option value="">— None —</option>
-              {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <div className="select-wrap">
+              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+                <option value="">— None —</option>
+                {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
           </div>
         </div>
         <div>

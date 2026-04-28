@@ -297,16 +297,20 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
             <div>
               <label style={labelStyle}>Category</label>
-              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={category} onChange={e => setCategory(e.target.value)}>
-                {PLAN_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <div className="select-wrap">
+                <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={category} onChange={e => setCategory(e.target.value)}>
+                  {PLAN_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
             </div>
 
             <div>
               <label style={labelStyle}>Status</label>
-              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
-                {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
+              <div className="select-wrap">
+                <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
+                  {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </select>
+              </div>
             </div>
 
             <div>

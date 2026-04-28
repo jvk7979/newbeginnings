@@ -468,6 +468,26 @@ textarea:focus-visible,
   background: var(--c-accent-bg) !important;
 }
 
+/* Select wrapper — restores the dropped arrow on appearance:none selects */
+.select-wrap {
+  position: relative;
+}
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--c-fg3);
+  font-size: 13px;
+  line-height: 1;
+}
+.select-wrap select {
+  padding-right: 28px !important;
+  width: 100%;
+}
+
 /* Stat grid — 3 equal columns, compact on mobile */
 .stat-grid {
   display: grid;
