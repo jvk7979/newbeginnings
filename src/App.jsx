@@ -32,7 +32,7 @@ const parseHash = () => {
 function Spinner({ label }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: C.bg0, gap: 16 }}>
-      <img src={logoImg} alt="The New Beginnings" style={{ height: 80, width: 'auto', opacity: 0.9 }} />
+      <img src={logoImg} alt="The New Beginnings" style={{ height: 200, width: 'auto', opacity: 0.9 }} />
       {label && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>{label}</div>}
     </div>
   );
