@@ -9,57 +9,10 @@ import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import ConfirmModal from '../components/ConfirmModal';
 import Badge from '../components/Badge';
+import AttachedFileViewer from '../components/AttachedFileViewer';
+import UploadZone from '../components/UploadZone';
+import { uploadFileToDB, deleteFileFromDB } from '../utils/fileStorage';
 import { CATEGORIES } from '../utils/categoryStyles';
-
-function fileFromName(fileName) {
-  if (!fileName.trim()) return null;
-  const fn = fileName.trim();
-  const ext = fn.split('.').pop().toLowerCase();
-  const type = { pdf: 'PDF', doc: 'DOC', docx: 'DOCX' }[ext] || ext.toUpperCase();
-  return { name: fn, fileName: fn, type, url: `${import.meta.env.BASE_URL}files/${encodeURIComponent(fn)}` };
-}
-
-function formatSize(bytes) {
-  if (!bytes) return '';
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
-
-function FileCard({ file, onReplace, onRemove, editing }) {
-  const isPdf = file.type === 'PDF';
-  return (
-    <div style={{ border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden', marginTop: 4 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: C.bg1, flexWrap: 'wrap' }}>
-        <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="20" height="20" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, marginTop: 2 }}>
-            {file.type}{file.size ? ` · ${formatSize(file.size)}` : ''}{file.uploadedAt ? ` · ${file.uploadedAt}` : ''}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
-          <a href={file.url} target="_blank" rel="noopener noreferrer"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, padding: '5px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-            {isPdf ? 'View PDF' : 'Open'} ↗
-          </a>
-          <a href={file.url} download={file.name}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-            Download ↓
-          </a>
-          {editing && (
-            <>
-              <button onClick={onReplace}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Replace</button>
-              <button onClick={onRemove}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, padding: '5px 10px', cursor: 'pointer' }}>×</button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
 
@@ -92,8 +45,10 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [status,       setStatus]       = useState(plan.status        || 'draft');
   const [sections,     setSections]     = useState(plan.sections      || []);
   const [attachedFile, setAttachedFile] = useState(plan.attachedFile  || null);
-  const [attachedFileName, setAttachedFileName] = useState(plan.attachedFile?.fileName || plan.attachedFile?.name || '');
-  const [isEditing, setIsEditing]   = useState(false);
+  const [pendingFile,  setPendingFile]  = useState(null);
+  const [replacingFile, setReplacingFile] = useState(false);
+  const [saving, setSaving]           = useState(false);
+  const [isEditing, setIsEditing]     = useState(false);
   const [generatingIdx, setGeneratingIdx] = useState(null);
   const [improvingSummary, setImprovingSummary] = useState(false);
   const [confirmDel,    setConfirmDel]    = useState(false);
@@ -153,14 +108,30 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     return next;
   });
 
-  const handleRemoveFile = () => { setAttachedFile(null); setAttachedFileName(''); };
+  const handleRemoveFile = () => { setAttachedFile(null); setPendingFile(null); setReplacingFile(false); };
 
-  const handleSave = () => {
-    const file = attachedFileName.trim() ? fileFromName(attachedFileName) : (attachedFile || null);
-    updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, attachedFile: file });
-    setAttachedFile(file);
-    setIsEditing(false);
-    showToast('Plan saved', 'success');
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      let file = attachedFile;
+      if (pendingFile) {
+        if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
+        file = await uploadFileToDB(pendingFile);
+      } else if (replacingFile && !pendingFile) {
+        if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
+        file = null;
+      }
+      updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, attachedFile: file });
+      setAttachedFile(file);
+      setPendingFile(null);
+      setReplacingFile(false);
+      setIsEditing(false);
+      showToast('Plan saved', 'success');
+    } catch {
+      showToast('Failed to upload file. Please try again.', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -171,7 +142,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     setStatus(plan.status         || 'draft');
     setSections(plan.sections     || []);
     setAttachedFile(plan.attachedFile || null);
-    setAttachedFileName(plan.attachedFile?.fileName || plan.attachedFile?.name || '');
+    setPendingFile(null);
+    setReplacingFile(false);
     setIsEditing(false);
   };
 
@@ -297,7 +269,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             {attachedFile && (
               <div style={{ marginBottom: 28 }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Attached Document</div>
-                <FileCard file={attachedFile} editing={false} />
+                <AttachedFileViewer file={attachedFile} editing={false} />
               </div>
             )}
 
@@ -367,20 +339,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
             {/* File attachment — edit mode */}
             <div>
-              <label style={labelStyle}>Attached Document (filename in public/files/)</label>
-              {attachedFile && !attachedFileName && (
-                <FileCard file={attachedFile} editing onReplace={() => setAttachedFile(null)} onRemove={handleRemoveFile} />
-              )}
-              {(!attachedFile || attachedFileName !== '') && (
-                <>
-                  <input style={inputStyle} value={attachedFileName}
-                    onChange={e => setAttachedFileName(e.target.value)}
-                    placeholder="e.g. coconut-plan.pdf"
-                    onFocus={focus} onBlur={blur} />
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 5, lineHeight: 1.5 }}>
-                    Upload the file to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: C.bg2, padding: '1px 4px', borderRadius: 3 }}>public/files/</code>, then enter the filename here.
-                  </div>
-                </>
+              <label style={labelStyle}>Attached Document</label>
+              {attachedFile && !replacingFile ? (
+                <AttachedFileViewer file={attachedFile} editing
+                  onReplace={() => setReplacingFile(true)}
+                  onRemove={handleRemoveFile} />
+              ) : (
+                <UploadZone file={pendingFile} onFile={setPendingFile} onRemove={() => setPendingFile(null)} />
               )}
             </div>
 
@@ -421,11 +386,11 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={handleSave}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-                onMouseLeave={e => e.currentTarget.style.background = C.accent}>
-                Save Changes
+              <button onClick={handleSave} disabled={saving}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
+                onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
+                onMouseLeave={e => { if (!saving) e.currentTarget.style.background = C.accent; }}>
+                {saving ? 'Saving…' : 'Save Changes'}
               </button>
               <button onClick={handleCancel}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}>

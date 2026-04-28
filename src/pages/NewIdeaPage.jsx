@@ -4,12 +4,16 @@ import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
+import UploadZone from '../components/UploadZone';
+import { uploadFileToDB } from '../utils/fileStorage';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useAppData();
   const { showToast } = useToast();
   const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '' });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms, box-shadow 150ms' };
@@ -26,16 +30,19 @@ export default function NewIdeaPage({ onNavigate }) {
     showToast('PDF content applied to form', 'success');
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.title.trim()) { setError('Idea title is required.'); return; }
-    addIdea({
-      title:    form.title.trim(),
-      status:   form.status,
-      category: form.category || '',
-      desc:     form.desc.trim(),
-    });
-    showToast('Idea saved', 'success');
-    onNavigate('ideas');
+    setSaving(true);
+    try {
+      let attachedFile = null;
+      if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
+      addIdea({ title: form.title.trim(), status: form.status, category: form.category || '', desc: form.desc.trim(), attachedFile });
+      showToast('Idea saved', 'success');
+      onNavigate('ideas');
+    } catch {
+      showToast('Failed to upload file. Please try again.', 'error');
+      setSaving(false);
+    }
   };
 
   return (
@@ -93,11 +100,15 @@ export default function NewIdeaPage({ onNavigate }) {
             onFocus={focus} onBlur={blur} />
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{form.desc.length} characters</div>
         </div>
+        <div>
+          <label style={labelStyle}>Attach Document (optional)</label>
+          <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
+        </div>
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-            onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-            onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={handleSave}>Save Idea</button>
+          <button disabled={saving} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
+            onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
+            onMouseLeave={e => { if (!saving) e.currentTarget.style.background = C.accent; }}
+            onClick={handleSave}>{saving ? 'Saving…' : 'Save Idea'}</button>
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
             onClick={() => onNavigate('ideas')}>Cancel</button>
         </div>

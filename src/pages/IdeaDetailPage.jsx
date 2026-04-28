@@ -9,6 +9,9 @@ import { analyzeIdea } from '../utils/gemini';
 import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import ConfirmModal from '../components/ConfirmModal';
+import AttachedFileViewer from '../components/AttachedFileViewer';
+import UploadZone from '../components/UploadZone';
+import { uploadFileToDB, deleteFileFromDB } from '../utils/fileStorage';
 
 function timeAgo(ts) {
   if (!ts) return '';
@@ -40,6 +43,10 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [category, setCategory]       = useState(idea.category || '');
   const [desc, setDesc]               = useState(idea.desc || '');
   const [notes, setNotes]             = useState(idea.notes || '');
+  const [attachedFile, setAttachedFile] = useState(idea.attachedFile || null);
+  const [pendingFile,  setPendingFile]  = useState(null);
+  const [replacingFile, setReplacingFile] = useState(false);
+  const [saving, setSaving]           = useState(false);
   const [analysis, setAnalysis]       = useState(null);
   const [analyzing, setAnalyzing]     = useState(false);
   const [confirmDel,    setConfirmDel]    = useState(false);
@@ -91,16 +98,30 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; };
   const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
-  const handleSave = () => {
-    updateIdea(idea.id, {
-      title: title.trim(),
-      status,
-      category: category || '',
-      desc: desc.trim(),
-      notes: notes.trim(),
-    });
-    showToast('Idea updated', 'success');
-    setIsEditing(false);
+  const handleRemoveFile = () => { setAttachedFile(null); setPendingFile(null); setReplacingFile(false); };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      let file = attachedFile;
+      if (pendingFile) {
+        if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
+        file = await uploadFileToDB(pendingFile);
+      } else if (replacingFile && !pendingFile) {
+        if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
+        file = null;
+      }
+      updateIdea(idea.id, { title: title.trim(), status, category: category || '', desc: desc.trim(), notes: notes.trim(), attachedFile: file });
+      setAttachedFile(file);
+      setPendingFile(null);
+      setReplacingFile(false);
+      showToast('Idea updated', 'success');
+      setIsEditing(false);
+    } catch {
+      showToast('Failed to upload file. Please try again.', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -109,6 +130,9 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     setCategory(idea.category || '');
     setDesc(idea.desc || '');
     setNotes(idea.notes || '');
+    setAttachedFile(idea.attachedFile || null);
+    setPendingFile(null);
+    setReplacingFile(false);
     setIsEditing(false);
   };
 
@@ -226,6 +250,13 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
               </div>
             )}
 
+            {attachedFile && (
+              <div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Attached Document</div>
+                <AttachedFileViewer file={attachedFile} editing={false} />
+              </div>
+            )}
+
             {/* AI Analysis in view mode */}
             <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: analysis ? 14 : 0 }}>
@@ -296,12 +327,23 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 onFocus={focus} onBlur={blur} />
             </div>
 
+            <div>
+              <label style={labelStyle}>Attached Document</label>
+              {attachedFile && !replacingFile ? (
+                <AttachedFileViewer file={attachedFile} editing
+                  onReplace={() => setReplacingFile(true)}
+                  onRemove={handleRemoveFile} />
+              ) : (
+                <UploadZone file={pendingFile} onFile={setPendingFile} onRemove={() => setPendingFile(null)} />
+              )}
+            </div>
+
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={handleSave}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-                onMouseLeave={e => e.currentTarget.style.background = C.accent}>
-                Save Changes
+              <button onClick={handleSave} disabled={saving}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
+                onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
+                onMouseLeave={e => { if (!saving) e.currentTarget.style.background = C.accent; }}>
+                {saving ? 'Saving…' : 'Save Changes'}
               </button>
               <button onClick={handleCancel}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
