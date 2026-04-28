@@ -15,8 +15,8 @@ export default function Dashboard({ onNavigate }) {
     <div className="page-pad" style={{ background: C.bg0 }}>
 
       {/* Hero */}
-      <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015', minHeight: 'clamp(160px, 40vw, 280px)' }}>
-        <img src={heroImg} alt="The New Beginnings — A fresh start. Endless possibilities." style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+      <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015' }}>
+        <img src={heroImg} alt="The New Beginnings — A fresh start. Endless possibilities." style={{ width: '100%', display: 'block' }} />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button onClick={() => onNavigate('new-idea')}
