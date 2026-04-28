@@ -45,11 +45,16 @@ export async function uploadFileToDB(file) {
   const base64 = await readBase64(file);
   const type   = detectType(file);
   const blobId = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-  await set(ref(rtdb, `fileBlobs/${blobId}`), {
-    data:     base64,
-    mimeType: mimeForType(type),
-    savedAt:  new Date().toISOString(),
-  });
+  try {
+    await set(ref(rtdb, `fileBlobs/${blobId}`), {
+      data:     base64,
+      mimeType: mimeForType(type),
+      savedAt:  new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('[RTDB upload error]', err?.code, err?.message, err);
+    throw err;
+  }
   return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
 }
 
