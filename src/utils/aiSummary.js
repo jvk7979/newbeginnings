@@ -25,7 +25,7 @@ export async function generateSummaryFromFile(file) {
     throw new Error('Could not extract readable text from this PDF. It may be a scanned image.');
   }
 
-  const model = getGenerativeModel(geminiAI, { model: 'gemini-2.0-flash' });
+  const model = getGenerativeModel(geminiAI, { model: 'gemini-2.5-flash' });
   const result = await model.generateContent(SUMMARY_PROMPT + text.slice(0, 12000));
   return result.response.text().trim();
 }

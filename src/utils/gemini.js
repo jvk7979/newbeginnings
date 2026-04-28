@@ -1,15 +1,10 @@
-const API_KEY = 'AIzaSyDE3P15HP0LBjgHdwHTIDdtdU64x_GVs9w';
-const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+import { getGenerativeModel } from 'firebase/ai';
+import { geminiAI } from '../firebase';
 
 async function ask(prompt) {
-  const res = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-  });
-  if (!res.ok) throw new Error(`Gemini error ${res.status}`);
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const model = getGenerativeModel(geminiAI, { model: 'gemini-2.5-flash' });
+  const result = await model.generateContent(prompt);
+  return result.response.text().trim();
 }
 
 const CONTEXT = `You are a business advisor specializing in rural Indian manufacturing and agri-processing in Andhra Pradesh, particularly East Godavari / Rajahmundry / Konaseema region. Coconut processing, coir, agri-processing, and rural MSME ventures are your expertise. Keep answers concise and practical.`;
