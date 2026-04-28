@@ -6,21 +6,21 @@
 /* Default — Warm Sandstone (light) */
 :root,
 :root[data-theme="sandstone"] {
-  --c-bg0: #FFFFFF;
-  --c-bg1: #F8F8F8;
-  --c-bg2: #F0EFED;
-  --c-bg3: #E8E6E2;
-  --c-fg1: #1C1914;
-  --c-fg2: #5A5248;
-  --c-fg3: #9A8E80;
-  --c-accent: #B8892A;
-  --c-accent-light: #D4A853;
-  --c-accent-dim: #8A6520;
-  --c-accent-bg: #FDF5E4;
-  --c-accent-rgb: 184 137 42;
-  --c-accent-dim-rgb: 138 101 32;
-  --c-border: #D8D0C4;
-  --c-border-light: #C4BBB0;
+  --c-bg0: #FFFEF8;
+  --c-bg1: #FAF4E8;
+  --c-bg2: #F2E9D0;
+  --c-bg3: #E6DAB8;
+  --c-fg1: #1C1206;
+  --c-fg2: #4A3A1C;
+  --c-fg3: #8C7A54;
+  --c-accent: #C97A14;
+  --c-accent-light: #E8A030;
+  --c-accent-dim: #8C5A10;
+  --c-accent-bg: #FEF6E0;
+  --c-accent-rgb: 201 122 20;
+  --c-accent-dim-rgb: 140 90 16;
+  --c-border: #D6C8A8;
+  --c-border-light: #BEA882;
   --c-success: #2E7D52;
   --c-success-bg: #EAF5EE;
   --c-warning: #C4681C;
@@ -34,21 +34,21 @@
 
 /* Coastal Teal — calm, professional */
 :root[data-theme="teal"] {
-  --c-bg0: #FFFFFF;
-  --c-bg1: #F4F8F7;
-  --c-bg2: #E8F0EE;
-  --c-bg3: #D4E2DF;
+  --c-bg0: #FAFFFE;
+  --c-bg1: #F0FAF8;
+  --c-bg2: #E0F2EE;
+  --c-bg3: #C8E6E0;
   --c-fg1: #0B1A1A;
-  --c-fg2: #2F4948;
-  --c-fg3: #6B807F;
-  --c-accent: #0F766E;
-  --c-accent-light: #14B8A6;
-  --c-accent-dim: #0B5852;
-  --c-accent-bg: #ECFDF5;
-  --c-accent-rgb: 15 118 110;
-  --c-accent-dim-rgb: 11 88 82;
-  --c-border: #C4D5D2;
-  --c-border-light: #A8BCB8;
+  --c-fg2: #1E4040;
+  --c-fg3: #507878;
+  --c-accent: #0A8C82;
+  --c-accent-light: #16C8B4;
+  --c-accent-dim: #066058;
+  --c-accent-bg: #E6FBF7;
+  --c-accent-rgb: 10 140 130;
+  --c-accent-dim-rgb: 6 96 88;
+  --c-border: #B8D8D4;
+  --c-border-light: #98C0BA;
   --c-success: #15803D;
   --c-success-bg: #DCFCE7;
   --c-warning: #B45309;
@@ -62,21 +62,21 @@
 
 /* Forest & Cream — earthy, premium agri */
 :root[data-theme="forest"] {
-  --c-bg0: #FAF7F0;
-  --c-bg1: #F4EFE3;
-  --c-bg2: #EAE3D2;
-  --c-bg3: #DDD3BD;
-  --c-fg1: #1F2A14;
-  --c-fg2: #4A5240;
-  --c-fg3: #8A8674;
-  --c-accent: #5C7A3D;
-  --c-accent-light: #8FAD68;
-  --c-accent-dim: #44602B;
-  --c-accent-bg: #F0F4E8;
-  --c-accent-rgb: 92 122 61;
-  --c-accent-dim-rgb: 68 96 43;
-  --c-border: #D2C8B0;
-  --c-border-light: #BCB098;
+  --c-bg0: #FAF8F0;
+  --c-bg1: #F2EDE0;
+  --c-bg2: #E6DEC8;
+  --c-bg3: #D8CDB0;
+  --c-fg1: #141E08;
+  --c-fg2: #344828;
+  --c-fg3: #708060;
+  --c-accent: #3D7A24;
+  --c-accent-light: #68B048;
+  --c-accent-dim: #2A5818;
+  --c-accent-bg: #EBF5E4;
+  --c-accent-rgb: 61 122 36;
+  --c-accent-dim-rgb: 42 88 24;
+  --c-border: #C8BC9A;
+  --c-border-light: #ACA07E;
   --c-success: #3F6B2A;
   --c-success-bg: #E8F0DA;
   --c-warning: #A65A1B;
@@ -90,19 +90,19 @@
 
 /* Indigo & Slate — modern SaaS */
 :root[data-theme="indigo"] {
-  --c-bg0: #FFFFFF;
-  --c-bg1: #F8FAFC;
-  --c-bg2: #EEF2F7;
-  --c-bg3: #E2E8F0;
-  --c-fg1: #0F172A;
-  --c-fg2: #475569;
-  --c-fg3: #94A3B8;
-  --c-accent: #4F46E5;
-  --c-accent-light: #818CF8;
-  --c-accent-dim: #3730A3;
-  --c-accent-bg: #EEF2FF;
-  --c-accent-rgb: 79 70 229;
-  --c-accent-dim-rgb: 55 48 163;
+  --c-bg0: #FAFBFF;
+  --c-bg1: #F4F6FF;
+  --c-bg2: #EAEDFA;
+  --c-bg3: #DCE0F5;
+  --c-fg1: #0C1030;
+  --c-fg2: #3A4570;
+  --c-fg3: #7880A8;
+  --c-accent: #5651E5;
+  --c-accent-light: #8B87FF;
+  --c-accent-dim: #3C38C8;
+  --c-accent-bg: #ECEBFF;
+  --c-accent-rgb: 86 81 229;
+  --c-accent-dim-rgb: 60 56 200;
   --c-border: #CBD5E1;
   --c-border-light: #94A3B8;
   --c-success: #059669;
@@ -118,19 +118,19 @@
 
 /* Sunset Coral — warm, vibrant */
 :root[data-theme="coral"] {
-  --c-bg0: #FFFBF8;
-  --c-bg1: #FFF4ED;
-  --c-bg2: #FCE7DC;
-  --c-bg3: #F4D2C0;
-  --c-fg1: #1F1218;
-  --c-fg2: #5C3D45;
-  --c-fg3: #9C8088;
-  --c-accent: #DC2A5C;
-  --c-accent-light: #F472B6;
-  --c-accent-dim: #A11D43;
-  --c-accent-bg: #FFF1F2;
-  --c-accent-rgb: 220 42 92;
-  --c-accent-dim-rgb: 161 29 67;
+  --c-bg0: #FFFCFA;
+  --c-bg1: #FFF2E8;
+  --c-bg2: #FCE4D4;
+  --c-bg3: #F2CFBC;
+  --c-fg1: #1E0E10;
+  --c-fg2: #58282E;
+  --c-fg3: #9A6870;
+  --c-accent: #E0245A;
+  --c-accent-light: #FF6090;
+  --c-accent-dim: #A81840;
+  --c-accent-bg: #FFEEF2;
+  --c-accent-rgb: 224 36 90;
+  --c-accent-dim-rgb: 168 24 64;
   --c-border: #E8C8B8;
   --c-border-light: #D4AC98;
   --c-success: #16A34A;
@@ -146,19 +146,19 @@
 
 /* Midnight — dark mode */
 :root[data-theme="midnight"] {
-  --c-bg0: #0F1115;
-  --c-bg1: #181B22;
-  --c-bg2: #21252E;
-  --c-bg3: #2C313C;
-  --c-fg1: #F2F3F5;
-  --c-fg2: #C2C8D0;
-  --c-fg3: #7C8492;
-  --c-accent: #E0A94C;
-  --c-accent-light: #F4C77A;
-  --c-accent-dim: #C48E32;
-  --c-accent-bg: #2A2218;
-  --c-accent-rgb: 224 169 76;
-  --c-accent-dim-rgb: 196 142 50;
+  --c-bg0: #0D1018;
+  --c-bg1: #161A24;
+  --c-bg2: #1E2330;
+  --c-bg3: #282E3E;
+  --c-fg1: #F4F5F8;
+  --c-fg2: #C8D0DC;
+  --c-fg3: #7A8496;
+  --c-accent: #E8B040;
+  --c-accent-light: #FFCC70;
+  --c-accent-dim: #C08820;
+  --c-accent-bg: #2C2418;
+  --c-accent-rgb: 232 176 64;
+  --c-accent-dim-rgb: 192 136 32;
   --c-border: #2F3540;
   --c-border-light: #3F4754;
   --c-success: #4ADE80;
@@ -403,4 +403,65 @@ textarea:focus-visible,
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ── Premium design utilities ────────────────────────────────────────────── */
+
+/* Page entrance animation */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-pad {
+  animation: pageIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Card with accent-glow hover — add to any interactive card */
+.card-rich {
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms cubic-bezier(0.16,1,0.3,1) !important;
+}
+.card-rich:hover {
+  border-color: rgba(var(--c-accent-rgb) / 0.40) !important;
+  box-shadow: 0 8px 32px rgba(var(--c-accent-rgb) / 0.14), 0 2px 6px rgba(0,0,0,0.06) !important;
+  transform: translateY(-2px);
+}
+.card-rich:active {
+  transform: translateY(0);
+}
+
+/* Gradient text for hero/page headings */
+.grad-text {
+  background: linear-gradient(120deg, var(--c-fg1) 10%, var(--c-accent-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Primary button — gradient + glow */
+.btn-primary {
+  background: linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent-light) 100%) !important;
+  box-shadow: 0 2px 10px rgba(var(--c-accent-rgb) / 0.32) !important;
+  transition: box-shadow 180ms ease, transform 180ms ease !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 4px 18px rgba(var(--c-accent-rgb) / 0.45) !important;
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Nav header — subtle accent glow at bottom */
+.top-nav {
+  box-shadow: 0 1px 0 rgba(var(--c-accent-rgb) / 0.18), 0 3px 12px rgba(0,0,0,0.06);
+}
+
+/* Stat card — counts on Dashboard */
+.stat-card {
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+.stat-card:hover {
+  border-color: rgba(var(--c-accent-rgb) / 0.45) !important;
+  box-shadow: 0 4px 20px rgba(var(--c-accent-rgb) / 0.12) !important;
+  background: var(--c-accent-bg) !important;
 }

@@ -88,15 +88,16 @@ export default function TopNav({ currentPage, onNavigate }) {
   const navBtn = (id) => ({
     fontFamily: "'DM Sans', sans-serif",
     fontSize: 13,
-    fontWeight: activeTab === id ? 500 : 400,
+    fontWeight: activeTab === id ? 600 : 400,
     color: activeTab === id ? C.accent : C.fg2,
     background: activeTab === id ? C.accentBg : 'transparent',
-    border: 'none',
-    borderRadius: 5,
+    border: `1px solid ${activeTab === id ? alpha(C.accent, 44) : 'transparent'}`,
+    borderRadius: 6,
     cursor: 'pointer',
-    padding: '6px 12px',
-    transition: 'all 120ms',
+    padding: '6px 13px',
+    transition: 'all 140ms ease',
     whiteSpace: 'nowrap',
+    letterSpacing: activeTab === id ? '-0.01em' : '0',
   });
 
   const dropBtn = {
@@ -114,7 +115,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
   return (
     <>
-      <header style={{ height: 68, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 'clamp(12px, 2vw, 20px)', gap: 14, flexShrink: 0, position: 'relative', zIndex: 100 }}>
+      <header className="top-nav" style={{ height: 64, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 'clamp(12px, 2vw, 24px)', gap: 14, flexShrink: 0, position: 'relative', zIndex: 100 }}>
 
         {/* Logo */}
         <button
@@ -133,8 +134,8 @@ export default function TopNav({ currentPage, onNavigate }) {
           {NAV_ITEMS.map(item => (
             <button key={item.id} style={navBtn(item.id)} onClick={() => onNavigate(item.id)}
               aria-current={activeTab === item.id ? 'page' : undefined}
-              onMouseEnter={e => { if (activeTab !== item.id) { e.currentTarget.style.background = C.bg3; e.currentTarget.style.color = C.fg1; }}}
-              onMouseLeave={e => { if (activeTab !== item.id) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; }}}>
+              onMouseEnter={e => { if (activeTab !== item.id) { e.currentTarget.style.background = C.bg3; e.currentTarget.style.color = C.fg1; e.currentTarget.style.borderColor = C.border; }}}
+              onMouseLeave={e => { if (activeTab !== item.id) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; e.currentTarget.style.borderColor = 'transparent'; }}}>
               {item.label}
             </button>
           ))}

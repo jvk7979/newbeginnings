@@ -42,7 +42,7 @@ export default function IdeasPage({ onNavigate }) {
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em' }}>Ideas</div>
+          <div className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Ideas</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
             {search || filter !== 'all' || catFilter ? `${filtered.length} of ${ideas.length} ideas` : `${ideas.length} idea${ideas.length !== 1 ? 's' : ''}`}
           </div>

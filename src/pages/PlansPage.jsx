@@ -14,33 +14,32 @@ const FILTERS = [
 ];
 
 function PlanCard({ plan, onNavigate }) {
-  const [hov, setHov] = useState(false);
   return (
-    <div style={{ background: C.bg1, border: `1px solid ${hov ? C.borderLight : C.border}`, borderRadius: 8, padding: '20px 22px', marginBottom: 12, cursor: 'pointer', boxShadow: hov ? '0 4px 16px rgba(60,40,10,0.12)' : '0 1px 3px rgba(60,40,10,0.08)', transition: 'all 150ms' }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+    <div className="card-rich"
+      style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 22px', marginBottom: 12, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
       onClick={() => onNavigate('plan-detail', plan)}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6, gap: 12 }}>
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 500, color: C.fg1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{plan.title}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, gap: 12 }}>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 600, color: C.fg1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{plan.title}</div>
         <div style={{ display: 'flex', gap: 6, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           {plan.category && (
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '2px 7px' }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '2px 8px' }}>
               {plan.category}
             </span>
           )}
           <Badge status={plan.status} />
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: plan.summary ? 8 : 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: plan.summary ? 10 : 0 }}>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>Updated {plan.updated}</span>
         {plan.attachedFile && (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 7px' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, padding: '1px 8px', fontWeight: 500 }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="11" height="11"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
             {plan.attachedFile.type}
           </span>
         )}
       </div>
       {plan.summary && (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.55, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
           {plan.summary}
         </div>
       )}
@@ -80,7 +79,7 @@ export default function PlansPage({ onNavigate }) {
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em' }}>Business Plans</div>
+          <div className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Business Plans</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
             {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} of ${plans.length} plans` : `${plans.length} plan${plans.length !== 1 ? 's' : ''}`}
           </div>

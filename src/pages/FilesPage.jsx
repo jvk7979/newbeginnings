@@ -196,7 +196,7 @@ export default function FilesPage({ onNavigate }) {
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
-          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', margin: 0 }}>Documents</h1>
+          <h1 className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Documents</h1>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
             {filtered.length !== files.length ? `${filtered.length} of ${files.length} documents` : `${files.length} document${files.length !== 1 ? 's' : ''}`}
           </div>
