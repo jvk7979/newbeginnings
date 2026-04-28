@@ -14,7 +14,7 @@ export const CATEGORY_STYLES = {
 
 export const CATEGORIES = ['All', 'Business', 'Agriculture', 'Manufacturing', 'Food Processing', 'Industrial Production', 'Real Estate', 'Other'];
 
-export const IDEA_CATEGORIES = ['Business', 'Agriculture', 'Technology', 'Finance', 'Real Estate', 'Community', 'Personal', 'Other'];
+export const IDEA_CATEGORIES = ['Business', 'Agriculture', 'Manufacturing', 'Food Processing', 'Industrial Production', 'Real Estate', 'Other'];
 
 export function getCategoryStyle(category) {
   return CATEGORY_STYLES[category] || CATEGORY_STYLES.Other;
