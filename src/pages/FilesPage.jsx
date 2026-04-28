@@ -170,13 +170,11 @@ export default function FilesPage({ onNavigate }) {
   const [catFilter,  setCatFilter]  = useState('All');
   const [confirmDel, setConfirmDel] = useState(null);
 
-  const filtered = files
-    .filter(f => catFilter === 'All' || f.category === catFilter)
-    .filter(f => {
-      if (!search.trim()) return true;
-      const q = search.toLowerCase();
-      return f.title.toLowerCase().includes(q) || (f.summary || '').toLowerCase().includes(q) || (f.tags || []).some(t => t.toLowerCase().includes(q));
-    });
+  const sq = search.trim().toLowerCase();
+  const filtered = files.filter(f =>
+    (catFilter === 'All' || f.category === catFilter) &&
+    (!sq || f.title.toLowerCase().includes(sq) || (f.summary || '').toLowerCase().includes(sq) || (f.tags || []).some(t => t.toLowerCase().includes(sq)))
+  );
 
   const handleSave = async (data) => {
     await addFile(data);

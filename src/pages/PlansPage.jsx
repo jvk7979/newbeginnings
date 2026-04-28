@@ -52,25 +52,18 @@ export default function PlansPage({ onNavigate }) {
   const [search, setSearch]     = useState('');
   const [sort,   setSort]       = useState('newest');
 
+  const sq = search.trim().toLowerCase();
   const filtered = [...plans]
     .sort((a, b) => {
       if (sort === 'newest') return (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
       if (sort === 'oldest') return (a.createdAt?.toMillis?.() ?? 0) - (b.createdAt?.toMillis?.() ?? 0);
       return a.title.localeCompare(b.title);
     })
-    .filter(p => filter === 'all' || p.status === filter)
-    .filter(p => catFilter === 'All' || p.category === catFilter)
-    .filter(p => {
-      if (!search.trim()) return true;
-      const q = search.toLowerCase();
-      return (
-        p.title.toLowerCase().includes(q) ||
-        (p.summary || '').toLowerCase().includes(q) ||
-        (p.category || '').toLowerCase().includes(q) ||
-        (p.status || '').toLowerCase().includes(q) ||
-        (p.fileName || '').toLowerCase().includes(q)
-      );
-    });
+    .filter(p =>
+      (filter === 'all' || p.status === filter) &&
+      (catFilter === 'All' || p.category === catFilter) &&
+      (!sq || p.title.toLowerCase().includes(sq) || (p.summary || '').toLowerCase().includes(sq) || (p.category || '').toLowerCase().includes(sq) || (p.status || '').toLowerCase().includes(sq) || (p.fileName || '').toLowerCase().includes(sq))
+    );
 
   return (
     <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>

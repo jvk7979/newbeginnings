@@ -3,201 +3,201 @@
  * `document.documentElement.dataset.theme = '<name>'`.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* Default — Golden Hour (warm ivory + deep saffron, inspired by Godavari harvest light) */
+/* Saffron Dawn — turmeric-gold morning light over Godavari harvest fields */
 :root,
 :root[data-theme="sandstone"] {
-  --c-bg0: #FEFCF5;
-  --c-bg1: #F8F0DC;
-  --c-bg2: #EDE0C0;
-  --c-bg3: #DECE9E;
-  --c-fg1: #1A0F02;
-  --c-fg2: #3C2808;
-  --c-fg3: #7A5E36;
-  --c-accent: #A85500;
-  --c-accent-light: #D07018;
-  --c-accent-dim: #783C00;
-  --c-accent-bg: #FEF3E4;
-  --c-accent-rgb: 168 85 0;
-  --c-accent-dim-rgb: 120 60 0;
-  --c-border: #D2C098;
-  --c-border-light: #BCA872;
+  --c-bg0: #FEFCF3;
+  --c-bg1: #F6E8BE;
+  --c-bg2: #ECD498;
+  --c-bg3: #DCBC6A;
+  --c-fg1: #180A00;
+  --c-fg2: #3A1A00;
+  --c-fg3: #7C5020;
+  --c-accent: #C07800;
+  --c-accent-light: #E09000;
+  --c-accent-dim: #8A5500;
+  --c-accent-bg: #FDF2D8;
+  --c-accent-rgb: 192 120 0;
+  --c-accent-dim-rgb: 138 85 0;
+  --c-border: #D4B870;
+  --c-border-light: #C0A050;
   --c-success: #2A7040;
-  --c-success-bg: #E8F4ED;
-  --c-warning: #B85800;
-  --c-warning-bg: #FDF0E0;
+  --c-success-bg: #E4F2E8;
+  --c-warning: #B86000;
+  --c-warning-bg: #FBF0DC;
   --c-danger: #B02828;
-  --c-danger-bg: #FAEAEA;
+  --c-danger-bg: #FAE8E8;
   --c-danger-rgb: 176 40 40;
   --c-info: #245898;
-  --c-info-bg: #E8EFF8;
-}
-
-/* River Blue — the Godavari's deep jade-blue waters */
-:root[data-theme="teal"] {
-  --c-bg0: #F6FBFD;
-  --c-bg1: #EAF5FA;
-  --c-bg2: #D6EEF7;
-  --c-bg3: #BEE3F2;
-  --c-fg1: #071820;
-  --c-fg2: #103444;
-  --c-fg3: #386880;
-  --c-accent: #0878A0;
-  --c-accent-light: #16A8D4;
-  --c-accent-dim: #045670;
-  --c-accent-bg: #E2F3FA;
-  --c-accent-rgb: 8 120 160;
-  --c-accent-dim-rgb: 4 86 112;
-  --c-border: #A8D8EC;
-  --c-border-light: #84C0D8;
-  --c-success: #127848;
-  --c-success-bg: #E2F5EC;
-  --c-warning: #A05000;
-  --c-warning-bg: #FBF0E2;
-  --c-danger: #B02828;
-  --c-danger-bg: #FAEBEB;
-  --c-danger-rgb: 176 40 40;
-  --c-info: #145AA0;
   --c-info-bg: #E4EEF8;
 }
 
-/* Paddy Green — Konaseema's lush tropical paddy fields */
+/* River Jade — the Godavari's jade-green water flowing through Konaseema */
+:root[data-theme="teal"] {
+  --c-bg0: #F4FDF8;
+  --c-bg1: #DCEEE6;
+  --c-bg2: #BEDDD0;
+  --c-bg3: #9AC8B8;
+  --c-fg1: #021410;
+  --c-fg2: #0A2E1E;
+  --c-fg3: #2A6848;
+  --c-accent: #0A7850;
+  --c-accent-light: #1AA870;
+  --c-accent-dim: #065838;
+  --c-accent-bg: #E2F5EC;
+  --c-accent-rgb: 10 120 80;
+  --c-accent-dim-rgb: 6 88 56;
+  --c-border: #8CCAAA;
+  --c-border-light: #60A882;
+  --c-success: #0F8240;
+  --c-success-bg: #E0F5E8;
+  --c-warning: #A85800;
+  --c-warning-bg: #FAF0DC;
+  --c-danger: #B02828;
+  --c-danger-bg: #FAE8E8;
+  --c-danger-rgb: 176 40 40;
+  --c-info: #145AA8;
+  --c-info-bg: #E2EEF8;
+}
+
+/* Paddy Season — vivid lime-green of young monsoon rice shoots just planted */
 :root[data-theme="forest"] {
-  --c-bg0: #F7FAF3;
-  --c-bg1: #EEF5E6;
-  --c-bg2: #E0EDD2;
-  --c-bg3: #CCDDB8;
-  --c-fg1: #0C1A06;
-  --c-fg2: #203A10;
-  --c-fg3: #4A6E30;
-  --c-accent: #367A08;
-  --c-accent-light: #56AA1C;
-  --c-accent-dim: #245804;
-  --c-accent-bg: #E8F5DC;
-  --c-accent-rgb: 54 122 8;
-  --c-accent-dim-rgb: 36 88 4;
-  --c-border: #BCE0A0;
-  --c-border-light: #9CC880;
-  --c-success: #327028;
-  --c-success-bg: #E6F4E0;
-  --c-warning: #A05800;
-  --c-warning-bg: #FBF0E2;
+  --c-bg0: #F6FAF0;
+  --c-bg1: #E6F4D4;
+  --c-bg2: #CEEAB0;
+  --c-bg3: #B4DC88;
+  --c-fg1: #081600;
+  --c-fg2: #163600;
+  --c-fg3: #3C6818;
+  --c-accent: #4A8A00;
+  --c-accent-light: #68C000;
+  --c-accent-dim: #306000;
+  --c-accent-bg: #EAF6D0;
+  --c-accent-rgb: 74 138 0;
+  --c-accent-dim-rgb: 48 96 0;
+  --c-border: #A8D478;
+  --c-border-light: #88B850;
+  --c-success: #1A7830;
+  --c-success-bg: #E2F5E6;
+  --c-warning: #9A5800;
+  --c-warning-bg: #FAF0DC;
   --c-danger: #A82828;
-  --c-danger-bg: #F8EAEA;
+  --c-danger-bg: #FAEAEA;
   --c-danger-rgb: 168 40 40;
   --c-info: #1A5878;
   --c-info-bg: #E2EEF5;
 }
 
-/* Royal Indigo — deep indigo for a premium modern fintech feel */
+/* Firefly Grove — dense coconut-palm darkness with vivid jade firefly light */
 :root[data-theme="indigo"] {
-  --c-bg0: #F9FAFF;
-  --c-bg1: #F1F3FF;
-  --c-bg2: #E6EAFF;
-  --c-bg3: #D6DCFF;
-  --c-fg1: #080C28;
-  --c-fg2: #1C2460;
-  --c-fg3: #5658A0;
-  --c-accent: #3A38E8;
-  --c-accent-light: #6868FF;
-  --c-accent-dim: #2418C0;
-  --c-accent-bg: #EEEEFF;
-  --c-accent-rgb: 58 56 232;
-  --c-accent-dim-rgb: 36 24 192;
-  --c-border: #C4C8EC;
-  --c-border-light: #A0A4D4;
-  --c-success: #0A7A50;
-  --c-success-bg: #E0F5EC;
-  --c-warning: #C07000;
-  --c-warning-bg: #FEF3DC;
-  --c-danger: #CC2828;
-  --c-danger-bg: #FEEAEA;
-  --c-danger-rgb: 204 40 40;
-  --c-info: #0870B8;
-  --c-info-bg: #E0F0FE;
-}
-
-/* Terracotta Sunset — the vermillion sky over Godavari at golden hour */
-:root[data-theme="coral"] {
-  --c-bg0: #FEFCF8;
-  --c-bg1: #FFF0E4;
-  --c-bg2: #FDDCCC;
-  --c-bg3: #F7C8B0;
-  --c-fg1: #1C0A04;
-  --c-fg2: #481E0A;
-  --c-fg3: #8A5030;
-  --c-accent: #C03208;
-  --c-accent-light: #E05028;
-  --c-accent-dim: #881E04;
-  --c-accent-bg: #FDE8E0;
-  --c-accent-rgb: 192 50 8;
-  --c-accent-dim-rgb: 136 30 4;
-  --c-border: #EAC4A8;
-  --c-border-light: #D4A080;
-  --c-success: #167040;
-  --c-success-bg: #E0F4EC;
-  --c-warning: #C05000;
-  --c-warning-bg: #FBEDE0;
-  --c-danger: #B01C1C;
-  --c-danger-bg: #FEEAEA;
-  --c-danger-rgb: 176 28 28;
-  --c-info: #5040C8;
-  --c-info-bg: #EDE8FE;
-}
-
-/* Midnight River — the Godavari at night, ink blue with warm lamp-gold */
-:root[data-theme="midnight"] {
-  --c-bg0: #060810;
-  --c-bg1: #0C1020;
-  --c-bg2: #141A30;
-  --c-bg3: #1C243E;
-  --c-fg1: #F0F4FC;
-  --c-fg2: #B8C8E0;
-  --c-fg3: #5A7090;
-  --c-accent: #E89820;
-  --c-accent-light: #FFBA40;
-  --c-accent-dim: #B07008;
-  --c-accent-bg: #1E180A;
-  --c-accent-rgb: 232 152 32;
-  --c-accent-dim-rgb: 176 112 8;
-  --c-border: #242C40;
-  --c-border-light: #303850;
-  --c-success: #30C878;
-  --c-success-bg: #0A2018;
-  --c-warning: #F89030;
-  --c-warning-bg: #241808;
+  --c-bg0: #030A08;
+  --c-bg1: #071412;
+  --c-bg2: #0E201C;
+  --c-bg3: #162E28;
+  --c-fg1: #E8F8F2;
+  --c-fg2: #86C8B4;
+  --c-fg3: #367868;
+  --c-accent: #28C880;
+  --c-accent-light: #50E8A0;
+  --c-accent-dim: #108850;
+  --c-accent-bg: #061A10;
+  --c-accent-rgb: 40 200 128;
+  --c-accent-dim-rgb: 16 136 80;
+  --c-border: #0E2820;
+  --c-border-light: #1C4034;
+  --c-success: #20E880;
+  --c-success-bg: #041C10;
+  --c-warning: #F8B840;
+  --c-warning-bg: #1C1000;
   --c-danger: #F07070;
-  --c-danger-bg: #280C0C;
+  --c-danger-bg: #200808;
+  --c-danger-rgb: 240 112 112;
+  --c-info: #40C8F8;
+  --c-info-bg: #041824;
+}
+
+/* Vermillion Shore — red laterite soil cliffs and vermillion sunsets over the delta */
+:root[data-theme="coral"] {
+  --c-bg0: #FEF9F6;
+  --c-bg1: #FDEEE0;
+  --c-bg2: #F8D8C0;
+  --c-bg3: #F0C09A;
+  --c-fg1: #1A0400;
+  --c-fg2: #441208;
+  --c-fg3: #884028;
+  --c-accent: #B82800;
+  --c-accent-light: #D84820;
+  --c-accent-dim: #801800;
+  --c-accent-bg: #FDEADC;
+  --c-accent-rgb: 184 40 0;
+  --c-accent-dim-rgb: 128 24 0;
+  --c-border: #E8B490;
+  --c-border-light: #D09068;
+  --c-success: #167840;
+  --c-success-bg: #E0F4E8;
+  --c-warning: #C05000;
+  --c-warning-bg: #FBECDC;
+  --c-danger: #A81818;
+  --c-danger-bg: #FAEAEA;
+  --c-danger-rgb: 168 24 24;
+  --c-info: #5040C8;
+  --c-info-bg: #EDEAFE;
+}
+
+/* Marigold Night — festival oil lamps and marigold garlands on deep warm black */
+:root[data-theme="midnight"] {
+  --c-bg0: #080602;
+  --c-bg1: #100C00;
+  --c-bg2: #1C1600;
+  --c-bg3: #282000;
+  --c-fg1: #FFF8E8;
+  --c-fg2: #D4C080;
+  --c-fg3: #786040;
+  --c-accent: #F0A800;
+  --c-accent-light: #FFC840;
+  --c-accent-dim: #C07800;
+  --c-accent-bg: #1C1000;
+  --c-accent-rgb: 240 168 0;
+  --c-accent-dim-rgb: 192 120 0;
+  --c-border: #2C2200;
+  --c-border-light: #403200;
+  --c-success: #40D880;
+  --c-success-bg: #081C10;
+  --c-warning: #F89030;
+  --c-warning-bg: #200C00;
+  --c-danger: #F07070;
+  --c-danger-bg: #240808;
   --c-danger-rgb: 240 112 112;
   --c-info: #50A8F8;
-  --c-info-bg: #0A1830;
+  --c-info-bg: #081428;
 }
 
-/* Sapphire Night — deep navy with cobalt blue, distinct from Midnight gold */
+/* Monsoon Deep — storm-slate storm clouds over delta, electric with cyan lightning */
 :root[data-theme="slate"] {
-  --c-bg0: #060E1C;
-  --c-bg1: #0C1630;
-  --c-bg2: #12203C;
-  --c-bg3: #1A2A4C;
-  --c-fg1: #EEF4FF;
-  --c-fg2: #A8C0E4;
-  --c-fg3: #5074A8;
-  --c-accent: #4A9CF0;
-  --c-accent-light: #78C0FF;
-  --c-accent-dim: #2870C8;
-  --c-accent-bg: #0C1E38;
-  --c-accent-rgb: 74 156 240;
-  --c-accent-dim-rgb: 40 112 200;
-  --c-border: #1E3060;
-  --c-border-light: #2A4070;
-  --c-success: #28D890;
-  --c-success-bg: #08201A;
-  --c-warning: #FFBA28;
-  --c-warning-bg: #201808;
+  --c-bg0: #020C12;
+  --c-bg1: #041820;
+  --c-bg2: #08242E;
+  --c-bg3: #0C3040;
+  --c-fg1: #E8F8FC;
+  --c-fg2: #88C8D8;
+  --c-fg3: #3C7888;
+  --c-accent: #00C8E0;
+  --c-accent-light: #40E8F8;
+  --c-accent-dim: #0090A8;
+  --c-accent-bg: #041C24;
+  --c-accent-rgb: 0 200 224;
+  --c-accent-dim-rgb: 0 144 168;
+  --c-border: #0C3848;
+  --c-border-light: #185060;
+  --c-success: #20E0A0;
+  --c-success-bg: #042018;
+  --c-warning: #FFBA20;
+  --c-warning-bg: #181000;
   --c-danger: #F07070;
-  --c-danger-bg: #280A0A;
+  --c-danger-bg: #240808;
   --c-danger-rgb: 240 112 112;
   --c-info: #30CCEE;
-  --c-info-bg: #081C28;
+  --c-info-bg: #062030;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
@@ -259,9 +259,10 @@ button, a, [role="button"], input, select, textarea {
   transform: translateY(0);
 }
 
-/* On dark themes the logo PNG has a white background; multiply makes it blend */
+/* On dark themes the logo PNG has a white background; screen blend makes it visible */
 :root[data-theme="midnight"] .logo-btn img,
-:root[data-theme="slate"] .logo-btn img {
+:root[data-theme="slate"] .logo-btn img,
+:root[data-theme="indigo"] .logo-btn img {
   mix-blend-mode: screen;
   filter: brightness(1.05);
 }
