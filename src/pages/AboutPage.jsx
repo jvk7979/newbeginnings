@@ -37,8 +37,7 @@ export default function AboutPage({ onNavigate }) {
 
       {/* Hero */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
-        <img src={logoImg} alt="The New Beginnings" style={{ height: 'clamp(100px, 18vw, 160px)', width: 'auto', display: 'block', margin: '0 auto 20px', mixBlendMode: 'multiply' }} />
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 700, color: C.fg1, lineHeight: 1.15, marginBottom: 10 }}>The New Beginnings</div>
+        <img src={logoImg} alt="The New Beginnings" style={{ width: 'clamp(220px, 50vw, 420px)', height: 'auto', display: 'block', margin: '0 auto 18px', mixBlendMode: 'multiply' }} />
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(14px, 2vw, 16px)', fontStyle: 'italic', color: C.fg3, marginBottom: 20 }}>A fresh start. Endless possibilities.</div>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.75, maxWidth: 580, margin: '0 auto' }}>
           A family workspace to capture, plan, and build ventures rooted in the Godavari and Konaseema region.
