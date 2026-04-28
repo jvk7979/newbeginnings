@@ -1,6 +1,7 @@
-import { getGenerativeModel } from 'firebase/ai';
-import { geminiAI } from '../firebase';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { extractAllText } from './pdfParser';
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 const SUMMARY_PROMPT = `You are a business analyst. Read the document below and write a concise executive summary of 2-3 paragraphs.
 
@@ -25,7 +26,7 @@ export async function generateSummaryFromFile(file) {
     throw new Error('Could not extract readable text from this PDF. It may be a scanned image.');
   }
 
-  const model = getGenerativeModel(geminiAI, { model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const result = await model.generateContent(SUMMARY_PROMPT + text.slice(0, 12000));
   return result.response.text().trim();
 }

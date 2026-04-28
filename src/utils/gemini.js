@@ -1,8 +1,9 @@
-import { getGenerativeModel } from 'firebase/ai';
-import { geminiAI } from '../firebase';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 async function ask(prompt) {
-  const model = getGenerativeModel(geminiAI, { model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const result = await model.generateContent(prompt);
   return result.response.text().trim();
 }

@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getAI, GoogleAIBackend } from 'firebase/ai';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAi5RSkSlAWy6Tu8avZeisBRjJ_PkE09jc',
@@ -18,4 +17,3 @@ export const db             = getFirestore(app);
 export const storage        = getStorage(app);
 export const auth           = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-export const geminiAI       = getAI(app, { backend: new GoogleAIBackend() });
