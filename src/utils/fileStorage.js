@@ -1,10 +1,9 @@
-import { storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { rtdb } from '../firebase';
+import { ref, set, get, remove } from 'firebase/database';
 
-// No hard cap — Firebase Storage handles files of any size.
-// We still expose these so UploadZone can show a sensible UI limit (10 MB).
-export const FILE_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
-export const FILE_MAX_LABEL = '10 MB';
+// 7.5 MB source → ~10 MB base64, within RTDB's 10 MB per-node limit.
+export const FILE_MAX_BYTES = 7 * 1024 * 1024; // 7 MB (safe margin)
+export const FILE_MAX_LABEL = '7 MB';
 
 export function detectType(file) {
   const ext = file.name.split('.').pop().toLowerCase();
@@ -32,28 +31,44 @@ function todayLabel() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-// Upload a File object → Firebase Storage → return metadata object with downloadURL.
+async function readBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = e => resolve(e.target.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Upload a File → store base64 in RTDB fileBlobs/ → return metadata object.
 export async function uploadFileToDB(file) {
-  const type    = detectType(file);
-  const blobId  = `uploads/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-  const fileRef = ref(storage, blobId);
-  await uploadBytes(fileRef, file, { contentType: mimeForType(type) });
-  const url = await getDownloadURL(fileRef);
-  return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel(), url };
+  const base64 = await readBase64(file);
+  const type   = detectType(file);
+  const blobId = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+  await set(ref(rtdb, `fileBlobs/${blobId}`), {
+    data:     base64,
+    mimeType: mimeForType(type),
+    savedAt:  new Date().toISOString(),
+  });
+  return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
 }
 
-// Load is no longer needed — files are served directly via url from metadata.
-export async function loadFileFromDB() {
-  return null;
+// Load a stored blob from RTDB.
+export async function loadFileFromDB(blobId) {
+  const snap = await get(ref(rtdb, `fileBlobs/${blobId}`));
+  return snap.exists() ? snap.val() : null;
 }
 
-// Delete a file from Firebase Storage.
+// Delete a stored blob from RTDB.
 export async function deleteFileFromDB(blobId) {
   if (!blobId) return;
-  try { await deleteObject(ref(storage, blobId)); } catch { /* ignore if already gone */ }
+  try { await remove(ref(rtdb, `fileBlobs/${blobId}`)); } catch { /* ignore */ }
 }
 
-// Open or download a file — just use the url from metadata directly.
-export function makeBlobUrl() {
-  return null;
+// Create a temporary object URL from base64 data for in-browser viewing / download.
+export function makeBlobUrl(base64, mimeType) {
+  const binary = atob(base64);
+  const bytes  = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return URL.createObjectURL(new Blob([bytes], { type: mimeType }));
 }
