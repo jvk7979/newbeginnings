@@ -155,7 +155,7 @@ function DocumentCard({ file, onClick, onDelete }) {
           </a>
           <button onClick={e => { e.stopPropagation(); onDelete(file.id); }}
             aria-label="Remove document"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 36, minHeight: 36, fontSize: 16, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 10px', marginLeft: 4 }}>×</button>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 8px' }}>×</button>
         </div>
       </div>
     </div>

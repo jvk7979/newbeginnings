@@ -244,7 +244,7 @@ button, a, [role="button"], input, select, textarea {
 
 /* TopNav visibility helpers */
 .hide-on-mobile  { display: flex; }
-.hide-on-desktop { display: none !important; }
+.hide-on-desktop { display: none; }
 .show-on-desktop { display: flex !important; }
 
 /* Logo button — subtle hover so it feels clickable without a heavy frame */
@@ -405,23 +405,6 @@ textarea:focus-visible,
     width: 100%;
     justify-content: center;
   }
-}
-
-/* ── Filter row — scrollable on mobile, wrapping on desktop ─────────────── */
-.filter-scroll {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-@media (max-width: 768px) {
-  .filter-scroll {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-  .filter-scroll::-webkit-scrollbar { display: none; }
 }
 
 /* ── Premium design utilities ────────────────────────────────────────────── */
