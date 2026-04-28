@@ -1,13 +1,13 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 export const THEMES = [
-  { id: 'sandstone', label: 'Saffron Dawn',      mode: 'light', swatch: ['#FEFCF3', '#C07800', '#F6E8BE'] },
-  { id: 'teal',      label: 'River Jade',         mode: 'light', swatch: ['#F4FDF8', '#0A7850', '#DCEEE6'] },
-  { id: 'forest',    label: 'Paddy Season',       mode: 'light', swatch: ['#F6FAF0', '#4A8A00', '#E6F4D4'] },
-  { id: 'coral',     label: 'Vermillion Shore',   mode: 'light', swatch: ['#FEF9F6', '#B82800', '#FDEEE0'] },
-  { id: 'indigo',    label: 'Firefly Grove',      mode: 'dark',  swatch: ['#030A08', '#28C880', '#071412'] },
-  { id: 'midnight',  label: 'Marigold Night',     mode: 'dark',  swatch: ['#080602', '#F0A800', '#100C00'] },
-  { id: 'slate',     label: 'Monsoon Deep',       mode: 'dark',  swatch: ['#020C12', '#00C8E0', '#041820'] },
+  { id: 'sandstone', label: 'Pearl',    mode: 'light', swatch: ['#FBFBFD', '#0071E3', '#F5F5F7'] },
+  { id: 'teal',      label: 'Alpine',   mode: 'light', swatch: ['#F8FFFC', '#1E8C3A', '#EEFAF4'] },
+  { id: 'forest',    label: 'Sunrise',  mode: 'light', swatch: ['#FFFCF8', '#B86000', '#F9F2E8'] },
+  { id: 'coral',     label: 'Blossom',  mode: 'light', swatch: ['#FFFCFD', '#BF0840', '#F9F0F4'] },
+  { id: 'indigo',    label: 'Midnight', mode: 'dark',  swatch: ['#000000', '#2997FF', '#1C1C1E'] },
+  { id: 'midnight',  label: 'Graphite', mode: 'dark',  swatch: ['#161617', '#FFD60A', '#1D1D1F'] },
+  { id: 'slate',     label: 'Nebula',   mode: 'dark',  swatch: ['#080010', '#BF5AF2', '#100018'] },
 ];
 
 const DEFAULT_THEME = 'sandstone';

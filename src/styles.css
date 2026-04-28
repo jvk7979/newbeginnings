@@ -3,201 +3,201 @@
  * `document.documentElement.dataset.theme = '<name>'`.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* Saffron Dawn — turmeric-gold morning light over Godavari harvest fields */
+/* Pearl — apple.com signature: pure neutral white, Apple blue */
 :root,
 :root[data-theme="sandstone"] {
-  --c-bg0: #FEFCF3;
-  --c-bg1: #F6E8BE;
-  --c-bg2: #ECD498;
-  --c-bg3: #DCBC6A;
-  --c-fg1: #180A00;
-  --c-fg2: #3A1A00;
-  --c-fg3: #7C5020;
-  --c-accent: #C07800;
-  --c-accent-light: #E09000;
-  --c-accent-dim: #8A5500;
-  --c-accent-bg: #FDF2D8;
-  --c-accent-rgb: 192 120 0;
-  --c-accent-dim-rgb: 138 85 0;
-  --c-border: #D4B870;
-  --c-border-light: #C0A050;
-  --c-success: #2A7040;
-  --c-success-bg: #E4F2E8;
+  --c-bg0: #FBFBFD;
+  --c-bg1: #F5F5F7;
+  --c-bg2: #E8E8ED;
+  --c-bg3: #D2D2D7;
+  --c-fg1: #1D1D1F;
+  --c-fg2: #424245;
+  --c-fg3: #6E6E73;
+  --c-accent: #0071E3;
+  --c-accent-light: #2483E5;
+  --c-accent-dim: #0051A3;
+  --c-accent-bg: #EBF2FE;
+  --c-accent-rgb: 0 113 227;
+  --c-accent-dim-rgb: 0 81 163;
+  --c-border: #D2D2D7;
+  --c-border-light: #AEAEB2;
+  --c-success: #1A8F3C;
+  --c-success-bg: #EDFAF3;
   --c-warning: #B86000;
-  --c-warning-bg: #FBF0DC;
-  --c-danger: #B02828;
-  --c-danger-bg: #FAE8E8;
-  --c-danger-rgb: 176 40 40;
-  --c-info: #245898;
-  --c-info-bg: #E4EEF8;
+  --c-warning-bg: #FFF3E0;
+  --c-danger: #D70015;
+  --c-danger-bg: #FFF0F0;
+  --c-danger-rgb: 215 0 21;
+  --c-info: #0071E3;
+  --c-info-bg: #EBF2FE;
 }
 
-/* River Jade — the Godavari's jade-green water flowing through Konaseema */
+/* Alpine — cool near-white, Apple green accent */
 :root[data-theme="teal"] {
-  --c-bg0: #F4FDF8;
-  --c-bg1: #DCEEE6;
-  --c-bg2: #BEDDD0;
-  --c-bg3: #9AC8B8;
-  --c-fg1: #021410;
-  --c-fg2: #0A2E1E;
-  --c-fg3: #2A6848;
-  --c-accent: #0A7850;
-  --c-accent-light: #1AA870;
-  --c-accent-dim: #065838;
-  --c-accent-bg: #E2F5EC;
-  --c-accent-rgb: 10 120 80;
-  --c-accent-dim-rgb: 6 88 56;
-  --c-border: #8CCAAA;
-  --c-border-light: #60A882;
-  --c-success: #0F8240;
-  --c-success-bg: #E0F5E8;
-  --c-warning: #A85800;
-  --c-warning-bg: #FAF0DC;
-  --c-danger: #B02828;
-  --c-danger-bg: #FAE8E8;
-  --c-danger-rgb: 176 40 40;
-  --c-info: #145AA8;
-  --c-info-bg: #E2EEF8;
+  --c-bg0: #F8FFFC;
+  --c-bg1: #EEFAF4;
+  --c-bg2: #D8EFE4;
+  --c-bg3: #BADFD0;
+  --c-fg1: #0A1E14;
+  --c-fg2: #1A3828;
+  --c-fg3: #3E6E54;
+  --c-accent: #1E8C3A;
+  --c-accent-light: #34C759;
+  --c-accent-dim: #136628;
+  --c-accent-bg: #EDFAF3;
+  --c-accent-rgb: 30 140 58;
+  --c-accent-dim-rgb: 19 102 40;
+  --c-border: #C0DECE;
+  --c-border-light: #98C4B0;
+  --c-success: #1E8C3A;
+  --c-success-bg: #EDFAF3;
+  --c-warning: #B86000;
+  --c-warning-bg: #FFF3E0;
+  --c-danger: #D70015;
+  --c-danger-bg: #FFF0F0;
+  --c-danger-rgb: 215 0 21;
+  --c-info: #0071E3;
+  --c-info-bg: #EBF2FE;
 }
 
-/* Paddy Season — vivid lime-green of young monsoon rice shoots just planted */
+/* Sunrise — warm ivory, Apple amber-orange accent */
 :root[data-theme="forest"] {
-  --c-bg0: #F6FAF0;
-  --c-bg1: #E6F4D4;
-  --c-bg2: #CEEAB0;
-  --c-bg3: #B4DC88;
-  --c-fg1: #081600;
-  --c-fg2: #163600;
-  --c-fg3: #3C6818;
-  --c-accent: #4A8A00;
-  --c-accent-light: #68C000;
-  --c-accent-dim: #306000;
-  --c-accent-bg: #EAF6D0;
-  --c-accent-rgb: 74 138 0;
-  --c-accent-dim-rgb: 48 96 0;
-  --c-border: #A8D478;
-  --c-border-light: #88B850;
-  --c-success: #1A7830;
-  --c-success-bg: #E2F5E6;
-  --c-warning: #9A5800;
-  --c-warning-bg: #FAF0DC;
-  --c-danger: #A82828;
-  --c-danger-bg: #FAEAEA;
-  --c-danger-rgb: 168 40 40;
-  --c-info: #1A5878;
-  --c-info-bg: #E2EEF5;
+  --c-bg0: #FFFCF8;
+  --c-bg1: #F9F2E8;
+  --c-bg2: #F0E2CE;
+  --c-bg3: #E2CEB0;
+  --c-fg1: #1C1208;
+  --c-fg2: #3C2814;
+  --c-fg3: #7A5A34;
+  --c-accent: #B86000;
+  --c-accent-light: #E07800;
+  --c-accent-dim: #8A4800;
+  --c-accent-bg: #FFF3DC;
+  --c-accent-rgb: 184 96 0;
+  --c-accent-dim-rgb: 138 72 0;
+  --c-border: #DED0BC;
+  --c-border-light: #C4B09A;
+  --c-success: #1A8F3C;
+  --c-success-bg: #EDFAF3;
+  --c-warning: #B86000;
+  --c-warning-bg: #FFF3DC;
+  --c-danger: #D70015;
+  --c-danger-bg: #FFF0F0;
+  --c-danger-rgb: 215 0 21;
+  --c-info: #0071E3;
+  --c-info-bg: #EBF2FE;
 }
 
-/* Firefly Grove — dense coconut-palm darkness with vivid jade firefly light */
+/* Midnight — Apple pure black dark mode, electric blue accent */
 :root[data-theme="indigo"] {
-  --c-bg0: #030A08;
-  --c-bg1: #071412;
-  --c-bg2: #0E201C;
-  --c-bg3: #162E28;
-  --c-fg1: #E8F8F2;
-  --c-fg2: #86C8B4;
-  --c-fg3: #367868;
-  --c-accent: #28C880;
-  --c-accent-light: #50E8A0;
-  --c-accent-dim: #108850;
-  --c-accent-bg: #061A10;
-  --c-accent-rgb: 40 200 128;
-  --c-accent-dim-rgb: 16 136 80;
-  --c-border: #0E2820;
-  --c-border-light: #1C4034;
-  --c-success: #20E880;
-  --c-success-bg: #041C10;
-  --c-warning: #F8B840;
-  --c-warning-bg: #1C1000;
-  --c-danger: #F07070;
-  --c-danger-bg: #200808;
-  --c-danger-rgb: 240 112 112;
-  --c-info: #40C8F8;
-  --c-info-bg: #041824;
+  --c-bg0: #000000;
+  --c-bg1: #1C1C1E;
+  --c-bg2: #2C2C2E;
+  --c-bg3: #3A3A3C;
+  --c-fg1: #F5F5F7;
+  --c-fg2: #ABABAF;
+  --c-fg3: #636366;
+  --c-accent: #2997FF;
+  --c-accent-light: #60B8FF;
+  --c-accent-dim: #0071E3;
+  --c-accent-bg: #001C3A;
+  --c-accent-rgb: 41 151 255;
+  --c-accent-dim-rgb: 0 113 227;
+  --c-border: #38383A;
+  --c-border-light: #48484A;
+  --c-success: #30D158;
+  --c-success-bg: #0A1E0C;
+  --c-warning: #FFD60A;
+  --c-warning-bg: #1C1800;
+  --c-danger: #FF453A;
+  --c-danger-bg: #2A0804;
+  --c-danger-rgb: 255 69 58;
+  --c-info: #2997FF;
+  --c-info-bg: #001C3A;
 }
 
-/* Vermillion Shore — red laterite soil cliffs and vermillion sunsets over the delta */
+/* Blossom — barely-pink near-white, Apple rose accent */
 :root[data-theme="coral"] {
-  --c-bg0: #FEF9F6;
-  --c-bg1: #FDEEE0;
-  --c-bg2: #F8D8C0;
-  --c-bg3: #F0C09A;
-  --c-fg1: #1A0400;
-  --c-fg2: #441208;
-  --c-fg3: #884028;
-  --c-accent: #B82800;
-  --c-accent-light: #D84820;
-  --c-accent-dim: #801800;
-  --c-accent-bg: #FDEADC;
-  --c-accent-rgb: 184 40 0;
-  --c-accent-dim-rgb: 128 24 0;
-  --c-border: #E8B490;
-  --c-border-light: #D09068;
-  --c-success: #167840;
-  --c-success-bg: #E0F4E8;
-  --c-warning: #C05000;
-  --c-warning-bg: #FBECDC;
-  --c-danger: #A81818;
-  --c-danger-bg: #FAEAEA;
-  --c-danger-rgb: 168 24 24;
-  --c-info: #5040C8;
-  --c-info-bg: #EDEAFE;
+  --c-bg0: #FFFCFD;
+  --c-bg1: #F9F0F4;
+  --c-bg2: #EFE0E6;
+  --c-bg3: #DFCCD4;
+  --c-fg1: #1C0E12;
+  --c-fg2: #3A1E28;
+  --c-fg3: #78485A;
+  --c-accent: #BF0840;
+  --c-accent-light: #E0204E;
+  --c-accent-dim: #880020;
+  --c-accent-bg: #FFF0F4;
+  --c-accent-rgb: 191 8 64;
+  --c-accent-dim-rgb: 136 0 32;
+  --c-border: #DCCCD4;
+  --c-border-light: #C4A8B4;
+  --c-success: #1A8F3C;
+  --c-success-bg: #EDFAF3;
+  --c-warning: #B86000;
+  --c-warning-bg: #FFF3E0;
+  --c-danger: #D70015;
+  --c-danger-bg: #FFF0F0;
+  --c-danger-rgb: 215 0 21;
+  --c-info: #0071E3;
+  --c-info-bg: #EBF2FE;
 }
 
-/* Marigold Night — festival oil lamps and marigold garlands on deep warm black */
+/* Graphite — Apple graphite dark, golden yellow accent */
 :root[data-theme="midnight"] {
-  --c-bg0: #080602;
-  --c-bg1: #100C00;
-  --c-bg2: #1C1600;
-  --c-bg3: #282000;
-  --c-fg1: #FFF8E8;
-  --c-fg2: #D4C080;
-  --c-fg3: #786040;
-  --c-accent: #F0A800;
-  --c-accent-light: #FFC840;
-  --c-accent-dim: #C07800;
-  --c-accent-bg: #1C1000;
-  --c-accent-rgb: 240 168 0;
-  --c-accent-dim-rgb: 192 120 0;
-  --c-border: #2C2200;
-  --c-border-light: #403200;
-  --c-success: #40D880;
-  --c-success-bg: #081C10;
-  --c-warning: #F89030;
-  --c-warning-bg: #200C00;
-  --c-danger: #F07070;
-  --c-danger-bg: #240808;
-  --c-danger-rgb: 240 112 112;
-  --c-info: #50A8F8;
-  --c-info-bg: #081428;
+  --c-bg0: #161617;
+  --c-bg1: #1D1D1F;
+  --c-bg2: #2D2D2F;
+  --c-bg3: #3D3D3F;
+  --c-fg1: #F5F5F7;
+  --c-fg2: #ABABAF;
+  --c-fg3: #636366;
+  --c-accent: #FFD60A;
+  --c-accent-light: #FFE234;
+  --c-accent-dim: #C8A800;
+  --c-accent-bg: #201E00;
+  --c-accent-rgb: 255 214 10;
+  --c-accent-dim-rgb: 200 168 0;
+  --c-border: #3A3A3C;
+  --c-border-light: #4A4A4C;
+  --c-success: #30D158;
+  --c-success-bg: #0A1E0C;
+  --c-warning: #FF9F0A;
+  --c-warning-bg: #1E1200;
+  --c-danger: #FF453A;
+  --c-danger-bg: #2A0804;
+  --c-danger-rgb: 255 69 58;
+  --c-info: #2997FF;
+  --c-info-bg: #001C3A;
 }
 
-/* Monsoon Deep — storm-slate storm clouds over delta, electric with cyan lightning */
+/* Nebula — deep purple-black, Apple purple accent */
 :root[data-theme="slate"] {
-  --c-bg0: #020C12;
-  --c-bg1: #041820;
-  --c-bg2: #08242E;
-  --c-bg3: #0C3040;
-  --c-fg1: #E8F8FC;
-  --c-fg2: #88C8D8;
-  --c-fg3: #3C7888;
-  --c-accent: #00C8E0;
-  --c-accent-light: #40E8F8;
-  --c-accent-dim: #0090A8;
-  --c-accent-bg: #041C24;
-  --c-accent-rgb: 0 200 224;
-  --c-accent-dim-rgb: 0 144 168;
-  --c-border: #0C3848;
-  --c-border-light: #185060;
-  --c-success: #20E0A0;
-  --c-success-bg: #042018;
-  --c-warning: #FFBA20;
-  --c-warning-bg: #181000;
-  --c-danger: #F07070;
-  --c-danger-bg: #240808;
-  --c-danger-rgb: 240 112 112;
-  --c-info: #30CCEE;
-  --c-info-bg: #062030;
+  --c-bg0: #080010;
+  --c-bg1: #100018;
+  --c-bg2: #1A0028;
+  --c-bg3: #240036;
+  --c-fg1: #F5F0FF;
+  --c-fg2: #C8A8E8;
+  --c-fg3: #785098;
+  --c-accent: #BF5AF2;
+  --c-accent-light: #DA8FFD;
+  --c-accent-dim: #9030C8;
+  --c-accent-bg: #1E0030;
+  --c-accent-rgb: 191 90 242;
+  --c-accent-dim-rgb: 144 48 200;
+  --c-border: #2C0044;
+  --c-border-light: #3E0060;
+  --c-success: #30D158;
+  --c-success-bg: #0A1E0C;
+  --c-warning: #FFD60A;
+  --c-warning-bg: #180E00;
+  --c-danger: #FF453A;
+  --c-danger-bg: #280400;
+  --c-danger-rgb: 255 69 58;
+  --c-info: #2997FF;
+  --c-info-bg: #001020;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
@@ -260,9 +260,9 @@ button, a, [role="button"], input, select, textarea {
 }
 
 /* On dark themes the logo PNG has a white background; screen blend makes it visible */
+:root[data-theme="indigo"] .logo-btn img,
 :root[data-theme="midnight"] .logo-btn img,
-:root[data-theme="slate"] .logo-btn img,
-:root[data-theme="indigo"] .logo-btn img {
+:root[data-theme="slate"] .logo-btn img {
   mix-blend-mode: screen;
   filter: brightness(1.05);
 }
