@@ -44,6 +44,12 @@ export default function TopNav({ currentPage, onNavigate }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') { setMobileOpen(false); setSettingsOpen(false); } };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
+
   const handleExport = () => {
     const data = { ideas, projects, plans, exportedAt: new Date().toISOString(), version: 1 };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -261,20 +267,20 @@ export default function TopNav({ currentPage, onNavigate }) {
 
             {/* Theme picker */}
             <div style={{ padding: '4px 16px 12px', borderTop: `1px solid ${C.border}` }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '12px 0 8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '10px 0 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
                 {themes.map(t => {
                   const active = theme === t.id;
                   return (
                     <button key={t.id} onClick={() => setTheme(t.id)}
                       aria-pressed={active}
-                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 9px', borderRadius: 6, background: active ? C.accentBg : C.bg1, border: `1px solid ${active ? alpha(C.accent, 55) : C.border}`, cursor: 'pointer', textAlign: 'left' }}>
-                      <span style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 4, overflow: 'hidden', border: `1px solid ${C.border}` }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 7px', borderRadius: 6, background: active ? C.accentBg : C.bg1, border: `1px solid ${active ? alpha(C.accent, 55) : C.border}`, cursor: 'pointer', textAlign: 'left' }}>
+                      <span style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 3, overflow: 'hidden', border: `1px solid ${C.border}` }}>
                         {t.swatch.map((s, i) => (
-                          <span key={i} style={{ width: 9, height: 18, background: s, display: 'block' }} />
+                          <span key={i} style={{ width: 7, height: 14, background: s, display: 'block' }} />
                         ))}
                       </span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {t.label}
                       </span>
                     </button>

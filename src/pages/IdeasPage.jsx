@@ -74,17 +74,17 @@ export default function IdeasPage({ onNavigate }) {
       </div>
 
       {/* Status filters + sort */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8, minWidth: 0 }}>
+        <div className="filter-scroll" style={{ flex: 1, minWidth: 0 }}>
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f.id ? alpha(C.accent, 44) : C.border}`, background: filter === f.id ? C.accentBg : 'transparent', color: filter === f.id ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f.id ? 500 : 400 }}>
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${filter === f.id ? alpha(C.accent, 44) : C.border}`, background: filter === f.id ? C.accentBg : 'transparent', color: filter === f.id ? C.accent : C.fg3, cursor: 'pointer', fontWeight: filter === f.id ? 500 : 400, whiteSpace: 'nowrap', flexShrink: 0 }}>
               {f.label}
             </button>
           ))}
         </div>
         <select value={sort} onChange={e => setSort(e.target.value)}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="az">A – Z</option>
@@ -92,14 +92,14 @@ export default function IdeasPage({ onNavigate }) {
       </div>
 
       {/* Category filters */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+      <div className="filter-scroll" style={{ marginBottom: 20 }}>
         <button onClick={() => setCatFilter('')}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${!catFilter ? alpha(C.accent, 44) : C.border}`, background: !catFilter ? C.accentBg : 'transparent', color: !catFilter ? C.accent : C.fg3, cursor: 'pointer', fontWeight: !catFilter ? 500 : 400 }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${!catFilter ? alpha(C.accent, 44) : C.border}`, background: !catFilter ? C.accentBg : 'transparent', color: !catFilter ? C.accent : C.fg3, cursor: 'pointer', fontWeight: !catFilter ? 500 : 400, whiteSpace: 'nowrap', flexShrink: 0 }}>
           All Categories
         </button>
         {IDEA_CATEGORIES.map(c => (
           <button key={c} onClick={() => setCatFilter(catFilter === c ? '' : c)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400, whiteSpace: 'nowrap', flexShrink: 0 }}>
             {c}
           </button>
         ))}
