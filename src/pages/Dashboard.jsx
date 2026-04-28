@@ -39,15 +39,24 @@ export default function Dashboard({ onNavigate }) {
       <div style={sectionLabel}>Quick Actions</div>
       <div className="grid-3" style={{ marginBottom: 32 }}>
         {[
-          { icon: '💡', label: 'Add New Idea',       sub: 'Capture a venture idea',      action: () => onNavigate('new-idea') },
-          { icon: '📋', label: 'Create Business Plan', sub: 'Start a structured plan',     action: () => onNavigate('new-plan') },
-          { icon: '📄', label: 'Upload Document',     sub: 'Add a report or PDF',         action: () => onNavigate('documents') },
+          {
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/><path d="M12 17v4"/></svg>,
+            label: 'Add New Idea', sub: 'Capture a venture idea', action: () => onNavigate('new-idea'),
+          },
+          {
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>,
+            label: 'Create Business Plan', sub: 'Start a structured plan', action: () => onNavigate('new-plan'),
+          },
+          {
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            label: 'Upload Document', sub: 'Add a report or PDF', action: () => onNavigate('documents'),
+          },
         ].map(q => (
           <button key={q.label} onClick={q.action}
             style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'flex-start', gap: 12, transition: 'border-color 150ms, box-shadow 150ms' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = C.accentDim; e.currentTarget.style.boxShadow = `0 2px 12px ${alpha(C.accent, 22)}`; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.boxShadow = 'none'; }}>
-            <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{q.icon}</span>
+            <span style={{ color: C.accent, flexShrink: 0, marginTop: 1 }}>{q.icon}</span>
             <span>
               <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1 }}>{q.label}</span>
               <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 2 }}>{q.sub}</span>
