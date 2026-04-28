@@ -1,5 +1,5 @@
 import { storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 export const FILE_MAX_BYTES = 50 * 1024 * 1024; // 50 MB
 export const FILE_MAX_LABEL = '50 MB';
@@ -32,10 +32,19 @@ function todayLabel() {
 
 // Upload a File → Firebase Storage → return metadata object with download URL.
 export async function uploadFileToDB(file) {
-  const type   = detectType(file);
-  const blobId = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+  const type    = detectType(file);
+  const blobId  = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
   const fileRef = ref(storage, `uploads/${blobId}`);
-  await uploadBytes(fileRef, file, { contentType: mimeForType(type) });
+
+  await new Promise((resolve, reject) => {
+    const task  = uploadBytesResumable(fileRef, file, { contentType: mimeForType(type) });
+    const timer = setTimeout(() => { task.cancel(); reject(new Error('Upload timed out — check your connection and try again.')); }, 30000);
+    task.on('state_changed', null,
+      err  => { clearTimeout(timer); console.error('[Storage upload error]', err?.code, err); reject(err); },
+      ()   => { clearTimeout(timer); resolve(); }
+    );
+  });
+
   const url = await getDownloadURL(fileRef);
   return { blobId, url, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
 }

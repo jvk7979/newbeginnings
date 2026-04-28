@@ -45,8 +45,9 @@ export default function NewPlanPage({ onNavigate }) {
       addPlan({ ...form, title: form.title.trim(), sections: [], attachedFile });
       showToast('Business plan saved', 'success');
       onNavigate('plans');
-    } catch {
-      showToast('Failed to upload file. Please try again.', 'error');
+    } catch (err) {
+      console.error('[Save error]', err);
+      showToast(err?.message || 'Failed to save. Please try again.', 'error');
       setSaving(false);
     }
   };
