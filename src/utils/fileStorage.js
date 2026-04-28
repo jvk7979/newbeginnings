@@ -1,9 +1,10 @@
-import { db } from '../firebase';
-import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
-// 700 KB source → ~933 KB base64, safely under Firestore's 1 MiB per-document limit.
-export const FILE_MAX_BYTES = 716800;
-export const FILE_MAX_LABEL = '700 KB';
+// No hard cap — Firebase Storage handles files of any size.
+// We still expose these so UploadZone can show a sensible UI limit (10 MB).
+export const FILE_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+export const FILE_MAX_LABEL = '10 MB';
 
 export function detectType(file) {
   const ext = file.name.split('.').pop().toLowerCase();
@@ -31,44 +32,28 @@ function todayLabel() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-async function readBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result.split(',')[1]); // strip data-URL prefix
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-// Upload a File object → store base64 in Firestore sharedFileBlobs → return metadata object.
+// Upload a File object → Firebase Storage → return metadata object with downloadURL.
 export async function uploadFileToDB(file) {
-  const base64  = await readBase64(file);
   const type    = detectType(file);
-  const blobId  = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-  await setDoc(doc(db, 'sharedFileBlobs', blobId), {
-    data:    base64,
-    mimeType: mimeForType(type),
-    savedAt: new Date().toISOString(),
-  });
-  return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
+  const blobId  = `uploads/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+  const fileRef = ref(storage, blobId);
+  await uploadBytes(fileRef, file, { contentType: mimeForType(type) });
+  const url = await getDownloadURL(fileRef);
+  return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel(), url };
 }
 
-// Load a previously stored blob from Firestore.
-export async function loadFileFromDB(blobId) {
-  const snap = await getDoc(doc(db, 'sharedFileBlobs', blobId));
-  return snap.exists() ? snap.data() : null;
+// Load is no longer needed — files are served directly via url from metadata.
+export async function loadFileFromDB() {
+  return null;
 }
 
-// Delete a stored blob (e.g. when a file is replaced or its parent is deleted).
+// Delete a file from Firebase Storage.
 export async function deleteFileFromDB(blobId) {
   if (!blobId) return;
-  try { await deleteDoc(doc(db, 'sharedFileBlobs', blobId)); } catch { /* ignore */ }
+  try { await deleteObject(ref(storage, blobId)); } catch { /* ignore if already gone */ }
 }
 
-// Create a temporary object URL from base64 data for in-browser viewing / download.
-export function makeBlobUrl(base64, mimeType) {
-  const binary = atob(base64);
-  const bytes  = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return URL.createObjectURL(new Blob([bytes], { type: mimeType }));
+// Open or download a file — just use the url from metadata directly.
+export function makeBlobUrl() {
+  return null;
 }
