@@ -3,201 +3,201 @@
  * `document.documentElement.dataset.theme = '<name>'`.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* Default — Warm Sandstone (light) */
+/* Default — Golden Hour (warm ivory + deep saffron, inspired by Godavari harvest light) */
 :root,
 :root[data-theme="sandstone"] {
-  --c-bg0: #FFFEF8;
-  --c-bg1: #FAF4E8;
-  --c-bg2: #F2E9D0;
-  --c-bg3: #E6DAB8;
-  --c-fg1: #1C1206;
-  --c-fg2: #4A3A1C;
-  --c-fg3: #8C7A54;
-  --c-accent: #C97A14;
-  --c-accent-light: #E8A030;
-  --c-accent-dim: #8C5A10;
-  --c-accent-bg: #FEF6E0;
-  --c-accent-rgb: 201 122 20;
-  --c-accent-dim-rgb: 140 90 16;
-  --c-border: #D6C8A8;
-  --c-border-light: #BEA882;
-  --c-success: #2E7D52;
-  --c-success-bg: #EAF5EE;
-  --c-warning: #C4681C;
-  --c-warning-bg: #FDF0E4;
-  --c-danger: #B03030;
+  --c-bg0: #FEFCF5;
+  --c-bg1: #F8F0DC;
+  --c-bg2: #EDE0C0;
+  --c-bg3: #DECE9E;
+  --c-fg1: #1A0F02;
+  --c-fg2: #3C2808;
+  --c-fg3: #7A5E36;
+  --c-accent: #A85500;
+  --c-accent-light: #D07018;
+  --c-accent-dim: #783C00;
+  --c-accent-bg: #FEF3E4;
+  --c-accent-rgb: 168 85 0;
+  --c-accent-dim-rgb: 120 60 0;
+  --c-border: #D2C098;
+  --c-border-light: #BCA872;
+  --c-success: #2A7040;
+  --c-success-bg: #E8F4ED;
+  --c-warning: #B85800;
+  --c-warning-bg: #FDF0E0;
+  --c-danger: #B02828;
   --c-danger-bg: #FAEAEA;
-  --c-danger-rgb: 176 48 48;
-  --c-info: #2B5FA6;
-  --c-info-bg: #EAF0FA;
+  --c-danger-rgb: 176 40 40;
+  --c-info: #245898;
+  --c-info-bg: #E8EFF8;
 }
 
-/* Coastal Teal — calm, professional */
+/* River Blue — the Godavari's deep jade-blue waters */
 :root[data-theme="teal"] {
-  --c-bg0: #FAFFFE;
-  --c-bg1: #F0FAF8;
-  --c-bg2: #E0F2EE;
-  --c-bg3: #C8E6E0;
-  --c-fg1: #0B1A1A;
-  --c-fg2: #1E4040;
-  --c-fg3: #507878;
-  --c-accent: #0A8C82;
-  --c-accent-light: #16C8B4;
-  --c-accent-dim: #066058;
-  --c-accent-bg: #E6FBF7;
-  --c-accent-rgb: 10 140 130;
-  --c-accent-dim-rgb: 6 96 88;
-  --c-border: #B8D8D4;
-  --c-border-light: #98C0BA;
-  --c-success: #15803D;
-  --c-success-bg: #DCFCE7;
-  --c-warning: #B45309;
-  --c-warning-bg: #FEF3C7;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEE2E2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #1D4ED8;
-  --c-info-bg: #DBEAFE;
+  --c-bg0: #F6FBFD;
+  --c-bg1: #EAF5FA;
+  --c-bg2: #D6EEF7;
+  --c-bg3: #BEE3F2;
+  --c-fg1: #071820;
+  --c-fg2: #103444;
+  --c-fg3: #386880;
+  --c-accent: #0878A0;
+  --c-accent-light: #16A8D4;
+  --c-accent-dim: #045670;
+  --c-accent-bg: #E2F3FA;
+  --c-accent-rgb: 8 120 160;
+  --c-accent-dim-rgb: 4 86 112;
+  --c-border: #A8D8EC;
+  --c-border-light: #84C0D8;
+  --c-success: #127848;
+  --c-success-bg: #E2F5EC;
+  --c-warning: #A05000;
+  --c-warning-bg: #FBF0E2;
+  --c-danger: #B02828;
+  --c-danger-bg: #FAEBEB;
+  --c-danger-rgb: 176 40 40;
+  --c-info: #145AA0;
+  --c-info-bg: #E4EEF8;
 }
 
-/* Forest & Cream — earthy, premium agri */
+/* Paddy Green — Konaseema's lush tropical paddy fields */
 :root[data-theme="forest"] {
-  --c-bg0: #FAF8F0;
-  --c-bg1: #F2EDE0;
-  --c-bg2: #E6DEC8;
-  --c-bg3: #D8CDB0;
-  --c-fg1: #141E08;
-  --c-fg2: #344828;
-  --c-fg3: #708060;
-  --c-accent: #3D7A24;
-  --c-accent-light: #68B048;
-  --c-accent-dim: #2A5818;
-  --c-accent-bg: #EBF5E4;
-  --c-accent-rgb: 61 122 36;
-  --c-accent-dim-rgb: 42 88 24;
-  --c-border: #C8BC9A;
-  --c-border-light: #ACA07E;
-  --c-success: #3F6B2A;
-  --c-success-bg: #E8F0DA;
-  --c-warning: #A65A1B;
-  --c-warning-bg: #FAEAD0;
-  --c-danger: #9C2B2B;
-  --c-danger-bg: #F4DEDE;
-  --c-danger-rgb: 156 43 43;
-  --c-info: #2B5C7A;
-  --c-info-bg: #E0EAF0;
+  --c-bg0: #F7FAF3;
+  --c-bg1: #EEF5E6;
+  --c-bg2: #E0EDD2;
+  --c-bg3: #CCDDB8;
+  --c-fg1: #0C1A06;
+  --c-fg2: #203A10;
+  --c-fg3: #4A6E30;
+  --c-accent: #367A08;
+  --c-accent-light: #56AA1C;
+  --c-accent-dim: #245804;
+  --c-accent-bg: #E8F5DC;
+  --c-accent-rgb: 54 122 8;
+  --c-accent-dim-rgb: 36 88 4;
+  --c-border: #BCE0A0;
+  --c-border-light: #9CC880;
+  --c-success: #327028;
+  --c-success-bg: #E6F4E0;
+  --c-warning: #A05800;
+  --c-warning-bg: #FBF0E2;
+  --c-danger: #A82828;
+  --c-danger-bg: #F8EAEA;
+  --c-danger-rgb: 168 40 40;
+  --c-info: #1A5878;
+  --c-info-bg: #E2EEF5;
 }
 
-/* Indigo & Slate — modern SaaS */
+/* Royal Indigo — deep indigo for a premium modern fintech feel */
 :root[data-theme="indigo"] {
-  --c-bg0: #FAFBFF;
-  --c-bg1: #F4F6FF;
-  --c-bg2: #EAEDFA;
-  --c-bg3: #DCE0F5;
-  --c-fg1: #0C1030;
-  --c-fg2: #3A4570;
-  --c-fg3: #7880A8;
-  --c-accent: #5651E5;
-  --c-accent-light: #8B87FF;
-  --c-accent-dim: #3C38C8;
-  --c-accent-bg: #ECEBFF;
-  --c-accent-rgb: 86 81 229;
-  --c-accent-dim-rgb: 60 56 200;
-  --c-border: #CBD5E1;
-  --c-border-light: #94A3B8;
-  --c-success: #059669;
-  --c-success-bg: #D1FAE5;
-  --c-warning: #D97706;
-  --c-warning-bg: #FEF3C7;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEE2E2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #0284C7;
-  --c-info-bg: #E0F2FE;
+  --c-bg0: #F9FAFF;
+  --c-bg1: #F1F3FF;
+  --c-bg2: #E6EAFF;
+  --c-bg3: #D6DCFF;
+  --c-fg1: #080C28;
+  --c-fg2: #1C2460;
+  --c-fg3: #5658A0;
+  --c-accent: #3A38E8;
+  --c-accent-light: #6868FF;
+  --c-accent-dim: #2418C0;
+  --c-accent-bg: #EEEEFF;
+  --c-accent-rgb: 58 56 232;
+  --c-accent-dim-rgb: 36 24 192;
+  --c-border: #C4C8EC;
+  --c-border-light: #A0A4D4;
+  --c-success: #0A7A50;
+  --c-success-bg: #E0F5EC;
+  --c-warning: #C07000;
+  --c-warning-bg: #FEF3DC;
+  --c-danger: #CC2828;
+  --c-danger-bg: #FEEAEA;
+  --c-danger-rgb: 204 40 40;
+  --c-info: #0870B8;
+  --c-info-bg: #E0F0FE;
 }
 
-/* Sunset Coral — warm, vibrant */
+/* Terracotta Sunset — the vermillion sky over Godavari at golden hour */
 :root[data-theme="coral"] {
-  --c-bg0: #FFFCFA;
-  --c-bg1: #FFF2E8;
-  --c-bg2: #FCE4D4;
-  --c-bg3: #F2CFBC;
-  --c-fg1: #1E0E10;
-  --c-fg2: #58282E;
-  --c-fg3: #9A6870;
-  --c-accent: #E0245A;
-  --c-accent-light: #FF6090;
-  --c-accent-dim: #A81840;
-  --c-accent-bg: #FFEEF2;
-  --c-accent-rgb: 224 36 90;
-  --c-accent-dim-rgb: 168 24 64;
-  --c-border: #E8C8B8;
-  --c-border-light: #D4AC98;
-  --c-success: #16A34A;
-  --c-success-bg: #DCFCE7;
-  --c-warning: #EA580C;
-  --c-warning-bg: #FFEDD5;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEE2E2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #6D28D9;
-  --c-info-bg: #EDE9FE;
+  --c-bg0: #FEFCF8;
+  --c-bg1: #FFF0E4;
+  --c-bg2: #FDDCCC;
+  --c-bg3: #F7C8B0;
+  --c-fg1: #1C0A04;
+  --c-fg2: #481E0A;
+  --c-fg3: #8A5030;
+  --c-accent: #C03208;
+  --c-accent-light: #E05028;
+  --c-accent-dim: #881E04;
+  --c-accent-bg: #FDE8E0;
+  --c-accent-rgb: 192 50 8;
+  --c-accent-dim-rgb: 136 30 4;
+  --c-border: #EAC4A8;
+  --c-border-light: #D4A080;
+  --c-success: #167040;
+  --c-success-bg: #E0F4EC;
+  --c-warning: #C05000;
+  --c-warning-bg: #FBEDE0;
+  --c-danger: #B01C1C;
+  --c-danger-bg: #FEEAEA;
+  --c-danger-rgb: 176 28 28;
+  --c-info: #5040C8;
+  --c-info-bg: #EDE8FE;
 }
 
-/* Midnight — dark mode */
+/* Midnight River — the Godavari at night, ink blue with warm lamp-gold */
 :root[data-theme="midnight"] {
-  --c-bg0: #0D1018;
-  --c-bg1: #161A24;
-  --c-bg2: #1E2330;
-  --c-bg3: #282E3E;
-  --c-fg1: #F4F5F8;
-  --c-fg2: #C8D0DC;
-  --c-fg3: #7A8496;
-  --c-accent: #E8B040;
-  --c-accent-light: #FFCC70;
-  --c-accent-dim: #C08820;
-  --c-accent-bg: #2C2418;
-  --c-accent-rgb: 232 176 64;
-  --c-accent-dim-rgb: 192 136 32;
-  --c-border: #2F3540;
-  --c-border-light: #3F4754;
-  --c-success: #4ADE80;
-  --c-success-bg: #15291E;
-  --c-warning: #FB923C;
-  --c-warning-bg: #2B1E12;
-  --c-danger: #F87171;
-  --c-danger-bg: #2B1414;
-  --c-danger-rgb: 248 113 113;
-  --c-info: #60A5FA;
-  --c-info-bg: #15203A;
+  --c-bg0: #060810;
+  --c-bg1: #0C1020;
+  --c-bg2: #141A30;
+  --c-bg3: #1C243E;
+  --c-fg1: #F0F4FC;
+  --c-fg2: #B8C8E0;
+  --c-fg3: #5A7090;
+  --c-accent: #E89820;
+  --c-accent-light: #FFBA40;
+  --c-accent-dim: #B07008;
+  --c-accent-bg: #1E180A;
+  --c-accent-rgb: 232 152 32;
+  --c-accent-dim-rgb: 176 112 8;
+  --c-border: #242C40;
+  --c-border-light: #303850;
+  --c-success: #30C878;
+  --c-success-bg: #0A2018;
+  --c-warning: #F89030;
+  --c-warning-bg: #241808;
+  --c-danger: #F07070;
+  --c-danger-bg: #280C0C;
+  --c-danger-rgb: 240 112 112;
+  --c-info: #50A8F8;
+  --c-info-bg: #0A1830;
 }
 
-/* Slate Dark — cooler dark */
+/* Sapphire Night — deep navy with cobalt blue, distinct from Midnight gold */
 :root[data-theme="slate"] {
-  --c-bg0: #0B1220;
-  --c-bg1: #14192B;
-  --c-bg2: #1D2438;
-  --c-bg3: #283047;
-  --c-fg1: #F1F5F9;
-  --c-fg2: #C0C9D6;
-  --c-fg3: #7A879A;
-  --c-accent: #6366F1;
-  --c-accent-light: #A5B4FC;
-  --c-accent-dim: #4338CA;
-  --c-accent-bg: #1E1B3A;
-  --c-accent-rgb: 99 102 241;
-  --c-accent-dim-rgb: 67 56 202;
-  --c-border: #2A324A;
-  --c-border-light: #3A445C;
-  --c-success: #34D399;
-  --c-success-bg: #0F2922;
-  --c-warning: #FBBF24;
-  --c-warning-bg: #2A2010;
-  --c-danger: #F87171;
-  --c-danger-bg: #2B1414;
-  --c-danger-rgb: 248 113 113;
-  --c-info: #38BDF8;
-  --c-info-bg: #0B2238;
+  --c-bg0: #060E1C;
+  --c-bg1: #0C1630;
+  --c-bg2: #12203C;
+  --c-bg3: #1A2A4C;
+  --c-fg1: #EEF4FF;
+  --c-fg2: #A8C0E4;
+  --c-fg3: #5074A8;
+  --c-accent: #4A9CF0;
+  --c-accent-light: #78C0FF;
+  --c-accent-dim: #2870C8;
+  --c-accent-bg: #0C1E38;
+  --c-accent-rgb: 74 156 240;
+  --c-accent-dim-rgb: 40 112 200;
+  --c-border: #1E3060;
+  --c-border-light: #2A4070;
+  --c-success: #28D890;
+  --c-success-bg: #08201A;
+  --c-warning: #FFBA28;
+  --c-warning-bg: #201808;
+  --c-danger: #F07070;
+  --c-danger-bg: #280A0A;
+  --c-danger-rgb: 240 112 112;
+  --c-info: #30CCEE;
+  --c-info-bg: #081C28;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
