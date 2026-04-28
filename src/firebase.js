@@ -10,7 +10,7 @@ const firebaseConfig = {
   storageBucket: 'newbeginnings-b4abe.firebasestorage.app',
   messagingSenderId: '161687769990',
   appId: '1:161687769990:web:9a450011384e7ab3445207',
-  databaseURL: 'https://newbeginnings-b4abe-default-rtdb.firebaseio.com',
+  databaseURL: 'https://newbeginnings-b4abe-default-rtdb.europe-west1.firebasedatabase.app',
 };
 
 export const app            = initializeApp(firebaseConfig);
