@@ -10,24 +10,54 @@ const ICON_DOC  = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 
 const QUICK_ACTIONS = [
   {
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>,
-    label: 'New Idea', sub: 'Capture a venture idea', dest: 'new-idea',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>,
+    label: '+ New Idea', dest: 'new-idea', primary: true,
   },
   {
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
-    label: 'New Plan', sub: 'Start a structured plan', dest: 'new-plan',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+    label: '+ New Plan', dest: 'new-plan', primary: false,
   },
   {
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
-    label: 'Documents', sub: 'Upload or browse files', dest: 'documents',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+    label: 'Upload Document', dest: 'documents', primary: false,
   },
 ];
+
+function SectionHeader({ label, actionLabel, onAction }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+      <span style={{
+        fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
+        letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, whiteSpace: 'nowrap',
+      }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 1, background: C.border }} />
+      {actionLabel && (
+        <button onClick={onAction}
+          style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent,
+            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5,
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+          {actionLabel}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function Dashboard({ onNavigate }) {
   const { ideas, plans, files } = useAppData();
   const recentIdeas = [...ideas]
     .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
     .slice(0, 4);
+  const recentFiles = [...files]
+    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
+    .slice(0, 3);
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
@@ -53,8 +83,8 @@ export default function Dashboard({ onNavigate }) {
         </div>
       </div>
 
-      {/* Stats — 3 key numbers always visible at a glance */}
-      <div className="stat-grid" style={{ marginBottom: 28 }}>
+      {/* Stats */}
+      <div className="stat-grid" style={{ marginBottom: 32 }}>
         {[
           { label: 'Ideas',          count: ideas.length, dest: 'ideas',     icon: ICON_IDEA },
           { label: 'Business Plans', count: plans.length, dest: 'plans',     icon: ICON_PLAN },
@@ -73,69 +103,63 @@ export default function Dashboard({ onNavigate }) {
         ))}
       </div>
 
-      {/* Two-column: Recent Ideas (wider) + Quick Actions (narrower) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, marginBottom: 28, alignItems: 'start' }} className="dash-two-col">
-
-        {/* Recent Ideas */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3 }}>Recent Ideas</div>
-            {ideas.length > 0 && (
-              <button onClick={() => onNavigate('ideas')}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
-                View all →
-              </button>
-            )}
-          </div>
-          {recentIdeas.length === 0 ? (
-            <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 10, padding: '32px 20px', textAlign: 'center' }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, marginBottom: 14 }}>No ideas yet — capture your first venture idea.</div>
-              <button onClick={() => onNavigate('new-idea')}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-                onMouseLeave={e => e.currentTarget.style.background = C.accent}>
-                + New Idea
-              </button>
-            </div>
-          ) : (
-            <div className="grid-2">
-              {recentIdeas.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
-            </div>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Quick Actions</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {QUICK_ACTIONS.map(q => (
-              <button key={q.label} onClick={() => onNavigate(q.dest)} className="card-rich"
-                style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                <span style={{ width: 38, height: 38, borderRadius: 9, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
-                  {q.icon}
-                </span>
-                <span>
-                  <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, color: C.fg1, marginBottom: 2 }}>{q.label}</span>
-                  <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>{q.sub}</span>
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* Quick Actions — compact horizontal strip */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 36, flexWrap: 'wrap' }}>
+        {QUICK_ACTIONS.map(q => (
+          <button key={q.label} onClick={() => onNavigate(q.dest)}
+            className="card-rich"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: q.primary ? 600 : 500,
+              color: q.primary ? '#fff' : C.fg2,
+              background: q.primary ? C.accent : C.bg1,
+              border: `1px solid ${q.primary ? 'transparent' : C.border}`,
+              borderRadius: 8, padding: '9px 16px', cursor: 'pointer',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = q.primary ? C.accentDim : C.bg2; }}
+            onMouseLeave={e => { e.currentTarget.style.background = q.primary ? C.accent : C.bg1; }}>
+            <span style={{ color: q.primary ? 'rgba(255,255,255,0.85)' : C.accent, display: 'flex' }}>{q.icon}</span>
+            {q.label}
+          </button>
+        ))}
       </div>
 
-      {/* Recent Documents — only shown when they exist */}
-      {files.length > 0 && (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3 }}>Recent Documents</div>
-            <button onClick={() => onNavigate('documents')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
-              View all →
+      {/* Recent Ideas — full width */}
+      <div style={{ marginBottom: 40 }}>
+        <SectionHeader
+          label="Recent Ideas"
+          actionLabel={ideas.length > 0 ? 'View all Ideas' : null}
+          onAction={() => onNavigate('ideas')}
+        />
+        {recentIdeas.length === 0 ? (
+          <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 10, padding: '36px 24px', textAlign: 'center' }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, marginBottom: 16 }}>
+              No ideas yet — capture your first venture idea.
+            </div>
+            <button onClick={() => onNavigate('new-idea')}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
+              onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
+              onMouseLeave={e => e.currentTarget.style.background = C.accent}>
+              + New Idea
             </button>
           </div>
+        ) : (
+          <div className="grid-2">
+            {recentIdeas.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
+          </div>
+        )}
+      </div>
+
+      {/* Recent Documents */}
+      {files.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <SectionHeader
+            label="Recent Documents"
+            actionLabel="View all Documents"
+            onAction={() => onNavigate('documents')}
+          />
           <div className="grid-3">
-            {[...files].slice(0, 3).map(f => (
+            {recentFiles.map(f => (
               <div key={f.id} role="button" tabIndex={0} className="card-rich"
                 style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 18px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
                 onClick={() => onNavigate('document-detail', f)}
@@ -156,7 +180,7 @@ export default function Dashboard({ onNavigate }) {
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
