@@ -11,7 +11,7 @@ const FEATURES = [
 ];
 
 export default function SignInPage() {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, accessDenied } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
 
@@ -88,6 +88,12 @@ export default function SignInPage() {
             {loading ? 'Signing in…' : 'Continue with Google'}
           </button>
 
+          {accessDenied && !error && (
+            <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.danger, marginTop: 12, textAlign: 'center', lineHeight: 1.5 }}>
+              Access denied. Your account hasn't been invited to this workspace.<br />
+              <span style={{ fontSize: 13, color: C.fg3 }}>Contact the workspace admin to request access.</span>
+            </div>
+          )}
           {error && (
             <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.danger, marginTop: 12, textAlign: 'center' }}>{error}</div>
           )}

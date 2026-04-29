@@ -15,9 +15,10 @@ import NewPlanPage from './pages/NewPlanPage';
 import FilesPage from './pages/FilesPage';
 import FileDetailPage from './pages/FileDetailPage';
 import AboutPage from './pages/AboutPage';
+import AccessPage from './pages/AccessPage';
 import Footer from './components/Footer';
 
-const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about'];
+const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about', 'access'];
 const DETAIL   = ['idea-detail', 'plan-detail', 'new-idea', 'new-plan', 'document-detail'];
 
 const parseHash = () => {
@@ -98,6 +99,7 @@ export default function App() {
         if (!itemId || !file) return <NotFound label="Document" dest="documents" onNavigate={navigate} />;
         return <FileDetailPage key={file.id} file={file} onNavigate={navigate} />;
       case 'about':          return <AboutPage onNavigate={navigate} />;
+      case 'access':         return <AccessPage onNavigate={navigate} />;
       default:               return <Dashboard onNavigate={navigate} />;
     }
   };

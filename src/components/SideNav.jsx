@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { C, alpha } from '../tokens';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
@@ -36,7 +36,7 @@ const ACTIVE_MAP = {
   'document-detail': 'documents',
 };
 
-function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSignOut, onExport, onImport, mobile = false }) {
+function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAdmin, onSignOut, onExport, onImport, mobile = false }) {
   const [themeOpen, setThemeOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -84,6 +84,31 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
             </button>
           );
         })}
+        {isAdmin && (() => {
+          const active = activeTab === 'access';
+          return (
+            <button onClick={() => onNavigate('access')}
+              aria-current={active ? 'page' : undefined}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: 'none',
+                marginBottom: 2, marginTop: 4, cursor: 'pointer',
+                fontFamily: "'DM Sans', sans-serif", fontSize: 16,
+                fontWeight: active ? 600 : 400,
+                color: active ? C.accent : C.fg2,
+                background: active ? C.accentBg : 'transparent',
+                transition: 'all 130ms ease',
+              }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; } }}>
+              <span style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <span style={{ flex: 1 }}>Access</span>
+              {active && <span style={{ width: 3, height: 14, background: C.accent, borderRadius: 2, flexShrink: 0 }} />}
+            </button>
+          );
+        })()}
       </nav>
 
       {/* Theme picker */}
@@ -163,7 +188,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
 }
 
 export default function SideNav({ currentPage, onNavigate }) {
-  const { user, signOutUser }                  = useAuth();
+  const { user, signOutUser, isAdmin }          = useAuth();
   const { ideas, projects, plans, importData } = useAppData();
   const { showToast }                          = useToast();
   const { theme, setTheme, themes }            = useTheme();
@@ -216,7 +241,7 @@ export default function SideNav({ currentPage, onNavigate }) {
   };
 
   const navProps = {
-    activeTab, themes, theme, setTheme, user,
+    activeTab, themes, theme, setTheme, user, isAdmin,
     onSignOut: () => setConfirmSignOut(true),
     onExport: handleExport,
     onImport: handleImport,
