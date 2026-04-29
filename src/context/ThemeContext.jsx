@@ -10,7 +10,7 @@ export const THEMES = [
   { id: 'slate',     label: 'Cosmos',   mode: 'dark',  swatch: ['#07050F', '#8B5CF6', '#0F0B1F'] },
 ];
 
-const DEFAULT_THEME = 'sandstone';
+const DEFAULT_THEME = 'forest';
 const STORAGE_KEY = 'nb_theme';
 
 const ThemeContext = createContext(null);

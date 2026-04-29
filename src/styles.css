@@ -4,7 +4,6 @@
  * ───────────────────────────────────────────────────────────────────────── */
 
 /* Pearl — Pantone 2026 Cloud Dancer base · Vercel #0070F3 blue · Zinc scale */
-:root,
 :root[data-theme="sandstone"] {
   --c-bg0: #FAFAFA;
   --c-bg1: #F4F4F5;
@@ -60,7 +59,8 @@
   --c-info-bg: #EFF6FF;
 }
 
-/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1 */
+/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1 — DEFAULT */
+:root,
 :root[data-theme="forest"] {
   --c-bg0: #FDFAF6;
   --c-bg1: #FAF3E8;
