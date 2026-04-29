@@ -2,7 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
-      return request.auth.token.email == 'thenewbeginningsventure@gmail.com';
+      return request.auth.token.email == 'thenewbeginningsventure@gmail.com'
+          || request.auth.token.email == 'nsivasree99@gmail.com';
     }
     function isAllowed() {
       return isAdmin() || exists(/databases/$(database)/documents/allowedUsers/$(request.auth.token.email));

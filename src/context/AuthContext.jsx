@@ -6,6 +6,10 @@ import { doc, getDoc } from 'firebase/firestore';
 const AuthContext = createContext(null);
 
 export const ADMIN_EMAIL = 'thenewbeginningsventure@gmail.com';
+const ADMIN_EMAILS = new Set([
+  'thenewbeginningsventure@gmail.com',
+  'nsivasree99@gmail.com',
+]);
 
 export function AuthProvider({ children }) {
   const [user, setUser]                 = useState(null);
@@ -19,7 +23,7 @@ export function AuthProvider({ children }) {
         setLoading(false);
         return;
       }
-      if (u.email === ADMIN_EMAIL) {
+      if (ADMIN_EMAILS.has(u.email)) {
         setUser(u);
         setAccessDenied(false);
         setLoading(false);
@@ -54,7 +58,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, loading, accessDenied,
-      isAdmin: user?.email === ADMIN_EMAIL,
+      isAdmin: ADMIN_EMAILS.has(user?.email),
       signInWithGoogle, signOutUser,
     }}>
       {children}
