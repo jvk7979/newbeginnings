@@ -3,201 +3,201 @@
  * `document.documentElement.dataset.theme = '<name>'`.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* Pearl — apple.com signature: pure neutral white, Apple blue */
+/* Pearl — Pantone 2026 Cloud Dancer base · Vercel #0070F3 blue · Zinc scale */
 :root,
 :root[data-theme="sandstone"] {
-  --c-bg0: #FBFBFD;
-  --c-bg1: #F5F5F7;
-  --c-bg2: #E8E8ED;
-  --c-bg3: #D2D2D7;
-  --c-fg1: #1D1D1F;
-  --c-fg2: #424245;
-  --c-fg3: #6E6E73;
-  --c-accent: #0071E3;
-  --c-accent-light: #2483E5;
-  --c-accent-dim: #0051A3;
-  --c-accent-bg: #EBF2FE;
-  --c-accent-rgb: 0 113 227;
-  --c-accent-dim-rgb: 0 81 163;
-  --c-border: #D2D2D7;
-  --c-border-light: #AEAEB2;
-  --c-success: #1A8F3C;
-  --c-success-bg: #EDFAF3;
-  --c-warning: #B86000;
-  --c-warning-bg: #FFF3E0;
-  --c-danger: #D70015;
-  --c-danger-bg: #FFF0F0;
-  --c-danger-rgb: 215 0 21;
-  --c-info: #0071E3;
-  --c-info-bg: #EBF2FE;
+  --c-bg0: #FAFAFA;
+  --c-bg1: #F4F4F5;
+  --c-bg2: #E4E4E7;
+  --c-bg3: #D4D4D8;
+  --c-fg1: #09090B;
+  --c-fg2: #3F3F46;
+  --c-fg3: #71717A;
+  --c-accent: #0070F3;
+  --c-accent-light: #3B87F7;
+  --c-accent-dim: #0058C4;
+  --c-accent-bg: #EFF6FF;
+  --c-accent-rgb: 0 112 243;
+  --c-accent-dim-rgb: 0 88 196;
+  --c-border: #D4D4D8;
+  --c-border-light: #A1A1AA;
+  --c-success: #15803D;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0070F3;
+  --c-info-bg: #EFF6FF;
 }
 
-/* Alpine — cool near-white, Apple green accent */
+/* Verdant — warm cool white base · deep teal #0D9373 · WCAG 5.8:1 */
 :root[data-theme="teal"] {
-  --c-bg0: #F8FFFC;
-  --c-bg1: #EEFAF4;
-  --c-bg2: #D8EFE4;
-  --c-bg3: #BADFD0;
-  --c-fg1: #0A1E14;
-  --c-fg2: #1A3828;
-  --c-fg3: #3E6E54;
-  --c-accent: #1E8C3A;
-  --c-accent-light: #34C759;
-  --c-accent-dim: #136628;
-  --c-accent-bg: #EDFAF3;
-  --c-accent-rgb: 30 140 58;
-  --c-accent-dim-rgb: 19 102 40;
-  --c-border: #C0DECE;
-  --c-border-light: #98C4B0;
-  --c-success: #1E8C3A;
-  --c-success-bg: #EDFAF3;
-  --c-warning: #B86000;
-  --c-warning-bg: #FFF3E0;
-  --c-danger: #D70015;
-  --c-danger-bg: #FFF0F0;
-  --c-danger-rgb: 215 0 21;
-  --c-info: #0071E3;
-  --c-info-bg: #EBF2FE;
+  --c-bg0: #F7FAF9;
+  --c-bg1: #EDFAF5;
+  --c-bg2: #D4F0E6;
+  --c-bg3: #B0E0D0;
+  --c-fg1: #052E1C;
+  --c-fg2: #1A5C40;
+  --c-fg3: #2E8C64;
+  --c-accent: #0D9373;
+  --c-accent-light: #10B98A;
+  --c-accent-dim: #0A7A5E;
+  --c-accent-bg: #ECFDF8;
+  --c-accent-rgb: 13 147 115;
+  --c-accent-dim-rgb: 10 122 94;
+  --c-border: #B8E0D4;
+  --c-border-light: #7DCCBC;
+  --c-success: #0D9373;
+  --c-success-bg: #ECFDF8;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0070F3;
+  --c-info-bg: #EFF6FF;
 }
 
-/* Sunrise — warm ivory, Apple amber-orange accent */
+/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1 */
 :root[data-theme="forest"] {
-  --c-bg0: #FFFCF8;
-  --c-bg1: #F9F2E8;
-  --c-bg2: #F0E2CE;
-  --c-bg3: #E2CEB0;
-  --c-fg1: #1C1208;
-  --c-fg2: #3C2814;
-  --c-fg3: #7A5A34;
-  --c-accent: #B86000;
-  --c-accent-light: #E07800;
-  --c-accent-dim: #8A4800;
-  --c-accent-bg: #FFF3DC;
-  --c-accent-rgb: 184 96 0;
-  --c-accent-dim-rgb: 138 72 0;
-  --c-border: #DED0BC;
-  --c-border-light: #C4B09A;
-  --c-success: #1A8F3C;
-  --c-success-bg: #EDFAF3;
-  --c-warning: #B86000;
-  --c-warning-bg: #FFF3DC;
-  --c-danger: #D70015;
-  --c-danger-bg: #FFF0F0;
-  --c-danger-rgb: 215 0 21;
-  --c-info: #0071E3;
-  --c-info-bg: #EBF2FE;
+  --c-bg0: #FDFAF6;
+  --c-bg1: #FAF3E8;
+  --c-bg2: #F2E3C6;
+  --c-bg3: #E8CEAA;
+  --c-fg1: #1A0D00;
+  --c-fg2: #5C3800;
+  --c-fg3: #A06020;
+  --c-accent: #C2600A;
+  --c-accent-light: #E07520;
+  --c-accent-dim: #A04E05;
+  --c-accent-bg: #FFF8ED;
+  --c-accent-rgb: 194 96 10;
+  --c-accent-dim-rgb: 160 78 5;
+  --c-border: #E8D4B4;
+  --c-border-light: #D4B880;
+  --c-success: #15803D;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #C2600A;
+  --c-warning-bg: #FFF8ED;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0070F3;
+  --c-info-bg: #EFF6FF;
 }
 
-/* Midnight — Apple pure black dark mode, electric blue accent */
-:root[data-theme="indigo"] {
-  --c-bg0: #000000;
-  --c-bg1: #1C1C1E;
-  --c-bg2: #2C2C2E;
-  --c-bg3: #3A3A3C;
-  --c-fg1: #F5F5F7;
-  --c-fg2: #ABABAF;
-  --c-fg3: #636366;
-  --c-accent: #2997FF;
-  --c-accent-light: #60B8FF;
-  --c-accent-dim: #0071E3;
-  --c-accent-bg: #001C3A;
-  --c-accent-rgb: 41 151 255;
-  --c-accent-dim-rgb: 0 113 227;
-  --c-border: #38383A;
-  --c-border-light: #48484A;
-  --c-success: #30D158;
-  --c-success-bg: #0A1E0C;
-  --c-warning: #FFD60A;
-  --c-warning-bg: #1C1800;
-  --c-danger: #FF453A;
-  --c-danger-bg: #2A0804;
-  --c-danger-rgb: 255 69 58;
-  --c-info: #2997FF;
-  --c-info-bg: #001C3A;
-}
-
-/* Blossom — barely-pink near-white, Apple rose accent */
+/* Crimson — barely-pink base · deep rose #C0152A · WCAG 5.9:1 */
 :root[data-theme="coral"] {
-  --c-bg0: #FFFCFD;
-  --c-bg1: #F9F0F4;
-  --c-bg2: #EFE0E6;
-  --c-bg3: #DFCCD4;
-  --c-fg1: #1C0E12;
-  --c-fg2: #3A1E28;
-  --c-fg3: #78485A;
-  --c-accent: #BF0840;
-  --c-accent-light: #E0204E;
-  --c-accent-dim: #880020;
-  --c-accent-bg: #FFF0F4;
-  --c-accent-rgb: 191 8 64;
-  --c-accent-dim-rgb: 136 0 32;
-  --c-border: #DCCCD4;
-  --c-border-light: #C4A8B4;
-  --c-success: #1A8F3C;
-  --c-success-bg: #EDFAF3;
-  --c-warning: #B86000;
-  --c-warning-bg: #FFF3E0;
-  --c-danger: #D70015;
-  --c-danger-bg: #FFF0F0;
-  --c-danger-rgb: 215 0 21;
-  --c-info: #0071E3;
-  --c-info-bg: #EBF2FE;
+  --c-bg0: #FDFBFB;
+  --c-bg1: #FAF2F3;
+  --c-bg2: #F2E2E4;
+  --c-bg3: #E8CCCE;
+  --c-fg1: #1A0608;
+  --c-fg2: #5A1820;
+  --c-fg3: #9E3A46;
+  --c-accent: #C0152A;
+  --c-accent-light: #E02540;
+  --c-accent-dim: #A01020;
+  --c-accent-bg: #FFF0F2;
+  --c-accent-rgb: 192 21 42;
+  --c-accent-dim-rgb: 160 16 32;
+  --c-border: #EDD0D2;
+  --c-border-light: #DDAAB0;
+  --c-success: #15803D;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #C0152A;
+  --c-danger-bg: #FFF0F2;
+  --c-danger-rgb: 192 21 42;
+  --c-info: #0070F3;
+  --c-info-bg: #EFF6FF;
 }
 
-/* Graphite — Apple graphite dark, golden yellow accent */
+/* Obsidian — #09090B "the new black" · Zinc scale · Electric blue #3B82F6 */
+:root[data-theme="indigo"] {
+  --c-bg0: #09090B;
+  --c-bg1: #18181B;
+  --c-bg2: #27272A;
+  --c-bg3: #3F3F46;
+  --c-fg1: #FAFAFA;
+  --c-fg2: #A1A1AA;
+  --c-fg3: #71717A;
+  --c-accent: #3B82F6;
+  --c-accent-light: #60A5FA;
+  --c-accent-dim: #2563EB;
+  --c-accent-bg: #1A2840;
+  --c-accent-rgb: 59 130 246;
+  --c-accent-dim-rgb: 37 99 235;
+  --c-border: #27272A;
+  --c-border-light: #3F3F46;
+  --c-success: #22C55E;
+  --c-success-bg: #052E16;
+  --c-warning: #FBBF24;
+  --c-warning-bg: #1C1400;
+  --c-danger: #F87171;
+  --c-danger-bg: #2A0808;
+  --c-danger-rgb: 248 113 113;
+  --c-info: #3B82F6;
+  --c-info-bg: #1A2840;
+}
+
+/* Nautical — Slate #0F172A navy · amber gold #F59E0B · Slate scale */
 :root[data-theme="midnight"] {
-  --c-bg0: #161617;
-  --c-bg1: #1D1D1F;
-  --c-bg2: #2D2D2F;
-  --c-bg3: #3D3D3F;
-  --c-fg1: #F5F5F7;
-  --c-fg2: #ABABAF;
-  --c-fg3: #636366;
-  --c-accent: #FFD60A;
-  --c-accent-light: #FFE234;
-  --c-accent-dim: #C8A800;
-  --c-accent-bg: #201E00;
-  --c-accent-rgb: 255 214 10;
-  --c-accent-dim-rgb: 200 168 0;
-  --c-border: #3A3A3C;
-  --c-border-light: #4A4A4C;
-  --c-success: #30D158;
-  --c-success-bg: #0A1E0C;
-  --c-warning: #FF9F0A;
-  --c-warning-bg: #1E1200;
-  --c-danger: #FF453A;
-  --c-danger-bg: #2A0804;
-  --c-danger-rgb: 255 69 58;
-  --c-info: #2997FF;
-  --c-info-bg: #001C3A;
+  --c-bg0: #0F172A;
+  --c-bg1: #1E293B;
+  --c-bg2: #334155;
+  --c-bg3: #475569;
+  --c-fg1: #F8FAFC;
+  --c-fg2: #94A3B8;
+  --c-fg3: #64748B;
+  --c-accent: #F59E0B;
+  --c-accent-light: #FCD34D;
+  --c-accent-dim: #D97706;
+  --c-accent-bg: #1C1200;
+  --c-accent-rgb: 245 158 11;
+  --c-accent-dim-rgb: 217 119 6;
+  --c-border: #334155;
+  --c-border-light: #475569;
+  --c-success: #22C55E;
+  --c-success-bg: #052E16;
+  --c-warning: #F59E0B;
+  --c-warning-bg: #1C1200;
+  --c-danger: #F87171;
+  --c-danger-bg: #2A0808;
+  --c-danger-rgb: 248 113 113;
+  --c-info: #38BDF8;
+  --c-info-bg: #001830;
 }
 
-/* Nebula — deep purple-black, Apple purple accent */
+/* Cosmos — deep space violet · Linear #8B5CF6 · WCAG 7:1 on dark */
 :root[data-theme="slate"] {
-  --c-bg0: #080010;
-  --c-bg1: #100018;
-  --c-bg2: #1A0028;
-  --c-bg3: #240036;
-  --c-fg1: #F5F0FF;
-  --c-fg2: #C8A8E8;
-  --c-fg3: #785098;
-  --c-accent: #BF5AF2;
-  --c-accent-light: #DA8FFD;
-  --c-accent-dim: #9030C8;
-  --c-accent-bg: #1E0030;
-  --c-accent-rgb: 191 90 242;
-  --c-accent-dim-rgb: 144 48 200;
-  --c-border: #2C0044;
-  --c-border-light: #3E0060;
-  --c-success: #30D158;
-  --c-success-bg: #0A1E0C;
-  --c-warning: #FFD60A;
-  --c-warning-bg: #180E00;
-  --c-danger: #FF453A;
-  --c-danger-bg: #280400;
-  --c-danger-rgb: 255 69 58;
-  --c-info: #2997FF;
-  --c-info-bg: #001020;
+  --c-bg0: #07050F;
+  --c-bg1: #0F0B1F;
+  --c-bg2: #1A1432;
+  --c-bg3: #2D2550;
+  --c-fg1: #F5F3FF;
+  --c-fg2: #C4B8F8;
+  --c-fg3: #8270C0;
+  --c-accent: #8B5CF6;
+  --c-accent-light: #A78BFA;
+  --c-accent-dim: #7C3AED;
+  --c-accent-bg: #1A1030;
+  --c-accent-rgb: 139 92 246;
+  --c-accent-dim-rgb: 124 58 237;
+  --c-border: #1A1432;
+  --c-border-light: #2D2550;
+  --c-success: #22C55E;
+  --c-success-bg: #05200E;
+  --c-warning: #FBBF24;
+  --c-warning-bg: #140E00;
+  --c-danger: #F87171;
+  --c-danger-bg: #220608;
+  --c-danger-rgb: 248 113 113;
+  --c-info: #38BDF8;
+  --c-info-bg: #00101E;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
