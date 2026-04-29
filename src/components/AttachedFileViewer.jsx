@@ -33,10 +33,10 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
             <polyline points="14,2 14,8 20,8"/>
           </svg>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {file.name || file.fileName || 'Attached file'}
             </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, marginTop: 2 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg3, marginTop: 2 }}>
               {[file.type, file.size && fmtSize(file.size), file.uploadedAt].filter(Boolean).join(' · ')}
             </div>
           </div>
@@ -46,11 +46,11 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
           {url && (
             <>
               <button onClick={handleView}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 {isPdf ? 'View' : 'Open'}
               </button>
               <button onClick={handleDownload}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer' }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer' }}>
                 ↓ Download
               </button>
             </>
@@ -58,11 +58,11 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
           {editing && (
             <>
               <button onClick={onReplace}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Replace
               </button>
               <button onClick={onRemove}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Remove
               </button>
             </>
@@ -78,15 +78,15 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14,2 14,8 20,8"/>
             </svg>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: '#f5e6c8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: '#f5e6c8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {file.name || file.fileName}
             </span>
             <button onClick={handleDownload}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, padding: '5px 12px', cursor: 'pointer' }}>
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, padding: '5px 12px', cursor: 'pointer' }}>
               ↓ Download
             </button>
             <button onClick={() => setViewing(false)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: '#aaa', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 12px', cursor: 'pointer' }}>
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: '#aaa', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 12px', cursor: 'pointer' }}>
               ✕ Close
             </button>
           </div>

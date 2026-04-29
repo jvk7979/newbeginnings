@@ -501,7 +501,7 @@ textarea:focus-visible,
   transform: translateY(-50%);
   pointer-events: none;
   color: var(--c-fg3);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1;
 }
 .select-wrap select {
@@ -527,8 +527,8 @@ textarea:focus-visible,
     height: 32px !important;
     border-radius: 7px !important;
   }
-  .stat-grid .stat-count { font-size: 22px !important; }
-  .stat-grid .stat-label { font-size: 10px !important; }
+  .stat-grid .stat-count { font-size: 24px !important; }
+  .stat-grid .stat-label { font-size: 12px !important; }
 }
 
 /* Chip-scroll row — right-side fade gradient shows more content is available */

@@ -93,7 +93,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
   const navBtn = (id) => ({
     fontFamily: "'DM Sans', sans-serif",
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: activeTab === id ? 600 : 400,
     color: activeTab === id ? C.accent : C.fg2,
     background: activeTab === id ? C.accentBg : 'transparent',
@@ -108,7 +108,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
   const dropBtn = {
     fontFamily: "'DM Sans', sans-serif",
-    fontSize: 13,
+    fontSize: 15,
     width: '100%',
     textAlign: 'left',
     background: 'none',
@@ -156,11 +156,11 @@ export default function TopNav({ currentPage, onNavigate }) {
             aria-label="Account menu" aria-expanded={settingsOpen}>
             {user?.photoURL
               ? <img src={user.photoURL} alt="" width={28} height={28} style={{ borderRadius: '50%' }} />
-              : <div style={{ width: 28, height: 28, borderRadius: '50%', background: C.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>
+              : <div style={{ width: 28, height: 28, borderRadius: '50%', background: C.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 15, fontWeight: 700 }}>
                   {(user?.displayName || user?.email || '?')[0].toUpperCase()}
                 </div>
             }
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {user?.displayName?.split(' ')[0] || 'Account'}
             </span>
             <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
@@ -180,12 +180,12 @@ export default function TopNav({ currentPage, onNavigate }) {
             <div style={{ position: 'absolute', top: 72, right: 20, width: 290, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 10, boxShadow: '0 6px 24px rgba(0,0,0,0.12)', padding: '6px', zIndex: 200 }}>
               {user && (
                 <div style={{ padding: '10px 12px 10px', marginBottom: 4, background: C.bg1, borderRadius: 6 }}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1 }}>{user.displayName || 'Account'}</div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 2 }}>{user.email}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1 }}>{user.displayName || 'Account'}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>{user.email}</div>
                 </div>
               )}
               <div style={{ height: 1, background: C.border, margin: '6px 0' }} />
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '2px 12px 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg3, padding: '2px 12px 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, padding: '0 8px 4px' }}>
                 {themes.map(t => {
                   const active = theme === t.id;
@@ -199,7 +199,7 @@ export default function TopNav({ currentPage, onNavigate }) {
                           <span key={i} style={{ width: 9, height: 18, background: s, display: 'block' }} />
                         ))}
                       </span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {t.label}
                       </span>
                     </button>
@@ -207,7 +207,7 @@ export default function TopNav({ currentPage, onNavigate }) {
                 })}
               </div>
               <div style={{ height: 1, background: C.border, margin: '8px 0 6px' }} />
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '2px 12px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Data</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg3, padding: '2px 12px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Data</div>
               <button style={dropBtn} onClick={handleExport}
                 onMouseEnter={e => e.currentTarget.style.background = C.bg2}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}>↓ Export backup</button>
@@ -256,7 +256,7 @@ export default function TopNav({ currentPage, onNavigate }) {
                 <button key={item.id}
                   onClick={() => { onNavigate(item.id); setMobileOpen(false); }}
                   aria-current={activeTab === item.id ? 'page' : undefined}
-                  style={{ display: 'flex', alignItems: 'center', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: activeTab === item.id ? 600 : 400, color: activeTab === item.id ? C.accent : C.fg1, background: activeTab === item.id ? C.accentBg : 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer', padding: '14px 16px', marginBottom: 4 }}>
+                  style={{ display: 'flex', alignItems: 'center', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: activeTab === item.id ? 600 : 400, color: activeTab === item.id ? C.accent : C.fg1, background: activeTab === item.id ? C.accentBg : 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer', padding: '14px 16px', marginBottom: 4 }}>
                   {activeTab === item.id && (
                     <span style={{ width: 3, height: 18, background: C.accent, borderRadius: 2, marginRight: 12, flexShrink: 0 }} />
                   )}
@@ -267,7 +267,7 @@ export default function TopNav({ currentPage, onNavigate }) {
 
             {/* Theme picker */}
             <div style={{ padding: '4px 16px 12px', borderTop: `1px solid ${C.border}` }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, padding: '12px 0 8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg3, padding: '12px 0 8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Theme</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                 {themes.map(t => {
                   const active = theme === t.id;
@@ -280,7 +280,7 @@ export default function TopNav({ currentPage, onNavigate }) {
                           <span key={i} style={{ width: 9, height: 18, background: s, display: 'block' }} />
                         ))}
                       </span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {t.label}
                       </span>
                     </button>
@@ -295,17 +295,17 @@ export default function TopNav({ currentPage, onNavigate }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', marginBottom: 8, background: C.bg1, borderRadius: 8 }}>
                   {user.photoURL
                     ? <img src={user.photoURL} alt="" width={32} height={32} style={{ borderRadius: '50%', flexShrink: 0 }} />
-                    : <div style={{ width: 32, height: 32, borderRadius: '50%', background: C.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 600 }}>{(user.displayName || user.email || '?')[0].toUpperCase()}</div>
+                    : <div style={{ width: 32, height: 32, borderRadius: '50%', background: C.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 16, fontWeight: 600 }}>{(user.displayName || user.email || '?')[0].toUpperCase()}</div>
                   }
                   <div style={{ overflow: 'hidden' }}>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.displayName || 'Account'}</div>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.displayName || 'Account'}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
                   </div>
                 </div>
               )}
               <button
                 onClick={() => { setMobileOpen(false); setConfirmSignOut(true); }}
-                style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 22)}`, borderRadius: 8, cursor: 'pointer', padding: '12px 16px' }}>
+                style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 22)}`, borderRadius: 8, cursor: 'pointer', padding: '12px 16px' }}>
                 Sign out
               </button>
             </div>

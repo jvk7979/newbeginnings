@@ -41,7 +41,7 @@ export default function AboutPage({ onNavigate }) {
           <img src={logoImg} alt="The New Beginnings" style={{ width: 'clamp(200px, 45vw, 380px)', height: 'auto', display: 'block' }} />
         </div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(14px, 2vw, 16px)', fontStyle: 'italic', color: C.fg3, marginBottom: 20 }}>A fresh start. Endless possibilities.</div>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.75, maxWidth: 580, margin: '0 auto' }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.75, maxWidth: 580, margin: '0 auto' }}>
           A family workspace to capture, plan, and build ventures rooted in the Godavari and Konaseema region.
           Built for the long game — not just ideas, but the discipline to execute them.
         </p>
@@ -49,45 +49,45 @@ export default function AboutPage({ onNavigate }) {
 
       {/* Mission */}
       <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 10, padding: '24px 28px', marginBottom: 32 }}>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>Mission</div>
-        <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>Mission</div>
+        <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
           "To identify, evaluate, and build sustainable ventures that create local value —
           leveraging the agricultural abundance, craftsmanship, and community of the Godavari delta."
         </p>
       </div>
 
       {/* What this app is */}
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Four Pillars</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Four Pillars</div>
       <div className="grid-2" style={{ marginBottom: 32 }}>
         {PILLARS.map(p => (
           <div key={p.title} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '20px 22px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
             <span style={{ width: 48, height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>{p.icon}</span>
             <div style={{ paddingTop: 4 }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, color: C.fg1, marginBottom: 6 }}>{p.title}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.65 }}>{p.desc}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: C.fg1, marginBottom: 6 }}>{p.title}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.65 }}>{p.desc}</div>
             </div>
           </div>
         ))}
       </div>
 
       {/* Regions */}
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Region Focus</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Region Focus</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
         {REGIONS.map(r => (
           <div key={r.name} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 20px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
             <div style={{ width: 4, minHeight: 40, background: C.accent, borderRadius: 2, flexShrink: 0, marginTop: 2 }} />
             <div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, marginBottom: 4 }}>{r.name}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.6 }}>{r.desc}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: C.fg1, marginBottom: 4 }}>{r.name}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.6 }}>{r.desc}</div>
             </div>
           </div>
         ))}
       </div>
 
       {/* How it works */}
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>How Documents Work</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>How Documents Work</div>
       <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '20px 24px', marginBottom: 32 }}>
-        <ol style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.8, margin: 0, paddingLeft: 20 }}>
+        <ol style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.8, margin: 0, paddingLeft: 20 }}>
           <li>Upload a PDF or document to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: C.bg2, padding: '1px 5px', borderRadius: 3 }}>public/files/</code></li>
           <li>In the Documents section, click <strong>+ Add Document</strong> and enter the file name and details</li>
           <li>Open the document card to read the PDF directly in the app</li>
@@ -98,15 +98,15 @@ export default function AboutPage({ onNavigate }) {
       {/* CTA */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', paddingBottom: 20 }}>
         <button onClick={() => onNavigate('ideas')}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
           Explore Ideas
         </button>
         <button onClick={() => onNavigate('plans')}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
           Business Plans
         </button>
         <button onClick={() => onNavigate('documents')}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
           Open Documents
         </button>
       </div>

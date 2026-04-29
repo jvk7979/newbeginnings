@@ -107,34 +107,34 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ color: C.success }}><CheckIcon /></div>
           <div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.success }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.success }}>
               {fileLabel ? 'PDF extracted successfully' : 'Report parsed successfully'}
             </div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 1 }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 1 }}>
               {fileLabel || `${pasteText.length} characters`}
               {mode === 'plan' && preview.sections?.length > 0 && ` · ${preview.sections.length} sections detected`}
             </div>
           </div>
         </div>
         <button onClick={onReplace}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '4px 10px', whiteSpace: 'nowrap' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '4px 10px', whiteSpace: 'nowrap' }}>
           {fileLabel ? 'Replace file' : 'Clear'}
         </button>
       </div>
       <div style={{ padding: '14px 16px', background: C.bg1 }}>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
           Applied to form below ↓
         </div>
         {preview.title && (
           <div style={{ marginBottom: 10 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginBottom: 3 }}>TITLE</div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg1, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '7px 10px' }}>{preview.title}</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 3 }}>TITLE</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, color: C.fg1, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '7px 10px' }}>{preview.title}</div>
           </div>
         )}
         {(preview.summary || preview.desc) && (
           <div style={{ marginBottom: mode === 'plan' && preview.sections?.length > 0 ? 10 : 0 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginBottom: 3 }}>{mode === 'plan' ? 'SUMMARY' : 'DESCRIPTION'}</div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '7px 10px', lineHeight: 1.6,
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 3 }}>{mode === 'plan' ? 'SUMMARY' : 'DESCRIPTION'}</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '7px 10px', lineHeight: 1.6,
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
               {preview.summary || preview.desc}
             </div>
@@ -142,10 +142,10 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
         )}
         {mode === 'plan' && preview.sections?.length > 0 && (
           <div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginBottom: 6 }}>SECTIONS DETECTED</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 6 }}>SECTIONS DETECTED</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {preview.sections.map((s, i) => (
-                <div key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 5, padding: '3px 10px' }}>
+                <div key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 5, padding: '3px 10px' }}>
                   {s.title || `Section ${i + 1}`}
                 </div>
               ))}
@@ -158,7 +158,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
 
   /* ── Tab bar ── */
   const tabStyle = (active) => ({
-    fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: active ? 500 : 400,
+    fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: active ? 500 : 400,
     color: active ? C.accent : C.fg3,
     background: 'none', border: 'none', borderBottom: `2px solid ${active ? C.accent : 'transparent'}`,
     cursor: 'pointer', padding: '8px 16px', transition: 'all 150ms',
@@ -194,33 +194,33 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
 
               {pdfState === 'idle' && <>
                 <div style={{ color: C.fg3, marginBottom: 12 }}><UploadIcon /></div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, color: C.fg1, marginBottom: 6 }}>Drop your PDF here</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginBottom: 16 }}>or click to browse files</div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 6, padding: '6px 14px' }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 500, color: C.fg1, marginBottom: 6 }}>Drop your PDF here</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 16 }}>or click to browse files</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 6, padding: '6px 14px' }}>
                   PDF only · All pages extracted · Auto-detects sections
                 </div>
               </>}
 
               {pdfState === 'dragging' && <>
                 <div style={{ color: C.accent, marginBottom: 12 }}><UploadIcon /></div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: C.accent }}>Release to upload</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 600, color: C.accent }}>Release to upload</div>
               </>}
 
               {pdfState === 'processing' && <>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><Spinner /></div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg1, marginBottom: 4 }}>Reading PDF…</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 8 }}>{fileInfo?.name}</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent }}>Extracting text from all pages<span style={{ animation: 'blink 1.2s step-start infinite' }}>…</span></div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 500, color: C.fg1, marginBottom: 4 }}>Reading PDF…</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginBottom: 8 }}>{fileInfo?.name}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent }}>Extracting text from all pages<span style={{ animation: 'blink 1.2s step-start infinite' }}>…</span></div>
               </>}
 
               {pdfState === 'error' && <>
                 <div style={{ color: C.danger, marginBottom: 10 }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="28" height="28"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.danger, marginBottom: 6 }}>Could not read PDF</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 14 }}>{pdfErr}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 500, color: C.danger, marginBottom: 6 }}>Could not read PDF</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginBottom: 14 }}>{pdfErr}</div>
                 <button onClick={(e) => { e.stopPropagation(); resetPdf(); }}
-                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '6px 14px' }}>
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '6px 14px' }}>
                   Try another file
                 </button>
               </>}
@@ -239,25 +239,25 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
           <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 22)}`, borderRadius: 8, padding: '12px 14px', marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.accent, marginBottom: 4 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.accent, marginBottom: 4 }}>
                   Tip: Use this prompt in Claude or ChatGPT for best results
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, lineHeight: 1.5 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.5 }}>
                   Ask your AI to format the report with clear section headings — the app will auto-detect and split them.
                 </div>
               </div>
               <button onClick={() => setShowPrompt(p => !p)}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, cursor: 'pointer', padding: '4px 10px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, cursor: 'pointer', padding: '4px 10px', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 {showPrompt ? 'Hide' : 'Show prompt'}
               </button>
             </div>
             {showPrompt && (
               <div style={{ marginTop: 12 }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '10px 12px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '10px 12px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
                   {PROMPT_TEMPLATE}
                 </div>
                 <button onClick={copyPrompt}
-                  style={{ marginTop: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: promptCopied ? C.success : C.accent, background: 'none', border: `1px solid ${promptCopied ? C.success : C.accent}44`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
+                  style={{ marginTop: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: promptCopied ? C.success : C.accent, background: 'none', border: `1px solid ${promptCopied ? C.success : C.accent}44`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
                   {promptCopied ? '✓ Copied!' : 'Copy prompt'}
                 </button>
               </div>
@@ -274,7 +274,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
                 style={{
                   width: '100%', minHeight: 240, resize: 'vertical',
                   background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8,
-                  color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+                  color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15,
                   lineHeight: 1.7, padding: '14px 16px', outline: 'none',
                   transition: 'border 150ms', boxSizing: 'border-box',
                 }}
@@ -282,12 +282,12 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
                 onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }}
               />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>
                   {pasteText.length > 0 ? `${pasteText.length} characters pasted` : 'Paste any length — entire report works best'}
                 </div>
                 <button onClick={handleParse} disabled={!pasteText.trim()}
                   style={{
-                    fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500,
+                    fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500,
                     color: '#fff', background: pasteText.trim() ? C.accent : C.border,
                     border: 'none', borderRadius: 6, cursor: pasteText.trim() ? 'pointer' : 'not-allowed',
                     padding: '8px 20px', transition: 'all 150ms',

@@ -34,11 +34,11 @@ export function ToastProvider({ children }) {
         {toasts.map(t => {
           const col = COLORS[t.type] || COLORS.info;
           return (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: col.bg, color: col.text, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '10px 14px', borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.20)', animation: 'toastIn 220ms cubic-bezier(0.16,1,0.3,1)', pointerEvents: 'all', maxWidth: 340, minWidth: 180 }}>
+            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: col.bg, color: col.text, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '10px 14px', borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.20)', animation: 'toastIn 220ms cubic-bezier(0.16,1,0.3,1)', pointerEvents: 'all', maxWidth: 340, minWidth: 180 }}>
               <span style={{ flex: 1, lineHeight: 1.4 }}>{t.message}</span>
               {t.action && (
                 <button onClick={() => { t.action.onClick(); dismiss(t.id); }}
-                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: col.text, background: 'rgba(255,255,255,0.25)', border: 'none', borderRadius: 4, cursor: 'pointer', padding: '4px 10px', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: col.text, background: 'rgba(255,255,255,0.25)', border: 'none', borderRadius: 4, cursor: 'pointer', padding: '4px 10px', flexShrink: 0, whiteSpace: 'nowrap' }}>
                   {t.action.label}
                 </button>
               )}

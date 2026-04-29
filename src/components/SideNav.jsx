@@ -70,7 +70,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%',
                 textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: 'none',
                 marginBottom: 2, cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+                fontFamily: "'DM Sans', sans-serif", fontSize: 16,
                 fontWeight: active ? 600 : 400,
                 color: active ? C.accent : C.fg2,
                 background: active ? C.accentBg : 'transparent',
@@ -93,7 +93,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
           onMouseEnter={e => e.currentTarget.style.background = C.bg2}
           onMouseLeave={e => e.currentTarget.style.background = 'none'}>
           <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 500, color: C.fg3, flex: 1, textAlign: 'left' }}>Theme</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg3, flex: 1, textAlign: 'left' }}>Theme</span>
           <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="10" height="10"
             style={{ transform: themeOpen ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>
             <polyline points="6 9 12 15 18 9"/>
@@ -109,7 +109,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
                   <span style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 3, overflow: 'hidden', border: `1px solid ${C.border}` }}>
                     {t.swatch.map((s, i) => <span key={i} style={{ width: 7, height: 14, background: s, display: 'block' }} />)}
                   </span>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.label}</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.label}</span>
                 </button>
               );
             })}
@@ -122,11 +122,11 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 8, background: C.bg2, marginBottom: 6 }}>
           {user?.photoURL
             ? <img src={user.photoURL} alt="" width={26} height={26} style={{ borderRadius: '50%', flexShrink: 0 }} />
-            : <div style={{ width: 26, height: 26, borderRadius: '50%', background: C.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 700 }}>
+            : <div style={{ width: 26, height: 26, borderRadius: '50%', background: C.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>
                 {(user?.displayName || user?.email || '?')[0].toUpperCase()}
               </div>
           }
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg1, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {user?.displayName?.split(' ')[0] || 'Account'}
           </span>
           <button onClick={() => setSettingsOpen(o => !o)} title="Settings"
@@ -137,13 +137,13 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
         {settingsOpen && (
           <div style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden', marginBottom: 6 }}>
             <button onClick={onExport}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 12px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 12px' }}
               onMouseEnter={e => e.currentTarget.style.background = C.bg3}
               onMouseLeave={e => e.currentTarget.style.background = 'none'}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export backup
             </button>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, cursor: 'pointer', padding: '8px 12px', borderTop: `1px solid ${C.border}` }}
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, cursor: 'pointer', padding: '8px 12px', borderTop: `1px solid ${C.border}` }}
               onMouseEnter={e => e.currentTarget.style.background = C.bg3}
               onMouseLeave={e => e.currentTarget.style.background = 'none'}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -153,7 +153,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
           </div>
         )}
         <button onClick={onSignOut}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 22)}`, borderRadius: 6, cursor: 'pointer', padding: '7px 10px' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 22)}`, borderRadius: 6, cursor: 'pointer', padding: '7px 10px' }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sign out
         </button>

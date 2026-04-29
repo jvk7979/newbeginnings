@@ -38,13 +38,13 @@ export default function Dashboard({ onNavigate }) {
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button onClick={() => onNavigate('new-idea')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
               onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
               onMouseLeave={e => e.currentTarget.style.background = C.accent}>
               + New Idea
             </button>
             <button onClick={() => onNavigate('ideas')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
               onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}>
               View All Ideas
@@ -66,8 +66,8 @@ export default function Dashboard({ onNavigate }) {
               {s.icon}
             </span>
             <div>
-              <div className="stat-count" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
-              <div className="stat-label" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
+              <div className="stat-count" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
+              <div className="stat-label" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
             </div>
           </button>
         ))}
@@ -79,19 +79,19 @@ export default function Dashboard({ onNavigate }) {
         {/* Recent Ideas */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3 }}>Recent Ideas</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3 }}>Recent Ideas</div>
             {ideas.length > 0 && (
               <button onClick={() => onNavigate('ideas')}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
                 View all →
               </button>
             )}
           </div>
           {recentIdeas.length === 0 ? (
             <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 10, padding: '32px 20px', textAlign: 'center' }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, marginBottom: 14 }}>No ideas yet — capture your first venture idea.</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, marginBottom: 14 }}>No ideas yet — capture your first venture idea.</div>
               <button onClick={() => onNavigate('new-idea')}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '8px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
                 onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
                 onMouseLeave={e => e.currentTarget.style.background = C.accent}>
                 + New Idea
@@ -106,7 +106,7 @@ export default function Dashboard({ onNavigate }) {
 
         {/* Quick Actions */}
         <div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Quick Actions</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Quick Actions</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {QUICK_ACTIONS.map(q => (
               <button key={q.label} onClick={() => onNavigate(q.dest)} className="card-rich"
@@ -115,8 +115,8 @@ export default function Dashboard({ onNavigate }) {
                   {q.icon}
                 </span>
                 <span>
-                  <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: C.fg1, marginBottom: 2 }}>{q.label}</span>
-                  <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3 }}>{q.sub}</span>
+                  <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, color: C.fg1, marginBottom: 2 }}>{q.label}</span>
+                  <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>{q.sub}</span>
                 </span>
               </button>
             ))}
@@ -128,9 +128,9 @@ export default function Dashboard({ onNavigate }) {
       {files.length > 0 && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3 }}>Recent Documents</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3 }}>Recent Documents</div>
             <button onClick={() => onNavigate('documents')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}>
               View all →
             </button>
           </div>
@@ -144,14 +144,14 @@ export default function Dashboard({ onNavigate }) {
                   <span style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
                     {ICON_DOC}
                   </span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, padding: '2px 6px', letterSpacing: '0.05em' }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, padding: '2px 6px', letterSpacing: '0.05em' }}>
                     {f.fileName?.split('.').pop()?.toUpperCase() || 'PDF'}
                   </span>
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg1, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{f.title}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{f.title}</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: `1px solid ${C.border}`, marginTop: 'auto' }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3 }}>{f.date}</span>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, fontWeight: 600 }}>Open →</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{f.date}</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, fontWeight: 600 }}>Open →</span>
                 </div>
               </div>
             ))}

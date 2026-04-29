@@ -37,12 +37,12 @@ export default function IdeasPage({ onNavigate }) {
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-          <div className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em' }}>Ideas</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px' }}>
+          <div className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Ideas</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px' }}>
             {search || filter !== 'all' || catFilter ? `${filtered.length} / ${ideas.length}` : ideas.length}
           </div>
         </div>
-        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
+        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
           onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
           onMouseLeave={e => e.currentTarget.style.background = C.accent}
           onClick={() => onNavigate('new-idea')}>
@@ -60,13 +60,13 @@ export default function IdeasPage({ onNavigate }) {
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by title or description…"
             aria-label="Search ideas"
-            style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '8px 36px 8px 32px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' }}
+            style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '8px 36px 8px 32px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' }}
             onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}
             onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }}
           />
           {search && (
             <button onClick={() => setSearch('')} aria-label="Clear search"
-              style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 16, lineHeight: 1 }}>×</button>
+              style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 18, lineHeight: 1 }}>×</button>
           )}
         </div>
       </div>
@@ -74,16 +74,16 @@ export default function IdeasPage({ onNavigate }) {
       {/* Filters row */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
         <select value={filter} onChange={e => setFilter(e.target.value)}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
           {FILTERS.map(f => <option key={f.id} value={f.id}>{f.label === 'All' ? 'All Status' : f.label}</option>)}
         </select>
         <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
           <option value="">All Categories</option>
           {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         <select value={sort} onChange={e => setSort(e.target.value)}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none', marginLeft: 'auto' }}>
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none', marginLeft: 'auto' }}>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="az">A – Z</option>
@@ -95,14 +95,14 @@ export default function IdeasPage({ onNavigate }) {
         <div style={{ background: C.bg1, border: `2px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 14 }}>💡</div>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, color: C.fg1, marginBottom: 8 }}>No ideas yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginBottom: 20 }}>Capture your first venture idea to get started.</div>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 20 }}>Capture your first venture idea to get started.</div>
+          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
             onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
             onMouseLeave={e => e.currentTarget.style.background = C.accent}
             onClick={() => onNavigate('new-idea')}>+ New Idea</button>
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 40, textAlign: 'center' }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginTop: 40, textAlign: 'center' }}>
           {search ? `No ideas matching "${search}"` : `No ideas with status "${FILTERS.find(f => f.id === filter)?.label ?? filter}".`}
         </div>
       ) : (

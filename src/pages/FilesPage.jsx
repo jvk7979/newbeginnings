@@ -5,8 +5,8 @@ import { useToast } from '../context/ToastContext';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 import ConfirmModal from '../components/ConfirmModal';
 
-const iStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '10px 12px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' };
-const lStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 5, display: 'block' };
+const iStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '10px 12px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' };
+const lStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg2, marginBottom: 5, display: 'block' };
 const onFocus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 22)}`; };
 const onBlur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
@@ -40,12 +40,12 @@ function AddDocumentModal({ onClose, onSave }) {
 
           <div>
             <label style={lStyle}>File name in GitHub (public/files/) *</label>
-            <input style={{ ...iStyle, borderColor: error && !form.fileName.trim() ? C.danger : C.border, fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}
+            <input style={{ ...iStyle, borderColor: error && !form.fileName.trim() ? C.danger : C.border, fontFamily: "'JetBrains Mono', monospace", fontSize: 15 }}
               value={form.fileName}
               onChange={e => { setForm({ ...form, fileName: e.target.value }); setError(''); }}
               placeholder="e.g. coconut-plan.pdf"
               onFocus={onFocus} onBlur={onBlur} />
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 5, lineHeight: 1.5 }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 5, lineHeight: 1.5 }}>
               First upload the file to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: C.bg2, padding: '1px 4px', borderRadius: 3 }}>public/files/</code>
             </div>
           </div>
@@ -86,14 +86,14 @@ function AddDocumentModal({ onClose, onSave }) {
               onFocus={onFocus} onBlur={onBlur} />
           </div>
 
-          {error && <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger }}>{error}</div>}
+          {error && <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.danger }}>{error}</div>}
 
           <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-            <button style={{ flex: 1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '12px 20px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
+            <button style={{ flex: 1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, padding: '12px 20px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
               onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
               onMouseLeave={e => e.currentTarget.style.background = C.accent}
               onClick={handleSave}>Add Document</button>
-            <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '12px 20px', borderRadius: 8, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
+            <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '12px 20px', borderRadius: 8, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
               onClick={onClose}>Cancel</button>
           </div>
         </div>
@@ -115,42 +115,42 @@ function DocumentCard({ file, onClick, onDelete }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
         <div style={{ flex: 1 }}>
-          <span style={{ display: 'inline-block', fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: cat.color, background: cat.bg, padding: '2px 7px', borderRadius: 4, marginBottom: 6 }}>
+          <span style={{ display: 'inline-block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: cat.color, background: cat.bg, padding: '2px 7px', borderRadius: 4, marginBottom: 6 }}>
             {file.category || 'Document'}
           </span>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 500, color: C.fg1, lineHeight: 1.3 }}>{file.title}</div>
+          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 500, color: C.fg1, lineHeight: 1.3 }}>{file.title}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
           <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3 }}>{file.fileName?.split('.').pop()?.toUpperCase()}</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{file.fileName?.split('.').pop()?.toUpperCase()}</span>
         </div>
       </div>
 
       {file.summary && (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.55, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{file.summary}</div>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.55, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{file.summary}</div>
       )}
 
       {(file.tags || []).length > 0 && (
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-          {file.tags.map(t => <span key={t} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 7px' }}>{t}</span>)}
+          {file.tags.map(t => <span key={t} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 7px' }}>{t}</span>)}
         </div>
       )}
 
       {file.relatedProject && (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
           Project: <span style={{ color: C.fg2 }}>{file.relatedProject}</span>
         </div>
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: `1px solid ${C.border}`, marginTop: 4, gap: 8, flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{file.date}</span>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg3 }}>{file.date}</span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button onClick={() => onClick(file)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', fontWeight: 500 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', fontWeight: 500 }}>
             View Document
           </button>
           <a href={fileUrl} target="_blank" rel="noopener noreferrer"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', textDecoration: 'none' }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', textDecoration: 'none' }}>
             Open PDF ↗
           </a>
           <button onClick={e => { e.stopPropagation(); onDelete(file.id); }}
@@ -194,12 +194,12 @@ export default function FilesPage({ onNavigate }) {
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>
-          <h1 className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Documents</h1>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
+          <h1 className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Documents</h1>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginTop: 4 }}>
             {filtered.length !== files.length ? `${filtered.length} of ${files.length} documents` : `${files.length} document${files.length !== 1 ? 's' : ''}`}
           </div>
         </div>
-        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '9px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
+        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '9px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
           onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
           onMouseLeave={e => e.currentTarget.style.background = C.accent}
           onClick={() => setShowModal(true)}>+ Add Document</button>
@@ -211,7 +211,7 @@ export default function FilesPage({ onNavigate }) {
         <input value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search documents…"
           aria-label="Search documents"
-          style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '9px 36px 9px 32px', outline: 'none', width: '100%', boxSizing: 'border-box' }}
+          style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 36px 9px 32px', outline: 'none', width: '100%', boxSizing: 'border-box' }}
           onFocus={e => e.target.style.borderColor = C.accentDim}
           onBlur={e => e.target.style.borderColor = C.border} />
         {search && (
@@ -224,7 +224,7 @@ export default function FilesPage({ onNavigate }) {
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 24 }}>
         {CATEGORIES.map(c => (
           <button key={c} onClick={() => setCatFilter(c)}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '5px 12px', borderRadius: 999, border: `1px solid ${catFilter === c ? alpha(C.accent, 44) : C.border}`, background: catFilter === c ? C.accentBg : 'transparent', color: catFilter === c ? C.accent : C.fg3, cursor: 'pointer', fontWeight: catFilter === c ? 500 : 400 }}>
             {c}
           </button>
         ))}
@@ -235,14 +235,14 @@ export default function FilesPage({ onNavigate }) {
         <div style={{ background: C.bg1, border: `2px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 14 }}>📄</div>
           <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, color: C.fg1, marginBottom: 8 }}>No documents yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginBottom: 6, maxWidth: 360, margin: '0 auto 16px' }}>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 6, maxWidth: 360, margin: '0 auto 16px' }}>
             Upload PDFs to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: C.bg2, padding: '1px 4px', borderRadius: 3 }}>public/files/</code>, then register them here.
           </div>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
+          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
             onClick={() => setShowModal(true)}>+ Add Document</button>
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, textAlign: 'center', padding: '40px 0' }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, textAlign: 'center', padding: '40px 0' }}>
           No documents match your search.
         </div>
       ) : (

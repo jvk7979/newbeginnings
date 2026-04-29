@@ -37,7 +37,7 @@ export default function SignInPage() {
           <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: 16 }}>
             Your private workspace for Rajahmundry ventures.
           </p>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
             Capture ideas rooted in the Godavari and Konaseema region, build business plans,
             track projects, and manage documents — all in one place.
           </p>
@@ -46,15 +46,15 @@ export default function SignInPage() {
               <div key={f.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: C.bg0, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
                 <div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1 }}>{f.label}</div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, marginTop: 1 }}>{f.desc}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: C.fg1 }}>{f.label}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, marginTop: 1 }}>{f.desc}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
           Rajahmundry · Godavari · Konaseema
         </div>
       </div>
@@ -69,14 +69,14 @@ export default function SignInPage() {
           </div>
 
           <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 26, fontWeight: 700, color: C.fg1, margin: '0 0 8px 0' }}>Sign in</h1>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, margin: 0 }}>
+            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, margin: '0 0 8px 0' }}>Sign in</h1>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, margin: 0 }}>
               Access your private venture workspace.
             </p>
           </div>
 
           <button onClick={handleSignIn} disabled={loading}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, width: '100%', padding: '13px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: loading ? C.bg1 : '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, color: C.fg1, boxShadow: '0 1px 4px rgba(0,0,0,0.10)', transition: 'all 150ms' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, width: '100%', padding: '13px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: loading ? C.bg1 : '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 500, color: C.fg1, boxShadow: '0 1px 4px rgba(0,0,0,0.10)', transition: 'all 150ms' }}
             onMouseEnter={e => { if (!loading) e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.15)'; }}
             onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.10)'; }}>
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -89,10 +89,10 @@ export default function SignInPage() {
           </button>
 
           {error && (
-            <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, marginTop: 12, textAlign: 'center' }}>{error}</div>
+            <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.danger, marginTop: 12, textAlign: 'center' }}>{error}</div>
           )}
 
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 28, textAlign: 'center', lineHeight: 1.6 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 28, textAlign: 'center', lineHeight: 1.6 }}>
             Your data is stored privately.<br />No one else can see it.
           </p>
         </div>

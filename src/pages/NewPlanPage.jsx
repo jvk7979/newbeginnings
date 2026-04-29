@@ -28,8 +28,8 @@ export default function NewPlanPage({ onNavigate }) {
   const [summarizing, setSummarizing] = useState(false);
   const [error, setError] = useState('');
 
-  const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms', boxSizing: 'border-box' };
-  const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
+  const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms', boxSizing: 'border-box' };
+  const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
   const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; };
   const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
 
@@ -71,12 +71,12 @@ export default function NewPlanPage({ onNavigate }) {
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
-      <button onClick={() => onNavigate('plans')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
+      <button onClick={() => onNavigate('plans')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Business Plans
       </button>
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 6 }}>New Business Plan</div>
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginBottom: 24 }}>Upload a PDF to auto-extract all sections, or build manually below.</div>
+      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 6 }}>New Business Plan</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 24 }}>Upload a PDF to auto-extract all sections, or build manually below.</div>
 
       <PdfUploadZone mode="plan" onExtracted={handleExtracted} />
 
@@ -89,7 +89,7 @@ export default function NewPlanPage({ onNavigate }) {
             onChange={e => { setForm({ ...form, title: e.target.value }); setError(''); }}
             placeholder="e.g. Coconut Processing Plant — Feasibility Report"
             onFocus={focus} onBlur={blur} />
-          {error && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.danger, marginTop: 4 }}>{error}</div>}
+          {error && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginTop: 4 }}>{error}</div>}
         </div>
 
         {/* Category + Status row */}
@@ -117,7 +117,7 @@ export default function NewPlanPage({ onNavigate }) {
           <label style={labelStyle}>Attach Document (optional)</label>
           <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
           {selectedFile?.type === 'application/pdf' && (
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, marginTop: 6 }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, marginTop: 6 }}>
               ✦ PDF attached — click "Generate AI Summary" below to auto-fill the executive summary
             </div>
           )}
@@ -130,7 +130,7 @@ export default function NewPlanPage({ onNavigate }) {
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               {selectedFile?.type === 'application/pdf' && (
                 <button type="button" onClick={handleGenerateSummary} disabled={summarizing}
-                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: summarizing ? C.fg3 : '#fff', background: summarizing ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: summarizing ? 'not-allowed' : 'pointer', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: summarizing ? C.fg3 : '#fff', background: summarizing ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: summarizing ? 'not-allowed' : 'pointer', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
                   {summarizing
                     ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: `1.5px solid ${C.fg3}`, borderTopColor: C.fg1, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
                     : <>✦ Generate AI Summary</>}
@@ -138,7 +138,7 @@ export default function NewPlanPage({ onNavigate }) {
               )}
               {form.summary.trim() && (
                 <button type="button" onClick={() => setForm(f => ({ ...f, summary: formatText(f.summary) }))}
-                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
                   ✦ Format
                 </button>
               )}
@@ -148,7 +148,7 @@ export default function NewPlanPage({ onNavigate }) {
             onChange={e => setForm({ ...form, summary: e.target.value })}
             placeholder={selectedFile?.type === 'application/pdf' ? 'Attach a PDF above then click ✦ Generate AI Summary…' : 'One-paragraph overview of the plan…'}
             onFocus={focus} onBlur={blur} />
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 4 }}>{form.summary.length} characters</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>{form.summary.length} characters</div>
         </div>
 
         {/* Notes */}
@@ -162,11 +162,11 @@ export default function NewPlanPage({ onNavigate }) {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-          <button disabled={saving} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
+          <button disabled={saving} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
             onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
             onMouseLeave={e => { if (!saving) e.currentTarget.style.background = C.accent; }}
             onClick={handleSave}>{saving ? 'Saving…' : 'Save Plan'}</button>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
+          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
             onClick={() => onNavigate('plans')}>Cancel</button>
         </div>
       </div>
