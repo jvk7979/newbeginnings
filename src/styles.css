@@ -565,3 +565,59 @@ textarea:focus-visible,
     align-self: flex-end;
   }
 }
+
+/* AttachedFileViewer — responsive card layout */
+.attached-file-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.attached-file-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.attached-file-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.attached-file-btns button {
+  flex: 1;
+  min-width: fit-content;
+  justify-content: center;
+}
+@media (min-width: 540px) {
+  .attached-file-card {
+    flex-direction: row;
+    align-items: center;
+  }
+  .attached-file-btns {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .attached-file-btns button {
+    flex: none;
+  }
+}
+
+/* Sidebar logo — fill available header width */
+.sidenav-logo-btn {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+.sidenav-logo-img {
+  width: 100%;
+  height: auto;
+  max-height: 56px;
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+}

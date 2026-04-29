@@ -47,10 +47,9 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, onSi
       width: mobile ? 'min(82vw, 260px)' : '220px',
     }}>
       {/* Logo */}
-      <div style={{ padding: '14px 16px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <button onClick={() => onNavigate('dashboard')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
-          <img src={logoImg} alt="The New Beginnings" className="logo-img" style={{ height: 42, width: 'auto', display: 'block' }} />
+      <div style={{ padding: '14px 16px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <button className="sidenav-logo-btn" onClick={() => onNavigate('dashboard')}>
+          <img src={logoImg} alt="The New Beginnings" className="logo-img sidenav-logo-img" />
         </button>
         {mobile && (
           <button onClick={() => onNavigate(null)}
