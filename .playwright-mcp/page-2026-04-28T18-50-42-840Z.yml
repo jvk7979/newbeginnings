@@ -1,0 +1,74 @@
+- generic [ref=e8]:
+  - banner [ref=e9]:
+    - button "Go to Home" [ref=e10] [cursor=pointer]:
+      - img "The New Beginnings" [ref=e11]
+    - navigation "Main navigation" [ref=e13]:
+      - button "Home" [ref=e14] [cursor=pointer]
+      - button "Ideas" [ref=e15] [cursor=pointer]
+      - button "Business Plans" [ref=e16] [cursor=pointer]
+      - button "Documents" [ref=e17] [cursor=pointer]
+      - button "About" [active] [ref=e18] [cursor=pointer]
+    - generic [ref=e19]:
+      - button "Account menu" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: Venkat
+        - img [ref=e22]
+      - button "Open menu" [ref=e24] [cursor=pointer]:
+        - img [ref=e25]
+  - generic [ref=e342]:
+    - generic [ref=e343]:
+      - img "The New Beginnings" [ref=e345]
+      - generic [ref=e346]: A fresh start. Endless possibilities.
+      - paragraph [ref=e347]: A family workspace to capture, plan, and build ventures rooted in the Godavari and Konaseema region. Built for the long game — not just ideas, but the discipline to execute them.
+    - generic [ref=e348]:
+      - generic [ref=e349]: Mission
+      - paragraph [ref=e350]: "\"To identify, evaluate, and build sustainable ventures that create local value — leveraging the agricultural abundance, craftsmanship, and community of the Godavari delta.\""
+    - generic [ref=e351]: Four Pillars
+    - generic [ref=e352]:
+      - generic [ref=e353]:
+        - img [ref=e355]
+        - generic [ref=e357]:
+          - generic [ref=e358]: Ideas
+          - generic [ref=e359]: Capture every venture idea — from a quick spark to a fully researched opportunity. Tag, filter, and track each idea through its lifecycle.
+      - generic [ref=e360]:
+        - img [ref=e362]
+        - generic [ref=e365]:
+          - generic [ref=e366]: Plans
+          - generic [ref=e367]: Build structured business plans with multiple sections. Store feasibility reports, financial models, and strategic roadmaps in one place.
+      - generic [ref=e368]:
+        - img [ref=e370]
+        - generic [ref=e375]:
+          - generic [ref=e376]: Documents
+          - generic [ref=e377]: Store PDFs, feasibility reports, and source materials. Read them directly in the app — and discuss with family.
+      - generic [ref=e378]:
+        - img [ref=e380]
+        - generic [ref=e382]:
+          - generic [ref=e383]: Discussion
+          - generic [ref=e384]: Every idea and plan has a comment thread. Brainstorm, ask questions, and align as a family.
+    - generic [ref=e385]: Region Focus
+    - generic [ref=e386]:
+      - generic [ref=e389]:
+        - generic [ref=e390]: Rajahmundry
+        - generic [ref=e391]: The cultural capital of Andhra Pradesh, with rich heritage, river trade, and growing industrial potential.
+      - generic [ref=e394]:
+        - generic [ref=e395]: Godavari Delta
+        - generic [ref=e396]: India's rice bowl. 720 million coconuts produced annually. Rich agricultural base powering agri-processing ventures.
+      - generic [ref=e399]:
+        - generic [ref=e400]: Konaseema
+        - generic [ref=e401]: Known as the "Paradise of Andhra" — palm groves, waterways, and untapped agri-processing opportunities.
+    - generic [ref=e402]: How Documents Work
+    - list [ref=e404]:
+      - listitem [ref=e405]:
+        - text: Upload a PDF or document to your GitHub repo under
+        - code [ref=e406]: public/files/
+      - listitem [ref=e407]:
+        - text: In the Documents section, click
+        - strong [ref=e408]: + Add Document
+        - text: and enter the file name and details
+      - listitem [ref=e409]: Open the document card to read the PDF directly in the app
+      - listitem [ref=e410]: Documents are shared across all signed-in family members
+    - generic [ref=e411]:
+      - button "Explore Ideas" [ref=e412] [cursor=pointer]
+      - button "Business Plans" [ref=e413] [cursor=pointer]
+      - button "Open Documents" [ref=e414] [cursor=pointer]
+  - contentinfo [ref=e139]:
+    - generic [ref=e140]: The New Beginnings·A fresh start. Endless possibilities.·© 2026

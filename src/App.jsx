@@ -3,7 +3,7 @@ import { C } from './tokens';
 import logoImg from './assets/logo.png';
 import { useAuth } from './context/AuthContext';
 import { useAppData } from './context/AppContext';
-import TopNav from './components/TopNav';
+import SideNav from './components/SideNav';
 import SignInPage from './pages/SignInPage';
 import Dashboard from './pages/Dashboard';
 import IdeasPage from './pages/IdeasPage';
@@ -103,12 +103,14 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-      <TopNav currentPage={page} onNavigate={navigate} />
-      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
-        {renderPage()}
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <SideNav currentPage={page} onNavigate={navigate} />
+      <div className="main-with-sidebar" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
+          {renderPage()}
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 }

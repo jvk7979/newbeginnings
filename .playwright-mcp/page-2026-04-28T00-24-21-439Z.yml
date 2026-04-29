@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - button "Go to Home" [ref=e10] [cursor=pointer]:
+        - img "The New Beginnings" [ref=e11]
+      - navigation "Main navigation" [ref=e13]:
+        - button "Home" [ref=e14] [cursor=pointer]
+        - button "Ideas" [ref=e15] [cursor=pointer]
+        - button "Business Plans" [ref=e16] [cursor=pointer]
+        - button "Documents" [ref=e17] [cursor=pointer]
+        - button "About" [ref=e18] [cursor=pointer]
+      - generic [ref=e19]:
+        - button "Account menu" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: Venkat
+          - img [ref=e22]
+        - button "Open menu" [ref=e24] [cursor=pointer]:
+          - img [ref=e25]
+    - generic [ref=e192]:
+      - generic [ref=e193]:
+        - generic [ref=e194]:
+          - generic [ref=e195]: Business Plans
+          - generic [ref=e196]: 1 plan
+        - button "+ New Plan" [ref=e197] [cursor=pointer]
+      - generic [ref=e198]:
+        - img
+        - textbox "Search plans" [ref=e199]:
+          - /placeholder: Search by title, category, status, file…
+      - generic [ref=e200]:
+        - generic [ref=e201]:
+          - button "All" [ref=e202] [cursor=pointer]
+          - button "Draft" [ref=e203] [cursor=pointer]
+          - button "Active" [ref=e204] [cursor=pointer]
+          - button "In Review" [ref=e205] [cursor=pointer]
+          - button "Completed" [ref=e206] [cursor=pointer]
+          - button "Archived" [ref=e207] [cursor=pointer]
+        - combobox [ref=e208] [cursor=pointer]:
+          - option "Newest first" [selected]
+          - option "Oldest first"
+          - option "A – Z"
+      - generic [ref=e209]:
+        - button "All" [ref=e210] [cursor=pointer]
+        - button "Business" [ref=e211] [cursor=pointer]
+        - button "Agriculture" [ref=e212] [cursor=pointer]
+        - button "Manufacturing" [ref=e213] [cursor=pointer]
+        - button "Food Processing" [ref=e214] [cursor=pointer]
+        - button "Industrial Production" [ref=e215] [cursor=pointer]
+        - button "Real Estate" [ref=e216] [cursor=pointer]
+        - button "Other" [ref=e217] [cursor=pointer]
+      - generic [ref=e218] [cursor=pointer]:
+        - generic [ref=e219]:
+          - generic [ref=e220]: "Coco peat in the Godavari delta: a 50–60 lakh business plan for Rajahmundry"
+          - generic [ref=e222]: Draft
+        - generic [ref=e225]: Updated Apr 26, 2026 · 14 sections
+        - generic [ref=e226]: "Bottom line up front: A small-scale coco peat unit in Rajahmundry is technically and logistically attractive — Konaseema sits on ~700 million unutilised coconut husks at India's lowest husk prices (₹0.60–1.50/piece), and Kadiyam — India's largest nursery cluster with 600–800 nurseries — is just 15 km away. But within a strict ₹50–60 lakh budget, a \"loose pith + grow bags only\" domestic-only model is financially marginal: realistic-case EBITDA hovers near break-even, payback stretches to 8–10 years, and full-capacity premium pricing is needed for a 4–7% IRR. The plan works only if the user (a) tilts product mix toward grow bags and washed/buffered premium peat, (b) stacks Coir Board CITUS (25%) + AP MSME 4.0 capital subsidy (25–35%) to cut effective capex by 40–50%, and (c) anchors 60%+ of"
+    - contentinfo [ref=e100]:
+      - generic [ref=e101]: The New Beginnings·A fresh start. Endless possibilities.·© 2026
+  - iframe [ref=e102]:
+    

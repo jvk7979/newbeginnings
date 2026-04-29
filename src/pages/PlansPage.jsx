@@ -68,17 +68,20 @@ export default function PlansPage({ onNavigate }) {
   return (
     <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
-        <div>
-          <div className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Business Plans</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
-            {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} of ${plans.length} plans` : `${plans.length} plan${plans.length !== 1 ? 's' : ''}`}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <div className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em' }}>Business Plans</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px' }}>
+            {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} / ${plans.length}` : plans.length}
           </div>
         </div>
-        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
+        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
           onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
           onMouseLeave={e => e.currentTarget.style.background = C.accent}
-          onClick={() => onNavigate('new-plan')}>+ New Plan</button>
+          onClick={() => onNavigate('new-plan')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Plan
+        </button>
       </div>
 
       {/* Search */}

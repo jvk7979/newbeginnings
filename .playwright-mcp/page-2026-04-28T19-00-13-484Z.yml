@@ -1,0 +1,56 @@
+- generic [ref=e8]:
+  - banner [ref=e9]:
+    - button "Go to Home" [ref=e10] [cursor=pointer]:
+      - img "The New Beginnings" [ref=e11]
+    - button "Open menu" [ref=e13] [cursor=pointer]:
+      - img [ref=e14]
+  - generic [ref=e294]:
+    - generic [ref=e295]:
+      - generic [ref=e296]:
+        - generic [ref=e297]: Business Plans
+        - generic [ref=e298]: 2 plans
+      - button "+ New Plan" [ref=e299] [cursor=pointer]
+    - generic [ref=e300]:
+      - img
+      - textbox "Search plans" [ref=e301]:
+        - /placeholder: Search by title, category, status, file…
+    - generic [ref=e302]:
+      - generic [ref=e303]:
+        - button "All" [ref=e304] [cursor=pointer]
+        - button "Draft" [ref=e305] [cursor=pointer]
+        - button "Active" [ref=e306] [cursor=pointer]
+        - button "In Review" [ref=e307] [cursor=pointer]
+        - button "Completed" [ref=e308] [cursor=pointer]
+        - button "Archived" [ref=e309] [cursor=pointer]
+      - combobox [ref=e310] [cursor=pointer]:
+        - option "Newest first" [selected]
+        - option "Oldest first"
+        - option "A – Z"
+    - generic [ref=e311]:
+      - button "All" [ref=e312] [cursor=pointer]
+      - button "Business" [ref=e313] [cursor=pointer]
+      - button "Agriculture" [ref=e314] [cursor=pointer]
+      - button "Manufacturing" [ref=e315] [cursor=pointer]
+      - button "Food Processing" [ref=e316] [cursor=pointer]
+      - button "Industrial Production" [ref=e317] [cursor=pointer]
+      - button "Real Estate" [ref=e318] [cursor=pointer]
+      - button "Other" [ref=e319] [cursor=pointer]
+    - generic [ref=e320] [cursor=pointer]:
+      - generic [ref=e321]:
+        - generic [ref=e322]: Tobacco
+        - generic [ref=e323]:
+          - generic [ref=e324]: Agriculture
+          - generic [ref=e325]: Draft
+      - generic [ref=e327]:
+        - generic [ref=e328]: Updated Apr 28, 2026
+        - generic [ref=e329]:
+          - img [ref=e330]
+          - text: PDF
+    - generic [ref=e333] [cursor=pointer]:
+      - generic [ref=e334]:
+        - generic [ref=e335]: "Coco peat in the Godavari delta: a 50–60 lakh business plan for Rajahmundry"
+        - generic [ref=e337]: Draft
+      - generic [ref=e340]: Updated Apr 26, 2026
+      - generic [ref=e341]: "Bottom line up front: A small-scale coco peat unit in Rajahmundry is technically and logistically attractive — Konaseema sits on ~700 million unutilised coconut husks at India's lowest husk prices (₹0.60–1.50/piece), and Kadiyam — India's largest nursery cluster with 600–800 nurseries — is just 15 km away. But within a strict ₹50–60 lakh budget, a \"loose pith + grow bags only\" domestic-only model is financially marginal: realistic-case EBITDA hovers near break-even, payback stretches to 8–10 years, and full-capacity premium pricing is needed for a 4–7% IRR. The plan works only if the user (a) tilts product mix toward grow bags and washed/buffered premium peat, (b) stacks Coir Board CITUS (25%) + AP MSME 4.0 capital subsidy (25–35%) to cut effective capex by 40–50%, and (c) anchors 60%+ of"
+  - contentinfo [ref=e128]:
+    - generic [ref=e129]: The New Beginnings·A fresh start. Endless possibilities.·© 2026

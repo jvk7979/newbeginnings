@@ -242,7 +242,27 @@ button, a, [role="button"], input, select, textarea {
   }
 }
 
-/* TopNav visibility helpers */
+/* ── Sidebar layout ─────────────────────────────────────────────────────── */
+.sidenav-desktop { display: flex; flex-shrink: 0; height: 100vh; }
+.sidenav-topbar  { display: none; position: fixed; top: 0; left: 0; right: 0; flex-shrink: 0; }
+.main-with-sidebar { /* full height on desktop, offset top bar on mobile */ }
+
+@media (max-width: 768px) {
+  .sidenav-desktop { display: none !important; }
+  .sidenav-topbar  { display: flex !important; }
+  .main-with-sidebar { padding-top: 54px; }
+}
+
+/* ── Logo image — blend mode switches for dark themes ───────────────────── */
+.logo-img { mix-blend-mode: multiply; }
+:root[data-theme="indigo"] .logo-img,
+:root[data-theme="midnight"] .logo-img,
+:root[data-theme="slate"] .logo-img {
+  mix-blend-mode: screen;
+  filter: brightness(1.05);
+}
+
+/* TopNav visibility helpers (kept for any legacy use) */
 .hide-on-mobile  { display: flex; }
 .hide-on-desktop { display: none; }
 .show-on-desktop { display: flex !important; }
@@ -259,7 +279,7 @@ button, a, [role="button"], input, select, textarea {
   transform: translateY(0);
 }
 
-/* On dark themes the logo PNG has a white background; screen blend makes it visible */
+/* Legacy logo-btn blend (loading screen + about page) */
 :root[data-theme="indigo"] .logo-btn img,
 :root[data-theme="midnight"] .logo-btn img,
 :root[data-theme="slate"] .logo-btn img {
@@ -376,9 +396,9 @@ textarea:focus-visible,
   .hide-on-desktop { display: flex !important; }
   .show-on-desktop { display: none !important; }
 
-  /* Logo can be a touch larger on mobile so it reads at a glance */
-  .logo-btn img {
-    height: 44px !important;
+  /* Dashboard two-col collapses to single column on mobile */
+  .dash-two-col {
+    grid-template-columns: 1fr !important;
   }
 
   .page-pad {
