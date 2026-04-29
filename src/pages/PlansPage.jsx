@@ -68,14 +68,14 @@ export default function PlansPage({ onNavigate }) {
   return (
     <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-          <div className="grad-text" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Business Plans</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+          <div className="grad-text page-title">Business Plans</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px', whiteSpace: 'nowrap' }}>
             {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} / ${plans.length}` : plans.length}
           </div>
         </div>
-        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
+        <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}
           onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
           onMouseLeave={e => e.currentTarget.style.background = C.accent}
           onClick={() => onNavigate('new-plan')}>

@@ -230,16 +230,16 @@ export default function SideNav({ currentPage, onNavigate }) {
       </div>
 
       {/* Mobile top bar */}
-      <header className="sidenav-topbar" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '0 16px', zIndex: 100, height: 54, alignItems: 'center', gap: 12 }}>
-        <button onClick={() => onNavigate('dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          <img src={logoImg} alt="The New Beginnings" className="logo-img" style={{ height: 36, width: 'auto', display: 'block' }} />
-        </button>
-        <div style={{ flex: 1 }} />
+      <header className="sidenav-topbar" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '0 14px', zIndex: 100, height: 54, alignItems: 'center', gap: 12 }}>
         <button onClick={() => setMobileOpen(true)}
-          style={{ width: 38, height: 38, borderRadius: 8, background: C.bg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg1 }}>
+          style={{ width: 38, height: 38, borderRadius: 8, background: C.bg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg1, flexShrink: 0 }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="18" height="18">
             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
+        </button>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => onNavigate('dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <img src={logoImg} alt="The New Beginnings" className="logo-img" style={{ height: 36, width: 'auto', display: 'block' }} />
         </button>
       </header>
 

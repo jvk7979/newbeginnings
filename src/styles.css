@@ -528,7 +528,23 @@ textarea:focus-visible,
     border-radius: 7px !important;
   }
   .stat-grid .stat-count { font-size: 24px !important; }
-  .stat-grid .stat-label { font-size: 12px !important; }
+  .stat-grid .stat-label {
+    font-size: 12px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Page header title — smaller on mobile so count badge + button fit in one row */
+.page-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+@media (max-width: 540px) {
+  .page-title { font-size: 22px; }
 }
 
 /* Chip-scroll row — right-side fade gradient shows more content is available */

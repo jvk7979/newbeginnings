@@ -86,9 +86,9 @@ export default function Dashboard({ onNavigate }) {
       {/* Stats */}
       <div className="stat-grid" style={{ marginBottom: 32 }}>
         {[
-          { label: 'Ideas',          count: ideas.length, dest: 'ideas',     icon: ICON_IDEA },
-          { label: 'Business Plans', count: plans.length, dest: 'plans',     icon: ICON_PLAN },
-          { label: 'Documents',      count: files.length, dest: 'documents', icon: ICON_FILE },
+          { label: 'Ideas',     count: ideas.length, dest: 'ideas',     icon: ICON_IDEA },
+          { label: 'Plans',     count: plans.length, dest: 'plans',     icon: ICON_PLAN },
+          { label: 'Documents', count: files.length, dest: 'documents', icon: ICON_FILE },
         ].map(s => (
           <button key={s.label} onClick={() => onNavigate(s.dest)} className="stat-card"
             style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px 14px 16px', borderRadius: 12, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'left', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', width: '100%' }}>
