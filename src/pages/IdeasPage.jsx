@@ -29,7 +29,7 @@ export default function IdeasPage({ onNavigate }) {
     .filter(i =>
       (filter === 'all' || i.status === filter) &&
       (!catFilter || i.category === catFilter) &&
-      (!sq || i.title.toLowerCase().includes(sq) || (i.desc || '').toLowerCase().includes(sq) || (i.category || '').toLowerCase().includes(sq))
+      (!sq || i.title.toLowerCase().includes(sq) || (i.desc || '').toLowerCase().includes(sq))
     );
 
   return (
@@ -58,7 +58,7 @@ export default function IdeasPage({ onNavigate }) {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by title, description, category…"
+            placeholder="Search by title or description…"
             aria-label="Search ideas"
             style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '8px 36px 8px 32px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' }}
             onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}

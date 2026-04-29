@@ -62,7 +62,7 @@ export default function PlansPage({ onNavigate }) {
     .filter(p =>
       (filter === 'all' || p.status === filter) &&
       (catFilter === 'All' || p.category === catFilter) &&
-      (!sq || p.title.toLowerCase().includes(sq) || (p.summary || '').toLowerCase().includes(sq) || (p.category || '').toLowerCase().includes(sq) || (p.status || '').toLowerCase().includes(sq) || (p.fileName || '').toLowerCase().includes(sq))
+      (!sq || p.title.toLowerCase().includes(sq) || (p.summary || '').toLowerCase().includes(sq))
     );
 
   return (
@@ -88,7 +88,7 @@ export default function PlansPage({ onNavigate }) {
       <div style={{ position: 'relative', marginBottom: 12 }}>
         <svg style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search by title, category, status, file…"
+          placeholder="Search by title or summary…"
           aria-label="Search plans"
           style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '8px 36px 8px 32px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' }}
           onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}
