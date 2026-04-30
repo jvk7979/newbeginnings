@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { C, alpha } from '../tokens';
 import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { useIdeas, usePlans, useProjects, useBackup } from '../context/AppContext';
@@ -10,23 +10,23 @@ import ConfirmModal from './ConfirmModal';
 const NAV_ITEMS = [
   {
     id: 'dashboard', label: 'Home',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
   },
   {
     id: 'ideas', label: 'Ideas',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>,
+    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>,
   },
   {
     id: 'plans', label: 'Plans',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
   },
   {
     id: 'documents', label: 'Documents',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
+    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
   },
   {
     id: 'about', label: 'About',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   },
 ];
 
@@ -102,7 +102,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
               onMouseEnter={e => { if (!active) { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; } }}
               onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; } }}>
               <span style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </span>
               <span style={{ flex: 1 }}>Access</span>
               {active && <span style={{ width: 3, height: 14, background: C.accent, borderRadius: 2, flexShrink: 0 }} />}
@@ -117,9 +117,9 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
           style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 6, background: 'none', border: 'none', cursor: 'pointer', padding: '5px 8px', borderRadius: 6 }}
           onMouseEnter={e => e.currentTarget.style.background = C.bg2}
           onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-          <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg3, flex: 1, textAlign: 'left' }}>Theme</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="10" height="10"
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="10" height="10"
             style={{ transform: themeOpen ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -163,7 +163,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
           </div>
           <button onClick={() => setSettingsOpen(o => !o)} title="Settings"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 3, color: settingsOpen ? C.accent : C.fg3, flexShrink: 0, display: 'flex', borderRadius: 4 }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           </button>
         </div>
         {settingsOpen && (
@@ -172,7 +172,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
               style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 12px' }}
               onMouseEnter={e => e.currentTarget.style.background = C.bg3}
               onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export backup
             </button>
             {/* S6: Import wipes shared collections via writeBatch.delete in
@@ -181,7 +181,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, cursor: 'pointer', padding: '8px 12px', borderTop: `1px solid ${C.border}` }}
                 onMouseEnter={e => e.currentTarget.style.background = C.bg3}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Import backup
                 <input type="file" accept=".json" style={{ display: 'none' }} onChange={onImport} />
               </label>
@@ -190,7 +190,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
         )}
         <button onClick={onSignOut}
           style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 22)}`, borderRadius: 6, cursor: 'pointer', padding: '7px 10px' }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sign out
         </button>
       </div>
@@ -212,11 +212,62 @@ export default function SideNav({ currentPage, onNavigate }) {
 
   const activeTab = ACTIVE_MAP[currentPage] || currentPage;
 
+  // Refs for the mobile drawer's accessibility wiring. drawerRef is the
+  // <div role="dialog"> wrapper; hamburgerRef is the trigger button so we
+  // can restore focus to it when the drawer closes.
+  const drawerRef    = useRef(null);
+  const hamburgerRef = useRef(null);
+
   useEffect(() => {
     const handleEsc = (e) => { if (e.key === 'Escape') setMobileOpen(false); };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
   }, []);
+
+  // Drawer accessibility: body-scroll lock + focus management + Tab trap.
+  // Without this, opening the drawer leaves focus on the hamburger
+  // (keyboard users don't know the drawer opened), the body scrolls
+  // underneath when fingers drag inside the drawer, and Tab leaks into
+  // the page content behind the backdrop.
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    // Lock body scroll while the drawer is open.
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    // Move focus into the drawer — first interactive element inside.
+    const drawer = drawerRef.current;
+    const focusables = () => drawer
+      ? Array.from(drawer.querySelectorAll(
+          'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )).filter(el => !el.disabled && el.offsetParent !== null)
+      : [];
+    const initial = focusables();
+    initial[0]?.focus();
+
+    // Trap Tab within the drawer.
+    const onKey = (e) => {
+      if (e.key !== 'Tab' || !drawer) return;
+      const els = focusables();
+      if (els.length === 0) return;
+      const first = els[0];
+      const last  = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKey);
+      // Return focus to the hamburger that opened it.
+      hamburgerRef.current?.focus();
+    };
+  }, [mobileOpen]);
 
   const handleExport = () => {
     const data = { ideas, projects, plans, exportedAt: new Date().toISOString(), version: 1 };
@@ -270,14 +321,18 @@ export default function SideNav({ currentPage, onNavigate }) {
 
       {/* Mobile top bar */}
       <header className="sidenav-topbar" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '0 14px', zIndex: 100, height: 54, alignItems: 'center', gap: 12 }}>
-        <button onClick={() => setMobileOpen(true)}
+        <button ref={hamburgerRef} onClick={() => setMobileOpen(true)}
+          aria-label="Open navigation menu"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-drawer"
           style={{ width: 38, height: 38, borderRadius: 8, background: C.bg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg1, flexShrink: 0 }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="18" height="18" aria-hidden="true" focusable="false">
             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
         <div style={{ flex: 1 }} />
-        <button onClick={() => onNavigate('dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+        <button onClick={() => onNavigate('dashboard')} aria-label="Go to dashboard"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
           <img src={logoImg} alt="The New Beginnings" className="logo-img" style={{ height: 36, width: 'auto', display: 'block' }} />
         </button>
       </header>
@@ -285,9 +340,14 @@ export default function SideNav({ currentPage, onNavigate }) {
       {/* Mobile drawer */}
       {mobileOpen && (
         <>
-          <div onClick={() => setMobileOpen(false)}
+          <div onClick={() => setMobileOpen(false)} aria-hidden="true"
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.48)', zIndex: 150, backdropFilter: 'blur(2px)' }} />
-          <div style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 160 }}>
+          <div ref={drawerRef}
+            id="mobile-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Main navigation"
+            style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 160 }}>
             <NavContent {...navProps} mobile onNavigate={(id) => { if (id) onNavigate(id); setMobileOpen(false); }} />
           </div>
         </>

@@ -2,17 +2,28 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Mirror the Firestore allowlist + admin model used in firestore.rules.
+    // Parity with firestore.rules — same normalization (lowercase email)
+    // and same email_verified gate. Without this, Storage and Firestore
+    // disagree about who's allowed: a token whose email matches the
+    // Firestore-side normalized comparison can fail the Storage-side raw
+    // comparison, surfacing as "User does not have permission to access"
+    // even when the Firestore allowedUsers doc clearly exists.
+    function userEmail() {
+      return request.auth.token.email.lower();
+    }
+    function isVerified() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
     function isAdmin() {
-      return request.auth != null
-          && (request.auth.token.email == 'thenewbeginningsventure@gmail.com'
-              || request.auth.token.email == 'nsivasree99@gmail.com');
+      return isVerified()
+          && (userEmail() == 'thenewbeginningsventure@gmail.com'
+              || userEmail() == 'nsivasree99@gmail.com');
     }
     function isAllowed() {
-      return request.auth != null
+      return isVerified()
           && (isAdmin()
               || firestore.exists(
-                   /databases/(default)/documents/allowedUsers/$(request.auth.token.email)
+                   /databases/(default)/documents/allowedUsers/$(userEmail())
                  ));
     }
 

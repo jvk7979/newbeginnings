@@ -35,7 +35,7 @@ export default function UploadZone({ file, onFile, onRemove }) {
     const type = detectType(file);
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderRadius: 8, background: C.accentBg, border: `1px solid ${alpha(C.accent, 44)}` }}>
-        <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="20" height="20" style={{ flexShrink: 0 }}>
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="20" height="20" style={{ flexShrink: 0 }}>
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14,2 14,8 20,8"/>
         </svg>
@@ -82,7 +82,7 @@ export default function UploadZone({ file, onFile, onRemove }) {
           style={{ display: 'none' }}
           onChange={e => { const f = e.target.files[0]; if (f) pick(f); e.target.value = ''; }}
         />
-        <svg viewBox="0 0 24 24" fill="none" stroke={drag ? C.accent : C.fg3} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="30" height="30" style={{ margin: '0 auto 10px', display: 'block', transition: 'stroke 150ms' }}>
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={drag ? C.accent : C.fg3} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="30" height="30" style={{ margin: '0 auto 10px', display: 'block', transition: 'stroke 150ms' }}>
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17,8 12,3 7,8"/>
           <line x1="12" y1="3" x2="12" y2="15"/>
@@ -98,7 +98,7 @@ export default function UploadZone({ file, onFile, onRemove }) {
 
       {err && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginTop: 7 }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="13" height="13">
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="13" height="13">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           {err}

@@ -40,7 +40,12 @@
   --c-bg3: #E8CEAA;
   --c-fg1: #1A0D00;
   --c-fg2: #5C3800;
-  --c-fg3: #A06020;
+  /* fg3 was #A06020 → ~3.85:1 vs #FAF3E8, failing WCAG AA for normal
+     text. Darkened to #8A4F0C which preserves the saffron/amber hue
+     family but clears 4.6:1 — used for every "Updated …", "Captured …",
+     "5m ago" timestamp, char-count helper, and uppercase section
+     label, so the contrast lift is felt across every page. */
+  --c-fg3: #8A4F0C;
   --c-accent: #C2600A;
   --c-accent-light: #E07520;
   --c-accent-dim: #A04E05;
