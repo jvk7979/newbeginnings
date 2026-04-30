@@ -6,7 +6,7 @@ import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
 import UploadZone from '../components/UploadZone';
 import { uploadFileToDB } from '../utils/fileStorage';
-import { generateSummaryFromFile } from '../utils/aiSummary';
+import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
 import { CATEGORIES } from '../utils/categoryStyles';
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
@@ -116,9 +116,9 @@ export default function NewPlanPage({ onNavigate }) {
         <div>
           <label style={labelStyle}>Attach Document (optional)</label>
           <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
-          {selectedFile?.type === 'application/pdf' && (
+          {isSummarySupported(selectedFile) && (
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, marginTop: 6 }}>
-              ✦ PDF attached — click "Generate AI Summary" below to auto-fill the executive summary
+              ✦ Document attached — click "Generate AI Summary" below to auto-fill the executive summary
             </div>
           )}
         </div>
@@ -128,7 +128,7 @@ export default function NewPlanPage({ onNavigate }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
             <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              {selectedFile?.type === 'application/pdf' && (
+              {isSummarySupported(selectedFile) && (
                 <button type="button" onClick={handleGenerateSummary} disabled={summarizing}
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: summarizing ? C.fg3 : '#fff', background: summarizing ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: summarizing ? 'not-allowed' : 'pointer', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
                   {summarizing
@@ -146,7 +146,7 @@ export default function NewPlanPage({ onNavigate }) {
           </div>
           <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={form.summary}
             onChange={e => setForm({ ...form, summary: e.target.value })}
-            placeholder={selectedFile?.type === 'application/pdf' ? 'Attach a PDF above then click ✦ Generate AI Summary…' : 'One-paragraph overview of the plan…'}
+            placeholder={isSummarySupported(selectedFile) ? 'Click ✦ Generate AI Summary above to auto-fill from the attached document…' : 'One-paragraph overview of the plan…'}
             onFocus={focus} onBlur={blur} />
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>{form.summary.length} characters</div>
         </div>
