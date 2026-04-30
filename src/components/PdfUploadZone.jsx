@@ -1,19 +1,14 @@
 import { useState, useRef } from 'react';
 import { C, alpha } from '../tokens';
-import { extractAllText, parseTextForIdea, parseTextForPlan } from '../utils/pdfParser';
+// Only the Paste tab parses now; the PDF tab no longer extracts text.
+import { parseTextForIdea, parseTextForPlan } from '../utils/pdfParser';
 
 /* ── Icons ── */
 function UploadIcon() {
   return <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="28" height="28"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
 }
-function PasteIcon() {
-  return <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>;
-}
 function CheckIcon() {
   return <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>;
-}
-function Spinner() {
-  return <div style={{ width: 28, height: 28, border: `2.5px solid ${C.border}`, borderTopColor: C.accent, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />;
 }
 
 function formatSize(bytes) {
@@ -35,20 +30,24 @@ Format each section heading on its own line in UPPERCASE or Title Case, followed
 
 /* ── Main component ──
  *
- *   onExtracted(parsed)  — fires after a successful parse with
- *                          { title, summary?, desc?, sections? }
- *   onFileAttached(file) — optional. Fires alongside onExtracted with the
- *                          original File object so the parent can use the
- *                          same upload as the saved attachment, avoiding
- *                          a duplicate upload step. Also fires with null
- *                          when the user resets/replaces the PDF or
- *                          clears the pasted text.
+ *   onExtracted(parsed)  — fires after a successful PASTE-tab parse with
+ *                          { title, summary?, desc?, sections? }. The PDF
+ *                          tab no longer extracts: it just confirms the
+ *                          attachment via Save/Cancel.
+ *   onFileAttached(file) — fires when the user clicks Save on a dropped
+ *                          PDF (passing the File), or with null on Cancel /
+ *                          Replace. The Paste tab does not call this.
  */
 export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttached }) {
   const [tab, setTab]           = useState('pdf');   // 'pdf' | 'paste'
-  const [pdfState, setPdfState] = useState('idle');  // idle | dragging | processing | done | error
-  const [fileInfo, setFileInfo] = useState(null);
-  const [pdfPreview, setPdfPreview] = useState(null);
+  // pdfState transitions:
+  //   idle      → drop zone shown
+  //   dragging  → drop zone highlighted
+  //   pending   → file dropped, Save/Cancel buttons visible
+  //   saved     → file confirmed as attachment, Replace button visible
+  //   error     → file rejected, Try-another-file button visible
+  const [pdfState, setPdfState] = useState('idle');
+  const [pendingFile, setPendingFile] = useState(null);
   const [pdfErr, setPdfErr]     = useState('');
 
   const [pasteText, setPasteText]     = useState('');
@@ -59,40 +58,39 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
 
   const inputRef = useRef(null);
 
-  /* ── PDF processing ── */
-  const processPdf = async (file) => {
+  /* ── PDF intake ── */
+  // Validate-only flow: we no longer extract text or detect sections at
+  // intake — the user explicitly opts in via Save. This keeps the upload
+  // experience simple ("just attach the file") and avoids spending CPU
+  // on PDFs the user never intends to keep.
+  const acceptPdf = (file) => {
     if (!file || file.type !== 'application/pdf') {
       setPdfErr('Please upload a PDF file.');
       setPdfState('error');
       return;
     }
-    setFileInfo({ name: file.name, size: file.size });
-    setPdfState('processing');
+    setPendingFile(file);
+    setPdfState('pending');
     setPdfErr('');
-    try {
-      const text   = await extractAllText(file);
-      const parsed = mode === 'idea' ? parseTextForIdea(text) : parseTextForPlan(text);
-      setPdfPreview(parsed);
-      setPdfState('done');
-      onExtracted(parsed);
-      // Promote the same File to the parent's attachment slot so a
-      // single upload covers both extraction AND save-time persistence —
-      // users no longer need to drop the file in twice.
-      onFileAttached?.(file);
-    } catch {
-      setPdfErr('Could not read this PDF. Make sure it is a text-based PDF, not a scanned image.');
-      setPdfState('error');
-    }
   };
 
-  const onDrop      = (e) => { e.preventDefault(); setPdfState('idle'); processPdf(e.dataTransfer.files[0]); };
+  const onDrop      = (e) => { e.preventDefault(); setPdfState('idle'); acceptPdf(e.dataTransfer.files[0]); };
   const onDragOver  = (e) => { e.preventDefault(); setPdfState('dragging'); };
   const onDragLeave = () => setPdfState('idle');
-  const onFileChange = (e) => { processPdf(e.target.files[0]); e.target.value = ''; };
-  const resetPdf    = () => {
-    setPdfState('idle'); setFileInfo(null); setPdfPreview(null); setPdfErr('');
-    // Replace/clear should also drop the parent's attachment so the next
-    // upload (or the absence of one) reflects truthfully in the saved record.
+  const onFileChange = (e) => { acceptPdf(e.target.files[0]); e.target.value = ''; };
+
+  // Save: confirm the pending file as the parent's attachment.
+  const savePdf = () => {
+    if (!pendingFile) return;
+    onFileAttached?.(pendingFile);
+    setPdfState('saved');
+  };
+
+  // Cancel / reset: drop the pending file and any prior attachment.
+  const resetPdf = () => {
+    setPdfState('idle');
+    setPendingFile(null);
+    setPdfErr('');
     onFileAttached?.(null);
   };
 
@@ -199,13 +197,13 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
       {/* ── PDF TAB ── */}
       {tab === 'pdf' && (
         <>
-          {pdfState !== 'done' && (
+          {(pdfState === 'idle' || pdfState === 'dragging' || pdfState === 'error') && (
             <div onDrop={onDrop} onDragOver={onDragOver} onDragLeave={onDragLeave}
-              onClick={() => pdfState !== 'processing' && inputRef.current?.click()}
+              onClick={() => inputRef.current?.click()}
               style={{
                 border: `2px dashed ${pdfState === 'dragging' ? C.accent : pdfState === 'error' ? C.danger : C.border}`,
                 borderRadius: 12, padding: '36px 24px', textAlign: 'center',
-                cursor: pdfState === 'processing' ? 'default' : 'pointer',
+                cursor: 'pointer',
                 background: pdfState === 'dragging' ? C.accentBg : pdfState === 'error' ? C.dangerBg : C.bg1,
                 transition: 'all 200ms ease', userSelect: 'none',
               }}>
@@ -216,7 +214,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 500, color: C.fg1, marginBottom: 6 }}>Drop your PDF here</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 16 }}>or click to browse files</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 6, padding: '6px 14px' }}>
-                  PDF only · All pages extracted · Auto-detects sections
+                  PDF only · Attach to this entry on Save
                 </div>
               </>}
 
@@ -225,18 +223,11 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 600, color: C.accent }}>Release to upload</div>
               </>}
 
-              {pdfState === 'processing' && <>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><Spinner /></div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 500, color: C.fg1, marginBottom: 4 }}>Reading PDF…</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginBottom: 8 }}>{fileInfo?.name}</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent }}>Extracting text from all pages<span style={{ animation: 'blink 1.2s step-start infinite' }}>…</span></div>
-              </>}
-
               {pdfState === 'error' && <>
                 <div style={{ color: C.danger, marginBottom: 10 }}>
                   <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="28" height="28"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 500, color: C.danger, marginBottom: 6 }}>Could not read PDF</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 500, color: C.danger, marginBottom: 6 }}>Not a valid PDF</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginBottom: 14 }}>{pdfErr}</div>
                 <button onClick={(e) => { e.stopPropagation(); resetPdf(); }}
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '6px 14px' }}>
@@ -245,8 +236,58 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
               </>}
             </div>
           )}
-          {pdfState === 'done' && pdfPreview && (
-            <PreviewCard preview={pdfPreview} fileLabel={`${fileInfo?.name} · ${formatSize(fileInfo?.size || 0)}`} onReplace={resetPdf} />
+
+          {/* Pending — file picked, awaiting Save/Cancel decision. */}
+          {pdfState === 'pending' && pendingFile && (
+            <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden', animation: 'fadeIn 200ms ease' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: C.bg1, borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ color: C.accent, flexShrink: 0 }}>
+                  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="24" height="24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pendingFile.name}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg3, marginTop: 2 }}>
+                    PDF · {formatSize(pendingFile.size)}
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '12px 16px', background: C.bg0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
+                  Save to attach this PDF to the entry, or cancel to discard.
+                </span>
+                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                  <button onClick={resetPdf}
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 6, cursor: 'pointer', padding: '7px 14px' }}>
+                    Cancel
+                  </button>
+                  <button onClick={savePdf}
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: '#fff', background: C.accent, border: 'none', borderRadius: 6, cursor: 'pointer', padding: '7px 16px' }}
+                    onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
+                    onMouseLeave={e => e.currentTarget.style.background = C.accent}>
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Saved — file confirmed; offer Replace to start over. */}
+          {pdfState === 'saved' && pendingFile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderRadius: 12, background: C.successBg, border: `1px solid ${C.border}`, animation: 'fadeIn 200ms ease' }}>
+              <div style={{ color: C.success, flexShrink: 0 }}><CheckIcon /></div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.success }}>
+                  PDF attached
+                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg3, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {pendingFile.name} · {formatSize(pendingFile.size)}
+                </div>
+              </div>
+              <button onClick={resetPdf}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                Replace
+              </button>
+            </div>
           )}
         </>
       )}
