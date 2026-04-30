@@ -508,7 +508,11 @@ textarea:focus-visible,
     margin-bottom: 20px;
   }
   .grid-2 {
-    grid-template-columns: 1fr;
+    /* `1fr` defaults to `minmax(auto, 1fr)` and lets a child's min-content
+       (e.g. a nowrap title) push the track wider than the viewport. Use an
+       explicit minmax(0, 1fr) so the track is hard-capped at the container
+       width and overflowing content gets wrapped/clipped instead. */
+    grid-template-columns: minmax(0, 1fr);
   }
   .comment-row {
     flex-direction: column;
@@ -721,6 +725,13 @@ textarea:focus-visible,
 .plan-card {
   padding: 20px 22px;
   min-height: 190px;
+  /* Belt-and-suspenders against horizontal overflow on phones — the card
+     is a grid item, so it inherits the track width, and these properties
+     guarantee its own children never push it past that width. */
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .plan-card-head {
   display: flex;
@@ -728,14 +739,20 @@ textarea:focus-visible,
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 8px;
+  min-width: 0;
 }
 .plan-card-title {
   font-size: 19px;
   font-weight: 600;
   min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* Break extremely long unbroken tokens (URLs, _separated_ identifiers)
+     before they can push the card wider than its track. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .plan-card-tags {
   display: flex;
@@ -759,6 +776,10 @@ textarea:focus-visible,
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   min-height: 72px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 768px) {
