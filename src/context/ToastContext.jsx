@@ -36,7 +36,9 @@ export function ToastProvider({ children }) {
           (announced immediately, interrupting current speech); successes
           and info get role="status" + aria-live="polite" (announced when
           the SR reaches a quiet point). */}
-      <div style={{ position: 'fixed', bottom: 20, right: 20, left: 20, maxWidth: 400, marginLeft: 'auto', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8, pointerEvents: 'none' }}>
+      {/* bottom offset honours the iOS home-indicator inset so toasts
+          don't land under the home bar on iPhone X+ / iPad. */}
+      <div style={{ position: 'fixed', bottom: 'max(20px, env(safe-area-inset-bottom))', right: 20, left: 20, maxWidth: 400, marginLeft: 'auto', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8, pointerEvents: 'none' }}>
         {toasts.map(t => {
           const col = COLORS[t.type] || COLORS.info;
           const isError = t.type === 'error';

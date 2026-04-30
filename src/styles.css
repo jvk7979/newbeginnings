@@ -329,6 +329,27 @@ html, body {
 /* Smoother taps on mobile — kill 300ms delay + no double-tap zoom on buttons */
 button, a, [role="button"], input, select, textarea {
   touch-action: manipulation;
+  /* iOS Safari highlights every tappable element with a translucent
+     grey overlay by default — disable it; our hover/active styles
+     already provide tap feedback. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Long-press on iOS opens a system context menu over buttons by default;
+   suppress for actual buttons (text/textarea/inputs keep it). */
+button, a, [role="button"] {
+  -webkit-touch-callout: none;
+}
+
+/* Respect reduced-motion preferences — kills the page-in animation +
+   any other transition for users with vestibular sensitivities. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Prevent iOS auto-zoom on focus by ensuring 16px+ on small screens */
@@ -340,13 +361,26 @@ button, a, [role="button"], input, select, textarea {
 
 /* ── Sidebar layout ─────────────────────────────────────────────────────── */
 .sidenav-desktop { display: flex; flex-shrink: 0; height: 100vh; }
-.sidenav-topbar  { display: none; position: fixed; top: 0; left: 0; right: 0; flex-shrink: 0; }
+/* Mobile top-bar respects iOS notch / Dynamic Island via safe-area-inset.
+   Without this, the hamburger button can sit under the notch on phones
+   with display cutouts (iPhone 14 Pro+, Pixel 6 Pro etc.). */
+.sidenav-topbar  {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  flex-shrink: 0;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
 .main-with-sidebar { /* full height on desktop, offset top bar on mobile */ }
 
 @media (max-width: 768px) {
   .sidenav-desktop { display: none !important; }
   .sidenav-topbar  { display: flex !important; }
-  .main-with-sidebar { padding-top: 54px; }
+  /* Top-bar height (54px) + iOS safe-area-inset-top so content starts
+     below both the notch and the chrome instead of under one of them. */
+  .main-with-sidebar { padding-top: calc(54px + env(safe-area-inset-top, 0px)); }
 }
 
 /* ── DOCX inline render (mammoth output styled for readability) ────────── */
@@ -503,7 +537,14 @@ textarea:focus-visible,
   }
 
   .page-pad {
-    padding: 16px 14px 40px;
+    /* Honour notch/home-indicator safe areas via env(safe-area-inset-*).
+       Falls back to the literal pixel values on browsers without env()
+       support. The keyword `max()` resolves at runtime so we never go
+       below the design minimums. */
+    padding-top: 16px;
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+    padding-left:  max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
   }
   .hero-bleed {
     margin: -16px -14px 20px -14px;
@@ -732,6 +773,19 @@ textarea:focus-visible,
   }
 }
 
+/* ── Tablet / iPad portrait (769–1024px) ─────────────────────────────────
+   Above the 768px mobile breakpoint the desktop layout kicks in: a 220px
+   sidebar plus 36px page-pad on each side leaves only ~528px for content
+   on iPad portrait. Tighten both so cards/grids don't feel cramped. */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidenav-desktop > div { width: 200px !important; }
+  .page-pad { padding: 24px 24px 40px; }
+  .hero-bleed { margin: -24px -24px 22px; }
+  /* Stat-card icons can shrink a little; main content gets more room. */
+  .grid-3 { gap: 10px; }
+  .grid-4 { gap: 8px; }
+}
+
 /* ── Plans page — desktop defaults, mobile-tuned overrides ───────────────── */
 .plans-page-header {
   display: flex;
@@ -762,11 +816,18 @@ textarea:focus-visible,
 .plan-card-title {
   font-size: 19px;
   font-weight: 600;
+  line-height: 1.25;
   min-width: 0;
   max-width: 100%;
+  /* Wrap to 2 lines by default. Single-line ellipsis was fine on
+     1440px+ desktop but on iPad portrait (820px) the sidebar eats so
+     much width that titles like "Rajamahendravaram Investment …"
+     ellipsised down to a single letter ("R…"). 2-line clamp keeps
+     desktop tidy AND keeps tablet readable. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   /* Break extremely long unbroken tokens (URLs, _separated_ identifiers)
      before they can push the card wider than its track. */
   overflow-wrap: anywhere;
@@ -815,13 +876,10 @@ textarea:focus-visible,
     margin-bottom: 10px;
   }
   .plan-card-title {
-    white-space: normal;
-    text-overflow: clip;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     font-size: 17px;
     line-height: 1.3;
+    /* Display/-webkit-line-clamp/overflow already set by the default
+       rule — only the size needs to drop on phones. */
   }
   .plan-card-tags {
     justify-content: flex-start;

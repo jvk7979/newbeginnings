@@ -192,7 +192,7 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
           when the file has only a legacy `url` field, so the gating
           condition stays. */}
       {viewing && (isPdf || resolvedUrl || file.url) && createPortal(
-        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', flexDirection: 'column', background: '#1a1510' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', flexDirection: 'column', background: '#1a1510', overscrollBehavior: 'contain' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px 12px 20px', paddingRight: 116, background: '#221c12', borderBottom: '1px solid rgba(255,255,255,0.10)', flexShrink: 0 }}>
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="18" height="18">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>

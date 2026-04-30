@@ -373,7 +373,7 @@ export default function SideNav({ currentPage, onNavigate }) {
             role="dialog"
             aria-modal="true"
             aria-label="Main navigation"
-            style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 160 }}>
+            style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 160, overscrollBehavior: 'contain' }}>
             <NavContent {...navProps} mobile onNavigate={(id) => { if (id) onNavigate(id); setMobileOpen(false); }} />
           </div>
         </>
