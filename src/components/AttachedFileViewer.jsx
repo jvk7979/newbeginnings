@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { C, alpha } from '../tokens';
 import { fmtSize, getFileUrl, fetchFileBlob } from '../utils/fileStorage';
+
+// PDF renderer is lazy-loaded so the pdfjs worker chunk is only fetched
+// when a user actually opens a PDF — keeps the main bundle small.
+const PdfPageRenderer = lazy(() => import('./PdfPageRenderer'));
 
 export default function AttachedFileViewer({ file, onReplace, onRemove, editing }) {
   const [viewing, setViewing]     = useState(false);
@@ -78,8 +82,10 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
       return;
     }
     if (isPdf) {
-      const u = await ensureUrl();
-      if (!u) return;
+      // The new canvas-based renderer fetches the blob itself via the
+      // SDK's authenticated path, so we don't need to resolve a URL here.
+      // Keep ensureUrl warm for the Download button's sake only.
+      ensureUrl().catch(() => {});
       setViewing(true);
       return;
     }
@@ -151,8 +157,12 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
 
       {/* Full-screen viewer overlay — portal to body so it escapes any
           transformed ancestor (.page-pad uses transform in its pageIn
-          animation, which would otherwise constrain position:fixed) */}
-      {viewing && (resolvedUrl || file.url) && createPortal(
+          animation, which would otherwise constrain position:fixed).
+          For PDFs we render via canvas (PdfPageRenderer) which handles
+          its own loading; for DOCX we still need a resolvedUrl path
+          when the file has only a legacy `url` field, so the gating
+          condition stays. */}
+      {viewing && (isPdf || resolvedUrl || file.url) && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', flexDirection: 'column', background: '#1a1510' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', background: '#221c12', borderBottom: '1px solid rgba(255,255,255,0.10)', flexShrink: 0 }}>
             <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="18" height="18">
@@ -173,11 +183,13 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
           </div>
 
           {isPdf && (
-            <iframe
-              src={resolvedUrl || file.url}
-              title={file.name || 'PDF'}
-              loading="lazy"
-              style={{ flex: 1, border: 'none', width: '100%', minHeight: 0 }} />
+            <Suspense fallback={
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f5e6c8', fontFamily: "'DM Sans', sans-serif", fontSize: 15, background: '#3a3530' }}>
+                Loading PDF…
+              </div>
+            }>
+              <PdfPageRenderer file={file} />
+            </Suspense>
           )}
 
           {isDocx && (
