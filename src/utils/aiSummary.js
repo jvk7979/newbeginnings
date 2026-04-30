@@ -1,15 +1,13 @@
-// Lazy-load the Gemini SDK + pdfParser so neither lands in the main
-// bundle — both are pulled in only when a user actually clicks
-// "Generate AI Summary" (and pdfParser only for PDF files specifically).
-let _genAIPromise = null;
-function getGenAI() {
-  if (!_genAIPromise) {
-    _genAIPromise = import('@google/generative-ai').then(
-      mod => new mod.GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
-    );
-  }
-  return _genAIPromise;
-}
+// Browser-side document → AI summary helper.
+//
+// Text extraction (pdfjs / mammoth) stays in the browser — those libraries
+// don't need an API key, and shipping a 50 MB PDF to a Cloud Function would
+// trip the 10 MB callable limit anyway. Only the trimmed extracted text is
+// sent to the `summariseDocumentText` callable, which talks to Gemini
+// server-side using a key that's never bundled with the client.
+
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
 
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const DOC_MIME  = 'application/msword';
@@ -31,19 +29,6 @@ export function isSummarySupported(file) {
   return /\.(pdf|docx|doc|txt)$/.test(name);
 }
 
-const SUMMARY_PROMPT = `You are a business analyst. Read the document below and write a concise executive summary of 2-3 paragraphs.
-
-Focus on:
-- What the business or plan is about
-- The core opportunity or problem being addressed
-- Key financial highlights, market size, or projections if present
-- The main approach or strategy
-
-Write in clear, professional English. Use flowing paragraphs — no bullet points, no headings. Keep it under 300 words.
-
-DOCUMENT:
-`;
-
 async function extractTextFromDocx(file) {
   const mod = await import('mammoth/mammoth.browser.min.js');
   const mammoth = mod.default ?? mod;
@@ -59,6 +44,12 @@ async function extractTextFromPdf(file) {
 
 async function extractTextFromTxt(file) {
   return (await file.text()).trim();
+}
+
+let _summarise = null;
+function summariseCallable() {
+  if (!_summarise) _summarise = httpsCallable(functions, 'summariseDocumentText');
+  return _summarise;
 }
 
 export async function generateSummaryFromFile(file) {
@@ -82,8 +73,13 @@ export async function generateSummaryFromFile(file) {
     throw new Error('Could not extract readable text from this file. It may be a scanned image or empty.');
   }
 
-  const genAI = await getGenAI();
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  const result = await model.generateContent(SUMMARY_PROMPT + text.slice(0, 12000));
-  return result.response.text().trim();
+  // Send the extracted text to the callable; the function applies the
+  // summary prompt and returns the rendered text. We trim to 12 KB on the
+  // server side as well — sending more than that doesn't change output.
+  try {
+    const res = await summariseCallable()({ text });
+    return res?.data?.text ?? '';
+  } catch (err) {
+    throw new Error(err?.message || 'AI summary failed. Please try again.');
+  }
 }

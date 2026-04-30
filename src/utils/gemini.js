@@ -1,65 +1,40 @@
-// Lazy-load the Gemini SDK on first call so its ~30 KB gz doesn't ship in
-// the main bundle. Cached after first import; subsequent calls reuse the
-// same client instance.
-let _genAIPromise = null;
-function getGenAI() {
-  if (!_genAIPromise) {
-    _genAIPromise = import('@google/generative-ai').then(
-      mod => new mod.GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
-    );
+// Browser-side stubs that call the Cloud Functions in functions/index.js.
+// Previously these called the Gemini SDK directly with a key inlined into
+// the bundle — anyone could lift the key from DevTools and burn billing
+// quota. Now the prompt construction lives server-side; the browser only
+// sends the user inputs and receives the rendered text back.
+
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
+
+// httpsCallable returns the same wrapper object across calls if given the
+// same name, but we cache it explicitly to avoid re-registering on each
+// invocation.
+const _callables = {};
+function callable(name) {
+  if (!_callables[name]) _callables[name] = httpsCallable(functions, name);
+  return _callables[name];
+}
+
+async function invoke(name, data) {
+  try {
+    const res = await callable(name)(data);
+    return res?.data?.text ?? '';
+  } catch (err) {
+    // Surface a clean message to the page-level toast handlers.
+    const msg = err?.message || 'AI service is unavailable. Please try again.';
+    throw new Error(msg);
   }
-  return _genAIPromise;
 }
-
-async function ask(prompt) {
-  const genAI = await getGenAI();
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  const result = await model.generateContent(prompt);
-  return result.response.text().trim();
-}
-
-const CONTEXT = `You are a business advisor specializing in rural Indian manufacturing and agri-processing in Andhra Pradesh, particularly East Godavari / Rajahmundry / Konaseema region. Coconut processing, coir, agri-processing, and rural MSME ventures are your expertise. Keep answers concise and practical.`;
 
 export async function analyzeIdea(title, desc) {
-  const prompt = `${CONTEXT}
-
-Analyze this business idea briefly:
-Title: ${title}
-Description: ${desc || '(no description)'}
-
-Reply in exactly this format (plain text, no markdown):
-RISKS
-• [risk 1]
-• [risk 2]
-• [risk 3]
-
-OPPORTUNITY
-[2-3 sentences on market opportunity]
-
-NEXT STEPS
-• [step 1]
-• [step 2]
-• [step 3]`;
-  return ask(prompt);
+  return invoke('analyzeIdea', { title, desc });
 }
 
 export async function generatePlanSection(sectionTitle, planTitle, existingContent) {
-  const prompt = `${CONTEXT}
-
-Business plan title: ${planTitle}
-Section: ${sectionTitle}
-${existingContent ? `Existing notes: ${existingContent}` : ''}
-
-Write a concise, professional business plan section (150-250 words) for the above. Plain text only, no markdown headers.`;
-  return ask(prompt);
+  return invoke('generatePlanSection', { sectionTitle, planTitle, existingContent });
 }
 
 export async function improveSummary(title, summary) {
-  const prompt = `${CONTEXT}
-
-Improve and expand this executive summary for a business plan titled "${title}":
-${summary}
-
-Write a polished 2-3 paragraph executive summary (200-300 words). Plain text only.`;
-  return ask(prompt);
+  return invoke('improveSummary', { title, summary });
 }
