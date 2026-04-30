@@ -76,8 +76,16 @@ export async function generateSummaryFromFile(file) {
   // Send the extracted text to the callable; the function applies the
   // summary prompt and returns the rendered text. We trim to 12 KB on the
   // server side as well — sending more than that doesn't change output.
+  // Hard 60s client-side timeout mirrors the Cloud Function's own
+  // timeoutSeconds: 60 so a stuck socket can't leave the UI on
+  // "Generating…" indefinitely.
   try {
-    const res = await summariseCallable()({ text });
+    let t;
+    const timeout = new Promise((_, rej) => {
+      t = setTimeout(() => rej(new Error('AI summary timed out — please try again.')), 60_000);
+    });
+    const res = await Promise.race([summariseCallable()({ text }), timeout])
+      .finally(() => clearTimeout(t));
     return res?.data?.text ?? '';
   } catch (err) {
     throw new Error(err?.message || 'AI summary failed. Please try again.');

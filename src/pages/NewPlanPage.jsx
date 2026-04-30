@@ -90,6 +90,7 @@ export default function NewPlanPage({ onNavigate }) {
           <input style={{ ...inputStyle, borderColor: error ? C.danger : C.border }} value={form.title}
             onChange={e => { setForm({ ...form, title: e.target.value }); setError(''); }}
             placeholder="e.g. Coconut Processing Plant — Feasibility Report"
+            maxLength={140}
             onFocus={focus} onBlur={blur} />
           {error && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginTop: 4 }}>{error}</div>}
         </div>

@@ -77,10 +77,13 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
       if (pendingFile) {
         nextFile     = await uploadFileToDB(pendingFile);
         blobToDelete = attachedFile?.blobId || null;
-      } else if (replacingFile && !pendingFile) {
-        blobToDelete = attachedFile?.blobId || null;
-        nextFile     = null;
       }
+      // NOTE: replacingFile && !pendingFile is intentionally a NO-OP. The
+      // user clicked Replace and then either cancelled or saved without
+      // picking a new file — preserve the existing attachment instead of
+      // silently deleting it. The only way to clear the file is the
+      // explicit Remove button (which calls handleRemoveFile and sets
+      // attachedFile to null directly).
       const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
       await updateIdea(idea.id, { title: title.trim(), status, category: category || '', desc: desc.trim(), notes: notes.trim(), sources: cleanSources, attachedFile: nextFile });
       if (blobToDelete) {
@@ -236,7 +239,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
 
             <div>
               <label style={labelStyle}>Title</label>
-              <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} onFocus={focus} onBlur={blur} />
+              <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} maxLength={120} onFocus={focus} onBlur={blur} />
             </div>
 
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -297,6 +300,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 replacingFile={replacingFile}
                 onPendingFile={setPendingFile}
                 onReplaceClick={() => setReplacingFile(true)}
+                onCancelReplace={() => { setReplacingFile(false); setPendingFile(null); }}
                 onRemove={handleRemoveFile} />
             </div>
 

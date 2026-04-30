@@ -30,11 +30,22 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
+      {/* Toast container is itself a live region so newly-added toasts
+          are announced to screen readers without the user having to
+          navigate to them. Errors get role="alert" + aria-live="assertive"
+          (announced immediately, interrupting current speech); successes
+          and info get role="status" + aria-live="polite" (announced when
+          the SR reaches a quiet point). */}
       <div style={{ position: 'fixed', bottom: 20, right: 20, left: 20, maxWidth: 400, marginLeft: 'auto', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8, pointerEvents: 'none' }}>
         {toasts.map(t => {
           const col = COLORS[t.type] || COLORS.info;
+          const isError = t.type === 'error';
           return (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: col.bg, color: col.text, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '10px 14px', borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.20)', animation: 'toastIn 220ms cubic-bezier(0.16,1,0.3,1)', pointerEvents: 'all', maxWidth: 340, minWidth: 180 }}>
+            <div key={t.id}
+              role={isError ? 'alert' : 'status'}
+              aria-live={isError ? 'assertive' : 'polite'}
+              aria-atomic="true"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, background: col.bg, color: col.text, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '10px 14px', borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.20)', animation: 'toastIn 220ms cubic-bezier(0.16,1,0.3,1)', pointerEvents: 'all', maxWidth: 340, minWidth: 180 }}>
               <span style={{ flex: 1, lineHeight: 1.4 }}>{t.message}</span>
               {t.action && (
                 <button onClick={() => { t.action.onClick(); dismiss(t.id); }}
@@ -42,7 +53,7 @@ export function ToastProvider({ children }) {
                   {t.action.label}
                 </button>
               )}
-              <button onClick={() => dismiss(t.id)}
+              <button onClick={() => dismiss(t.id)} aria-label="Dismiss notification"
                 style={{ background: 'none', border: 'none', color: col.text, cursor: 'pointer', opacity: 0.65, fontSize: 18, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
             </div>
           );

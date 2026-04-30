@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { C, alpha } from '../tokens';
 import { fmtSize, getFileUrl, fetchFileBlob } from '../utils/fileStorage';
@@ -13,6 +13,20 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
   const [docxLoading, setDocxLoading] = useState(false);
   const [docxError, setDocxError] = useState('');
   const [resolvedUrl, setResolvedUrl] = useState(null);
+  // Guards against races: ensureUrl() is async, and a user clicking
+  // close-then-open-different-file before the first call resolves
+  // would otherwise stamp the wrong URL into state. We track both the
+  // mounted lifetime and the current file id; either one changing
+  // invalidates an in-flight resolution.
+  const aliveRef = useRef(true);
+  const fileIdRef = useRef(file?.blobId ?? file?.url ?? null);
+  useEffect(() => () => { aliveRef.current = false; }, []);
+  useEffect(() => {
+    fileIdRef.current = file?.blobId ?? file?.url ?? null;
+    // Reset cached URL whenever the file identity changes so the next
+    // ensureUrl() call doesn't return the previous file's URL.
+    setResolvedUrl(null);
+  }, [file?.blobId, file?.url]);
 
   useEffect(() => {
     if (!viewing) return;
@@ -35,8 +49,16 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
     if (resolvedUrl) return resolvedUrl;
     if (file.url) { setResolvedUrl(file.url); return file.url; }
     if (file.blobId) {
+      const startedFor = fileIdRef.current;
       const u = await getFileUrl(file.blobId);
-      setResolvedUrl(u);
+      // Only commit to state if (a) we're still mounted and (b) the file
+      // we resolved for is still the active file. Otherwise the URL is
+      // returned to the caller but never persisted into state — that
+      // way Download still works for the in-flight click while a stale
+      // URL never poisons the next file's state.
+      if (aliveRef.current && fileIdRef.current === startedFor) {
+        setResolvedUrl(u);
+      }
       return u;
     }
     return null;

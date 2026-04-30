@@ -90,10 +90,11 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       if (pendingFile) {
         nextFile     = await uploadFileToDB(pendingFile);
         blobToDelete = attachedFile?.blobId || null;
-      } else if (replacingFile && !pendingFile) {
-        blobToDelete = attachedFile?.blobId || null;
-        nextFile     = null;
       }
+      // NOTE: replacingFile && !pendingFile is intentionally a NO-OP — see
+      // IdeaDetailPage.handleSave for the full reasoning. Clearing an
+      // attachment requires an explicit Remove click, never a save with
+      // an unconfirmed replace.
       const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
       await updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, attachedFile: nextFile });
       if (blobToDelete) {
@@ -277,7 +278,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
             <div>
               <label style={labelStyle}>Plan Title</label>
-              <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} onFocus={focus} onBlur={blur} />
+              <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} maxLength={140} onFocus={focus} onBlur={blur} />
             </div>
 
             <div>
@@ -308,12 +309,19 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                       ✦ Format
                     </button>
                   )}
-                  {!summary.trim() && isSummarySupported(pendingFile || attachedFile) && (
+                  {/* Available whenever a supported doc is attached, not
+                      only when the summary is empty — otherwise users who
+                      replace an old PDF with a new one have no way to
+                      regenerate the summary against the new content
+                      without first manually clearing the textarea. */}
+                  {isSummarySupported(pendingFile || attachedFile) && (
                     <button type="button" onClick={handleGenerateSummary} disabled={generatingSummary}
                       style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: generatingSummary ? C.fg3 : '#fff', background: generatingSummary ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: generatingSummary ? 'not-allowed' : 'pointer', padding: '3px 10px', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
                       {generatingSummary
                         ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: `1.5px solid ${C.fg3}`, borderTopColor: C.fg1, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
-                        : <>✦ Generate AI Summary</>}
+                        : summary.trim()
+                          ? <>✦ Regenerate from doc</>
+                          : <>✦ Generate AI Summary</>}
                     </button>
                   )}
                   {summary.trim() && (
@@ -345,6 +353,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                 replacingFile={replacingFile}
                 onPendingFile={setPendingFile}
                 onReplaceClick={() => setReplacingFile(true)}
+                onCancelReplace={() => { setReplacingFile(false); setPendingFile(null); }}
                 onRemove={handleRemoveFile} />
             </div>
 
@@ -365,7 +374,12 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                     <div style={{ display: 'flex', gap: 8 }}>
                       {i > 0 && <button onClick={() => moveSection(i, -1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↑</button>}
                       {i < sections.length - 1 && <button onClick={() => moveSection(i, 1)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>↓</button>}
-                      {sections.length > 1 && <button onClick={() => removeSection(i)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>}
+                      {/* Always show Remove. Previously this was gated on
+                          sections.length > 1, which meant a user who
+                          accidentally added a single mistaken section
+                          had no way to delete it. Empty sections array
+                          renders the existing "No sections yet." view. */}
+                      <button onClick={() => removeSection(i)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
                     </div>
                   </div>
                   <input style={{ ...inputStyle, marginBottom: 10, background: C.bg0 }} value={sec.title}

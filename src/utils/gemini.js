@@ -16,9 +16,25 @@ function callable(name) {
   return _callables[name];
 }
 
+// Hard client-side timeout. The Cloud Function itself is configured with
+// timeoutSeconds: 60 — we mirror that here so a stuck network/socket
+// (DNS failure, TCP black hole, browser tab throttled in background)
+// can't leave the UI on "Generating…" forever. Without this, the spinner
+// state in the calling page only flips back inside `finally` after the
+// promise resolves, which never happens when the request silently dies.
+const AI_TIMEOUT_MS = 60_000;
+
+function withTimeout(promise, ms = AI_TIMEOUT_MS) {
+  let t;
+  const timeout = new Promise((_, rej) => {
+    t = setTimeout(() => rej(new Error('AI request timed out — please try again.')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+}
+
 async function invoke(name, data) {
   try {
-    const res = await callable(name)(data);
+    const res = await withTimeout(callable(name)(data));
     return res?.data?.text ?? '';
   } catch (err) {
     // Surface a clean message to the page-level toast handlers.

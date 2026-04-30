@@ -1,3 +1,4 @@
+import { C, alpha } from '../tokens';
 import AttachedFileViewer from './AttachedFileViewer';
 import UploadZone from './UploadZone';
 
@@ -17,6 +18,10 @@ export default function AttachmentEditor({
   onPendingFile,
   onReplaceClick,
   onRemove,
+  onCancelReplace,   // optional — when present, shows a Cancel-replace
+                     // affordance during the replacing state so the user
+                     // can back out without accidentally deleting their
+                     // existing attachment on save.
 }) {
   if (attachedFile && !replacingFile) {
     return (
@@ -29,10 +34,28 @@ export default function AttachmentEditor({
     );
   }
   return (
-    <UploadZone
-      file={pendingFile}
-      onFile={onPendingFile}
-      onRemove={() => onPendingFile(null)}
-    />
+    <div>
+      {attachedFile && replacingFile && onCancelReplace && (
+        // Visible reminder + escape hatch. Without this, the user who
+        // clicked Replace and then changed their mind has no way to
+        // revert — and saving with no pendingFile previously deleted
+        // the attachment silently.
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 6, padding: '8px 12px', marginBottom: 8 }}>
+          <span>
+            Replacing <strong style={{ color: C.fg1 }}>{attachedFile.name || 'attached file'}</strong>
+            {!pendingFile && ' — pick a new file or cancel to keep the existing one.'}
+          </span>
+          <button type="button" onClick={onCancelReplace}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '4px 10px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Cancel replace
+          </button>
+        </div>
+      )}
+      <UploadZone
+        file={pendingFile}
+        onFile={onPendingFile}
+        onRemove={() => onPendingFile(null)}
+      />
+    </div>
   );
 }

@@ -73,7 +73,9 @@
   --c-bg3: #DCC8B8;
   --c-fg1: #1A0E0A;
   --c-fg2: #4A2A1F;
-  --c-fg3: #8A6650;
+  /* Was #8A6650 → ~4.55:1 vs #FFFFFF, technically WCAG AA but with no
+     headroom for any future palette nudge. #75503D clears ~5.7:1. */
+  --c-fg3: #75503D;
   --c-accent: #6E2A1E;
   --c-accent-light: #8B3A2A;
   --c-accent-dim: #4F1B12;
@@ -101,7 +103,9 @@
   --c-bg3: #F0DD90;
   --c-fg1: #1A0E00;
   --c-fg2: #4A2C0F;
-  --c-fg3: #8A6A40;
+  /* Was #8A6A40 → ~4.50:1 vs #FFFFFF, right at the WCAG AA line.
+     #715433 clears ~5.6:1, room for future tweaks without re-failing. */
+  --c-fg3: #715433;
   --c-accent: #4A2C0F;
   --c-accent-light: #6B3F1A;
   --c-accent-dim: #2E1A05;
@@ -606,6 +610,15 @@ textarea:focus-visible,
   line-height: 1;
 }
 .select-wrap select {
+  /* Suppress every UA's native dropdown arrow so our custom ▾ in
+     .select-wrap::after isn't doubled. iOS Safari draws its own arrow
+     unless -webkit-appearance is explicitly disabled at the CSS layer
+     (the inline `appearance: 'none'` JSX style isn't always enough on
+     Safari ≤ 17). */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
   padding-right: 28px !important;
   width: 100%;
 }

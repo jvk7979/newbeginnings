@@ -53,7 +53,8 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
         </button>
         {mobile && (
           <button onClick={() => onNavigate(null)}
-            style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 6, width: 30, height: 30, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg2, fontSize: 18, lineHeight: 1, flexShrink: 0 }}>
+            aria-label="Close navigation menu"
+            style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 8, width: 44, height: 44, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg2, fontSize: 22, lineHeight: 1, flexShrink: 0 }}>
             ×
           </button>
         )}
@@ -125,13 +126,38 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
           </svg>
         </button>
         {themeOpen && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, margin: '6px 0 2px' }}>
-            {themes.map(t => {
+          // role="radiogroup" + role="radio" so screen readers announce the
+          // mutually-exclusive selection correctly. Arrow keys move within
+          // the group; only the active radio is in the tab order so users
+          // don't have to Tab through every theme to leave the group.
+          <div role="radiogroup" aria-label="Theme"
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, margin: '6px 0 2px' }}>
+            {themes.map((t, i) => {
               const active = theme === t.id;
+              const onArrowNav = (e) => {
+                if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+                e.preventDefault();
+                let nextIdx = i;
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextIdx = (i + 1) % themes.length;
+                else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') nextIdx = (i - 1 + themes.length) % themes.length;
+                else if (e.key === 'Home') nextIdx = 0;
+                else if (e.key === 'End')  nextIdx = themes.length - 1;
+                setTheme(themes[nextIdx].id);
+                // Move focus to the new radio (re-query because the active
+                // tabIndex flips after setTheme re-renders).
+                setTimeout(() => {
+                  const buttons = e.currentTarget?.parentElement?.querySelectorAll('[role="radio"]');
+                  buttons?.[nextIdx]?.focus();
+                }, 0);
+              };
               return (
-                <button key={t.id} onClick={() => setTheme(t.id)} title={t.label} aria-pressed={active}
+                <button key={t.id} onClick={() => setTheme(t.id)} onKeyDown={onArrowNav}
+                  role="radio"
+                  aria-checked={active}
+                  tabIndex={active ? 0 : -1}
+                  title={t.label}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 7px', borderRadius: 6, background: active ? C.accentBg : C.bg2, border: `1px solid ${active ? alpha(C.accent, 55) : C.border}`, cursor: 'pointer', transition: 'all 120ms' }}>
-                  <span style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 3, overflow: 'hidden', border: `1px solid ${C.border}` }}>
+                  <span aria-hidden="true" style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 3, overflow: 'hidden', border: `1px solid ${C.border}` }}>
                     {t.swatch.map((s, i) => <span key={i} style={{ width: 7, height: 14, background: s, display: 'block' }} />)}
                   </span>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.label}</span>
@@ -325,8 +351,8 @@ export default function SideNav({ currentPage, onNavigate }) {
           aria-label="Open navigation menu"
           aria-expanded={mobileOpen}
           aria-controls="mobile-drawer"
-          style={{ width: 38, height: 38, borderRadius: 8, background: C.bg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg1, flexShrink: 0 }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="18" height="18" aria-hidden="true" focusable="false">
+          style={{ width: 44, height: 44, borderRadius: 8, background: C.bg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.fg1, flexShrink: 0 }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="20" height="20" aria-hidden="true" focusable="false">
             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
