@@ -28,8 +28,25 @@ export default function SignInPage() {
     setError('');
     try {
       await signInWithGoogle();
-    } catch {
-      setError('Sign-in failed. Please try again.');
+    } catch (err) {
+      // Surface the Firebase error code so we can diagnose iOS Safari /
+      // popup-blocker / third-party-cookie failures instead of always
+      // showing the same generic message.
+      const code = err?.code || '';
+      console.error('[auth/signIn]', code, err?.message);
+      let msg;
+      if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        msg = 'Sign-in popup was blocked or closed. Allow popups for this site and try again.';
+      } else if (code === 'auth/network-request-failed') {
+        msg = 'Network error. Check your connection and try again.';
+      } else if (code === 'auth/unauthorized-domain') {
+        msg = 'This domain is not authorized for sign-in. Contact the workspace admin.';
+      } else if (code === 'auth/internal-error') {
+        msg = 'Internal sign-in error. Try clearing site data and sign in again.';
+      } else {
+        msg = code ? `Sign-in failed (${code}). Please try again.` : 'Sign-in failed. Please try again.';
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
