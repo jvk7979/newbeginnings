@@ -44,7 +44,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
     <div style={{
       display: 'flex', flexDirection: 'column', height: '100%',
       background: C.bg1, borderRight: `1px solid ${C.border}`,
-      width: mobile ? 'min(82vw, 260px)' : '220px',
+      width: mobile ? 'min(84vw, 276px)' : '240px',
     }}>
       {/* Logo */}
       <div style={{ padding: '14px 16px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
@@ -68,9 +68,9 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
               aria-current={active ? 'page' : undefined}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-                textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: 'none',
+                textAlign: 'left', padding: '10px 14px', borderRadius: 8, border: 'none',
                 marginBottom: 2, cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif", fontSize: 16,
+                fontFamily: "'DM Sans', sans-serif", fontSize: 15,
                 fontWeight: active ? 600 : 400,
                 color: active ? C.accent : C.fg2,
                 background: active ? C.accentBg : 'transparent',
@@ -91,9 +91,9 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
               aria-current={active ? 'page' : undefined}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-                textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: 'none',
+                textAlign: 'left', padding: '10px 14px', borderRadius: 8, border: 'none',
                 marginBottom: 2, marginTop: 4, cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif", fontSize: 16,
+                fontFamily: "'DM Sans', sans-serif", fontSize: 15,
                 fontWeight: active ? 600 : 400,
                 color: active ? C.accent : C.fg2,
                 background: active ? C.accentBg : 'transparent',
