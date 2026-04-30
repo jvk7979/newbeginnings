@@ -48,6 +48,17 @@ async function assertAllowed(auth) {
   }
 }
 
+// withAuth(handler) — single chokepoint for "is the caller signed in,
+// verified, and on the allowlist?" Every callable funnels through this
+// so a future auth/quota/rate-limit change only has to be made in one
+// place. Previously the assertAllowed call was duplicated at the top of
+// every onCall handler, which is exactly the kind of repetition that
+// drifts out of sync the moment one of the four sites is forgotten.
+const withAuth = (handler) => async (req) => {
+  await assertAllowed(req.auth);
+  return handler(req);
+};
+
 // Single shared Gemini client for the function instance — survives between
 // invocations while the function stays warm.
 let _genAI = null;
@@ -126,8 +137,7 @@ const callOpts = {
 };
 
 // ── analyzeIdea ─────────────────────────────────────────────────────────
-export const analyzeIdea = onCall(callOpts, async (req) => {
-  await assertAllowed(req.auth);
+export const analyzeIdea = onCall(callOpts, withAuth(async (req) => {
   const { title = '', desc = '' } = req.data || {};
   if (!title.trim() && !desc.trim()) {
     throw new HttpsError('invalid-argument', 'Title or description required.');
@@ -153,11 +163,10 @@ NEXT STEPS
 • [step 3]`;
   const text = await ask(prompt);
   return { text };
-});
+}));
 
 // ── generatePlanSection ─────────────────────────────────────────────────
-export const generatePlanSection = onCall(callOpts, async (req) => {
-  await assertAllowed(req.auth);
+export const generatePlanSection = onCall(callOpts, withAuth(async (req) => {
   const { sectionTitle = '', planTitle = '', existingContent = '' } = req.data || {};
   if (!sectionTitle.trim()) {
     throw new HttpsError('invalid-argument', 'sectionTitle required.');
@@ -171,11 +180,10 @@ ${existingContent ? `Existing notes: ${existingContent}` : ''}
 Write a concise, professional business plan section (150-250 words) for the above. Plain text only, no markdown headers.`;
   const text = await ask(prompt);
   return { text };
-});
+}));
 
 // ── improveSummary ──────────────────────────────────────────────────────
-export const improveSummary = onCall(callOpts, async (req) => {
-  await assertAllowed(req.auth);
+export const improveSummary = onCall(callOpts, withAuth(async (req) => {
   const { title = '', summary = '' } = req.data || {};
   if (!summary.trim()) {
     throw new HttpsError('invalid-argument', 'summary required.');
@@ -188,19 +196,18 @@ ${summary}
 Write a polished 2-3 paragraph executive summary (200-300 words). Plain text only.`;
   const text = await ask(prompt);
   return { text };
-});
+}));
 
 // ── summariseDocumentText ───────────────────────────────────────────────
 // The client extracts text from PDF/DOCX/TXT (using pdfjs / mammoth in the
 // browser, which is fine — those libraries don't need an API key) and sends
 // the plain text here. We keep the extraction client-side because shipping
 // 50MB PDFs to the function would be slow and trip the 10MB callable limit.
-export const summariseDocumentText = onCall(callOpts, async (req) => {
-  await assertAllowed(req.auth);
+export const summariseDocumentText = onCall(callOpts, withAuth(async (req) => {
   const { text = '' } = req.data || {};
   if (!text || text.trim().length < 100) {
     throw new HttpsError('invalid-argument', 'Document text is empty or too short to summarise.');
   }
   const result = await ask(SUMMARY_PROMPT + text.slice(0, 12000));
   return { text: result };
-});
+}));

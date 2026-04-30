@@ -3,7 +3,7 @@
   "description": "Server-side AI proxy + admin helpers for The New Beginnings",
   "private": true,
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "type": "module",
