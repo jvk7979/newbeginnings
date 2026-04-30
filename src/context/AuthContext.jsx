@@ -23,14 +23,28 @@ export function AuthProvider({ children }) {
         setLoading(false);
         return;
       }
-      if (ADMIN_EMAILS.has(u.email)) {
+      // Normalize email (lowercase + trim) so allowedUsers/<id> lookups
+      // are case-insensitive — matches the same rule used server-side
+      // in functions/index.js and firestore.rules.
+      const email = (u.email || '').toLowerCase().trim();
+      // Reject unverified emails — defense in depth against a federated
+      // provider that doesn't confirm ownership (Google sign-in always
+      // returns email_verified=true, so this never blocks the happy path).
+      if (!u.emailVerified) {
+        await signOut(auth);
+        setUser(null);
+        setAccessDenied(true);
+        setLoading(false);
+        return;
+      }
+      if (ADMIN_EMAILS.has(email)) {
         setUser(u);
         setAccessDenied(false);
         setLoading(false);
         return;
       }
       try {
-        const snap = await getDoc(doc(db, 'allowedUsers', u.email));
+        const snap = await getDoc(doc(db, 'allowedUsers', email));
         if (snap.exists()) {
           setUser(u);
           setAccessDenied(false);
@@ -58,7 +72,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, loading, accessDenied,
-      isAdmin: ADMIN_EMAILS.has(user?.email),
+      isAdmin: ADMIN_EMAILS.has((user?.email || '').toLowerCase().trim()),
       signInWithGoogle, signOutUser,
     }}>
       {children}

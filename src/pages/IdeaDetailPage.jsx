@@ -9,6 +9,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import AttachedFileViewer from '../components/AttachedFileViewer';
 import AttachmentEditor from '../components/AttachmentEditor';
 import DiscussionThread from '../components/DiscussionThread';
+import { SourcesEditor, SourcesView } from '../components/SourcesField';
 import { uploadFileToDB, deleteFileFromDB } from '../utils/fileStorage';
 
 const STATUS_BADGE = {
@@ -31,6 +32,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [category, setCategory]       = useState(idea.category || '');
   const [desc, setDesc]               = useState(idea.desc || '');
   const [notes, setNotes]             = useState(idea.notes || '');
+  const [sources, setSources]         = useState(Array.isArray(idea.sources) ? idea.sources : []);
   const [attachedFile, setAttachedFile] = useState(idea.attachedFile || null);
   const [pendingFile,  setPendingFile]  = useState(null);
   const [replacingFile, setReplacingFile] = useState(false);
@@ -69,7 +71,8 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
         if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
         file = null;
       }
-      updateIdea(idea.id, { title: title.trim(), status, category: category || '', desc: desc.trim(), notes: notes.trim(), attachedFile: file });
+      const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
+      updateIdea(idea.id, { title: title.trim(), status, category: category || '', desc: desc.trim(), notes: notes.trim(), sources: cleanSources, attachedFile: file });
       setAttachedFile(file);
       setPendingFile(null);
       setReplacingFile(false);
@@ -88,6 +91,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     setCategory(idea.category || '');
     setDesc(idea.desc || '');
     setNotes(idea.notes || '');
+    setSources(Array.isArray(idea.sources) ? idea.sources : []);
     setAttachedFile(idea.attachedFile || null);
     setPendingFile(null);
     setReplacingFile(false);
@@ -176,6 +180,13 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
               </div>
             )}
 
+            {Array.isArray(idea.sources) && idea.sources.filter(s => (s || '').trim()).length > 0 && (
+              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px' }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Sources</div>
+                <SourcesView sources={idea.sources} />
+              </div>
+            )}
+
             {attachedFile && (
               <div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Attached Document</div>
@@ -255,6 +266,11 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }}
                 placeholder="Open questions, validation ideas, next steps…"
                 onFocus={focus} onBlur={blur} />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Sources</label>
+              <SourcesEditor sources={sources} onChange={setSources} />
             </div>
 
             <div>

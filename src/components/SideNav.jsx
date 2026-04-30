@@ -151,9 +151,16 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
                 {(user?.displayName || user?.email || '?')[0].toUpperCase()}
               </div>
           }
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {user?.displayName?.split(' ')[0] || 'Account'}
-          </span>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.displayName?.split(' ')[0] || 'Account'}
+            </span>
+            {user?.email && (
+              <span title={user.email} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user.email}
+              </span>
+            )}
+          </div>
           <button onClick={() => setSettingsOpen(o => !o)} title="Settings"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 3, color: settingsOpen ? C.accent : C.fg3, flexShrink: 0, display: 'flex', borderRadius: 4 }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>

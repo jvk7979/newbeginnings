@@ -9,6 +9,7 @@ import Badge from '../components/Badge';
 import AttachedFileViewer from '../components/AttachedFileViewer';
 import AttachmentEditor from '../components/AttachmentEditor';
 import DiscussionThread from '../components/DiscussionThread';
+import { SourcesEditor, SourcesView } from '../components/SourcesField';
 import { uploadFileToDB, deleteFileFromDB, mimeForType, fetchFileBlob } from '../utils/fileStorage';
 import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
 import { CATEGORIES } from '../utils/categoryStyles';
@@ -33,6 +34,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [category,     setCategory]     = useState(plan.category      || 'Business');
   const [status,       setStatus]       = useState(plan.status        || 'draft');
   const [sections,     setSections]     = useState(plan.sections      || []);
+  const [sources,      setSources]      = useState(Array.isArray(plan.sources) ? plan.sources : []);
   const [attachedFile, setAttachedFile] = useState(plan.attachedFile  || null);
   const [pendingFile,  setPendingFile]  = useState(null);
   const [replacingFile, setReplacingFile] = useState(false);
@@ -82,7 +84,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
         if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
         file = null;
       }
-      updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, attachedFile: file });
+      const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
+      updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, attachedFile: file });
       setAttachedFile(file);
       setPendingFile(null);
       setReplacingFile(false);
@@ -102,6 +105,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     setCategory(plan.category     || 'Business');
     setStatus(plan.status         || 'draft');
     setSections(plan.sections     || []);
+    setSources(Array.isArray(plan.sources) ? plan.sources : []);
     setAttachedFile(plan.attachedFile || null);
     setPendingFile(null);
     setReplacingFile(false);
@@ -231,6 +235,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               </div>
             )}
 
+            {Array.isArray(plan.sources) && plan.sources.filter(s => (s || '').trim()).length > 0 && (
+              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 10 }}>Sources</div>
+                <SourcesView sources={plan.sources} />
+              </div>
+            )}
+
             {sections.length === 0 && (
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginBottom: 32 }}>No sections yet. Click Edit to add sections.</div>
             )}
@@ -319,6 +330,11 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                 onPendingFile={setPendingFile}
                 onReplaceClick={() => setReplacingFile(true)}
                 onRemove={handleRemoveFile} />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Sources</label>
+              <SourcesEditor sources={sources} onChange={setSources} />
             </div>
 
             <div>

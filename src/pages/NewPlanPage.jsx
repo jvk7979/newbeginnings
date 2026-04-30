@@ -5,6 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
 import UploadZone from '../components/UploadZone';
+import { SourcesEditor } from '../components/SourcesField';
 import { uploadFileToDB } from '../utils/fileStorage';
 import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
 import { CATEGORIES } from '../utils/categoryStyles';
@@ -22,7 +23,7 @@ const PLAN_STATUSES = [
 export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = usePlans();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft' });
+  const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft', sources: [] });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
@@ -58,7 +59,8 @@ export default function NewPlanPage({ onNavigate }) {
     try {
       let attachedFile = null;
       if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
-      addPlan({ ...form, title: form.title.trim(), sections: [], attachedFile });
+      const sources = (form.sources || []).map(s => (s || '').trim()).filter(Boolean);
+      addPlan({ ...form, title: form.title.trim(), sources, sections: [], attachedFile });
       showToast('Business plan saved', 'success');
       onNavigate('plans');
     } catch (err) {
@@ -158,6 +160,12 @@ export default function NewPlanPage({ onNavigate }) {
             onChange={e => setForm({ ...form, notes: e.target.value })}
             placeholder="Internal notes, observations, or additional context…"
             onFocus={focus} onBlur={blur} />
+        </div>
+
+        {/* Sources */}
+        <div>
+          <label style={labelStyle}>Sources (optional)</label>
+          <SourcesEditor sources={form.sources} onChange={s => setForm(f => ({ ...f, sources: s }))} />
         </div>
 
         {/* Actions */}

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { C } from '../tokens';
+import { useState, useEffect } from 'react';
+import { C, alpha } from '../tokens';
 import { useAuth } from '../context/AuthContext';
 import logoImg from '../assets/logo.png';
 
@@ -15,6 +15,14 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
 
+  // Once the access check completes (accessDenied flips, or onAuthStateChanged
+  // settles the user), drop the spinner so the button is interactive again.
+  // Previously loading was only reset on catch, leaving the button stuck on
+  // "Signing in…" after an access-denied result.
+  useEffect(() => {
+    if (accessDenied) setLoading(false);
+  }, [accessDenied]);
+
   const handleSignIn = async () => {
     setLoading(true);
     setError('');
@@ -22,6 +30,7 @@ export default function SignInPage() {
       await signInWithGoogle();
     } catch {
       setError('Sign-in failed. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -91,7 +100,13 @@ export default function SignInPage() {
           {accessDenied && !error && (
             <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.danger, marginTop: 12, textAlign: 'center', lineHeight: 1.5 }}>
               Access denied. Your account hasn't been invited to this workspace.<br />
-              <span style={{ fontSize: 13, color: C.fg3 }}>Contact the workspace admin to request access.</span>
+              <span style={{ fontSize: 13, color: C.fg3 }}>Contact the workspace admin to request access — once added, click below to retry.</span>
+              <div style={{ marginTop: 10 }}>
+                <button onClick={handleSignIn} disabled={loading}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 6, cursor: loading ? 'not-allowed' : 'pointer', padding: '6px 16px' }}>
+                  {loading ? 'Retrying…' : 'Try again'}
+                </button>
+              </div>
             </div>
           )}
           {error && (

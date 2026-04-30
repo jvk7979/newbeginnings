@@ -26,11 +26,21 @@ const ADMIN_EMAILS = new Set([
 
 // Mirror the auth model in firestore.rules: admin emails always allowed,
 // everyone else needs an entry in /allowedUsers/{email}.
+//
+// Email is normalized (lowercase + trimmed) so casing/whitespace variants
+// can't bypass the allowlist — `Foo@Gmail.com` and `foo@gmail.com` resolve
+// to the same allowedUsers doc id. We also reject unverified emails so a
+// federated provider that doesn't verify ownership can't be used to squat
+// on an admin address.
 async function assertAllowed(auth) {
-  if (!auth || !auth.token?.email) {
+  const rawEmail = auth?.token?.email;
+  if (!auth || !rawEmail) {
     throw new HttpsError('unauthenticated', 'Sign in to use AI features.');
   }
-  const email = auth.token.email;
+  if (auth.token.email_verified !== true) {
+    throw new HttpsError('permission-denied', 'Your email address is not verified.');
+  }
+  const email = String(rawEmail).toLowerCase().trim();
   if (ADMIN_EMAILS.has(email)) return;
   const snap = await db.doc(`allowedUsers/${email}`).get();
   if (!snap.exists) {

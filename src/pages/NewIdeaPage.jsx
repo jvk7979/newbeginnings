@@ -5,13 +5,14 @@ import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
 import UploadZone from '../components/UploadZone';
+import { SourcesEditor } from '../components/SourcesField';
 import { uploadFileToDB } from '../utils/fileStorage';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useIdeas();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '' });
+  const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '', sources: [] });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -36,7 +37,8 @@ export default function NewIdeaPage({ onNavigate }) {
     try {
       let attachedFile = null;
       if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
-      addIdea({ title: form.title.trim(), status: form.status, category: form.category || '', desc: form.desc.trim(), attachedFile });
+      const sources = (form.sources || []).map(s => (s || '').trim()).filter(Boolean);
+      addIdea({ title: form.title.trim(), status: form.status, category: form.category || '', desc: form.desc.trim(), sources, attachedFile });
       showToast('Idea saved', 'success');
       onNavigate('ideas');
     } catch {
@@ -103,6 +105,10 @@ export default function NewIdeaPage({ onNavigate }) {
             placeholder="Describe the problem, target customer, rough mechanics…"
             onFocus={focus} onBlur={blur} />
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>{form.desc.length} characters</div>
+        </div>
+        <div>
+          <label style={labelStyle}>Sources (optional)</label>
+          <SourcesEditor sources={form.sources} onChange={s => setForm(f => ({ ...f, sources: s }))} />
         </div>
         <div>
           <label style={labelStyle}>Attach Document (optional)</label>
