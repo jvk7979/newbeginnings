@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, Component } from 'react';
 import { C } from './tokens';
 import logoImg from './assets/logo.png';
 import { useAuth } from './context/AuthContext';
@@ -43,6 +43,57 @@ function Spinner({ label }) {
       {label && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3 }}>{label}</div>}
     </div>
   );
+}
+
+// Catches lazy-chunk load failures (network blip, stale deploy, etc.) and
+// any other render-time error. Without this, a thrown error inside
+// <Suspense> unmounts the entire tree and the user sees a blank page that
+// doesn't recover even after navigation.
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidCatch(error, info) {
+    console.error('[ErrorBoundary]', error, info);
+  }
+  componentDidMount() {
+    // Auto-reset on URL change so the user can navigate away from a
+    // broken state without a manual page reload.
+    this._onHash = () => { if (this.state.error) this.setState({ error: null }); };
+    window.addEventListener('hashchange', this._onHash);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this._onHash);
+  }
+  render() {
+    if (this.state.error) {
+      const isChunkErr = /chunk|loading|dynamic import|fetch/i.test(String(this.state.error?.message));
+      return (
+        <div className="page-pad" style={{ background: C.bg0 }}>
+          <div style={{ maxWidth: 520, margin: '60px auto', textAlign: 'center', fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+            <div style={{ fontSize: 18, fontWeight: 600, color: C.fg1, marginBottom: 8 }}>
+              {isChunkErr ? 'Couldn’t load this page' : 'Something went wrong'}
+            </div>
+            <div style={{ fontSize: 15, color: C.fg3, lineHeight: 1.6, marginBottom: 20 }}>
+              {isChunkErr
+                ? 'The latest update couldn’t finish loading — usually a one-tap reload fixes it.'
+                : 'An unexpected error occurred. Reloading should clear it.'}
+            </div>
+            <button onClick={() => window.location.reload()}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '9px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
+              Reload
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 function NotFound({ label, dest, onNavigate }) {
@@ -115,9 +166,11 @@ export default function App() {
       <SideNav currentPage={page} onNavigate={navigate} />
       <div className="main-with-sidebar" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
-          <Suspense fallback={<Spinner />}>
-            {renderPage()}
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<Spinner />}>
+              {renderPage()}
+            </Suspense>
+          </ErrorBoundary>
         </div>
         <Footer />
       </div>
