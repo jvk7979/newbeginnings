@@ -59,10 +59,13 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
   const inputRef = useRef(null);
 
   /* ── PDF intake ── */
-  // Validate-only flow: we no longer extract text or detect sections at
-  // intake — the user explicitly opts in via Save. This keeps the upload
-  // experience simple ("just attach the file") and avoids spending CPU
-  // on PDFs the user never intends to keep.
+  // Drop = attach immediately. The Save/Cancel UI is a confirmation
+  // affordance, not a gate — the parent's attachment slot needs to react
+  // the moment the file is dropped so the bottom "Attach Document" zone
+  // mirrors the upload AND the "Generate AI Summary" button (which keys
+  // off the parent's selectedFile via isSummarySupported) becomes
+  // available without waiting for a Save click. Save still exists as a
+  // visual "I'm done" affirmation; Cancel detaches.
   const acceptPdf = (file) => {
     if (!file || file.type !== 'application/pdf') {
       setPdfErr('Please upload a PDF file.');
@@ -72,6 +75,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
     setPendingFile(file);
     setPdfState('pending');
     setPdfErr('');
+    onFileAttached?.(file);
   };
 
   const onDrop      = (e) => { e.preventDefault(); setPdfState('idle'); acceptPdf(e.dataTransfer.files[0]); };
@@ -79,14 +83,15 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
   const onDragLeave = () => setPdfState('idle');
   const onFileChange = (e) => { acceptPdf(e.target.files[0]); e.target.value = ''; };
 
-  // Save: confirm the pending file as the parent's attachment.
+  // Save: just transition to the "saved" visual state — the file was
+  // already attached on drop, so this is purely UX confirmation.
   const savePdf = () => {
     if (!pendingFile) return;
-    onFileAttached?.(pendingFile);
     setPdfState('saved');
   };
 
-  // Cancel / reset: drop the pending file and any prior attachment.
+  // Cancel / reset: drop the pending file and any prior attachment so
+  // the bottom slot + AI button rewind too.
   const resetPdf = () => {
     setPdfState('idle');
     setPendingFile(null);
@@ -253,7 +258,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
               </div>
               <div style={{ padding: '12px 16px', background: C.bg0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
-                  Save to attach this PDF to the entry, or cancel to discard.
+                  Attached. Save to confirm, or cancel to discard.
                 </span>
                 <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                   <button onClick={resetPdf}
