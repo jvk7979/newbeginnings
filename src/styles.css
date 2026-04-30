@@ -144,34 +144,6 @@
   --c-info-bg: #E3F2FD;
 }
 
-/* Figs — Looka Trend 22: Figs & Lavender · lavender mist · fig #6B2C5F */
-:root[data-theme="figs"] {
-  --c-bg0: #F4EEF5;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #E8DDEA;
-  --c-bg3: #D0BCD3;
-  --c-fg1: #1F0A1A;
-  --c-fg2: #4A2440;
-  --c-fg3: #8A647A;
-  --c-accent: #6B2C5F;
-  --c-accent-light: #8E4080;
-  --c-accent-dim: #4F1B45;
-  --c-accent-bg: #F4E8F2;
-  --c-accent-rgb: 107 44 95;
-  --c-accent-dim-rgb: 79 27 69;
-  --c-border: #E5D5E8;
-  --c-border-light: #C8B0CB;
-  --c-success: #2E7D32;
-  --c-success-bg: #E8F5E9;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFF8ED;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #6B2C5F;
-  --c-info-bg: #F4E8F2;
-}
-
 /* Meadow — Trend 6: Green White and Yellow · uses image colours
    Alpine Oat #F0E7DA · Dill Green #4E6813 · Butter Yellow #FFEDA8 */
 :root[data-theme="meadow"] {
@@ -225,34 +197,6 @@
   --c-danger: #74070E;
   --c-danger-bg: #FBE9EB;
   --c-danger-rgb: 116 7 14;
-  --c-info: #1976D2;
-  --c-info-bg: #E3F2FD;
-}
-
-/* Phoenix — Trend 3 (light): pale blue base · fiery orange accent #E04A0F */
-:root[data-theme="phoenix"] {
-  --c-bg0: #F4F7FB;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #E1E8F2;
-  --c-bg3: #C8D4E5;
-  --c-fg1: #0A1628;
-  --c-fg2: #2B4570;
-  --c-fg3: #5A6E8A;
-  --c-accent: #E04A0F;
-  --c-accent-light: #FF6B35;
-  --c-accent-dim: #B33A0A;
-  --c-accent-bg: #FFEDE3;
-  --c-accent-rgb: 224 74 15;
-  --c-accent-dim-rgb: 179 58 10;
-  --c-border: #DDE4EE;
-  --c-border-light: #BCC8DA;
-  --c-success: #15803D;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #E04A0F;
-  --c-warning-bg: #FFEDE3;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
   --c-info: #1976D2;
   --c-info-bg: #E3F2FD;
 }
@@ -311,34 +255,6 @@
   --c-danger-rgb: 220 38 38;
   --c-info: #00897B;
   --c-info-bg: #E0F2F1;
-}
-
-/* Blue Aura — uses Aura Indigo #B0A6DF from image · soft sky base */
-:root[data-theme="aura"] {
-  --c-bg0: #F4F5FC;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #E0DEF2;
-  --c-bg3: #B0A6DF;
-  --c-fg1: #14132B;
-  --c-fg2: #2E2C5C;
-  --c-fg3: #6E6BA0;
-  --c-accent: #4945A8;
-  --c-accent-light: #7B78C8;
-  --c-accent-dim: #322F80;
-  --c-accent-bg: #ECEAFA;
-  --c-accent-rgb: 73 69 168;
-  --c-accent-dim-rgb: 50 47 128;
-  --c-border: #DDDAEC;
-  --c-border-light: #B0A6DF;
-  --c-success: #16A34A;
-  --c-success-bg: #DCFCE7;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #4945A8;
-  --c-info-bg: #ECEAFA;
 }
 
 /* Amber Haze — soft warm cream base · deep amber accent #B45309 */

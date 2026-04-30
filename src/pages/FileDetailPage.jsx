@@ -35,7 +35,7 @@ export default function FileDetailPage({ file, onNavigate }) {
 
   return (
     <>
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', background: C.bg0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', background: C.bg0, height: '100%', minHeight: 0 }}>
 
       {/* Compact top bar */}
       <div style={{ flexShrink: 0, height: 48, background: C.bg2, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', paddingInline: 20, gap: 12 }}>
@@ -105,7 +105,7 @@ export default function FileDetailPage({ file, onNavigate }) {
         <iframe
           src={fileUrl}
           title={file.title}
-          style={{ flex: 1, border: 'none', width: '100%', display: 'block' }}
+          style={{ flex: 1, border: 'none', width: '100%', height: '100%', minHeight: 0, display: 'block' }}
         />
       )}
 

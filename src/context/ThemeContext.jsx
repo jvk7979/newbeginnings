@@ -10,9 +10,6 @@ export const THEMES = [
   { id: 'mahogany', label: 'Mahogany',   mode: 'light', swatch: ['#FAF5F0', '#6E2A1E', '#FFFFFF'] },
   { id: 'clay',     label: 'Clay',       mode: 'light', swatch: ['#FBF1EC', '#B8553B', '#FFFFFF'] },
   { id: 'monogram', label: 'Monogram',   mode: 'light', swatch: ['#FFFFFF', '#74070E', '#FAFAFA'] },
-  { id: 'phoenix',  label: 'Phoenix',    mode: 'light', swatch: ['#F4F7FB', '#E04A0F', '#FFFFFF'] },
-  { id: 'figs',     label: 'Figs',       mode: 'light', swatch: ['#F4EEF5', '#6B2C5F', '#FFFFFF'] },
-  { id: 'aura',     label: 'Blue Aura',  mode: 'light', swatch: ['#F4F5FC', '#4945A8', '#FFFFFF'] },
   { id: 'teal',     label: 'Transformative Teal', mode: 'light', swatch: ['#F0FAF8', '#00897B', '#FFFFFF'] },
 ];
 
