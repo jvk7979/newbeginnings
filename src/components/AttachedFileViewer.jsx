@@ -32,7 +32,14 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
     if (!viewing) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prevOverflow; };
+    // Escape-to-close — backup for the close button when iOS Safari's
+    // touch handling stalls during PDF rendering or pinch-zoom.
+    const onKey = (e) => { if (e.key === 'Escape') setViewing(false); };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKey);
+    };
   }, [viewing]);
 
   if (!file) return null;
@@ -186,7 +193,7 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
           condition stays. */}
       {viewing && (isPdf || resolvedUrl || file.url) && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', flexDirection: 'column', background: '#1a1510' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', background: '#221c12', borderBottom: '1px solid rgba(255,255,255,0.10)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px 12px 20px', paddingRight: 116, background: '#221c12', borderBottom: '1px solid rgba(255,255,255,0.10)', flexShrink: 0 }}>
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="18" height="18">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14,2 14,8 20,8"/>
@@ -198,11 +205,21 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, padding: '5px 12px', cursor: 'pointer' }}>
               ↓ Download
             </button>
-            <button onClick={() => setViewing(false)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: '#aaa', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 12px', cursor: 'pointer' }}>
-              ✕ Close
-            </button>
           </div>
+          {/* Close button is hoisted out of the header into its own
+              position:fixed element with a higher z-index than the
+              renderer below. Inside the flex header, iOS Safari can
+              fail to fire taps on it while a heavy canvas render is
+              in progress or the user has just finished a pinch gesture
+              — the canvas-renderer's scroll layer briefly captures
+              the touch. Pinning the close button to the visual viewport
+              corner with z-index above the canvas guarantees the tap
+              always lands on it. 44×44 hit target. */}
+          <button onClick={(e) => { e.stopPropagation(); setViewing(false); }}
+            aria-label="Close PDF viewer"
+            style={{ position: 'fixed', top: 8, right: 12, width: 44, height: 44, zIndex: 10010, background: '#3a2f1d', color: '#fff', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 22, cursor: 'pointer', fontSize: 22, lineHeight: 1, fontFamily: "'DM Sans', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
+            ✕
+          </button>
 
           {isPdf && (
             <Suspense fallback={

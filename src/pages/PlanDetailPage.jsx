@@ -225,7 +225,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
           <>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Business Plan</div>
             <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,30px)', fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 8px 0' }}>{plan.title}</h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: summary ? 20 : 32 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 20 }}>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3 }}>Updated {plan.updated}</span>
               {category && (
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '2px 8px' }}>{category}</span>
@@ -233,6 +233,15 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               <Badge status={status} />
             </div>
 
+            {/* Order intentional: source document up top so the user
+                lands on it first, then Executive Summary derived from
+                that document, then notes, then sources, then sections. */}
+            {attachedFile && (
+              <div style={{ marginBottom: summary || notes ? 14 : 28 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Attached Document</div>
+                <AttachedFileViewer file={attachedFile} editing={false} />
+              </div>
+            )}
             {summary && (
               <div style={{ background: C.accentBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: notes ? 14 : 28 }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Executive Summary</div>
@@ -240,15 +249,9 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               </div>
             )}
             {notes && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: attachedFile ? 14 : 28 }}>
+              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Notes</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{notes}</div>
-              </div>
-            )}
-            {attachedFile && (
-              <div style={{ marginBottom: 28 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Attached Document</div>
-                <AttachedFileViewer file={attachedFile} editing={false} />
               </div>
             )}
 
