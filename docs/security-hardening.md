@@ -87,23 +87,47 @@ been run once.
 
 ---
 
-## 5. Long-term: move Gemini behind a Cloud Function
+## 5. Deploy the Cloud Functions (one-time setup)
 
-Steps 1 + 2 above are interim mitigations. The proper fix is a Firebase
-Cloud Function that:
+The Gemini calls have been moved to Cloud Functions in `functions/`.
+Deploy them so the client can call them.
 
-1. Verifies the caller is signed in (`context.auth`).
-2. Looks up the caller's email in `allowedUsers` (or relies on a custom
-   claim).
-3. Forwards the prompt to Gemini using a server-side key.
-4. Returns the response to the client.
+### a. Set the server-side Gemini key
 
-Then `src/utils/gemini.js` and `src/utils/aiSummary.js` call the function
-via `httpsCallable(functions, 'aiSummary')` instead of using the SDK
-directly, and `VITE_GEMINI_API_KEY` is removed from the build entirely.
-This is the only configuration that fully prevents quota theft and key
-extraction. Track this as a follow-up — it's a half-day of work and
-requires `firebase-functions` plus a billing-enabled Cloud project.
+Open Cloud Shell (the `>_` icon in the Firebase Console toolbar) or use a
+local terminal with `firebase-tools` installed. Run:
+
+```sh
+firebase functions:secrets:set GEMINI_API_KEY --project newbeginnings-b4abe
+```
+
+Paste your existing Gemini API key when prompted. This stores the secret
+in Google Secret Manager — it's NOT visible to the client and NOT
+committed to the repo.
+
+### b. Deploy
+
+```sh
+firebase deploy --only functions --project newbeginnings-b4abe
+```
+
+Takes 2–3 minutes. Output should end with `Deploy complete!` and list:
+- `analyzeIdea(us-central1)`
+- `generatePlanSection(us-central1)`
+- `improveSummary(us-central1)`
+- `summariseDocumentText(us-central1)`
+
+### c. Revoke the old client-side Gemini key (after switchover commit deploys)
+
+Once you've verified the AI features work via the function:
+
+1. Open <https://console.cloud.google.com/apis/credentials>
+2. Find the API key that was used as `VITE_GEMINI_API_KEY`
+3. Click **DELETE** (or restrict it heavily as a temporary safety net first)
+
+Any browser still running an old cached bundle will then see AI features
+fail with a "key invalid" error — they need to refresh to pick up the
+new bundle. Cache will expire naturally within a few hours.
 
 ---
 

@@ -1,0 +1,20 @@
+{
+  "name": "newbeginnings-functions",
+  "description": "Server-side AI proxy + admin helpers for The New Beginnings",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions --project newbeginnings-b4abe",
+    "logs": "firebase functions:log --project newbeginnings-b4abe"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1",
+    "@google/generative-ai": "^0.24.1"
+  }
+}
