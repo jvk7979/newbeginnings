@@ -60,8 +60,8 @@
   --c-info-bg: #EFF6FF;
 }
 
-/* Bloom — Trend 1: Pink and Green · soft pink base · deep green accent */
-:root[data-theme="bloom"] {
+/* Pink — soft blush base · deep rose accent */
+:root[data-theme="pink"] {
   --c-bg0: #FDF4F6;
   --c-bg1: #FFFFFF;
   --c-bg2: #F5DDE3;
@@ -69,12 +69,12 @@
   --c-fg1: #1A0F12;
   --c-fg2: #4A2F37;
   --c-fg3: #87646E;
-  --c-accent: #2E7D32;
-  --c-accent-light: #4CAF50;
-  --c-accent-dim: #1B5E20;
-  --c-accent-bg: #E8F5E9;
-  --c-accent-rgb: 46 125 50;
-  --c-accent-dim-rgb: 27 94 32;
+  --c-accent: #C2185B;
+  --c-accent-light: #E91E63;
+  --c-accent-dim: #8E0E40;
+  --c-accent-bg: #FCE4EC;
+  --c-accent-rgb: 194 24 91;
+  --c-accent-dim-rgb: 142 14 64;
   --c-border: #F0DBE0;
   --c-border-light: #E0BAC2;
   --c-success: #2E7D32;
@@ -86,34 +86,6 @@
   --c-danger-rgb: 198 40 40;
   --c-info: #1976D2;
   --c-info-bg: #E3F2FD;
-}
-
-/* Periwinkle — Trend 5: Everything Very Peri · Pantone Very Peri #6667AB */
-:root[data-theme="peri"] {
-  --c-bg0: #F4F2FB;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #E5E1F5;
-  --c-bg3: #C8C0E8;
-  --c-fg1: #1B1A2E;
-  --c-fg2: #3F3D5E;
-  --c-fg3: #7A789A;
-  --c-accent: #6667AB;
-  --c-accent-light: #8889C5;
-  --c-accent-dim: #4F5093;
-  --c-accent-bg: #ECEAFA;
-  --c-accent-rgb: 102 103 171;
-  --c-accent-dim-rgb: 79 80 147;
-  --c-border: #DDDAEC;
-  --c-border-light: #BFB8DA;
-  --c-success: #16A34A;
-  --c-success-bg: #DCFCE7;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #6667AB;
-  --c-info-bg: #ECEAFA;
 }
 
 /* Meadow — Trend 6: Green White and Yellow · uses image colours
@@ -171,34 +143,6 @@
   --c-danger-rgb: 116 7 14;
   --c-info: #1976D2;
   --c-info-bg: #E3F2FD;
-}
-
-/* Lilac — Trend 8: Pink and Purple · soft pink base · deep purple accent */
-:root[data-theme="lilac"] {
-  --c-bg0: #FCF1F5;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F5DCE6;
-  --c-bg3: #E8C0D2;
-  --c-fg1: #1F0A1A;
-  --c-fg2: #4A2440;
-  --c-fg3: #8A647A;
-  --c-accent: #7B2CBF;
-  --c-accent-light: #9D4DDB;
-  --c-accent-dim: #5A1B8E;
-  --c-accent-bg: #F4EAFB;
-  --c-accent-rgb: 123 44 191;
-  --c-accent-dim-rgb: 90 27 142;
-  --c-border: #F0DBE5;
-  --c-border-light: #DDB6CC;
-  --c-success: #16A34A;
-  --c-success-bg: #DCFCE7;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #7B2CBF;
-  --c-info-bg: #F4EAFB;
 }
 
 /* Phoenix — Trend 3 (light): pale blue base · fiery orange accent #E04A0F */
