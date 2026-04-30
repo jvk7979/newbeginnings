@@ -11,7 +11,8 @@ import ConfirmModal from '../components/ConfirmModal';
 import Badge from '../components/Badge';
 import AttachedFileViewer from '../components/AttachedFileViewer';
 import UploadZone from '../components/UploadZone';
-import { uploadFileToDB, deleteFileFromDB } from '../utils/fileStorage';
+import { uploadFileToDB, deleteFileFromDB, mimeForType } from '../utils/fileStorage';
+import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
 import { CATEGORIES } from '../utils/categoryStyles';
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
@@ -51,6 +52,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [isEditing, setIsEditing]     = useState(false);
   const [generatingIdx, setGeneratingIdx] = useState(null);
   const [improvingSummary, setImprovingSummary] = useState(false);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
   const [confirmDel,    setConfirmDel]    = useState(false);
   const [confirmComDel, setConfirmComDel] = useState(null);
 
@@ -166,6 +168,36 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       showToast('AI generation failed. Check your connection.', 'error');
     } finally {
       setGeneratingIdx(null);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    let fileToUse = null;
+    if (pendingFile) {
+      fileToUse = pendingFile;
+    } else if (attachedFile?.url) {
+      try {
+        const res = await fetch(attachedFile.url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        fileToUse = new File([blob], attachedFile.name || 'document', { type: mimeForType(attachedFile.type) });
+      } catch {
+        showToast('Could not load the attached file. Try again.', 'error');
+        return;
+      }
+    } else {
+      showToast('Attach a document first.', 'info');
+      return;
+    }
+    setGeneratingSummary(true);
+    try {
+      const result = await generateSummaryFromFile(fileToUse);
+      setSummary(result);
+      showToast('AI summary generated', 'success');
+    } catch (err) {
+      showToast(err?.message || 'AI summary failed. Check your connection.', 'error');
+    } finally {
+      setGeneratingSummary(false);
     }
   };
 
@@ -316,17 +348,27 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
                 <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   {summary.trim() && (
                     <button type="button" onClick={() => setSummary(s => formatText(s))}
                       style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
                       ✦ Format
                     </button>
                   )}
-                  <button type="button" onClick={handleImproveSummary} disabled={improvingSummary}
-                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: improvingSummary ? C.fg3 : '#fff', background: improvingSummary ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: improvingSummary ? 'not-allowed' : 'pointer', padding: '3px 10px' }}>
-                    {improvingSummary ? 'Improving…' : '✦ AI Improve'}
-                  </button>
+                  {!summary.trim() && isSummarySupported(pendingFile || attachedFile) && (
+                    <button type="button" onClick={handleGenerateSummary} disabled={generatingSummary}
+                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: generatingSummary ? C.fg3 : '#fff', background: generatingSummary ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: generatingSummary ? 'not-allowed' : 'pointer', padding: '3px 10px', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
+                      {generatingSummary
+                        ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: `1.5px solid ${C.fg3}`, borderTopColor: C.fg1, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
+                        : <>✦ Generate AI Summary</>}
+                    </button>
+                  )}
+                  {summary.trim() && (
+                    <button type="button" onClick={handleImproveSummary} disabled={improvingSummary}
+                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: improvingSummary ? C.fg3 : '#fff', background: improvingSummary ? C.bg2 : C.accent, border: 'none', borderRadius: 4, cursor: improvingSummary ? 'not-allowed' : 'pointer', padding: '3px 10px' }}>
+                      {improvingSummary ? 'Improving…' : '✦ AI Improve'}
+                    </button>
+                  )}
                 </div>
               </div>
               <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={summary}
