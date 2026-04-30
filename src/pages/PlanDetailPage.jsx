@@ -76,23 +76,39 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      let file = attachedFile;
+      // Order matters here:
+      //   1. Upload the NEW blob first (if any).
+      //   2. Commit the Firestore record — and await it so a rules
+      //      rejection / network drop surfaces in the catch instead of
+      //      a silent unhandled-promise-rejection.
+      //   3. Only then delete the OLD blob — best-effort, swallowed on
+      //      failure since the orphan scan can clean it up later.
+      // Previously the old blob was deleted *before* the new upload
+      // started; if the upload then failed, the user lost both files.
+      let nextFile     = attachedFile;
+      let blobToDelete = null;
       if (pendingFile) {
-        if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
-        file = await uploadFileToDB(pendingFile);
+        nextFile     = await uploadFileToDB(pendingFile);
+        blobToDelete = attachedFile?.blobId || null;
       } else if (replacingFile && !pendingFile) {
-        if (attachedFile?.blobId) deleteFileFromDB(attachedFile.blobId);
-        file = null;
+        blobToDelete = attachedFile?.blobId || null;
+        nextFile     = null;
       }
       const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
-      updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, attachedFile: file });
-      setAttachedFile(file);
+      await updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, attachedFile: nextFile });
+      if (blobToDelete) {
+        try { await deleteFileFromDB(blobToDelete); }
+        catch (e) { console.warn('[orphan blob]', blobToDelete, e); }
+      }
+      setAttachedFile(nextFile);
       setPendingFile(null);
       setReplacingFile(false);
       setIsEditing(false);
       showToast('Plan saved', 'success');
-    } catch {
-      showToast('Failed to upload file. Please try again.', 'error');
+    } catch (err) {
+      console.error('[savePlan]', err);
+      showToast(err?.message || 'Failed to save. Please try again.', 'error');
+      // Stay in edit mode so the user can retry without losing their input.
     } finally {
       setSaving(false);
     }
