@@ -338,6 +338,22 @@ button, a, [role="button"], input, select, textarea {
   .main-with-sidebar { padding-top: 54px; }
 }
 
+/* ── DOCX inline render (mammoth output styled for readability) ────────── */
+.docx-content h1 { font-size: 28px; font-weight: 700; margin: 24px 0 12px; line-height: 1.25; }
+.docx-content h2 { font-size: 22px; font-weight: 700; margin: 20px 0 10px; line-height: 1.3; }
+.docx-content h3 { font-size: 18px; font-weight: 600; margin: 18px 0 8px; line-height: 1.35; }
+.docx-content h4, .docx-content h5, .docx-content h6 { font-size: 16px; font-weight: 600; margin: 16px 0 8px; }
+.docx-content p { margin: 0 0 12px; }
+.docx-content ul, .docx-content ol { margin: 0 0 12px; padding-left: 28px; }
+.docx-content li { margin-bottom: 4px; }
+.docx-content table { border-collapse: collapse; margin: 14px 0; width: 100%; }
+.docx-content th, .docx-content td { border: 1px solid #DDD; padding: 8px 10px; text-align: left; vertical-align: top; }
+.docx-content th { background: #F5F1E8; font-weight: 600; }
+.docx-content img { max-width: 100%; height: auto; }
+.docx-content a { color: var(--c-accent-dim); text-decoration: underline; }
+.docx-content strong { font-weight: 700; }
+.docx-content em { font-style: italic; }
+
 /* ── Logo image — multiply blends gracefully into all light theme surfaces ── */
 .logo-img { mix-blend-mode: multiply; }
 

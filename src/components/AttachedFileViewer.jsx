@@ -4,7 +4,10 @@ import { C, alpha } from '../tokens';
 import { fmtSize } from '../utils/fileStorage';
 
 export default function AttachedFileViewer({ file, onReplace, onRemove, editing }) {
-  const [viewing, setViewing] = useState(false);
+  const [viewing, setViewing]     = useState(false);
+  const [docxHtml, setDocxHtml]   = useState('');
+  const [docxLoading, setDocxLoading] = useState(false);
+  const [docxError, setDocxError] = useState('');
 
   useEffect(() => {
     if (!viewing) return;
@@ -15,11 +18,41 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
 
   if (!file) return null;
 
-  const isPdf = file.type === 'PDF';
-  const url   = file.url;
+  const isPdf  = file.type === 'PDF';
+  const isDocx = file.type === 'DOCX';
+  const isDoc  = file.type === 'DOC';
+  const isInlineViewable = isPdf || isDocx;
+  const url    = file.url;
+
+  const loadDocxHtml = async () => {
+    if (!url) return;
+    setDocxLoading(true);
+    setDocxError('');
+    setDocxHtml('');
+    try {
+      const mammothMod = await import('mammoth/mammoth.browser.min.js');
+      const mammoth = mammothMod.default || mammothMod;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buf = await res.arrayBuffer();
+      const result = await mammoth.convertToHtml({ arrayBuffer: buf });
+      setDocxHtml(result.value || '<p><em>Empty document.</em></p>');
+    } catch (err) {
+      console.error('[DOCX render]', err);
+      setDocxError('Could not render this document. You can still download it.');
+    } finally {
+      setDocxLoading(false);
+    }
+  };
 
   const handleView = () => {
-    if (isPdf && url) { setViewing(true); return; }
+    if (isPdf && url)  { setViewing(true); return; }
+    if (isDocx && url) { setViewing(true); loadDocxHtml(); return; }
+    if (isDoc) {
+      // Legacy binary .doc — cannot be rendered in-browser; fall back to download
+      handleDownload();
+      return;
+    }
     if (url) window.open(url, '_blank');
   };
 
@@ -55,7 +88,7 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
             <>
               <button onClick={handleView}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                {isPdf ? 'View' : 'Open'}
+                {isInlineViewable ? 'View' : 'Open'}
               </button>
               <button onClick={handleDownload}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer' }}>
@@ -78,7 +111,7 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
         </div>
       </div>
 
-      {/* Full-screen PDF overlay — portal to body so it escapes any
+      {/* Full-screen viewer overlay — portal to body so it escapes any
           transformed ancestor (.page-pad uses transform in its pageIn
           animation, which would otherwise constrain position:fixed) */}
       {viewing && url && createPortal(
@@ -100,7 +133,32 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
               ✕ Close
             </button>
           </div>
-          <iframe src={url} title={file.name || 'PDF'} style={{ flex: 1, border: 'none', width: '100%', minHeight: 0 }} />
+
+          {isPdf && (
+            <iframe src={url} title={file.name || 'PDF'} style={{ flex: 1, border: 'none', width: '100%', minHeight: 0 }} />
+          )}
+
+          {isDocx && (
+            <div style={{ flex: 1, overflow: 'auto', minHeight: 0, background: '#FAFAF7', display: 'flex', justifyContent: 'center', padding: '24px 16px' }}>
+              {docxLoading && (
+                <div style={{ alignSelf: 'center', display: 'flex', alignItems: 'center', gap: 10, color: C.fg2, fontFamily: "'DM Sans', sans-serif", fontSize: 15 }}>
+                  <span style={{ display: 'inline-block', width: 14, height: 14, border: `2px solid ${C.border}`, borderTopColor: C.accent, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                  Loading document…
+                </div>
+              )}
+              {docxError && !docxLoading && (
+                <div style={{ alignSelf: 'center', textAlign: 'center', color: C.danger, fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.6 }}>
+                  {docxError}
+                </div>
+              )}
+              {!docxLoading && !docxError && docxHtml && (
+                <article
+                  className="docx-content"
+                  style={{ maxWidth: 820, width: '100%', background: '#FFFFFF', boxShadow: '0 1px 6px rgba(0,0,0,0.08)', borderRadius: 6, padding: 'clamp(24px, 4vw, 56px)', fontFamily: "'DM Sans', Georgia, serif", fontSize: 16, lineHeight: 1.7, color: '#1A1714' }}
+                  dangerouslySetInnerHTML={{ __html: docxHtml }} />
+              )}
+            </div>
+          )}
         </div>,
         document.body
       )}
