@@ -60,6 +60,118 @@
   --c-info-bg: #EFF6FF;
 }
 
+/* Mahogany — Looka Trend 3: Red, Mahogany & Blue · cream paper · #6E2A1E */
+:root[data-theme="mahogany"] {
+  --c-bg0: #FAF5F0;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F0E5DD;
+  --c-bg3: #DCC8B8;
+  --c-fg1: #1A0E0A;
+  --c-fg2: #4A2A1F;
+  --c-fg3: #8A6650;
+  --c-accent: #6E2A1E;
+  --c-accent-light: #8B3A2A;
+  --c-accent-dim: #4F1B12;
+  --c-accent-bg: #FCEDE5;
+  --c-accent-rgb: 110 42 30;
+  --c-accent-dim-rgb: 79 27 18;
+  --c-border: #ECDDD0;
+  --c-border-light: #D5BFA8;
+  --c-success: #2E7D32;
+  --c-success-bg: #E8F5E9;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFF8ED;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1E3A5F;
+  --c-info-bg: #E3EDF7;
+}
+
+/* Espresso — Looka Trend 5: Espresso & Sunshine · sunshine cream · #4A2C0F */
+:root[data-theme="espresso"] {
+  --c-bg0: #FFF9E8;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #FCEFC2;
+  --c-bg3: #F0DD90;
+  --c-fg1: #1A0E00;
+  --c-fg2: #4A2C0F;
+  --c-fg3: #8A6A40;
+  --c-accent: #4A2C0F;
+  --c-accent-light: #6B3F1A;
+  --c-accent-dim: #2E1A05;
+  --c-accent-bg: #F5EBD8;
+  --c-accent-rgb: 74 44 15;
+  --c-accent-dim-rgb: 46 26 5;
+  --c-border: #F0E2A5;
+  --c-border-light: #DEC982;
+  --c-success: #2E7D32;
+  --c-success-bg: #E8F5E9;
+  --c-warning: #C9A100;
+  --c-warning-bg: #FFF9E8;
+  --c-danger: #C62828;
+  --c-danger-bg: #FFEBEE;
+  --c-danger-rgb: 198 40 40;
+  --c-info: #4A2C0F;
+  --c-info-bg: #F5EBD8;
+}
+
+/* Clay — Looka Trend 9: Clay & Blush · soft blush · terracotta #B8553B */
+:root[data-theme="clay"] {
+  --c-bg0: #FBF1EC;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F5DDD2;
+  --c-bg3: #E8C0AE;
+  --c-fg1: #1F0F08;
+  --c-fg2: #4A281E;
+  --c-fg3: #8A5E4E;
+  --c-accent: #B8553B;
+  --c-accent-light: #D67550;
+  --c-accent-dim: #8A3F2A;
+  --c-accent-bg: #FBE7DD;
+  --c-accent-rgb: 184 85 59;
+  --c-accent-dim-rgb: 138 63 42;
+  --c-border: #F0DBCE;
+  --c-border-light: #DDB89E;
+  --c-success: #2E7D32;
+  --c-success-bg: #E8F5E9;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFF8ED;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1976D2;
+  --c-info-bg: #E3F2FD;
+}
+
+/* Figs — Looka Trend 22: Figs & Lavender · lavender mist · fig #6B2C5F */
+:root[data-theme="figs"] {
+  --c-bg0: #F4EEF5;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #E8DDEA;
+  --c-bg3: #D0BCD3;
+  --c-fg1: #1F0A1A;
+  --c-fg2: #4A2440;
+  --c-fg3: #8A647A;
+  --c-accent: #6B2C5F;
+  --c-accent-light: #8E4080;
+  --c-accent-dim: #4F1B45;
+  --c-accent-bg: #F4E8F2;
+  --c-accent-rgb: 107 44 95;
+  --c-accent-dim-rgb: 79 27 69;
+  --c-border: #E5D5E8;
+  --c-border-light: #C8B0CB;
+  --c-success: #2E7D32;
+  --c-success-bg: #E8F5E9;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFF8ED;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #6B2C5F;
+  --c-info-bg: #F4E8F2;
+}
+
 /* Pink — soft blush base · deep rose accent */
 :root[data-theme="pink"] {
   --c-bg0: #FDF4F6;
