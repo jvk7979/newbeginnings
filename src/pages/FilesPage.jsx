@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { useFiles } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 import ConfirmModal from '../components/ConfirmModal';
@@ -163,7 +163,7 @@ function DocumentCard({ file, onClick, onDelete }) {
 }
 
 export default function FilesPage({ onNavigate }) {
-  const { files, addFile, deleteFile } = useAppData();
+  const { files, addFile, deleteFile } = useFiles();
   const { showToast } = useToast();
   const [showModal,  setShowModal]  = useState(false);
   const [search,     setSearch]     = useState('');

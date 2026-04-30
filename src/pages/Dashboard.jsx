@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { useIdeas, usePlans, useFiles } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
 import heroImg from '../assets/hero_latest.png';
 
@@ -52,7 +52,9 @@ function SectionHeader({ label, actionLabel, onAction }) {
 }
 
 export default function Dashboard({ onNavigate }) {
-  const { ideas, plans, files } = useAppData();
+  const { ideas } = useIdeas();
+  const { plans } = usePlans();
+  const { files } = useFiles();
   // AppContext already sorts ideas/files by id desc on every snapshot, so
   // "recent" is just the head of the array — no extra sort needed.
   // Memoized to keep referential equality stable for IdeaCard children.

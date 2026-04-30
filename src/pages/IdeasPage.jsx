@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { useIdeas } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
@@ -13,7 +13,7 @@ const FILTERS = [
 ];
 
 export default function IdeasPage({ onNavigate }) {
-  const { ideas } = useAppData();
+  const { ideas } = useIdeas();
   const [filter, setFilter]     = useState('all');
   const [catFilter, setCatFilter] = useState('');
   const [search, setSearch]     = useState('');

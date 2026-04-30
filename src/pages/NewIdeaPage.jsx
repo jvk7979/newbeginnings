@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { useIdeas } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
@@ -9,7 +9,7 @@ import { uploadFileToDB } from '../utils/fileStorage';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
 export default function NewIdeaPage({ onNavigate }) {
-  const { addIdea } = useAppData();
+  const { addIdea } = useIdeas();
   const { showToast } = useToast();
   const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '' });
   const [selectedFile, setSelectedFile] = useState(null);

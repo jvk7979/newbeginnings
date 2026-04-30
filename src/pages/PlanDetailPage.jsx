@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { usePlans } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import { generatePlanSection, improveSummary } from '../utils/gemini';
 import ConfirmModal from '../components/ConfirmModal';
 import Badge from '../components/Badge';
 import AttachedFileViewer from '../components/AttachedFileViewer';
-import UploadZone from '../components/UploadZone';
+import AttachmentEditor from '../components/AttachmentEditor';
 import DiscussionThread from '../components/DiscussionThread';
 import { uploadFileToDB, deleteFileFromDB, mimeForType, fetchFileBlob } from '../utils/fileStorage';
 import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
@@ -24,7 +24,7 @@ const PLAN_STATUSES = [
 ];
 
 export default function PlanDetailPage({ plan, onNavigate }) {
-  const { updatePlan, deletePlan, restorePlan } = useAppData();
+  const { updatePlan, deletePlan, restorePlan } = usePlans();
   const { showToast } = useToast();
 
   const [title,        setTitle]        = useState(plan.title);
@@ -312,13 +312,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             {/* File attachment — edit mode */}
             <div>
               <label style={labelStyle}>Attached Document</label>
-              {attachedFile && !replacingFile ? (
-                <AttachedFileViewer file={attachedFile} editing
-                  onReplace={() => setReplacingFile(true)}
-                  onRemove={handleRemoveFile} />
-              ) : (
-                <UploadZone file={pendingFile} onFile={setPendingFile} onRemove={() => setPendingFile(null)} />
-              )}
+              <AttachmentEditor
+                attachedFile={attachedFile}
+                pendingFile={pendingFile}
+                replacingFile={replacingFile}
+                onPendingFile={setPendingFile}
+                onReplaceClick={() => setReplacingFile(true)}
+                onRemove={handleRemoveFile} />
             </div>
 
             <div>

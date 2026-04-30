@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { C, alpha } from '../tokens';
 import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
-import { useAppData } from '../context/AppContext';
+import { useIdeas, usePlans, useProjects, useBackup } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.png';
@@ -193,7 +193,10 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
 
 export default function SideNav({ currentPage, onNavigate }) {
   const { user, signOutUser, isAdmin }          = useAuth();
-  const { ideas, projects, plans, importData } = useAppData();
+  const { ideas } = useIdeas();
+  const { plans } = usePlans();
+  const { projects } = useProjects();
+  const { importData } = useBackup();
   const { showToast }                          = useToast();
   const { theme, setTheme, themes }            = useTheme();
   const [mobileOpen, setMobileOpen]            = useState(false);

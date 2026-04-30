@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { useFiles } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { getCategoryStyle } from '../utils/categoryStyles';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function FileDetailPage({ file, onNavigate }) {
-  const { deleteFile } = useAppData();
+  const { deleteFile } = useFiles();
   const { showToast }  = useToast();
   const [showInfo, setShowInfo]   = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);

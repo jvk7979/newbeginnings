@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { C, alpha } from '../tokens';
 import { getCategoryStyle, IDEA_CATEGORIES } from '../utils/categoryStyles';
-import { useAppData } from '../context/AppContext';
+import { useIdeas } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import { analyzeIdea } from '../utils/gemini';
 import ConfirmModal from '../components/ConfirmModal';
 import AttachedFileViewer from '../components/AttachedFileViewer';
-import UploadZone from '../components/UploadZone';
+import AttachmentEditor from '../components/AttachmentEditor';
 import DiscussionThread from '../components/DiscussionThread';
 import { uploadFileToDB, deleteFileFromDB } from '../utils/fileStorage';
 
@@ -21,7 +21,7 @@ const STATUS_BADGE = {
 const STATUS_OPTIONS = ['draft', 'validating', 'active', 'archived'];
 
 export default function IdeaDetailPage({ idea, onNavigate }) {
-  const { updateIdea, deleteIdea, restoreIdea } = useAppData();
+  const { updateIdea, deleteIdea, restoreIdea } = useIdeas();
   const { showToast } = useToast();
 
   // Edit form state — mirrors idea fields
@@ -259,13 +259,13 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
 
             <div>
               <label style={labelStyle}>Attached Document</label>
-              {attachedFile && !replacingFile ? (
-                <AttachedFileViewer file={attachedFile} editing
-                  onReplace={() => setReplacingFile(true)}
-                  onRemove={handleRemoveFile} />
-              ) : (
-                <UploadZone file={pendingFile} onFile={setPendingFile} onRemove={() => setPendingFile(null)} />
-              )}
+              <AttachmentEditor
+                attachedFile={attachedFile}
+                pendingFile={pendingFile}
+                replacingFile={replacingFile}
+                onPendingFile={setPendingFile}
+                onReplaceClick={() => setReplacingFile(true)}
+                onRemove={handleRemoveFile} />
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>

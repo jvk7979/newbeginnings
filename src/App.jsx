@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense, Component } from 'react';
 import { C } from './tokens';
 import logoImg from './assets/logo.png';
 import { useAuth } from './context/AuthContext';
-import { useAppData } from './context/AppContext';
+import { useIdeas, usePlans, useFiles, useBackup } from './context/AppContext';
 import SideNav from './components/SideNav';
 import SignInPage from './pages/SignInPage';
 import Footer from './components/Footer';
@@ -109,7 +109,10 @@ function NotFound({ label, dest, onNavigate }) {
 
 export default function App() {
   const { user, loading: authLoading } = useAuth();
-  const { ideas, plans, files, dataLoading } = useAppData();
+  const { ideas } = useIdeas();
+  const { plans } = usePlans();
+  const { files } = useFiles();
+  const { dataLoading } = useBackup();
 
   const [page,   setPage]   = useState(() => parseHash().page);
   const [itemId, setItemId] = useState(() => parseHash().itemId);

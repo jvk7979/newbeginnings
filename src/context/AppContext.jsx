@@ -66,7 +66,19 @@ async function ensureSharedData(uid) {
   localStorage.removeItem('nb_plans');
 }
 
-const AppContext = createContext(null);
+// ── Five separate contexts ─────────────────────────────────────────────────
+// Each one is exposed by a focused hook (useIdeas / usePlans / useFiles /
+// useProjects / useBackup). Pages that subscribe to only one collection no
+// longer re-render when an unrelated collection changes — the original
+// single-context architecture echoed every Firestore snapshot to every
+// consumer.
+const IdeasContext    = createContext(null);
+const PlansContext    = createContext(null);
+const FilesContext    = createContext(null);
+const ProjectsContext = createContext(null);
+const BackupContext   = createContext(null);
+
+const fileRef = (id) => doc(db, 'sharedFiles', String(id));
 
 export function AppProvider({ children }) {
   const { user } = useAuth();
@@ -126,7 +138,7 @@ export function AppProvider({ children }) {
     await setDoc(sharedRef('ideas', idea.id), idea);
   }, [user]);
 
-  // ── Projects ─────────────────────────────────────────────────────────────
+  // ── Projects (kept as scaffolding for a future feature) ──────────────────
   const addProject = useCallback(async (project) => {
     if (!user) return;
     const item = { ...project, id: Date.now(), date: todayStr(), kpis: null };
@@ -158,9 +170,6 @@ export function AppProvider({ children }) {
 
   const updatePlan = useCallback(async (id, patch) => {
     if (!user) return;
-    // Read fresh from Firestore instead of closing over the `plans` state
-    // array — keeps this callback's identity stable across plan changes
-    // so AppContext consumers don't churn.
     const snap = await getDoc(sharedRef('plans', id));
     const existing = snap.exists() ? snap.data() : null;
     const secs = patch.sections ?? existing?.sections ?? [];
@@ -184,29 +193,7 @@ export function AppProvider({ children }) {
     await setDoc(sharedRef('plans', plan.id), plan);
   }, [user]);
 
-  // ── Bulk import ──────────────────────────────────────────────────────────
-  const importData = useCallback(async (data) => {
-    if (!user) return;
-    for (const name of ['ideas', 'projects', 'plans']) {
-      const snap = await getDocs(sharedCol(name));
-      if (!snap.empty) {
-        const batch = writeBatch(db);
-        snap.docs.forEach(d => batch.delete(d.ref));
-        await batch.commit();
-      }
-    }
-    if (Array.isArray(data.ideas) || Array.isArray(data.projects) || Array.isArray(data.plans)) {
-      const batch = writeBatch(db);
-      (data.ideas    || []).forEach(i => batch.set(sharedRef('ideas',    i.id), i));
-      (data.projects || []).forEach(i => batch.set(sharedRef('projects', i.id), i));
-      (data.plans    || []).forEach(i => batch.set(sharedRef('plans',    i.id), i));
-      await batch.commit();
-    }
-  }, [user]);
-
   // ── Shared Files ─────────────────────────────────────────────────────────
-  const fileRef = (id) => doc(db, 'sharedFiles', String(id));
-
   const addFile = useCallback(async (file) => {
     if (!user) return;
     const item = { ...file, id: Date.now(), date: todayStr(), addedBy: user.email || user.uid };
@@ -229,28 +216,71 @@ export function AppProvider({ children }) {
     await deleteDoc(fileRef(id));
   }, [user]);
 
-  // Memoize the context value so consumers don't re-render unless one of
-  // the underlying collections, dataLoading, or a CRUD callback identity
-  // actually changes. All useCallback deps below are stable so this is a
-  // genuine win — fixes the "every Firestore echo re-renders every page"
-  // problem.
-  const value = useMemo(() => ({
-    ideas, projects, plans, files, dataLoading,
-    addIdea, updateIdea, deleteIdea, restoreIdea,
-    addProject, updateProject, deleteProject, restoreProject,
-    addPlan, updatePlan, deletePlan, restorePlan,
-    addFile, updateFile, deleteFile,
-    importData,
-  }), [
-    ideas, projects, plans, files, dataLoading,
-    addIdea, updateIdea, deleteIdea, restoreIdea,
-    addProject, updateProject, deleteProject, restoreProject,
-    addPlan, updatePlan, deletePlan, restorePlan,
-    addFile, updateFile, deleteFile,
-    importData,
-  ]);
+  // ── Bulk import ──────────────────────────────────────────────────────────
+  const importData = useCallback(async (data) => {
+    if (!user) return;
+    for (const name of ['ideas', 'projects', 'plans']) {
+      const snap = await getDocs(sharedCol(name));
+      if (!snap.empty) {
+        const batch = writeBatch(db);
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      }
+    }
+    if (Array.isArray(data.ideas) || Array.isArray(data.projects) || Array.isArray(data.plans)) {
+      const batch = writeBatch(db);
+      (data.ideas    || []).forEach(i => batch.set(sharedRef('ideas',    i.id), i));
+      (data.projects || []).forEach(i => batch.set(sharedRef('projects', i.id), i));
+      (data.plans    || []).forEach(i => batch.set(sharedRef('plans',    i.id), i));
+      await batch.commit();
+    }
+  }, [user]);
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  // Per-context memoised values. Each value object only re-renders when its
+  // own collection or callbacks change — the previous single-value design
+  // forced every consumer to re-render on any collection update.
+  const ideasValue    = useMemo(() => ({ ideas, addIdea, updateIdea, deleteIdea, restoreIdea }),
+    [ideas, addIdea, updateIdea, deleteIdea, restoreIdea]);
+  const plansValue    = useMemo(() => ({ plans, addPlan, updatePlan, deletePlan, restorePlan }),
+    [plans, addPlan, updatePlan, deletePlan, restorePlan]);
+  const filesValue    = useMemo(() => ({ files, addFile, updateFile, deleteFile }),
+    [files, addFile, updateFile, deleteFile]);
+  const projectsValue = useMemo(() => ({ projects, addProject, updateProject, deleteProject, restoreProject }),
+    [projects, addProject, updateProject, deleteProject, restoreProject]);
+  const backupValue   = useMemo(() => ({ dataLoading, importData }),
+    [dataLoading, importData]);
+
+  return (
+    <ProjectsContext.Provider value={projectsValue}>
+      <FilesContext.Provider value={filesValue}>
+        <PlansContext.Provider value={plansValue}>
+          <IdeasContext.Provider value={ideasValue}>
+            <BackupContext.Provider value={backupValue}>
+              {children}
+            </BackupContext.Provider>
+          </IdeasContext.Provider>
+        </PlansContext.Provider>
+      </FilesContext.Provider>
+    </ProjectsContext.Provider>
+  );
 }
 
-export function useAppData() { return useContext(AppContext); }
+// ── Public hooks ───────────────────────────────────────────────────────────
+export function useIdeas()    { return useContext(IdeasContext); }
+export function usePlans()    { return useContext(PlansContext); }
+export function useFiles()    { return useContext(FilesContext); }
+export function useProjects() { return useContext(ProjectsContext); }
+export function useBackup()   { return useContext(BackupContext); }
+
+// Backward-compatible aggregated hook. New code should prefer the focused
+// hooks above; useAppData is retained so existing consumers keep working
+// during the migration.
+export function useAppData() {
+  return {
+    ...useIdeas(),
+    ...usePlans(),
+    ...useFiles(),
+    ...useProjects(),
+    ...useBackup(),
+  };
+}

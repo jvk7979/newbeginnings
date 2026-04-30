@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { usePlans } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
@@ -20,7 +20,7 @@ const PLAN_STATUSES = [
 ];
 
 export default function NewPlanPage({ onNavigate }) {
-  const { addPlan } = useAppData();
+  const { addPlan } = usePlans();
   const { showToast } = useToast();
   const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft' });
   const [selectedFile, setSelectedFile] = useState(null);

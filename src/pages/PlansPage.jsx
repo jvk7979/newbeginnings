@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
-import { useAppData } from '../context/AppContext';
+import { usePlans } from '../context/AppContext';
 import Badge from '../components/Badge';
 import { CATEGORIES } from '../utils/categoryStyles';
 
@@ -46,7 +46,7 @@ function PlanCard({ plan, onNavigate }) {
 }
 
 export default function PlansPage({ onNavigate }) {
-  const { plans } = useAppData();
+  const { plans } = usePlans();
   const [filter, setFilter]     = useState('all');
   const [catFilter, setCatFilter] = useState('All');
   const [search, setSearch]     = useState('');
