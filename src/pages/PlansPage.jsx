@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import Badge from '../components/Badge';
@@ -53,17 +53,18 @@ export default function PlansPage({ onNavigate }) {
   const [sort,   setSort]       = useState('newest');
 
   const sq = search.trim().toLowerCase();
-  const filtered = [...plans]
-    .sort((a, b) => {
-      if (sort === 'newest') return (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
-      if (sort === 'oldest') return (a.createdAt?.toMillis?.() ?? 0) - (b.createdAt?.toMillis?.() ?? 0);
-      return a.title.localeCompare(b.title);
-    })
-    .filter(p =>
+  // AppContext already sorts plans by id desc; reverse / title-sort here only
+  // when needed and memoize to avoid reallocating on every keystroke.
+  const filtered = useMemo(() => {
+    let arr = plans;
+    if (sort === 'oldest')   arr = [...plans].reverse();
+    else if (sort === 'az')  arr = [...plans].sort((a, b) => a.title.localeCompare(b.title));
+    return arr.filter(p =>
       (filter === 'all' || p.status === filter) &&
       (catFilter === 'All' || p.category === catFilter) &&
       (!sq || p.title.toLowerCase().includes(sq) || (p.summary || '').toLowerCase().includes(sq))
     );
+  }, [plans, sort, filter, catFilter, sq]);
 
   return (
     <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>

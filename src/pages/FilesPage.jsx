@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -171,10 +171,10 @@ export default function FilesPage({ onNavigate }) {
   const [confirmDel, setConfirmDel] = useState(null);
 
   const sq = search.trim().toLowerCase();
-  const filtered = files.filter(f =>
+  const filtered = useMemo(() => files.filter(f =>
     (catFilter === 'All' || f.category === catFilter) &&
     (!sq || f.title.toLowerCase().includes(sq) || (f.summary || '').toLowerCase().includes(sq) || (f.tags || []).some(t => t.toLowerCase().includes(sq)))
-  );
+  ), [files, catFilter, sq]);
 
   const handleSave = async (data) => {
     await addFile(data);

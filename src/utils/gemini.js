@@ -1,8 +1,18 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// Lazy-load the Gemini SDK on first call so its ~30 KB gz doesn't ship in
+// the main bundle. Cached after first import; subsequent calls reuse the
+// same client instance.
+let _genAIPromise = null;
+function getGenAI() {
+  if (!_genAIPromise) {
+    _genAIPromise = import('@google/generative-ai').then(
+      mod => new mod.GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
+    );
+  }
+  return _genAIPromise;
+}
 
 async function ask(prompt) {
+  const genAI = await getGenAI();
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const result = await model.generateContent(prompt);
   return result.response.text().trim();

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
@@ -20,17 +20,19 @@ export default function IdeasPage({ onNavigate }) {
   const [sort,   setSort]       = useState('newest');
 
   const sq = search.trim().toLowerCase();
-  const filtered = [...ideas]
-    .sort((a, b) => {
-      if (sort === 'newest') return (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
-      if (sort === 'oldest') return (a.createdAt?.toMillis?.() ?? 0) - (b.createdAt?.toMillis?.() ?? 0);
-      return a.title.localeCompare(b.title);
-    })
-    .filter(i =>
+  // AppContext already sorts ideas by id desc (newest-first by insertion).
+  // For 'oldest' we just reverse; for 'az' we sort by title. Memoized so
+  // we don't reallocate on every keystroke / parent re-render.
+  const filtered = useMemo(() => {
+    let arr = ideas;
+    if (sort === 'oldest')   arr = [...ideas].reverse();
+    else if (sort === 'az')  arr = [...ideas].sort((a, b) => a.title.localeCompare(b.title));
+    return arr.filter(i =>
       (filter === 'all' || i.status === filter) &&
       (!catFilter || i.category === catFilter) &&
       (!sq || i.title.toLowerCase().includes(sq) || (i.desc || '').toLowerCase().includes(sq))
     );
+  }, [ideas, sort, filter, catFilter, sq]);
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>

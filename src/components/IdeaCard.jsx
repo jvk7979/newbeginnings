@@ -1,4 +1,4 @@
-import { C, alpha } from '../tokens';
+import { C } from '../tokens';
 import Badge from './Badge';
 import { getCategoryStyle } from '../utils/categoryStyles';
 

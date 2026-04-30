@@ -1,7 +1,15 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { extractAllText } from './pdfParser';
-
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// Lazy-load the Gemini SDK + pdfParser so neither lands in the main
+// bundle — both are pulled in only when a user actually clicks
+// "Generate AI Summary" (and pdfParser only for PDF files specifically).
+let _genAIPromise = null;
+function getGenAI() {
+  if (!_genAIPromise) {
+    _genAIPromise = import('@google/generative-ai').then(
+      mod => new mod.GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
+    );
+  }
+  return _genAIPromise;
+}
 
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const DOC_MIME  = 'application/msword';
@@ -37,10 +45,16 @@ DOCUMENT:
 `;
 
 async function extractTextFromDocx(file) {
-  const mammoth = (await import('mammoth/mammoth.browser.min.js')).default || (await import('mammoth/mammoth.browser.min.js'));
+  const mod = await import('mammoth/mammoth.browser.min.js');
+  const mammoth = mod.default ?? mod;
   const buf = await file.arrayBuffer();
   const result = await mammoth.extractRawText({ arrayBuffer: buf });
   return (result.value || '').trim();
+}
+
+async function extractTextFromPdf(file) {
+  const { extractAllText } = await import('./pdfParser');
+  return extractAllText(file);
 }
 
 async function extractTextFromTxt(file) {
@@ -59,7 +73,7 @@ export async function generateSummaryFromFile(file) {
   }
 
   let text;
-  if (isPdf)       text = await extractAllText(file);
+  if (isPdf)       text = await extractTextFromPdf(file);
   else if (isDocx) text = await extractTextFromDocx(file);
   else if (isTxt)  text = await extractTextFromTxt(file);
   else throw new Error('AI summary supports PDF, DOCX, and TXT files.');
@@ -68,6 +82,7 @@ export async function generateSummaryFromFile(file) {
     throw new Error('Could not extract readable text from this file. It may be a scanned image or empty.');
   }
 
+  const genAI = await getGenAI();
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const result = await model.generateContent(SUMMARY_PROMPT + text.slice(0, 12000));
   return result.response.text().trim();

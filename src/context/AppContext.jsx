@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { db } from '../firebase';
 import { useAuth } from './AuthContext';
 import { deleteFileFromDB } from '../utils/fileStorage';
@@ -158,12 +158,16 @@ export function AppProvider({ children }) {
 
   const updatePlan = useCallback(async (id, patch) => {
     if (!user) return;
-    const existing = plans.find(p => p.id === id);
+    // Read fresh from Firestore instead of closing over the `plans` state
+    // array — keeps this callback's identity stable across plan changes
+    // so AppContext consumers don't churn.
+    const snap = await getDoc(sharedRef('plans', id));
+    const existing = snap.exists() ? snap.data() : null;
     const secs = patch.sections ?? existing?.sections ?? [];
     await setDoc(sharedRef('plans', id), {
       ...existing, ...patch, updated: todayStr(), sectionCount: secs.length,
     });
-  }, [user, plans]);
+  }, [user]);
 
   const deletePlan = useCallback(async (id) => {
     if (!user) return;
@@ -225,18 +229,28 @@ export function AppProvider({ children }) {
     await deleteDoc(fileRef(id));
   }, [user]);
 
-  return (
-    <AppContext.Provider value={{
-      ideas, projects, plans, files, dataLoading,
-      addIdea, updateIdea, deleteIdea, restoreIdea,
-      addProject, updateProject, deleteProject, restoreProject,
-      addPlan, updatePlan, deletePlan, restorePlan,
-      addFile, updateFile, deleteFile,
-      importData,
-    }}>
-      {children}
-    </AppContext.Provider>
-  );
+  // Memoize the context value so consumers don't re-render unless one of
+  // the underlying collections, dataLoading, or a CRUD callback identity
+  // actually changes. All useCallback deps below are stable so this is a
+  // genuine win — fixes the "every Firestore echo re-renders every page"
+  // problem.
+  const value = useMemo(() => ({
+    ideas, projects, plans, files, dataLoading,
+    addIdea, updateIdea, deleteIdea, restoreIdea,
+    addProject, updateProject, deleteProject, restoreProject,
+    addPlan, updatePlan, deletePlan, restorePlan,
+    addFile, updateFile, deleteFile,
+    importData,
+  }), [
+    ideas, projects, plans, files, dataLoading,
+    addIdea, updateIdea, deleteIdea, restoreIdea,
+    addProject, updateProject, deleteProject, restoreProject,
+    addPlan, updatePlan, deletePlan, restorePlan,
+    addFile, updateFile, deleteFile,
+    importData,
+  ]);
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useAppData() { return useContext(AppContext); }

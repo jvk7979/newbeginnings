@@ -90,7 +90,3 @@ export async function deleteFileFromDB(blobId) {
   if (!blobId) return;
   try { await deleteObject(ref(storage, `uploads/${blobId}`)); } catch { /* ignore */ }
 }
-
-// Legacy no-ops — no longer needed with direct Storage URLs.
-export async function loadFileFromDB() { return null; }
-export function makeBlobUrl() { return null; }

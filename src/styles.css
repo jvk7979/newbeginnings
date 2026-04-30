@@ -299,9 +299,11 @@
   --c-danger-33: rgb(var(--c-danger-rgb) / 0.20);
 }
 
-/* Smooth color transitions when switching theme */
-html, body, .page-pad, header, nav, button, input, textarea, select {
-  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+/* Smooth color transitions when switching theme — scoped to <html> only.
+   Children inherit instantly; previously every button/input/select also
+   had a 200ms transition which made every focus/hover trigger a repaint. */
+html {
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* Responsive layout — colors/fonts stay in inline styles */

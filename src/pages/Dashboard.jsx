@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
@@ -52,12 +53,11 @@ function SectionHeader({ label, actionLabel, onAction }) {
 
 export default function Dashboard({ onNavigate }) {
   const { ideas, plans, files } = useAppData();
-  const recentIdeas = [...ideas]
-    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
-    .slice(0, 4);
-  const recentFiles = [...files]
-    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
-    .slice(0, 3);
+  // AppContext already sorts ideas/files by id desc on every snapshot, so
+  // "recent" is just the head of the array — no extra sort needed.
+  // Memoized to keep referential equality stable for IdeaCard children.
+  const recentIdeas = useMemo(() => ideas.slice(0, 4), [ideas]);
+  const recentFiles = useMemo(() => files.slice(0, 3), [files]);
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
