@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { C, alpha } from '../tokens';
-import { fmtSize } from '../utils/fileStorage';
+import { fmtSize, getFileUrl, fetchFileBlob } from '../utils/fileStorage';
 
 export default function AttachedFileViewer({ file, onReplace, onRemove, editing }) {
   const [viewing, setViewing]     = useState(false);
   const [docxHtml, setDocxHtml]   = useState('');
   const [docxLoading, setDocxLoading] = useState(false);
   const [docxError, setDocxError] = useState('');
+  const [resolvedUrl, setResolvedUrl] = useState(null);
 
   useEffect(() => {
     if (!viewing) return;
@@ -22,21 +23,46 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
   const isDocx = file.type === 'DOCX';
   const isDoc  = file.type === 'DOC';
   const isInlineViewable = isPdf || isDocx;
-  const url    = file.url;
+
+  // URL resolution. New records have only blobId — fetch a fresh, ephemeral
+  // download URL on demand. Legacy records persist `url` (kept as fallback so
+  // pre-migration data still works). The url is *not* re-persisted anywhere.
+  const ensureUrl = async () => {
+    if (resolvedUrl) return resolvedUrl;
+    if (file.url) { setResolvedUrl(file.url); return file.url; }
+    if (file.blobId) {
+      const u = await getFileUrl(file.blobId);
+      setResolvedUrl(u);
+      return u;
+    }
+    return null;
+  };
 
   const loadDocxHtml = async () => {
-    if (!url) return;
     setDocxLoading(true);
     setDocxError('');
     setDocxHtml('');
     try {
       const mammothMod = await import('mammoth/mammoth.browser.min.js');
-      const mammoth = mammothMod.default || mammothMod;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const buf = await res.arrayBuffer();
+      const mammoth = mammothMod.default ?? mammothMod;
+      // Prefer the SDK-authenticated path so we don't need a download URL at all
+      let buf;
+      if (file.blobId) {
+        const blob = await fetchFileBlob(file);
+        buf = await blob.arrayBuffer();
+      } else {
+        const u = await ensureUrl();
+        if (!u) throw new Error('No file URL available.');
+        const res = await fetch(u);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        buf = await res.arrayBuffer();
+      }
       const result = await mammoth.convertToHtml({ arrayBuffer: buf });
-      setDocxHtml(result.value || '<p><em>Empty document.</em></p>');
+      const DOMPurify = (await import('dompurify')).default;
+      const safeHtml = DOMPurify.sanitize(result.value || '', {
+        ALLOWED_URI_REGEXP: /^(?:https?|mailto|tel|#|\/):/i,
+      });
+      setDocxHtml(safeHtml || '<p><em>Empty document.</em></p>');
     } catch (err) {
       console.error('[DOCX render]', err);
       setDocxError('Could not render this document. You can still download it.');
@@ -45,23 +71,35 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
     }
   };
 
-  const handleView = () => {
-    if (isPdf && url)  { setViewing(true); return; }
-    if (isDocx && url) { setViewing(true); loadDocxHtml(); return; }
+  const handleView = async () => {
     if (isDoc) {
       // Legacy binary .doc — cannot be rendered in-browser; fall back to download
       handleDownload();
       return;
     }
-    if (url) window.open(url, '_blank');
+    if (isPdf) {
+      const u = await ensureUrl();
+      if (!u) return;
+      setViewing(true);
+      return;
+    }
+    if (isDocx) {
+      setViewing(true);
+      loadDocxHtml();
+      return;
+    }
+    const u = await ensureUrl();
+    if (u) window.open(u, '_blank', 'noopener,noreferrer');
   };
 
-  const handleDownload = () => {
-    if (!url) return;
+  const handleDownload = async () => {
+    const u = await ensureUrl();
+    if (!u) return;
     const a    = document.createElement('a');
-    a.href     = url;
+    a.href     = u;
     a.download = file.name || `file.${(file.type || 'pdf').toLowerCase()}`;
     a.target   = '_blank';
+    a.rel      = 'noopener noreferrer';
     a.click();
   };
 
@@ -114,7 +152,7 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
       {/* Full-screen viewer overlay — portal to body so it escapes any
           transformed ancestor (.page-pad uses transform in its pageIn
           animation, which would otherwise constrain position:fixed) */}
-      {viewing && url && createPortal(
+      {viewing && (resolvedUrl || file.url) && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', flexDirection: 'column', background: '#1a1510' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', background: '#221c12', borderBottom: '1px solid rgba(255,255,255,0.10)', flexShrink: 0 }}>
             <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" width="18" height="18">
@@ -135,7 +173,7 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
           </div>
 
           {isPdf && (
-            <iframe src={url} title={file.name || 'PDF'} style={{ flex: 1, border: 'none', width: '100%', minHeight: 0 }} />
+            <iframe src={resolvedUrl || file.url} title={file.name || 'PDF'} style={{ flex: 1, border: 'none', width: '100%', minHeight: 0 }} />
           )}
 
           {isDocx && (

@@ -1,8 +1,31 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /uploads/{allPaths=**} {
-      allow read, write: if request.auth != null;
+
+    // Mirror the Firestore allowlist + admin model used in firestore.rules.
+    function isAdmin() {
+      return request.auth != null
+          && (request.auth.token.email == 'thenewbeginningsventure@gmail.com'
+              || request.auth.token.email == 'nsivasree99@gmail.com');
+    }
+    function isAllowed() {
+      return request.auth != null
+          && (isAdmin()
+              || firestore.exists(
+                   /databases/(default)/documents/allowedUsers/$(request.auth.token.email)
+                 ));
+    }
+
+    match /uploads/{blobId} {
+      allow read: if isAllowed();
+      allow create, update: if isAllowed()
+        && request.resource.size < 50 * 1024 * 1024
+        && request.resource.contentType in [
+             'application/pdf',
+             'application/msword',
+             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+           ];
+      allow delete: if isAllowed();
     }
   }
 }

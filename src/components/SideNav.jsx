@@ -168,13 +168,17 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export backup
             </button>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, cursor: 'pointer', padding: '8px 12px', borderTop: `1px solid ${C.border}` }}
-              onMouseEnter={e => e.currentTarget.style.background = C.bg3}
-              onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Import backup
-              <input type="file" accept=".json" style={{ display: 'none' }} onChange={onImport} />
-            </label>
+            {/* S6: Import wipes shared collections via writeBatch.delete in
+                AppContext.importData. Restrict to admins only. */}
+            {isAdmin && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, cursor: 'pointer', padding: '8px 12px', borderTop: `1px solid ${C.border}` }}
+                onMouseEnter={e => e.currentTarget.style.background = C.bg3}
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import backup
+                <input type="file" accept=".json" style={{ display: 'none' }} onChange={onImport} />
+              </label>
+            )}
           </div>
         )}
         <button onClick={onSignOut}

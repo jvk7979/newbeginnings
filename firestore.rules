@@ -13,7 +13,10 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == userId && isAllowed();
     }
     match /allowedUsers/{email} {
-      allow read: if request.auth != null;
+      // S4: only admins can list/read the invite roster. Per-doc exists()
+      // checks used by isAllowed() do NOT require list permission and
+      // continue to work for every signed-in user.
+      allow read: if request.auth != null && isAdmin();
       allow write: if isAdmin();
     }
     match /sharedIdeas/{doc} {

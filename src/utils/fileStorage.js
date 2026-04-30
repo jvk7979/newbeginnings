@@ -30,7 +30,11 @@ function todayLabel() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-// Upload a File → Firebase Storage → return metadata object with download URL.
+// Upload a File → Firebase Storage → return metadata object.
+// Note: the unauthenticated download URL is NOT persisted — callers must
+// fetch it on demand via getFileUrl(blobId) so that revoking access (or
+// deleting the file) actually denies further reads. Persisting a download
+// URL inside Firestore would leak a permanent public token.
 export async function uploadFileToDB(file) {
   const type    = detectType(file);
   const blobId  = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
@@ -45,8 +49,14 @@ export async function uploadFileToDB(file) {
     );
   });
 
-  const url = await getDownloadURL(fileRef);
-  return { blobId, url, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
+  return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
+}
+
+// Resolve an authenticated download URL on demand. Callers should treat
+// the returned URL as ephemeral and never persist it.
+export async function getFileUrl(blobId) {
+  if (!blobId) throw new Error('Missing blobId.');
+  return await getDownloadURL(ref(storage, `uploads/${blobId}`));
 }
 
 // Download an attached file's bytes through the Firebase SDK (no CORS hit).
