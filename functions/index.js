@@ -56,10 +56,51 @@ function getGenAI() {
   return _genAI;
 }
 
+// Transient Gemini failures (region failover, brief overload, hot-key
+// throttling) come back as 429 / 503 / 504 or as fetch-layer errors and
+// almost always succeed on the next attempt within a second. The Gemini
+// SDK exposes the HTTP code on `err.status`, the GAPIs taxonomy on
+// `err.errorDetails[*].reason`, and falls back to encoding the code in
+// the message string — we check all three so we don't miss anything.
+function isRetryableError(err) {
+  if (!err) return false;
+  const status = err.status ?? err.code;
+  if (status === 429 || status === 503 || status === 504) return true;
+  const reason = err.errorDetails?.[0]?.reason || '';
+  if (/RESOURCE_EXHAUSTED|UNAVAILABLE|DEADLINE_EXCEEDED/i.test(reason)) return true;
+  const msg = String(err.message || err);
+  if (/\b(429|503|504)\b/.test(msg)) return true;
+  if (/RESOURCE_EXHAUSTED|UNAVAILABLE|DEADLINE_EXCEEDED/i.test(msg)) return true;
+  // Node fetch / undici transient network errors.
+  if (/ECONNRESET|ETIMEDOUT|EAI_AGAIN|socket hang up|fetch failed|other side closed/i.test(msg)) return true;
+  return false;
+}
+
+const MAX_ATTEMPTS = 3;
+const BASE_BACKOFF_MS = 250;
+
 async function ask(prompt) {
   const model = getGenAI().getGenerativeModel({ model: 'gemini-2.5-flash' });
-  const result = await model.generateContent(prompt);
-  return result.response.text().trim();
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const result = await model.generateContent(prompt);
+      return result.response.text().trim();
+    } catch (err) {
+      lastErr = err;
+      if (attempt === MAX_ATTEMPTS || !isRetryableError(err)) throw err;
+      // Exponential backoff with ±25% jitter so concurrent failures
+      // don't all retry on the same tick (which is what tipped Gemini
+      // over in the first place). 250ms, 500ms.
+      const base   = BASE_BACKOFF_MS * 2 ** (attempt - 1);
+      const jitter = base * 0.25 * (Math.random() * 2 - 1);
+      const delay  = Math.max(50, Math.round(base + jitter));
+      const code   = err?.status ?? err?.code ?? 'error';
+      console.warn(`[gemini] retry ${attempt}/${MAX_ATTEMPTS - 1} after ${code} in ${delay}ms — ${(err?.message || '').slice(0, 160)}`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
 }
 
 const CONTEXT = `You are a business advisor specializing in rural Indian manufacturing and agri-processing in Andhra Pradesh, particularly East Godavari / Rajahmundry / Konaseema region. Coconut processing, coir, agri-processing, and rural MSME ventures are your expertise. Keep answers concise and practical.`;
