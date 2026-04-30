@@ -9,7 +9,6 @@ export const THEMES = [
   { id: 'espresso', label: 'Espresso',   mode: 'light', swatch: ['#FFF9E8', '#4A2C0F', '#FFFFFF'] },
   { id: 'mahogany', label: 'Mahogany',   mode: 'light', swatch: ['#FAF5F0', '#6E2A1E', '#FFFFFF'] },
   { id: 'clay',     label: 'Clay',       mode: 'light', swatch: ['#FBF1EC', '#B8553B', '#FFFFFF'] },
-  { id: 'pink',     label: 'Pink',       mode: 'light', swatch: ['#FDF4F6', '#C2185B', '#FFFFFF'] },
   { id: 'monogram', label: 'Monogram',   mode: 'light', swatch: ['#FFFFFF', '#74070E', '#FAFAFA'] },
   { id: 'phoenix',  label: 'Phoenix',    mode: 'light', swatch: ['#F4F7FB', '#E04A0F', '#FFFFFF'] },
   { id: 'figs',     label: 'Figs',       mode: 'light', swatch: ['#F4EEF5', '#6B2C5F', '#FFFFFF'] },

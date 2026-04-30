@@ -172,34 +172,6 @@
   --c-info-bg: #F4E8F2;
 }
 
-/* Pink — soft blush base · deep rose accent */
-:root[data-theme="pink"] {
-  --c-bg0: #FDF4F6;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F5DDE3;
-  --c-bg3: #E8C3CC;
-  --c-fg1: #1A0F12;
-  --c-fg2: #4A2F37;
-  --c-fg3: #87646E;
-  --c-accent: #C2185B;
-  --c-accent-light: #E91E63;
-  --c-accent-dim: #8E0E40;
-  --c-accent-bg: #FCE4EC;
-  --c-accent-rgb: 194 24 91;
-  --c-accent-dim-rgb: 142 14 64;
-  --c-border: #F0DBE0;
-  --c-border-light: #E0BAC2;
-  --c-success: #2E7D32;
-  --c-success-bg: #E8F5E9;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFF8ED;
-  --c-danger: #C62828;
-  --c-danger-bg: #FFEBEE;
-  --c-danger-rgb: 198 40 40;
-  --c-info: #1976D2;
-  --c-info-bg: #E3F2FD;
-}
-
 /* Meadow — Trend 6: Green White and Yellow · uses image colours
    Alpine Oat #F0E7DA · Dill Green #4E6813 · Butter Yellow #FFEDA8 */
 :root[data-theme="meadow"] {
