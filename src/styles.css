@@ -3,35 +3,6 @@
  * `document.documentElement.dataset.theme = '<name>'`.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* Botanical — sage #7A8B69 · warm linen #D4C6B9 · WCAG 5.3:1 — DEFAULT */
-:root,
-:root[data-theme="sage"] {
-  --c-bg0: #F8F5F1;
-  --c-bg1: #F0EBE3;
-  --c-bg2: #E4DCD3;
-  --c-bg3: #D4C6B9;
-  --c-fg1: #1C1A17;
-  --c-fg2: #4B4540;
-  --c-fg3: #8A7E73;
-  --c-accent: #7A8B69;
-  --c-accent-light: #95A87F;
-  --c-accent-dim: #5C6E4A;
-  --c-accent-bg: #EBF0E7;
-  --c-accent-rgb: 122 139 105;
-  --c-accent-dim-rgb: 92 110 74;
-  --c-border: #DEDAD2;
-  --c-border-light: #C8BFB4;
-  --c-success: #4D7A4A;
-  --c-success-bg: #EDF3EC;
-  --c-warning: #8A6000;
-  --c-warning-bg: #FFF8E6;
-  --c-danger: #BF2518;
-  --c-danger-bg: #FEF2F1;
-  --c-danger-rgb: 191 37 24;
-  --c-info: #5C6E4A;
-  --c-info-bg: #EBF0E7;
-}
-
 /* Pearl — Pantone 2026 Cloud Dancer base · Vercel #0070F3 blue · Zinc scale */
 :root[data-theme="sandstone"] {
   --c-bg0: #FAFAFA;
@@ -88,7 +59,8 @@
   --c-info-bg: #EFF6FF;
 }
 
-/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1 */
+/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1 — DEFAULT */
+:root,
 :root[data-theme="forest"] {
   --c-bg0: #FDFAF6;
   --c-bg1: #FAF3E8;
@@ -360,10 +332,8 @@ textarea:focus-visible,
   word-break: break-word;
   overflow-wrap: break-word;
   min-width: 0;
-  background:
-    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.85'%20numOctaves='4'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'%20opacity='0.032'/%3E%3C/svg%3E") repeat,
-    radial-gradient(ellipse at 60% 0%, rgba(var(--c-accent-rgb) / 0.05) 0%, transparent 60%),
-    var(--c-bg0);
+  background: radial-gradient(ellipse at 60% 0%, rgba(var(--c-accent-rgb) / 0.05) 0%, transparent 60%),
+              var(--c-bg0);
 }
 
 .hero-bleed {
