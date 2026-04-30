@@ -11,7 +11,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import Badge from '../components/Badge';
 import AttachedFileViewer from '../components/AttachedFileViewer';
 import UploadZone from '../components/UploadZone';
-import { uploadFileToDB, deleteFileFromDB, mimeForType } from '../utils/fileStorage';
+import { uploadFileToDB, deleteFileFromDB, mimeForType, fetchFileBlob } from '../utils/fileStorage';
 import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
 import { CATEGORIES } from '../utils/categoryStyles';
 
@@ -175,14 +175,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     let fileToUse = null;
     if (pendingFile) {
       fileToUse = pendingFile;
-    } else if (attachedFile?.url) {
+    } else if (attachedFile?.blobId) {
       try {
-        const res = await fetch(attachedFile.url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const blob = await res.blob();
+        const blob = await fetchFileBlob(attachedFile);
         fileToUse = new File([blob], attachedFile.name || 'document', { type: mimeForType(attachedFile.type) });
-      } catch {
-        showToast('Could not load the attached file. Try again.', 'error');
+      } catch (err) {
+        console.error('[fetchFileBlob]', err);
+        showToast(`Could not load file: ${err?.code || err?.message || 'unknown error'}`, 'error');
         return;
       }
     } else {

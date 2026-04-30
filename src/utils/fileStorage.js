@@ -1,5 +1,5 @@
 import { storage } from '../firebase';
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, getBlob, deleteObject } from 'firebase/storage';
 
 export const FILE_MAX_BYTES = 50 * 1024 * 1024; // 50 MB
 export const FILE_MAX_LABEL = '50 MB';
@@ -47,6 +47,15 @@ export async function uploadFileToDB(file) {
 
   const url = await getDownloadURL(fileRef);
   return { blobId, url, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
+}
+
+// Download an attached file's bytes through the Firebase SDK (no CORS hit).
+// `attachedFile` is the metadata object stored on the plan/idea
+// ({ blobId, url, name, type, size, uploadedAt }). Returns a Blob.
+export async function fetchFileBlob(attachedFile) {
+  if (!attachedFile?.blobId) throw new Error('Missing file reference.');
+  const fileRef = ref(storage, `uploads/${attachedFile.blobId}`);
+  return await getBlob(fileRef);
 }
 
 // Delete a stored file from Firebase Storage.
