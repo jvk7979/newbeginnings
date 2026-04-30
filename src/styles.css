@@ -32,62 +32,6 @@
   --c-info-bg: #EBF2E4;
 }
 
-/* Pearl — Pantone 2026 Cloud Dancer base · Vercel #0070F3 blue · Zinc scale */
-:root[data-theme="sandstone"] {
-  --c-bg0: #FAFAFA;
-  --c-bg1: #F4F4F5;
-  --c-bg2: #E4E4E7;
-  --c-bg3: #D4D4D8;
-  --c-fg1: #09090B;
-  --c-fg2: #3F3F46;
-  --c-fg3: #71717A;
-  --c-accent: #0070F3;
-  --c-accent-light: #3B87F7;
-  --c-accent-dim: #0058C4;
-  --c-accent-bg: #EFF6FF;
-  --c-accent-rgb: 0 112 243;
-  --c-accent-dim-rgb: 0 88 196;
-  --c-border: #D4D4D8;
-  --c-border-light: #A1A1AA;
-  --c-success: #15803D;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #0070F3;
-  --c-info-bg: #EFF6FF;
-}
-
-/* Verdant — warm cool white base · deep teal #0D9373 · WCAG 5.8:1 */
-:root[data-theme="teal"] {
-  --c-bg0: #F7FAF9;
-  --c-bg1: #EDFAF5;
-  --c-bg2: #D4F0E6;
-  --c-bg3: #B0E0D0;
-  --c-fg1: #052E1C;
-  --c-fg2: #1A5C40;
-  --c-fg3: #2E8C64;
-  --c-accent: #0D9373;
-  --c-accent-light: #10B98A;
-  --c-accent-dim: #0A7A5E;
-  --c-accent-bg: #ECFDF8;
-  --c-accent-rgb: 13 147 115;
-  --c-accent-dim-rgb: 10 122 94;
-  --c-border: #B8E0D4;
-  --c-border-light: #7DCCBC;
-  --c-success: #0D9373;
-  --c-success-bg: #ECFDF8;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #0070F3;
-  --c-info-bg: #EFF6FF;
-}
-
 /* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1 */
 :root[data-theme="forest"] {
   --c-bg0: #FDFAF6;
@@ -116,116 +60,285 @@
   --c-info-bg: #EFF6FF;
 }
 
-/* Crimson — barely-pink base · deep rose #C0152A · WCAG 5.9:1 */
-:root[data-theme="coral"] {
-  --c-bg0: #FDFBFB;
-  --c-bg1: #FAF2F3;
-  --c-bg2: #F2E2E4;
-  --c-bg3: #E8CCCE;
-  --c-fg1: #1A0608;
-  --c-fg2: #5A1820;
-  --c-fg3: #9E3A46;
-  --c-accent: #C0152A;
-  --c-accent-light: #E02540;
-  --c-accent-dim: #A01020;
-  --c-accent-bg: #FFF0F2;
-  --c-accent-rgb: 192 21 42;
-  --c-accent-dim-rgb: 160 16 32;
-  --c-border: #EDD0D2;
-  --c-border-light: #DDAAB0;
+/* Bloom — Trend 1: Pink and Green · soft pink base · deep green accent */
+:root[data-theme="bloom"] {
+  --c-bg0: #FDF4F6;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F5DDE3;
+  --c-bg3: #E8C3CC;
+  --c-fg1: #1A0F12;
+  --c-fg2: #4A2F37;
+  --c-fg3: #87646E;
+  --c-accent: #2E7D32;
+  --c-accent-light: #4CAF50;
+  --c-accent-dim: #1B5E20;
+  --c-accent-bg: #E8F5E9;
+  --c-accent-rgb: 46 125 50;
+  --c-accent-dim-rgb: 27 94 32;
+  --c-border: #F0DBE0;
+  --c-border-light: #E0BAC2;
+  --c-success: #2E7D32;
+  --c-success-bg: #E8F5E9;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFF8ED;
+  --c-danger: #C62828;
+  --c-danger-bg: #FFEBEE;
+  --c-danger-rgb: 198 40 40;
+  --c-info: #1976D2;
+  --c-info-bg: #E3F2FD;
+}
+
+/* Periwinkle — Trend 5: Everything Very Peri · Pantone Very Peri #6667AB */
+:root[data-theme="peri"] {
+  --c-bg0: #F4F2FB;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #E5E1F5;
+  --c-bg3: #C8C0E8;
+  --c-fg1: #1B1A2E;
+  --c-fg2: #3F3D5E;
+  --c-fg3: #7A789A;
+  --c-accent: #6667AB;
+  --c-accent-light: #8889C5;
+  --c-accent-dim: #4F5093;
+  --c-accent-bg: #ECEAFA;
+  --c-accent-rgb: 102 103 171;
+  --c-accent-dim-rgb: 79 80 147;
+  --c-border: #DDDAEC;
+  --c-border-light: #BFB8DA;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #6667AB;
+  --c-info-bg: #ECEAFA;
+}
+
+/* Meadow — Trend 6: Green White and Yellow · uses image colours
+   Alpine Oat #F0E7DA · Dill Green #4E6813 · Butter Yellow #FFEDA8 */
+:root[data-theme="meadow"] {
+  --c-bg0: #F0E7DA;
+  --c-bg1: #FAFAF7;
+  --c-bg2: #E8DEC8;
+  --c-bg3: #D4C5A8;
+  --c-fg1: #1A1F0A;
+  --c-fg2: #3D4516;
+  --c-fg3: #767A57;
+  --c-accent: #4E6813;
+  --c-accent-light: #6B8A22;
+  --c-accent-dim: #36490A;
+  --c-accent-bg: #EBF0DE;
+  --c-accent-rgb: 78 104 19;
+  --c-accent-dim-rgb: 54 73 10;
+  --c-border: #DCD0B8;
+  --c-border-light: #C2B498;
+  --c-success: #4E6813;
+  --c-success-bg: #EBF0DE;
+  --c-warning: #8A6D00;
+  --c-warning-bg: #FFEDA8;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #4E6813;
+  --c-info-bg: #EBF0DE;
+}
+
+/* Monogram — Trend 7: Red Black and White · Cherry Red #74070E from image */
+:root[data-theme="monogram"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #FAFAFA;
+  --c-bg2: #F0F0F0;
+  --c-bg3: #E0E0E0;
+  --c-fg1: #000000;
+  --c-fg2: #333333;
+  --c-fg3: #707070;
+  --c-accent: #74070E;
+  --c-accent-light: #A50D17;
+  --c-accent-dim: #5A0508;
+  --c-accent-bg: #FBE9EB;
+  --c-accent-rgb: 116 7 14;
+  --c-accent-dim-rgb: 90 5 8;
+  --c-border: #E5E5E5;
+  --c-border-light: #C0C0C0;
+  --c-success: #2E7D32;
+  --c-success-bg: #E8F5E9;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #74070E;
+  --c-danger-bg: #FBE9EB;
+  --c-danger-rgb: 116 7 14;
+  --c-info: #1976D2;
+  --c-info-bg: #E3F2FD;
+}
+
+/* Lilac — Trend 8: Pink and Purple · soft pink base · deep purple accent */
+:root[data-theme="lilac"] {
+  --c-bg0: #FCF1F5;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F5DCE6;
+  --c-bg3: #E8C0D2;
+  --c-fg1: #1F0A1A;
+  --c-fg2: #4A2440;
+  --c-fg3: #8A647A;
+  --c-accent: #7B2CBF;
+  --c-accent-light: #9D4DDB;
+  --c-accent-dim: #5A1B8E;
+  --c-accent-bg: #F4EAFB;
+  --c-accent-rgb: 123 44 191;
+  --c-accent-dim-rgb: 90 27 142;
+  --c-border: #F0DBE5;
+  --c-border-light: #DDB6CC;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #7B2CBF;
+  --c-info-bg: #F4EAFB;
+}
+
+/* Phoenix — Trend 3 (light): pale blue base · fiery orange accent #E04A0F */
+:root[data-theme="phoenix"] {
+  --c-bg0: #F4F7FB;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #E1E8F2;
+  --c-bg3: #C8D4E5;
+  --c-fg1: #0A1628;
+  --c-fg2: #2B4570;
+  --c-fg3: #5A6E8A;
+  --c-accent: #E04A0F;
+  --c-accent-light: #FF6B35;
+  --c-accent-dim: #B33A0A;
+  --c-accent-bg: #FFEDE3;
+  --c-accent-rgb: 224 74 15;
+  --c-accent-dim-rgb: 179 58 10;
+  --c-border: #DDE4EE;
+  --c-border-light: #BCC8DA;
+  --c-success: #15803D;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #E04A0F;
+  --c-warning-bg: #FFEDE3;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1976D2;
+  --c-info-bg: #E3F2FD;
+}
+
+/* Regalia — Trend 4 (light reinterpretation): warm ivory base · gold #B8860B */
+:root[data-theme="regalia"] {
+  --c-bg0: #FBF8F0;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F2EAD3;
+  --c-bg3: #E5D5A8;
+  --c-fg1: #1A1500;
+  --c-fg2: #4A3D00;
+  --c-fg3: #8A7635;
+  --c-accent: #B8860B;
+  --c-accent-light: #D4AF37;
+  --c-accent-dim: #8A6500;
+  --c-accent-bg: #FFF8E0;
+  --c-accent-rgb: 184 134 11;
+  --c-accent-dim-rgb: 138 101 0;
+  --c-border: #E8DCB0;
+  --c-border-light: #D0BE85;
+  --c-success: #15803D;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #B8860B;
+  --c-warning-bg: #FFF8E0;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1976D2;
+  --c-info-bg: #E3F2FD;
+}
+
+/* Transformative Teal — pale aqua base · deep teal accent #00897B */
+:root[data-theme="teal"] {
+  --c-bg0: #F0FAF8;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #D4F0EB;
+  --c-bg3: #A8E0D6;
+  --c-fg1: #001F1A;
+  --c-fg2: #00524A;
+  --c-fg3: #4A8A82;
+  --c-accent: #00897B;
+  --c-accent-light: #26A69A;
+  --c-accent-dim: #00695C;
+  --c-accent-bg: #E0F2F1;
+  --c-accent-rgb: 0 137 123;
+  --c-accent-dim-rgb: 0 105 92;
+  --c-border: #C8E8E2;
+  --c-border-light: #95CCC2;
+  --c-success: #00897B;
+  --c-success-bg: #E0F2F1;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #00897B;
+  --c-info-bg: #E0F2F1;
+}
+
+/* Blue Aura — uses Aura Indigo #B0A6DF from image · soft sky base */
+:root[data-theme="aura"] {
+  --c-bg0: #F4F5FC;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #E0DEF2;
+  --c-bg3: #B0A6DF;
+  --c-fg1: #14132B;
+  --c-fg2: #2E2C5C;
+  --c-fg3: #6E6BA0;
+  --c-accent: #4945A8;
+  --c-accent-light: #7B78C8;
+  --c-accent-dim: #322F80;
+  --c-accent-bg: #ECEAFA;
+  --c-accent-rgb: 73 69 168;
+  --c-accent-dim-rgb: 50 47 128;
+  --c-border: #DDDAEC;
+  --c-border-light: #B0A6DF;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #4945A8;
+  --c-info-bg: #ECEAFA;
+}
+
+/* Amber Haze — soft warm cream base · deep amber accent #B45309 */
+:root[data-theme="amber"] {
+  --c-bg0: #FDF8EE;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F8EBC8;
+  --c-bg3: #EDD89A;
+  --c-fg1: #1F1300;
+  --c-fg2: #5C3D00;
+  --c-fg3: #9A7530;
+  --c-accent: #B45309;
+  --c-accent-light: #D97706;
+  --c-accent-dim: #8A3F05;
+  --c-accent-bg: #FEF3DC;
+  --c-accent-rgb: 180 83 9;
+  --c-accent-dim-rgb: 138 63 5;
+  --c-border: #F0DCB0;
+  --c-border-light: #DEC382;
   --c-success: #15803D;
   --c-success-bg: #F0FDF4;
   --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #C0152A;
-  --c-danger-bg: #FFF0F2;
-  --c-danger-rgb: 192 21 42;
-  --c-info: #0070F3;
-  --c-info-bg: #EFF6FF;
-}
-
-/* Obsidian — #09090B "the new black" · Zinc scale · Electric blue #3B82F6 */
-:root[data-theme="indigo"] {
-  --c-bg0: #09090B;
-  --c-bg1: #18181B;
-  --c-bg2: #27272A;
-  --c-bg3: #3F3F46;
-  --c-fg1: #FAFAFA;
-  --c-fg2: #A1A1AA;
-  --c-fg3: #71717A;
-  --c-accent: #3B82F6;
-  --c-accent-light: #60A5FA;
-  --c-accent-dim: #2563EB;
-  --c-accent-bg: #1A2840;
-  --c-accent-rgb: 59 130 246;
-  --c-accent-dim-rgb: 37 99 235;
-  --c-border: #27272A;
-  --c-border-light: #3F3F46;
-  --c-success: #22C55E;
-  --c-success-bg: #052E16;
-  --c-warning: #FBBF24;
-  --c-warning-bg: #1C1400;
-  --c-danger: #F87171;
-  --c-danger-bg: #2A0808;
-  --c-danger-rgb: 248 113 113;
-  --c-info: #3B82F6;
-  --c-info-bg: #1A2840;
-}
-
-/* Nautical — Slate #0F172A navy · amber gold #F59E0B · Slate scale */
-:root[data-theme="midnight"] {
-  --c-bg0: #0F172A;
-  --c-bg1: #1E293B;
-  --c-bg2: #334155;
-  --c-bg3: #475569;
-  --c-fg1: #F8FAFC;
-  --c-fg2: #94A3B8;
-  --c-fg3: #64748B;
-  --c-accent: #F59E0B;
-  --c-accent-light: #FCD34D;
-  --c-accent-dim: #D97706;
-  --c-accent-bg: #1C1200;
-  --c-accent-rgb: 245 158 11;
-  --c-accent-dim-rgb: 217 119 6;
-  --c-border: #334155;
-  --c-border-light: #475569;
-  --c-success: #22C55E;
-  --c-success-bg: #052E16;
-  --c-warning: #F59E0B;
-  --c-warning-bg: #1C1200;
-  --c-danger: #F87171;
-  --c-danger-bg: #2A0808;
-  --c-danger-rgb: 248 113 113;
-  --c-info: #38BDF8;
-  --c-info-bg: #001830;
-}
-
-/* Cosmos — deep space violet · Linear #8B5CF6 · WCAG 7:1 on dark */
-:root[data-theme="slate"] {
-  --c-bg0: #07050F;
-  --c-bg1: #0F0B1F;
-  --c-bg2: #1A1432;
-  --c-bg3: #2D2550;
-  --c-fg1: #F5F3FF;
-  --c-fg2: #C4B8F8;
-  --c-fg3: #8270C0;
-  --c-accent: #8B5CF6;
-  --c-accent-light: #A78BFA;
-  --c-accent-dim: #7C3AED;
-  --c-accent-bg: #1A1030;
-  --c-accent-rgb: 139 92 246;
-  --c-accent-dim-rgb: 124 58 237;
-  --c-border: #1A1432;
-  --c-border-light: #2D2550;
-  --c-success: #22C55E;
-  --c-success-bg: #05200E;
-  --c-warning: #FBBF24;
-  --c-warning-bg: #140E00;
-  --c-danger: #F87171;
-  --c-danger-bg: #220608;
-  --c-danger-rgb: 248 113 113;
-  --c-info: #38BDF8;
-  --c-info-bg: #00101E;
+  --c-warning-bg: #FEF3DC;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1976D2;
+  --c-info-bg: #E3F2FD;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
@@ -281,14 +394,8 @@ button, a, [role="button"], input, select, textarea {
   .main-with-sidebar { padding-top: 54px; }
 }
 
-/* ── Logo image — blend mode switches for dark themes ───────────────────── */
+/* ── Logo image — multiply blends gracefully into all light theme surfaces ── */
 .logo-img { mix-blend-mode: multiply; }
-:root[data-theme="indigo"] .logo-img,
-:root[data-theme="midnight"] .logo-img,
-:root[data-theme="slate"] .logo-img {
-  mix-blend-mode: screen;
-  filter: brightness(1.05);
-}
 
 /* TopNav visibility helpers (kept for any legacy use) */
 .hide-on-mobile  { display: flex; }
@@ -307,13 +414,6 @@ button, a, [role="button"], input, select, textarea {
   transform: translateY(0);
 }
 
-/* Legacy logo-btn blend (loading screen + about page) */
-:root[data-theme="indigo"] .logo-btn img,
-:root[data-theme="midnight"] .logo-btn img,
-:root[data-theme="slate"] .logo-btn img {
-  mix-blend-mode: screen;
-  filter: brightness(1.05);
-}
 
 /* ── Animations ─────────────────────────────────────────────────────────── */
 @keyframes spin {

@@ -1,14 +1,18 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 export const THEMES = [
-  { id: 'sage',      label: 'Botanical', mode: 'light', swatch: ['#F4F0E8', '#5A7244', '#FDFCFA'] },
-  { id: 'sandstone', label: 'Pearl',     mode: 'light', swatch: ['#FAFAFA', '#0070F3', '#F4F4F5'] },
-  { id: 'teal',      label: 'Verdant',   mode: 'light', swatch: ['#F7FAF9', '#0D9373', '#EDFAF5'] },
-  { id: 'forest',    label: 'Saffron',   mode: 'light', swatch: ['#FDFAF6', '#C2600A', '#FAF3E8'] },
-  { id: 'coral',     label: 'Crimson',   mode: 'light', swatch: ['#FDFBFB', '#C0152A', '#FAF2F3'] },
-  { id: 'indigo',    label: 'Obsidian',  mode: 'dark',  swatch: ['#09090B', '#3B82F6', '#18181B'] },
-  { id: 'midnight',  label: 'Nautical',  mode: 'dark',  swatch: ['#0F172A', '#F59E0B', '#1E293B'] },
-  { id: 'slate',     label: 'Cosmos',    mode: 'dark',  swatch: ['#07050F', '#8B5CF6', '#0F0B1F'] },
+  { id: 'sage',     label: 'Botanical',  mode: 'light', swatch: ['#F4F0E8', '#5A7244', '#FDFCFA'] },
+  { id: 'forest',   label: 'Saffron',    mode: 'light', swatch: ['#FDFAF6', '#C2600A', '#FAF3E8'] },
+  { id: 'meadow',   label: 'Meadow',     mode: 'light', swatch: ['#F0E7DA', '#4E6813', '#FAFAF7'] },
+  { id: 'bloom',    label: 'Bloom',      mode: 'light', swatch: ['#FDF4F6', '#2E7D32', '#FFFFFF'] },
+  { id: 'lilac',    label: 'Lilac',      mode: 'light', swatch: ['#FCF1F5', '#7B2CBF', '#FFFFFF'] },
+  { id: 'peri',     label: 'Periwinkle', mode: 'light', swatch: ['#F4F2FB', '#6667AB', '#FFFFFF'] },
+  { id: 'aura',     label: 'Blue Aura',  mode: 'light', swatch: ['#F4F5FC', '#4945A8', '#FFFFFF'] },
+  { id: 'monogram', label: 'Monogram',   mode: 'light', swatch: ['#FFFFFF', '#74070E', '#FAFAFA'] },
+  { id: 'phoenix',  label: 'Phoenix',    mode: 'light', swatch: ['#F4F7FB', '#E04A0F', '#FFFFFF'] },
+  { id: 'amber',    label: 'Amber Haze', mode: 'light', swatch: ['#FDF8EE', '#B45309', '#FFFFFF'] },
+  { id: 'regalia',  label: 'Regalia',    mode: 'light', swatch: ['#FBF8F0', '#B8860B', '#FFFFFF'] },
+  { id: 'teal',     label: 'Transformative Teal', mode: 'light', swatch: ['#F0FAF8', '#00897B', '#FFFFFF'] },
 ];
 
 const DEFAULT_THEME = 'sage';
