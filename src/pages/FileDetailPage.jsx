@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -10,6 +10,12 @@ export default function FileDetailPage({ file, onNavigate }) {
   const { showToast }  = useToast();
   const [showInfo, setShowInfo]   = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [file?.id]);
 
   if (!file) {
     return (
