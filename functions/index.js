@@ -129,11 +129,24 @@ Write in clear, professional English. Use flowing paragraphs — no bullet point
 DOCUMENT:
 `;
 
+// CORS allowlist is environment-scoped. The Firebase Functions runtime
+// sets FUNCTIONS_EMULATOR=true automatically when invoked via
+// `firebase emulators:start`, so prod deploys never see this flag and
+// only accept requests from the production origin. Localhost dev
+// servers are accepted only when the function is itself running under
+// the emulator. Without this, a malicious page on localhost could
+// invoke prod functions with the user's auth token attached whenever
+// the user happened to be running a local dev server.
+const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true';
+const ALLOWED_ORIGINS = isEmulator
+  ? ['https://jvk7979.github.io', 'http://localhost:5173', 'http://localhost:5174']
+  : ['https://jvk7979.github.io'];
+
 const callOpts = {
   secrets: [GEMINI_API_KEY],
   timeoutSeconds: 60,
   memory: '512MiB',
-  cors: ['https://jvk7979.github.io', 'http://localhost:5173', 'http://localhost:5174'],
+  cors: ALLOWED_ORIGINS,
 };
 
 // ── analyzeIdea ─────────────────────────────────────────────────────────
