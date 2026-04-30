@@ -33,8 +33,18 @@ const PROMPT_TEMPLATE = `Please write a structured business report with the foll
 
 Format each section heading on its own line in UPPERCASE or Title Case, followed by the content. This helps my business tracking app auto-detect and organize sections automatically.`;
 
-/* ── Main component ── */
-export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
+/* ── Main component ──
+ *
+ *   onExtracted(parsed)  — fires after a successful parse with
+ *                          { title, summary?, desc?, sections? }
+ *   onFileAttached(file) — optional. Fires alongside onExtracted with the
+ *                          original File object so the parent can use the
+ *                          same upload as the saved attachment, avoiding
+ *                          a duplicate upload step. Also fires with null
+ *                          when the user resets/replaces the PDF or
+ *                          clears the pasted text.
+ */
+export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttached }) {
   const [tab, setTab]           = useState('pdf');   // 'pdf' | 'paste'
   const [pdfState, setPdfState] = useState('idle');  // idle | dragging | processing | done | error
   const [fileInfo, setFileInfo] = useState(null);
@@ -65,6 +75,10 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
       setPdfPreview(parsed);
       setPdfState('done');
       onExtracted(parsed);
+      // Promote the same File to the parent's attachment slot so a
+      // single upload covers both extraction AND save-time persistence —
+      // users no longer need to drop the file in twice.
+      onFileAttached?.(file);
     } catch {
       setPdfErr('Could not read this PDF. Make sure it is a text-based PDF, not a scanned image.');
       setPdfState('error');
@@ -75,7 +89,12 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted }) {
   const onDragOver  = (e) => { e.preventDefault(); setPdfState('dragging'); };
   const onDragLeave = () => setPdfState('idle');
   const onFileChange = (e) => { processPdf(e.target.files[0]); e.target.value = ''; };
-  const resetPdf    = () => { setPdfState('idle'); setFileInfo(null); setPdfPreview(null); setPdfErr(''); };
+  const resetPdf    = () => {
+    setPdfState('idle'); setFileInfo(null); setPdfPreview(null); setPdfErr('');
+    // Replace/clear should also drop the parent's attachment so the next
+    // upload (or the absence of one) reflects truthfully in the saved record.
+    onFileAttached?.(null);
+  };
 
   /* ── Paste processing ── */
   const handleParse = () => {

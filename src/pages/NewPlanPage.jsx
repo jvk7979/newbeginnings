@@ -80,7 +80,7 @@ export default function NewPlanPage({ onNavigate }) {
       <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 6 }}>New Business Plan</div>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 24 }}>Upload a PDF to auto-extract all sections, or build manually below.</div>
 
-      <PdfUploadZone mode="plan" onExtracted={handleExtracted} />
+      <PdfUploadZone mode="plan" onExtracted={handleExtracted} onFileAttached={setSelectedFile} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
