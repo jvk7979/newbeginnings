@@ -122,7 +122,7 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
         </div>
 
         <div className="attached-file-btns">
-          {url && (
+          {(file.blobId || file.url) && (
             <>
               <button onClick={handleView}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: 'none', border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 5, padding: '6px 10px', cursor: 'pointer', whiteSpace: 'nowrap' }}>

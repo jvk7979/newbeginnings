@@ -1,16 +1,14 @@
-import { useState, useEffect, useRef, useMemo } from 'react'; // useRef kept for comments scroll
+import { useState, useEffect, useRef } from 'react';
 import { C, alpha } from '../tokens';
 import { useAppData } from '../context/AppContext';
-import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import { generatePlanSection, improveSummary } from '../utils/gemini';
-import { db } from '../firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import ConfirmModal from '../components/ConfirmModal';
 import Badge from '../components/Badge';
 import AttachedFileViewer from '../components/AttachedFileViewer';
 import UploadZone from '../components/UploadZone';
+import DiscussionThread from '../components/DiscussionThread';
 import { uploadFileToDB, deleteFileFromDB, mimeForType, fetchFileBlob } from '../utils/fileStorage';
 import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
 import { CATEGORIES } from '../utils/categoryStyles';
@@ -25,19 +23,9 @@ const PLAN_STATUSES = [
   { value: 'archived',  label: 'Archived' },
 ];
 
-function timeAgo(ts) {
-  if (!ts) return '';
-  const secs = Math.floor((Date.now() - ts.toMillis()) / 1000);
-  if (secs < 60) return 'just now';
-  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
-  if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
-  return `${Math.floor(secs / 86400)}d ago`;
-}
-
 export default function PlanDetailPage({ plan, onNavigate }) {
   const { updatePlan, deletePlan, restorePlan } = useAppData();
   const { showToast } = useToast();
-  const { user } = useAuth();
 
   const [title,        setTitle]        = useState(plan.title);
   const [summary,      setSummary]      = useState(plan.summary       || '');
@@ -53,16 +41,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [generatingIdx, setGeneratingIdx] = useState(null);
   const [improvingSummary, setImprovingSummary] = useState(false);
   const [generatingSummary, setGeneratingSummary] = useState(false);
-  const [confirmDel,    setConfirmDel]    = useState(false);
-  const [confirmComDel, setConfirmComDel] = useState(null);
-
-  // Discussion
-  const [comments, setComments]       = useState([]);
-  const [commentText, setCommentText] = useState('');
-  const [posting, setPosting]         = useState(false);
-  const commentsEndRef                = useRef(null);
-  const justPosted                    = useRef(false);
-  const pagePadRef                    = useRef(null);
+  const [confirmDel, setConfirmDel] = useState(false);
+  const pagePadRef = useRef(null);
 
   useEffect(() => {
     const scroll = () => { pagePadRef.current?.scrollTo?.({ top: 0 }); window.scrollTo?.({ top: 0 }); };
@@ -72,27 +52,6 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     const t3 = setTimeout(scroll, 400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [plan.id]);
-
-  const commentsPath = useMemo(
-    () => collection(db, 'planDiscussions', String(plan.id), 'comments'),
-    [plan.id]
-  );
-
-  useEffect(() => {
-    const q = query(commentsPath, orderBy('timestamp', 'asc'));
-    const unsub = onSnapshot(q,
-      snap => setComments(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
-      () => {}
-    );
-    return () => unsub();
-  }, [commentsPath]);
-
-  useEffect(() => {
-    if (justPosted.current) {
-      justPosted.current = false;
-      commentsEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [comments]);
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
   const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -210,38 +169,6 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       showToast('AI improvement failed. Check your connection.', 'error');
     } finally {
       setImprovingSummary(false);
-    }
-  };
-
-  const handlePostComment = async () => {
-    const text = commentText.trim();
-    if (!text || posting) return;
-    setPosting(true);
-    try {
-      await addDoc(commentsPath, {
-        text,
-        authorName: user.displayName || user.email || 'Anonymous',
-        authorEmail: user.email || '',
-        authorPhoto: user.photoURL || null,
-        timestamp: serverTimestamp(),
-      });
-      setCommentText('');
-      justPosted.current = true;
-    } catch {
-      showToast('Could not post comment. Check Firestore rules.', 'error');
-    } finally {
-      setPosting(false);
-    }
-  };
-
-  const handleDeleteComment = (commentId) => setConfirmComDel(commentId);
-  const confirmDeleteComment = async () => {
-    try {
-      await deleteDoc(doc(db, 'planDiscussions', String(plan.id), 'comments', confirmComDel));
-    } catch {
-      showToast('Could not delete comment.', 'error');
-    } finally {
-      setConfirmComDel(null);
     }
   };
 
@@ -446,65 +373,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
         )}
 
         {/* ── DISCUSSION — always visible ── */}
-        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, marginTop: isEditing ? 0 : 8 }}>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 16 }}>
-            Discussion · {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
-          </div>
-
-          {comments.length === 0 && (
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 8, padding: '16px 18px', marginBottom: 16, textAlign: 'center' }}>
-              No comments yet — start the discussion below.
-            </div>
-          )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
-            {comments.map(c => {
-              const initial = (c.authorName || '?')[0].toUpperCase();
-              const isOwn = c.authorEmail === user.email;
-              return (
-                <div key={c.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  {c.authorPhoto
-                    ? <img src={c.authorPhoto} alt="" width={30} height={30} style={{ borderRadius: '50%', flexShrink: 0, marginTop: 2 }} />
-                    : <div style={{ width: 30, height: 30, borderRadius: '50%', background: C.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 700, marginTop: 2 }}>{initial}</div>
-                  }
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1 }}>{c.authorName}</span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>{timeAgo(c.timestamp)}</span>
-                      {isOwn && (
-                        <button onClick={() => handleDeleteComment(c.id)}
-                          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}>
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.6, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 14px', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                      {c.text}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={commentsEndRef} />
-          </div>
-
-          <div className="comment-row">
-            <textarea
-              value={commentText}
-              onChange={e => setCommentText(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handlePostComment(); }}
-              placeholder="Add a comment, question, or feedback… (Ctrl+Enter to post)"
-              style={{ flex: 1, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '10px 12px', outline: 'none', resize: 'vertical', minHeight: 72, lineHeight: 1.6, transition: 'border 150ms' }}
-              onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}
-              onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }}
-            />
-            <button onClick={handlePostComment} disabled={posting || !commentText.trim()}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '10px 18px', borderRadius: 8, background: posting || !commentText.trim() ? C.bg2 : C.accent, color: posting || !commentText.trim() ? C.fg3 : '#fff', border: 'none', cursor: posting || !commentText.trim() ? 'not-allowed' : 'pointer', transition: 'all 150ms', whiteSpace: 'nowrap', flexShrink: 0 }}>
-              {posting ? 'Posting…' : 'Post'}
-            </button>
-          </div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 6 }}>Visible to all signed-in family members.</div>
-        </div>
+        <DiscussionThread collectionName="planDiscussions" docId={plan.id} />
       </div>
       </div>
     </div>
@@ -515,14 +384,6 @@ export default function PlanDetailPage({ plan, onNavigate }) {
         confirmLabel="Delete"
         onConfirm={confirmDeletePlan}
         onCancel={() => setConfirmDel(false)} />
-    )}
-    {confirmComDel && (
-      <ConfirmModal
-        title="Delete comment?"
-        message="Are you sure you want to delete this comment?"
-        confirmLabel="Delete"
-        onConfirm={confirmDeleteComment}
-        onCancel={() => setConfirmComDel(null)} />
     )}
     </>
   );
