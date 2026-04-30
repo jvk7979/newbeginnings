@@ -45,6 +45,37 @@ function Spinner({ label }) {
   );
 }
 
+// Detects the family of errors thrown when Vite fails to fetch a lazy
+// chunk. We hit this whenever a user has a stale `index.html` cached
+// (GitHub Pages serves the HTML with a CDN cache window) and tries to
+// load a chunk whose contenthash filename only existed in the previous
+// deploy. Patterns observed across browsers:
+//   - "Failed to fetch dynamically imported module: <url>" (Vite/Chrome)
+//   - "error loading dynamically imported module" (Safari)
+//   - "Loading chunk N failed" (older bundlers, kept defensively)
+//   - "ChunkLoadError" (error.name on Webpack-style errors)
+const isChunkLoadError = (err) => {
+  const msg  = String(err?.message || '');
+  const name = String(err?.name    || '');
+  return name === 'ChunkLoadError'
+      || /failed to fetch dynamically imported module/i.test(msg)
+      || /error loading dynamically imported module/i.test(msg)
+      || /loading chunk \S+ failed/i.test(msg)
+      || /importing a module script failed/i.test(msg);
+};
+
+// Force a full page reload that bypasses any cached HTML. Adding a
+// one-shot query param invalidates the GitHub Pages CDN cache key for
+// this request and guarantees the browser fetches a fresh `index.html`
+// referencing the chunk hashes that actually exist on the current deploy.
+const RELOAD_FLAG = 'nb_chunk_reload';
+function bustCacheAndReload() {
+  try { sessionStorage.setItem(RELOAD_FLAG, '1'); } catch { /* private mode */ }
+  const url = new URL(window.location.href);
+  url.searchParams.set('_v', String(Date.now()));
+  window.location.replace(url.toString());
+}
+
 // Catches lazy-chunk load failures (network blip, stale deploy, etc.) and
 // any other render-time error. Without this, a thrown error inside
 // <Suspense> unmounts the entire tree and the user sees a blank page that
@@ -52,13 +83,25 @@ function Spinner({ label }) {
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { error: null };
+    this.state = { error: null, autoReloading: false };
   }
   static getDerivedStateFromError(error) {
     return { error };
   }
   componentDidCatch(error, info) {
     console.error('[ErrorBoundary]', error, info);
+    // First chunk error in this tab → silently reload with cache-bust.
+    // Subsequent chunk errors in the same tab fall through to the manual
+    // UI so we can't get stuck in a reload loop on a genuinely broken
+    // deploy. The flag lives in sessionStorage so it resets per tab.
+    if (isChunkLoadError(error)) {
+      let alreadyTried = false;
+      try { alreadyTried = sessionStorage.getItem(RELOAD_FLAG) === '1'; } catch { /* */ }
+      if (!alreadyTried) {
+        this.setState({ autoReloading: true });
+        bustCacheAndReload();
+      }
+    }
   }
   componentDidMount() {
     // Auto-reset on URL change so the user can navigate away from a
@@ -71,20 +114,23 @@ class ErrorBoundary extends Component {
   }
   render() {
     if (this.state.error) {
-      const isChunkErr = /chunk|loading|dynamic import|fetch/i.test(String(this.state.error?.message));
+      // While the auto-reload is in flight render the spinner instead of
+      // flashing the error UI for a beat — looks like a normal page load.
+      if (this.state.autoReloading) return <Spinner label="Updating to the latest version…" />;
+      const chunkErr = isChunkLoadError(this.state.error);
       return (
         <div className="page-pad" style={{ background: C.bg0 }}>
           <div style={{ maxWidth: 520, margin: '60px auto', textAlign: 'center', fontFamily: "'DM Sans', sans-serif" }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
             <div style={{ fontSize: 18, fontWeight: 600, color: C.fg1, marginBottom: 8 }}>
-              {isChunkErr ? 'Couldn’t load this page' : 'Something went wrong'}
+              {chunkErr ? 'Couldn’t load this page' : 'Something went wrong'}
             </div>
             <div style={{ fontSize: 15, color: C.fg3, lineHeight: 1.6, marginBottom: 20 }}>
-              {isChunkErr
-                ? 'The latest update couldn’t finish loading — usually a one-tap reload fixes it.'
+              {chunkErr
+                ? 'A new version is available but didn’t finish loading. Tap reload to fetch it.'
                 : 'An unexpected error occurred. Reloading should clear it.'}
             </div>
-            <button onClick={() => window.location.reload()}
+            <button onClick={bustCacheAndReload}
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '9px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
               Reload
             </button>
@@ -95,6 +141,7 @@ class ErrorBoundary extends Component {
     return this.props.children;
   }
 }
+
 
 function NotFound({ label, dest, onNavigate }) {
   return (
@@ -124,6 +171,18 @@ export default function App() {
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Successful render in a tab means chunks did load. Drop the per-tab
+  // chunk-reload flag so a *future* legitimate chunk error in the same
+  // tab gets its own one-shot auto-reload instead of being gated by an
+  // old flag.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(RELOAD_FLAG) === '1') {
+        sessionStorage.removeItem(RELOAD_FLAG);
+      }
+    } catch { /* private mode */ }
   }, []);
 
   const navigate = (dest, data = null) => {

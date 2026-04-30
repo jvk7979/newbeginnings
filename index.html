@@ -3,6 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Force-revalidate the SPA shell on every load. Vite emits chunks with
+       contenthash filenames so they can stay long-cached safely; only the
+       index.html changes on each deploy and absolutely must NOT be cached.
+       Without this, browsers and the GitHub Pages CDN happily serve a
+       2-day-old index.html that references chunk hashes which no longer
+       exist on disk — the user signs in, the dashboard chunk 404s, and
+       they see "Couldn't load this page". -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>The New Beginnings — Rajahmundry Ventures</title>
   <link rel="icon" href="./favicon.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">

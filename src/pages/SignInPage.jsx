@@ -2,38 +2,55 @@ import { useState, useEffect } from 'react';
 import { C, alpha } from '../tokens';
 import { useAuth } from '../context/AuthContext';
 
-// Inline wordmark — replaces the raster logo on the sign-in page. The PNG
-// has a built-in beige plate that smears on themed backgrounds (sage, gold,
-// teal, etc.) when the global `mix-blend-mode: multiply` is applied. A
-// type-only mark in the project's display font (Playfair Display) renders
-// crisply on every theme and at every pixel density.
-function Wordmark({ size = 'lg' }) {
-  const sizes = size === 'lg'
-    ? { the: 12, main: 38, gap: 4 }
-    : { the: 11, main: 30, gap: 3 };
+// Editorial wordmark — replaces the raster logo on the sign-in page. The
+// PNG has a built-in beige plate that smears on themed backgrounds (sage,
+// gold, teal, etc.) under the global `mix-blend-mode: multiply`. This
+// type-only mark reads like a masthead: tracked-uppercase "THE" modifier
+// above an italic Playfair display title, an accent rule, then the
+// brand's tagline. Renders crisply on every theme.
+function Wordmark({ size = 'lg', align = 'left' }) {
+  const px = size === 'lg' ? 1 : 0.78;
+  const center = align === 'center';
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8, lineHeight: 1 }}>
+    <div style={{
+      display: 'flex', flexDirection: 'column',
+      alignItems: center ? 'center' : 'flex-start',
+      textAlign: center ? 'center' : 'left',
+      gap: 0,
+    }}>
+      <span style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 12 * px, fontWeight: 600,
+        letterSpacing: '0.32em', textTransform: 'uppercase',
+        color: C.accent,
+        marginBottom: 8 * px,
+      }}>The</span>
+      <h1 style={{
+        margin: 0,
+        fontFamily: "'Playfair Display', Georgia, serif",
+        fontSize: 44 * px, fontWeight: 700, fontStyle: 'italic',
+        letterSpacing: '-0.02em', lineHeight: 1.04,
+        color: C.fg1,
+      }}>
+        New <span style={{ color: C.accent }}>Beginnings</span>
+      </h1>
       <span aria-hidden="true" style={{
-        width: 4, alignSelf: 'stretch',
-        background: `linear-gradient(180deg, ${C.accent} 0%, ${C.accentDim} 100%)`,
-        borderRadius: 2,
+        display: 'block',
+        width: 56 * px, height: 2,
+        background: C.accent,
+        borderRadius: 1,
+        margin: `${14 * px}px 0 ${10 * px}px`,
       }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: sizes.gap }}>
-        <span style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: sizes.the, fontWeight: 600,
-          letterSpacing: '0.22em', textTransform: 'uppercase',
-          color: C.fg3,
-        }}>The</span>
-        <span style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
-          fontSize: sizes.main, fontWeight: 700, fontStyle: 'italic',
-          letterSpacing: '-0.015em',
-          color: C.fg1,
-        }}>
-          New <span style={{ color: C.accent }}>Beginnings</span>
-        </span>
-      </div>
+      <p style={{
+        margin: 0,
+        fontFamily: "'Playfair Display', Georgia, serif",
+        fontSize: 16 * px, fontStyle: 'italic',
+        color: C.fg2,
+        lineHeight: 1.5,
+        letterSpacing: '0.005em',
+      }}>
+        A fresh start. Endless possibilities.
+      </p>
     </div>
   );
 }
@@ -126,7 +143,7 @@ export default function SignInPage() {
 
           {/* Wordmark — mobile only (left panel renders its own on desktop) */}
           <div className="hide-on-desktop" style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
-            <Wordmark size="sm" />
+            <Wordmark size="sm" align="center" />
           </div>
 
           <div style={{ marginBottom: 28 }}>
