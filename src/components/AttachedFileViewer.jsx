@@ -177,7 +177,6 @@ export default function AttachedFileViewer({ file, onReplace, onRemove, editing 
               src={resolvedUrl || file.url}
               title={file.name || 'PDF'}
               loading="lazy"
-              sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
               style={{ flex: 1, border: 'none', width: '100%', minHeight: 0 }} />
           )}
 
