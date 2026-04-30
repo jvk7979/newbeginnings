@@ -25,10 +25,14 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == userId && isAllowed();
     }
     match /allowedUsers/{email} {
-      // S4: only admins can list/read the invite roster. Per-doc exists()
-      // checks used by isAllowed() do NOT require list permission and
-      // continue to work for every signed-in user.
-      allow read: if request.auth != null && isAdmin();
+      // S4: admins can list/read the entire roster (the Access page).
+      // Non-admins can read only their OWN doc — needed because the
+      // client uses getDoc() in AuthContext to confirm the invite
+      // (exists() works server-side from rules but isn't accessible
+      // to client SDK read calls). Allowing self-read is safe: the
+      // doc only contains email/name/addedAt/addedBy of the same
+      // user, nothing else.
+      allow read: if isVerified() && (isAdmin() || email == userEmail());
       allow write: if isAdmin();
     }
     match /sharedIdeas/{doc} {

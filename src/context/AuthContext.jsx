@@ -28,11 +28,17 @@ export function AuthProvider({ children }) {
   // After signInWithRedirect, Firebase processes the credential during
   // page load and onAuthStateChanged fires automatically. We still call
   // getRedirectResult so any redirect-stage error (popup blocked, third-
-  // party cookies stripped, network failure) surfaces in the console
-  // instead of being swallowed.
+  // party cookies stripped, network failure) surfaces — and we persist
+  // it to sessionStorage so SignInPage can render it after the redirect
+  // navigation wipes any in-memory error state.
   useEffect(() => {
     getRedirectResult(auth).catch(err => {
-      console.error('[auth/redirect]', err?.code, err?.message);
+      const code = err?.code || 'unknown';
+      const msg  = err?.message || String(err);
+      console.error('[auth/redirect]', code, msg);
+      try {
+        sessionStorage.setItem('auth_redirect_error', JSON.stringify({ code, msg, at: Date.now() }));
+      } catch { /* sessionStorage may be blocked in private mode */ }
     });
   }, []);
 
