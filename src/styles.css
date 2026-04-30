@@ -710,6 +710,100 @@ textarea:focus-visible,
   }
 }
 
+/* ── Plans page — desktop defaults, mobile-tuned overrides ───────────────── */
+.plans-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+.plan-card {
+  padding: 20px 22px;
+  min-height: 190px;
+}
+.plan-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.plan-card-title {
+  font-size: 19px;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plan-card-tags {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.plan-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.plan-card-summary {
+  font-size: 15px;
+  line-height: 1.6;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  min-height: 72px;
+}
+
+@media (max-width: 768px) {
+  /* Cards: tighter padding, no fixed minHeight (single column doesn't need
+     equal heights), title wraps to 2 lines, tags drop below the title for
+     full title width. */
+  .plan-card {
+    padding: 14px 16px;
+    min-height: 0;
+  }
+  .plan-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .plan-card-title {
+    white-space: normal;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-size: 17px;
+    line-height: 1.3;
+  }
+  .plan-card-tags {
+    justify-content: flex-start;
+  }
+  .plan-card-summary {
+    -webkit-line-clamp: 4;
+    min-height: 0;
+  }
+}
+
+/* Very narrow phones: keep the New Plan button as an icon-only target so
+   the title + count + button never crowd into each other. */
+@media (max-width: 420px) {
+  .plans-new-btn {
+    padding: 8px 12px !important;
+  }
+  .plans-new-btn-label {
+    display: none;
+  }
+}
+
 /* Sidebar logo — fill available header width */
 .sidenav-logo-btn {
   flex: 1;

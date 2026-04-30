@@ -1,7 +1,42 @@
 import { useState, useEffect } from 'react';
 import { C, alpha } from '../tokens';
 import { useAuth } from '../context/AuthContext';
-import logoImg from '../assets/logo.png';
+
+// Inline wordmark — replaces the raster logo on the sign-in page. The PNG
+// has a built-in beige plate that smears on themed backgrounds (sage, gold,
+// teal, etc.) when the global `mix-blend-mode: multiply` is applied. A
+// type-only mark in the project's display font (Playfair Display) renders
+// crisply on every theme and at every pixel density.
+function Wordmark({ size = 'lg' }) {
+  const sizes = size === 'lg'
+    ? { the: 12, main: 38, gap: 4 }
+    : { the: 11, main: 30, gap: 3 };
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8, lineHeight: 1 }}>
+      <span aria-hidden="true" style={{
+        width: 4, alignSelf: 'stretch',
+        background: `linear-gradient(180deg, ${C.accent} 0%, ${C.accentDim} 100%)`,
+        borderRadius: 2,
+      }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: sizes.gap }}>
+        <span style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: sizes.the, fontWeight: 600,
+          letterSpacing: '0.22em', textTransform: 'uppercase',
+          color: C.fg3,
+        }}>The</span>
+        <span style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: sizes.main, fontWeight: 700, fontStyle: 'italic',
+          letterSpacing: '-0.015em',
+          color: C.fg1,
+        }}>
+          New <span style={{ color: C.accent }}>Beginnings</span>
+        </span>
+      </div>
+    </div>
+  );
+}
 
 const FEATURES = [
   { icon: '💡', label: 'Ideas',     desc: 'Capture and evaluate venture ideas' },
@@ -57,7 +92,7 @@ export default function SignInPage() {
 
       {/* Left panel — branding (desktop only) */}
       <div style={{ display: 'none', flex: 1, background: C.accentBg, borderRight: `1px solid ${C.border}`, padding: '60px 48px', flexDirection: 'column', justifyContent: 'space-between' }} className="show-on-desktop">
-        <img src={logoImg} alt="The New Beginnings" style={{ height: 48, width: 'auto', mixBlendMode: 'multiply' }} />
+        <Wordmark size="lg" />
 
         <div>
           <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: 16 }}>
@@ -89,9 +124,9 @@ export default function SignInPage() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
         <div style={{ width: '100%', maxWidth: 360 }}>
 
-          {/* Logo — mobile */}
-          <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <img src={logoImg} alt="The New Beginnings" style={{ height: 52, width: 'auto', mixBlendMode: 'multiply', marginBottom: 12 }} className="hide-on-desktop" />
+          {/* Wordmark — mobile only (left panel renders its own on desktop) */}
+          <div className="hide-on-desktop" style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+            <Wordmark size="sm" />
           </div>
 
           <div style={{ marginBottom: 28 }}>
