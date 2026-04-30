@@ -1,5 +1,5 @@
 import { storage } from '../firebase';
-import { ref, uploadBytesResumable, getDownloadURL, getBlob, deleteObject } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, getBlob, deleteObject, listAll, getMetadata } from 'firebase/storage';
 
 export const FILE_MAX_BYTES = 50 * 1024 * 1024; // 50 MB
 export const FILE_MAX_LABEL = '50 MB';
@@ -56,6 +56,23 @@ export async function fetchFileBlob(attachedFile) {
   if (!attachedFile?.blobId) throw new Error('Missing file reference.');
   const fileRef = ref(storage, `uploads/${attachedFile.blobId}`);
   return await getBlob(fileRef);
+}
+
+// List every blob currently stored under uploads/ in Firebase Storage.
+// Returns an array of { blobId, size, fullPath } describing each object.
+// Used by the admin orphan-cleanup tool — `size` lets the UI show how much
+// space would be reclaimed before the user confirms deletion.
+export async function listAllUploadedBlobs() {
+  const folder = ref(storage, 'uploads');
+  const res = await listAll(folder);
+  const items = await Promise.all(
+    res.items.map(async (it) => {
+      let size = 0;
+      try { size = (await getMetadata(it)).size || 0; } catch { /* ignore */ }
+      return { blobId: it.name, size, fullPath: it.fullPath };
+    })
+  );
+  return items;
 }
 
 // Delete a stored file from Firebase Storage.

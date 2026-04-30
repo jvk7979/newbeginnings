@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { db } from '../firebase';
 import { useAuth } from './AuthContext';
+import { deleteFileFromDB } from '../utils/fileStorage';
 import {
   collection, doc, onSnapshot,
   setDoc, updateDoc, deleteDoc,
-  getDocs, writeBatch,
+  getDocs, writeBatch, getDoc,
 } from 'firebase/firestore';
 
 // ── Seed data ──────────────────────────────────────────────────────────────
@@ -112,6 +113,11 @@ export function AppProvider({ children }) {
 
   const deleteIdea = useCallback(async (id) => {
     if (!user) return;
+    try {
+      const snap = await getDoc(sharedRef('ideas', id));
+      const blobId = snap.data()?.attachedFile?.blobId;
+      if (blobId) await deleteFileFromDB(blobId);
+    } catch { /* ignore — proceed with Firestore delete regardless */ }
     await deleteDoc(sharedRef('ideas', id));
   }, [user]);
 
@@ -161,6 +167,11 @@ export function AppProvider({ children }) {
 
   const deletePlan = useCallback(async (id) => {
     if (!user) return;
+    try {
+      const snap = await getDoc(sharedRef('plans', id));
+      const blobId = snap.data()?.attachedFile?.blobId;
+      if (blobId) await deleteFileFromDB(blobId);
+    } catch { /* ignore — proceed with Firestore delete regardless */ }
     await deleteDoc(sharedRef('plans', id));
   }, [user]);
 
@@ -205,6 +216,12 @@ export function AppProvider({ children }) {
 
   const deleteFile = useCallback(async (id) => {
     if (!user) return;
+    try {
+      const snap = await getDoc(fileRef(id));
+      const data = snap.data();
+      const blobId = data?.blobId || data?.attachedFile?.blobId;
+      if (blobId) await deleteFileFromDB(blobId);
+    } catch { /* ignore — proceed with Firestore delete regardless */ }
     await deleteDoc(fileRef(id));
   }, [user]);
 

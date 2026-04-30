@@ -3,6 +3,8 @@ import { C, alpha } from '../tokens';
 import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { db } from '../firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { listAllUploadedBlobs, deleteFileFromDB, fmtSize } from '../utils/fileStorage';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function AccessPage() {
   const { user, isAdmin } = useAuth();
@@ -13,6 +15,61 @@ export default function AccessPage() {
   const [adding,  setAdding]  = useState(false);
   const [error,   setError]   = useState('');
   const [success, setSuccess] = useState('');
+
+  // Storage maintenance — orphan scan/cleanup
+  const [scanning,    setScanning]    = useState(false);
+  const [cleaning,    setCleaning]    = useState(false);
+  const [orphans,     setOrphans]     = useState(null); // null = not scanned yet
+  const [scanError,   setScanError]   = useState('');
+  const [confirmCleanup, setConfirmCleanup] = useState(false);
+  const [cleanupResult,  setCleanupResult]  = useState('');
+
+  const scanForOrphans = async () => {
+    setScanning(true);
+    setScanError('');
+    setCleanupResult('');
+    try {
+      const [allBlobs, plansSnap, ideasSnap, filesSnap] = await Promise.all([
+        listAllUploadedBlobs(),
+        getDocs(collection(db, 'sharedPlans')),
+        getDocs(collection(db, 'sharedIdeas')),
+        getDocs(collection(db, 'sharedFiles')),
+      ]);
+      const referenced = new Set();
+      const collect = (snap, key) => snap.docs.forEach(d => {
+        const data = d.data();
+        const id = key === 'attachedFile' ? data?.attachedFile?.blobId : data?.blobId || data?.attachedFile?.blobId;
+        if (id) referenced.add(id);
+      });
+      collect(plansSnap, 'attachedFile');
+      collect(ideasSnap, 'attachedFile');
+      collect(filesSnap, 'either');
+      const orphanList = allBlobs.filter(b => !referenced.has(b.blobId));
+      setOrphans(orphanList);
+    } catch (e) {
+      console.error('[scanForOrphans]', e);
+      setScanError(e?.message || 'Scan failed.');
+    }
+    setScanning(false);
+  };
+
+  const runCleanup = async () => {
+    setConfirmCleanup(false);
+    if (!orphans?.length) return;
+    setCleaning(true);
+    setCleanupResult('');
+    let deleted = 0;
+    let failed = 0;
+    for (const o of orphans) {
+      try { await deleteFileFromDB(o.blobId); deleted++; }
+      catch { failed++; }
+    }
+    setCleanupResult(`Deleted ${deleted} orphan${deleted === 1 ? '' : 's'}${failed ? ` (${failed} failed)` : ''}.`);
+    setOrphans([]);
+    setCleaning(false);
+  };
+
+  const orphanTotalSize = orphans?.reduce((sum, o) => sum + (o.size || 0), 0) || 0;
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -89,6 +146,49 @@ export default function AccessPage() {
           {success && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent,  marginTop: 4 }}>{success}</div>}
         </div>
 
+        {/* Storage maintenance */}
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 10, marginTop: 8 }}>
+          Storage maintenance
+        </div>
+        <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '20px 22px', marginBottom: 28 }}>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.6, marginBottom: 14 }}>
+            Find files in Firebase Storage that are no longer referenced by any plan, idea, or document — and delete them to reclaim space.
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button onClick={scanForOrphans} disabled={scanning || cleaning}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '7px 16px', borderRadius: 6, background: scanning ? C.bg2 : C.accent, color: scanning ? C.fg3 : '#fff', border: 'none', cursor: scanning || cleaning ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {scanning
+                ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: `1.5px solid ${C.fg3}`, borderTopColor: C.fg1, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Scanning…</>
+                : 'Scan for orphaned files'}
+            </button>
+            {orphans !== null && orphans.length > 0 && !cleaning && (
+              <button onClick={() => setConfirmCleanup(true)}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '7px 16px', borderRadius: 6, background: 'none', color: C.danger, border: `1px solid ${alpha(C.danger, 44)}`, cursor: 'pointer' }}>
+                Delete {orphans.length} orphan{orphans.length === 1 ? '' : 's'} ({fmtSize(orphanTotalSize)})
+              </button>
+            )}
+            {cleaning && (
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ display: 'inline-block', width: 10, height: 10, border: `1.5px solid ${C.border}`, borderTopColor: C.accent, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                Deleting…
+              </span>
+            )}
+          </div>
+          {scanError && (
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginTop: 10 }}>{scanError}</div>
+          )}
+          {orphans !== null && !scanning && (
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: orphans.length === 0 ? C.success : C.fg2, marginTop: 10 }}>
+              {orphans.length === 0
+                ? '✓ No orphaned files found — Storage is clean.'
+                : `Found ${orphans.length} orphaned file${orphans.length === 1 ? '' : 's'} totalling ${fmtSize(orphanTotalSize)}.`}
+            </div>
+          )}
+          {cleanupResult && (
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, marginTop: 10 }}>{cleanupResult}</div>
+          )}
+        </div>
+
         {/* List */}
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 10 }}>
           Allowed users {!loading && `(${users.length + 1})`}
@@ -120,6 +220,15 @@ export default function AccessPage() {
           ))
         )}
       </div>
+      {confirmCleanup && (
+        <ConfirmModal
+          title="Delete orphaned files?"
+          message={`This will permanently delete ${orphans?.length || 0} file${(orphans?.length || 0) === 1 ? '' : 's'} (${fmtSize(orphanTotalSize)}) from Firebase Storage. These files are not referenced by any plan, idea, or document. This cannot be undone.`}
+          confirmLabel="Delete orphans"
+          variant="danger"
+          onConfirm={runCleanup}
+          onCancel={() => setConfirmCleanup(false)} />
+      )}
     </div>
   );
 }
