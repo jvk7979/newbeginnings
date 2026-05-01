@@ -17,10 +17,10 @@ const FILTERS = [
 
 const STATUS_CHIP_COLORS = {
   all:        { color: C.accent,   bg: C.accentBg,  border: alpha(C.accent, 55) },
-  draft:      { color: '#2B5FA6',  bg: '#EAF0FA',   border: '#2B5FA655' },
-  validating: { color: '#B8892A',  bg: '#FDF5E4',   border: '#B8892A55' },
-  active:     { color: '#2E7D52',  bg: '#EAF5EE',   border: '#2E7D5255' },
-  archived:   { color: '#9A8E80',  bg: '#EDE8DE',   border: '#9A8E8055' },
+  draft:      { color: '#1E40AF',  bg: '#DBEAFE',   border: '#1E40AF55' },
+  validating: { color: '#854D0E',  bg: '#FEF9C3',   border: '#854D0E55' },
+  active:     { color: '#065F46',  bg: '#D1FAE5',   border: '#065F4655' },
+  archived:   { color: '#4B5563',  bg: '#F3F4F6',   border: '#4B556355' },
 };
 
 const DEFAULT_VIEW = { search: '', filter: 'all', catFilter: '', sort: 'newest' };

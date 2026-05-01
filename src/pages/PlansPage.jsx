@@ -19,11 +19,11 @@ const FILTERS = [
 
 const STATUS_CHIP_COLORS = {
   all:          { color: C.accent,   bg: C.accentBg,  border: alpha(C.accent, 55) },
-  draft:        { color: '#2B5FA6',  bg: '#EAF0FA',   border: '#2B5FA655' },
-  active:       { color: '#2E7D52',  bg: '#EAF5EE',   border: '#2E7D5255' },
-  'in-review':  { color: '#6B3FA6',  bg: '#F0EAF8',   border: '#6B3FA655' },
-  completed:    { color: '#1D5FA6',  bg: '#E8F4FF',   border: '#1D5FA655' },
-  archived:     { color: '#9A8E80',  bg: '#EDE8DE',   border: '#9A8E8055' },
+  draft:        { color: '#1E40AF',  bg: '#DBEAFE',   border: '#1E40AF55' },
+  active:       { color: '#065F46',  bg: '#D1FAE5',   border: '#065F4655' },
+  'in-review':  { color: '#5B21B6',  bg: '#EDE9FE',   border: '#5B21B655' },
+  completed:    { color: '#155E75',  bg: '#CFFAFE',   border: '#155E7555' },
+  archived:     { color: '#4B5563',  bg: '#F3F4F6',   border: '#4B556355' },
 };
 
 const PLAN_STATUSES = [
