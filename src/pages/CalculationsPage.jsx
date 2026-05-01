@@ -1,59 +1,6 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 
-// ─── Presets ──────────────────────────────────────────────────────────────────
-
-const COCO_PEAT = {
-  projectName: 'Coco Peat', capex: 5500000, lifetime: 10, discountRate: 12,
-  debtPct: 60, interestRate: 10, tenure: 7,
-  pmegpEnabled: true, pmegpPct: 25, citusEnabled: true, apmsmeEnabled: false,
-  revenueRows: [
-    { id: 1, name: 'Cocopeat blocks', unit: 'kg', price: 8, qty: 5000 },
-    { id: 2, name: 'Grow bags', unit: 'unit', price: 12, qty: 4000 },
-  ],
-  varRows: [],
-  fixedRows: [
-    { id: 1, name: 'Labour', amount: 240000 },
-    { id: 2, name: 'Electricity', amount: 60000 },
-  ],
-  receivableDays: 30, payableDays: 15, inventoryDays: 20,
-  capacityPct: 80,
-};
-
-const COCONUT_PROCESSING = {
-  projectName: 'Coconut Processing', capex: 20000000, lifetime: 10, discountRate: 12,
-  debtPct: 70, interestRate: 10, tenure: 7,
-  pmegpEnabled: true, pmegpPct: 25, citusEnabled: true, apmsmeEnabled: false,
-  revenueRows: [
-    { id: 1, name: 'Coir fiber', unit: 'kg', price: 18, qty: 20000 },
-    { id: 2, name: 'Shell charcoal', unit: 'kg', price: 25, qty: 10000 },
-  ],
-  varRows: [],
-  fixedRows: [
-    { id: 1, name: 'Labour', amount: 600000 },
-    { id: 2, name: 'Electricity', amount: 180000 },
-  ],
-  receivableDays: 45, payableDays: 20, inventoryDays: 30,
-  capacityPct: 60,
-};
-
-const CUSTOM_BLANK = {
-  projectName: 'Custom Project', capex: 0, lifetime: 10, discountRate: 12,
-  debtPct: 60, interestRate: 10, tenure: 7,
-  pmegpEnabled: false, pmegpPct: 25, citusEnabled: false, apmsmeEnabled: false,
-  revenueRows: [{ id: 1, name: '', unit: '', price: 0, qty: 0 }],
-  varRows: [],
-  fixedRows: [{ id: 1, name: '', amount: 0 }],
-  receivableDays: 30, payableDays: 15, inventoryDays: 20,
-  capacityPct: 100,
-};
-
-const PRESETS = { 'coco-peat': COCO_PEAT, 'coconut-processing': COCONUT_PROCESSING, 'custom': CUSTOM_BLANK };
-const PRESET_LIST = [
-  { id: 'coco-peat', label: 'Coco Peat', sub: '₹50–60 L' },
-  { id: 'coconut-processing', label: 'Coconut Processing', sub: '₹2 Cr' },
-  { id: 'custom', label: 'Custom', sub: 'Start blank' },
-];
 
 const PRODUCT_COLORS = ['#b5860d', '#2563a8', '#2d7a3c', '#7c3d9a', '#c0392b', '#0891b2', '#d97706'];
 
@@ -152,45 +99,29 @@ const IS = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'inherit'
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function CalculationsPage() {
-  const [activePreset, setActivePreset] = useState('coco-peat');
-  const [projectName, setProjectName]   = useState(COCO_PEAT.projectName);
-  const [capex, setCapex]               = useState(COCO_PEAT.capex);
-  const [lifetime, setLifetime]         = useState(COCO_PEAT.lifetime);
-  const [discountRate, setDiscountRate] = useState(COCO_PEAT.discountRate);
-  const [debtPct, setDebtPct]           = useState(COCO_PEAT.debtPct);
-  const [interestRate, setInterestRate] = useState(COCO_PEAT.interestRate);
-  const [tenure, setTenure]             = useState(COCO_PEAT.tenure);
-  const [pmegpEnabled, setPmegpEnabled] = useState(COCO_PEAT.pmegpEnabled);
-  const [pmegpPct, setPmegpPct]         = useState(COCO_PEAT.pmegpPct);
-  const [citusEnabled, setCitusEnabled] = useState(COCO_PEAT.citusEnabled);
-  const [apmsmeEnabled, setApmsmeEnabled] = useState(COCO_PEAT.apmsmeEnabled);
-  const [revenueRows, setRevenueRows]   = useState(COCO_PEAT.revenueRows.map(r => ({...r})));
-  const [varRows, setVarRows]           = useState(COCO_PEAT.varRows.map(r => ({...r})));
-  const [fixedRows, setFixedRows]       = useState(COCO_PEAT.fixedRows.map(r => ({...r})));
-  const [receivableDays, setReceivableDays] = useState(COCO_PEAT.receivableDays);
-  const [payableDays, setPayableDays]   = useState(COCO_PEAT.payableDays);
-  const [inventoryDays, setInventoryDays] = useState(COCO_PEAT.inventoryDays);
-  const [capacityPct, setCapacityPct]   = useState(COCO_PEAT.capacityPct);
-  const [openSections, setOpenSections] = useState(['model', 'capacity', 'products', 'costs', 'financing', 'wc']);
+  const [projectName, setProjectName]   = useState('');
+  const [capex, setCapex]               = useState(0);
+  const [lifetime, setLifetime]         = useState(10);
+  const [discountRate, setDiscountRate] = useState(12);
+  const [debtPct, setDebtPct]           = useState(60);
+  const [interestRate, setInterestRate] = useState(10);
+  const [tenure, setTenure]             = useState(7);
+  const [pmegpEnabled, setPmegpEnabled] = useState(false);
+  const [pmegpPct, setPmegpPct]         = useState(25);
+  const [citusEnabled, setCitusEnabled] = useState(false);
+  const [apmsmeEnabled, setApmsmeEnabled] = useState(false);
+  const [revenueRows, setRevenueRows]   = useState([{ id: 1, name: '', unit: '', price: 0, qty: 0 }]);
+  const [varRows, setVarRows]           = useState([]);
+  const [fixedRows, setFixedRows]       = useState([{ id: 1, name: '', amount: 0 }]);
+  const [receivableDays, setReceivableDays] = useState(30);
+  const [payableDays, setPayableDays]   = useState(15);
+  const [inventoryDays, setInventoryDays] = useState(20);
+  const [capacityPct, setCapacityPct]   = useState(100);
+  const [openSections, setOpenSections] = useState(['capacity', 'products', 'costs', 'financing', 'wc']);
   const [costTab, setCostTab]           = useState('fixed');
   const [rightTab, setRightTab]         = useState('summary');
-  const [confirmPreset, setConfirmPreset] = useState(null);
 
   const toggleSection = (id) => setOpenSections(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
-
-  const applyPreset = (id) => {
-    const p = PRESETS[id];
-    setActivePreset(id);
-    setProjectName(p.projectName); setCapex(p.capex); setLifetime(p.lifetime);
-    setDiscountRate(p.discountRate); setDebtPct(p.debtPct); setInterestRate(p.interestRate);
-    setTenure(p.tenure); setPmegpEnabled(p.pmegpEnabled); setPmegpPct(p.pmegpPct);
-    setCitusEnabled(p.citusEnabled); setApmsmeEnabled(p.apmsmeEnabled);
-    setRevenueRows(p.revenueRows.map(r => ({...r})));
-    setVarRows(p.varRows.map(r => ({...r})));
-    setFixedRows(p.fixedRows.map(r => ({...r})));
-    setReceivableDays(p.receivableDays); setPayableDays(p.payableDays);
-    setInventoryDays(p.inventoryDays); setCapacityPct(p.capacityPct);
-  };
 
   const updateRevenueRow = (id, f, v) => setRevenueRows(rs => rs.map(r => r.id === id ? {...r, [f]: v} : r));
   const addRevenueRow    = () => setRevenueRows(rs => [...rs, { id: Date.now(), name: '', unit: '', price: 0, qty: 0 }]);
@@ -336,38 +267,11 @@ export default function CalculationsPage() {
         </div>
       </div>
 
-      {/* ── Confirm preset reset modal ──────────────────────────────────────── */}
-      {confirmPreset && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '28px 32px', maxWidth: 360, fontFamily: "'DM Sans', sans-serif" }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: C.fg1, marginBottom: 8 }}>Reset to {PRESETS[confirmPreset].projectName}?</div>
-            <div style={{ fontSize: 14, color: C.fg2, marginBottom: 20 }}>All current inputs will be replaced with preset values.</div>
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={() => setConfirmPreset(null)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '7px 18px', borderRadius: 6, background: C.bg2, border: `1px solid ${C.border}`, color: C.fg2, cursor: 'pointer' }}>Cancel</button>
-              <button onClick={() => { applyPreset(confirmPreset); setConfirmPreset(null); }} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '7px 18px', borderRadius: 6, background: C.accent, border: 'none', color: '#fff', cursor: 'pointer' }}>Reset</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Two-panel split ─────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
         {/* ── LEFT PANEL: Inputs ──────────────────────────────────────────────── */}
         <div style={{ width: '40%', minWidth: 280, overflowY: 'auto', borderRight: `1px solid ${C.border}`, padding: '16px 14px' }}>
-
-          {/* Plant Model */}
-          <Section id="model" label="Plant Model" open={openSections.includes('model')} onToggle={toggleSection}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 4 }}>
-              {PRESET_LIST.map(p => (
-                <button key={p.id} onClick={() => { if (p.id !== activePreset) setConfirmPreset(p.id); }}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 8, border: `1.5px solid ${activePreset === p.id ? C.accent : C.border}`, background: activePreset === p.id ? C.accentBg : C.bg2, cursor: 'pointer', transition: 'all 120ms' }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: activePreset === p.id ? 700 : 500, color: activePreset === p.id ? C.accent : C.fg1 }}>{p.label}</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: activePreset === p.id ? C.accent : C.fg3 }}>{p.sub}</span>
-                </button>
-              ))}
-            </div>
-          </Section>
 
           {/* Capacity Utilisation */}
           <Section id="capacity" label="Capacity Utilisation" open={openSections.includes('capacity')} onToggle={toggleSection}>
