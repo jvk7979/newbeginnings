@@ -192,7 +192,7 @@ export default function PlansPage({ onNavigate }) {
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
             {FILTERS.map(f => (
               <button key={f.id} onClick={() => setFilter(f.id)}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '5px 14px', borderRadius: 999, border: `1px solid ${filter === f.id ? C.accent : C.border}`, background: filter === f.id ? C.accent : 'transparent', color: filter === f.id ? '#fff' : C.fg2, cursor: 'pointer', fontWeight: filter === f.id ? 600 : 400, flexShrink: 0, transition: 'all 120ms' }}>
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '5px 14px', borderRadius: 999, border: `1.5px solid ${filter === f.id ? C.accent : C.border}`, background: 'transparent', color: filter === f.id ? C.accent : C.fg2, cursor: 'pointer', fontWeight: filter === f.id ? 600 : 400, flexShrink: 0, transition: 'all 120ms' }}>
                 {f.label}
               </button>
             ))}
@@ -211,7 +211,7 @@ export default function PlansPage({ onNavigate }) {
         <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
           {CATEGORIES.map(c => (
             <button key={c} onClick={() => setCatFilter(c)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '5px 14px', borderRadius: 999, border: `1px solid ${catFilter === c ? C.accent : C.border}`, background: catFilter === c ? C.accent : 'transparent', color: catFilter === c ? '#fff' : C.fg2, cursor: 'pointer', fontWeight: catFilter === c ? 600 : 400, flexShrink: 0, transition: 'all 120ms' }}>
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '5px 14px', borderRadius: 999, border: `1.5px solid ${catFilter === c ? C.accent : C.border}`, background: 'transparent', color: catFilter === c ? C.accent : C.fg2, cursor: 'pointer', fontWeight: catFilter === c ? 600 : 400, flexShrink: 0, transition: 'all 120ms' }}>
               {c}
             </button>
           ))}
