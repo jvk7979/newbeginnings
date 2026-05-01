@@ -404,7 +404,7 @@ button, a, [role="button"] {
 
 /* TopNav visibility helpers (kept for any legacy use) */
 .hide-on-mobile  { display: flex; }
-.hide-on-desktop { display: none; }
+.hide-on-desktop { display: none !important; }
 .show-on-desktop { display: flex !important; }
 
 /* Logo button — subtle hover so it feels clickable without a heavy frame */

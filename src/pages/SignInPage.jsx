@@ -111,26 +111,28 @@ export default function SignInPage() {
 
       {/* Left panel — branding (desktop only) */}
       <div style={{ display: 'none', flex: 1, background: C.accentBg, borderRight: `1px solid ${C.border}`, padding: '60px 48px', flexDirection: 'column', justifyContent: 'space-between' }} className="show-on-desktop">
-        <Wordmark size="lg" />
-
-        <div>
-          <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: 16 }}>
-            Your private workspace for Rajahmundry ventures.
-          </p>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
-            Capture ideas rooted in the Godavari and Konaseema region, build business plans,
-            track projects, and manage documents — all in one place.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {FEATURES.map(f => (
-              <div key={f.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: C.bg0, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
-                <div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: C.fg1 }}>{f.label}</div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, marginTop: 1 }}>{f.desc}</div>
+        {/* Wordmark + main content grouped so there's no dead gap between them */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
+          <Wordmark size="lg" />
+          <div>
+            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: 16 }}>
+              Your private workspace for Rajahmundry ventures.
+            </p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
+              Capture ideas rooted in the Godavari and Konaseema region, build business plans,
+              track projects, and manage documents — all in one place.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {FEATURES.map(f => (
+                <div key={f.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 8, background: C.bg0, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
+                  <div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: C.fg1 }}>{f.label}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, marginTop: 1 }}>{f.desc}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -141,9 +143,9 @@ export default function SignInPage() {
 
       {/* Right panel — sign in */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
-        <div style={{ width: '100%', maxWidth: 360 }}>
+        <div style={{ width: '100%', maxWidth: 380, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 16, padding: '36px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
 
-          {/* Wordmark — mobile only (left panel renders its own on desktop) */}
+          {/* Wordmark — mobile/iPad only (left panel renders its own on desktop) */}
           <div className="hide-on-desktop" style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
             <Wordmark size="sm" align="center" />
           </div>

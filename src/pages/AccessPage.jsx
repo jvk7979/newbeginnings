@@ -23,6 +23,7 @@ export default function AccessPage() {
   const [users,   setUsers]   = useState([]);
   const [email,   setEmail]   = useState('');
   const [name,    setName]    = useState('');
+  const [role,    setRole]    = useState('Editor');
   const [loading, setLoading] = useState(true);
   const [adding,  setAdding]  = useState(false);
   const [error,   setError]   = useState('');
@@ -104,10 +105,11 @@ export default function AccessPage() {
       await setDoc(doc(db, 'allowedUsers', emailLower), {
         email: emailLower,
         name: name.trim() || emailLower.split('@')[0],
+        role,
         addedAt: serverTimestamp(),
         addedBy: user.email,
       });
-      setEmail(''); setName('');
+      setEmail(''); setName(''); setRole('Editor');
       setSuccess(`${emailLower} can now sign in.`);
       await loadUsers();
     } catch (e) {
@@ -154,6 +156,10 @@ export default function AccessPage() {
             <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Gmail address"
               onKeyDown={e => e.key === 'Enter' && addUser()}
               style={{ flex: 2, minWidth: 180, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '8px 12px', outline: 'none', boxSizing: 'border-box' }} />
+            <select value={role} onChange={e => setRole(e.target.value)}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '8px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg0, color: C.fg2, cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
+              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
             <button onClick={addUser} disabled={adding || !email.trim()}
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 20px', borderRadius: 6, background: email.trim() ? C.accent : C.bg2, color: email.trim() ? '#fff' : C.fg3, border: 'none', cursor: email.trim() ? 'pointer' : 'not-allowed', flexShrink: 0 }}>
               {adding ? 'Adding…' : 'Add'}
