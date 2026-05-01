@@ -1,5 +1,104 @@
+import { useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import logoImg from '../assets/logo.png';
+import { useIdeas, usePlans } from '../context/AppContext';
+
+function SectionHeader({ label, actionLabel, onAction }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, whiteSpace: 'nowrap' }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 1, background: C.border }} />
+      {actionLabel && (
+        <button onClick={onAction}
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+          {actionLabel}
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      )}
+    </div>
+  );
+}
+
+function buildActivityMap(ideas, plans) {
+  const map = {};
+  const bump = (dateStr) => {
+    if (!dateStr) return;
+    const key = String(dateStr).slice(0, 10);
+    if (key.length === 10) map[key] = (map[key] || 0) + 1;
+  };
+  ideas.forEach(i => bump(i.date));
+  plans.forEach(p => bump(p.updated || p.date));
+  return map;
+}
+
+function ActivityHeatmap({ ideas, plans }) {
+  const activityMap = useMemo(() => buildActivityMap(ideas, plans), [ideas, plans]);
+  const maxCount = useMemo(() => Math.max(1, ...Object.values(activityMap)), [activityMap]);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const cells = useMemo(() => {
+    const result = [];
+    const start = new Date(today);
+    start.setDate(start.getDate() - 83);
+    for (let d = 0; d < 84; d++) {
+      const date = new Date(start);
+      date.setDate(start.getDate() + d);
+      const key = date.toISOString().slice(0, 10);
+      result.push({ date, key, count: activityMap[key] || 0 });
+    }
+    return result;
+  }, [activityMap]);
+
+  const getColor = (count) => {
+    if (count === 0) return C.bg2;
+    const intensity = Math.min(count / maxCount, 1);
+    if (intensity < 0.25) return alpha(C.accent, 55);
+    if (intensity < 0.5)  return alpha(C.accent, 99);
+    if (intensity < 0.75) return alpha(C.accent, 155);
+    return C.accent;
+  };
+
+  const WEEK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const weeks = [];
+  for (let w = 0; w < 12; w++) weeks.push(cells.slice(w * 7, w * 7 + 7));
+
+  const totalActivity = Object.values(activityMap).reduce((a, b) => a + b, 0);
+
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <SectionHeader label="Activity — last 12 weeks" />
+      <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px' }}>
+        <div style={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginRight: 4, paddingTop: 0 }}>
+            {WEEK_DAYS.map((d, i) => (
+              <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, lineHeight: 1, height: 12, display: 'flex', alignItems: 'center' }}>{d}</div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 3, flex: 1, overflowX: 'auto' }}>
+            {weeks.map((week, wi) => (
+              <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {week.map((cell) => (
+                  <div key={cell.key}
+                    title={`${cell.key}: ${cell.count} activit${cell.count === 1 ? 'y' : 'ies'}`}
+                    style={{ width: 12, height: 12, borderRadius: 2, background: getColor(cell.count), flexShrink: 0 }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 10 }}>
+          {totalActivity === 0 ? 'No activity yet — start adding ideas and plans.' : `${totalActivity} total activit${totalActivity === 1 ? 'y' : 'ies'} in the last 12 weeks`}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const PILLARS = [
   {
@@ -31,6 +130,8 @@ const REGIONS = [
 ];
 
 export default function AboutPage({ onNavigate }) {
+  const { ideas } = useIdeas();
+  const { plans } = usePlans();
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
@@ -110,6 +211,12 @@ export default function AboutPage({ onNavigate }) {
           Open Documents
         </button>
       </div>
+
+      {/* Activity heatmap — workspace pulse at the bottom of the About page */}
+      <div style={{ marginTop: 32 }}>
+        <ActivityHeatmap ideas={ideas} plans={plans} />
+      </div>
+
       </div>
     </div>
   );
