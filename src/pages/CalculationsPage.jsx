@@ -96,6 +96,10 @@ function Section({ id, label, open, onToggle, children }) {
 
 const IS = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'inherit', background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 8px', width: '100%', boxSizing: 'border-box', outline: 'none' };
 
+function Hint({ children }) {
+  return <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 2, marginBottom: 6, lineHeight: 1.45 }}>{children}</div>;
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function CalculationsPage() {
@@ -241,10 +245,10 @@ export default function CalculationsPage() {
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.bg0 }}>
+    <div className="calc-page">
 
       {/* ── Top metric bar ──────────────────────────────────────────────────── */}
-      <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '12px 20px', flexShrink: 0, display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <div className="calc-topbar" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '12px 20px', display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
         {[
           { label: 'Annual Revenue', value: fmtINR(calc.revenue), sub: null, color: C.fg1 },
           { label: 'EBITDA', value: fmtINR(calc.ebitda), sub: `${calc.ebitdaMargin.toFixed(0)}% margin`, color: ebitdaColor },
@@ -268,13 +272,14 @@ export default function CalculationsPage() {
       </div>
 
       {/* ── Two-panel split ─────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+      <div className="calc-panels">
 
         {/* ── LEFT PANEL: Inputs ──────────────────────────────────────────────── */}
-        <div style={{ width: '40%', minWidth: 280, overflowY: 'auto', borderRight: `1px solid ${C.border}`, padding: '16px 14px' }}>
+        <div className="calc-left" style={{ borderRight: `1px solid ${C.border}`, padding: '16px 14px' }}>
 
           {/* Capacity Utilisation */}
           <Section id="capacity" label="Capacity Utilisation" open={openSections.includes('capacity')} onToggle={toggleSection}>
+            <Hint>What % of your maximum planned output you expect to achieve. Most projects run at 60–80% in Year 1. Drag to see how profits and break-even change.</Hint>
             <div style={{ textAlign: 'center', marginBottom: 6 }}>
               <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 56, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{capacityPct}</span>
               <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent }}>%</span>
@@ -298,6 +303,7 @@ export default function CalculationsPage() {
 
           {/* Product Mix (revenue rows) */}
           <Section id="products" label="Product Mix" open={openSections.includes('products')} onToggle={toggleSection}>
+            <Hint>List everything you sell. Price and Qty are at 100% capacity — the slider above scales them down. Row total = Price × Qty.</Hint>
             <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
               {['Product', 'Unit', 'Price ₹', 'Qty/yr', ''].map((h, i) => (
                 <div key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, paddingLeft: i === 0 ? 14 : 0 }}>{h}</div>
@@ -334,6 +340,7 @@ export default function CalculationsPage() {
             </div>
             {costTab === 'variable' ? (
               <>
+                <Hint>Variable costs scale with output — raw materials, packaging, fuel, contract labour. Cost × Qty at 100% capacity; the slider scales them.</Hint>
                 {varRows.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 8 }}>No variable costs — add raw materials, packaging, etc.</div>}
                 {varRows.map((row, i) => (
                   <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
@@ -352,6 +359,7 @@ export default function CalculationsPage() {
               </>
             ) : (
               <>
+                <Hint>Fixed costs don't change with output — salaries, rent, loan repayments, insurance, electricity base charge. Enter the total annual amount per item.</Hint>
                 {fixedRows.map((row, i) => (
                   <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
                     {i === 0 && ['Item', 'Annual (₹)', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
@@ -371,35 +379,43 @@ export default function CalculationsPage() {
 
           {/* Financing & Subsidies */}
           <Section id="financing" label="Financing & Subsidies" open={openSections.includes('financing')} onToggle={toggleSection}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Project name</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Project name</div>
+            <Hint>A label for this scenario so you can identify it later.</Hint>
             <input value={projectName} placeholder="e.g. Coir Unit Konaseema"
               onChange={e => setProjectName(e.target.value)}
               style={{ ...IS, marginBottom: 10 }} />
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Total CAPEX (₹)</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Total CAPEX (₹)</div>
+            <Hint>Total capital investment to set up the project — land, civil work, machinery, electrification. Enter the gross amount before any subsidies.</Hint>
             <input type="number" value={capex} min={0} step={100000} onChange={e => setCapex(Number(e.target.value) || 0)} style={{ ...IS, marginBottom: 10 }} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Lifetime (yrs)</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Lifetime (yrs)</div>
+                <Hint>How long the project runs. Used for the year-by-year table and IRR calculation. Typical range: 10–15 yrs.</Hint>
                 <input type="number" value={lifetime} min={1} max={30} onChange={e => setLifetime(Number(e.target.value) || 1)} style={IS} />
               </div>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Discount rate (%)</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Discount rate (%)</div>
+                <Hint>Your minimum acceptable return. IRR above this = project creates value. Use 12–15% for agri-ventures.</Hint>
                 <input type="number" value={discountRate} min={1} max={50} step={0.5} onChange={e => setDiscountRate(Number(e.target.value) || 1)} style={IS} />
               </div>
             </div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Debt {debtPct}% / Equity {100 - debtPct}%</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Debt {debtPct}% / Equity {100 - debtPct}%</div>
+            <Hint>How much of the CAPEX is a bank loan (debt) vs your own money (equity). Most MSME schemes allow 60–70% debt.</Hint>
             <input type="range" min={0} max={100} step={5} value={debtPct} onChange={e => setDebtPct(Number(e.target.value))} style={{ width: '100%', accentColor: C.accent, marginBottom: 10 }} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Interest rate (%)</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Interest rate (%)</div>
+                <Hint>Annual rate on the bank loan. MSME loans typically range from 9–13%.</Hint>
                 <input type="number" value={interestRate} min={0} max={30} step={0.5} onChange={e => setInterestRate(Number(e.target.value) || 0)} style={IS} />
               </div>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Loan tenure (yrs)</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Loan tenure (yrs)</div>
+                <Hint>Number of years to repay the loan. Longer tenure = lower annual payment but more total interest.</Hint>
                 <input type="number" value={tenure} min={1} max={20} onChange={e => setTenure(Number(e.target.value) || 1)} style={IS} />
               </div>
             </div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 6 }}>Subsidies</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Subsidies</div>
+            <Hint>Government capital subsidies that reduce your effective CAPEX. Tick what you're eligible for — they stack multiplicatively.</Hint>
             {[
               { id: 'pmegp', label: 'PMEGP', enabled: pmegpEnabled, setEnabled: setPmegpEnabled, pct: pmegpPct, setPct: setPmegpPct, editable: true },
               { id: 'citus', label: 'CITUS (25%)', enabled: citusEnabled, setEnabled: setCitusEnabled, editable: false },
@@ -417,8 +433,11 @@ export default function CalculationsPage() {
                 )}
               </div>
             ))}
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginTop: 4, lineHeight: 1.4 }}>
+              PMEGP: Prime Minister's Employment Generation Programme (15–35% based on category &amp; location) · CITUS: Central scheme for tech upgradation · AP MSME 4.0: Andhra Pradesh state scheme
+            </div>
             {(pmegpEnabled || citusEnabled || apmsmeEnabled) && (
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, marginTop: 4 }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, marginTop: 6 }}>
                 Effective CAPEX: {fmtINR(calc.effectiveCapex)}
               </div>
             )}
@@ -426,10 +445,16 @@ export default function CalculationsPage() {
 
           {/* Working Capital */}
           <Section id="wc" label="Working Capital" open={openSections.includes('wc')} onToggle={toggleSection}>
+            <Hint>Working capital is the cash you need to keep the business running day-to-day.</Hint>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-              {[['Receivable days', receivableDays, setReceivableDays], ['Payable days', payableDays, setPayableDays], ['Inventory days', inventoryDays, setInventoryDays]].map(([lbl, val, set]) => (
+              {[
+                ['Receivable days', receivableDays, setReceivableDays, 'Days customers take to pay you (debtors). Lower = better cash flow.'],
+                ['Payable days', payableDays, setPayableDays, 'Days you take to pay your suppliers. Higher = you keep cash longer.'],
+                ['Inventory days', inventoryDays, setInventoryDays, 'Days of raw material or finished goods you hold in stock.'],
+              ].map(([lbl, val, set, hint]) => (
                 <div key={lbl}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg2, marginBottom: 4 }}>{lbl}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg2, marginBottom: 2 }}>{lbl}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, marginBottom: 4, lineHeight: 1.4 }}>{hint}</div>
                   <input type="number" value={val} min={0} max={180} onChange={e => set(Number(e.target.value) || 0)} style={IS} />
                 </div>
               ))}
@@ -444,7 +469,7 @@ export default function CalculationsPage() {
         </div>
 
         {/* ── RIGHT PANEL: Output ──────────────────────────────────────────────── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+        <div className="calc-right">
 
           {/* Tab bar */}
           <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, background: C.bg1, padding: '0 20px', flexShrink: 0 }}>
@@ -457,7 +482,7 @@ export default function CalculationsPage() {
           </div>
 
           {/* Tab content */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+          <div className="calc-right-body">
 
             {/* ── Summary tab ──────────────────────────────────────────────── */}
             {rightTab === 'summary' && (
