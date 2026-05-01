@@ -8,11 +8,11 @@ import ComparePanel from '../components/ComparePanel';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
 const FILTERS = [
-  { id: 'all',       label: 'All' },
-  { id: 'draft',     label: 'Draft' },
-  { id: 'validating',label: 'Researching' },
-  { id: 'active',    label: 'Active' },
-  { id: 'archived',  label: 'Archived' },
+  { id: 'all',        label: 'All' },
+  { id: 'draft',      label: 'Draft' },
+  { id: 'validating', label: 'Validating' },
+  { id: 'active',     label: 'Active' },
+  { id: 'archived',   label: 'Archived' },
 ];
 
 const DEFAULT_VIEW = { search: '', filter: 'all', catFilter: '', sort: 'newest' };
@@ -95,6 +95,27 @@ export default function IdeasPage({ onNavigate }) {
         </div>
       </div>
 
+      {/* Status tabs */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+        {FILTERS.filter(f => f.id === 'all' || ideas.some(i => i.status === f.id)).map(f => {
+          const count = f.id === 'all' ? ideas.length : ideas.filter(i => i.status === f.id).length;
+          const active = filter === f.id;
+          return (
+            <button key={f.id} onClick={() => setFilter(f.id)}
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: active ? 700 : 500,
+                padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
+                background: active ? C.accent : C.bg1,
+                color: active ? '#fff' : C.fg1,
+                border: `1.5px solid ${active ? C.accent : C.fg3}`,
+                transition: 'all 120ms',
+              }}>
+              {f.label} <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, opacity: active ? 0.85 : 0.65 }}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Search */}
       <div style={{ marginBottom: 12 }}>
         <div style={{ position: 'relative' }}>
@@ -117,10 +138,6 @@ export default function IdeasPage({ onNavigate }) {
 
       {/* Filters row */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-        <select value={filter} onChange={e => setFilter(e.target.value)}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
-          {FILTERS.map(f => <option key={f.id} value={f.id}>{f.label === 'All' ? 'All Status' : f.label}</option>)}
-        </select>
         <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
           <option value="">All Categories</option>
