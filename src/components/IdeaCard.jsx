@@ -3,15 +3,23 @@ import Badge from './Badge';
 import { getCategoryStyle, IDEA_CATEGORIES } from '../utils/categoryStyles';
 import QuickEditForm from './QuickEditForm';
 
+function fmtINR(n) {
+  if (!n || !isFinite(n)) return '—';
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
+  if (n >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
+  if (n >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
+  return `₹${n.toFixed(0)}`;
+}
+
 const IDEA_STATUSES = [
   { id: 'draft',      label: 'Draft' },
-  { id: 'validating', label: 'Researching' },
+  { id: 'validating', label: 'Validating' },
   { id: 'active',     label: 'Active' },
   { id: 'archived',   label: 'Archived' },
 ];
 
 export default function IdeaCard({
-  id, title, date, status, desc, category, onClick,
+  id, title, date, status, desc, category, estimatedCapex, estimatedPayback, onClick,
   editing = false, onStartEdit, onCancelEdit, onSaveEdit,
 }) {
   const cat = getCategoryStyle(category);
@@ -99,7 +107,20 @@ export default function IdeaCard({
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
+      {(estimatedCapex || estimatedPayback) && (
+        <div style={{ display: 'flex', gap: 20, paddingTop: 10, paddingBottom: 10, borderTop: `1px solid ${C.border}` }}>
+          <div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 2 }}>CAPEX</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: C.fg1 }}>{fmtINR(estimatedCapex)}</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 2 }}>PAYBACK</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: C.fg1 }}>{estimatedPayback ? `${estimatedPayback}y` : '—'}</div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 10, borderTop: estimatedCapex || estimatedPayback ? 'none' : `1px solid ${C.border}` }}>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{date}</span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, fontWeight: 600 }}>
           Open
