@@ -804,6 +804,31 @@ textarea:focus-visible,
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  /* Establishes this card as a container so children can query its
+     width directly. Needed because viewport media queries can't tell
+     when the card itself is narrow — on iPad portrait the viewport
+     is 820px (desktop layout) but each grid cell is only ~290px. */
+  container-type: inline-size;
+}
+
+/* When the card itself is narrower than 360px (iPad portrait grid cell,
+   resized desktop windows, dashboard's smaller card slots), stack the
+   title above the category/status badges so the title gets the full
+   card width instead of being elbowed into 80px of leftover space. */
+@container (max-width: 360px) {
+  .plan-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .plan-card-tags {
+    justify-content: flex-start;
+  }
+  .plan-card-title {
+    font-size: 17px;
+    line-height: 1.3;
+  }
 }
 .plan-card-head {
   display: flex;
