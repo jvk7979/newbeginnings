@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { auth, googleProvider, db } from '../firebase';
 import { signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // iOS Safari + signInWithPopup is unreliable: Intelligent Tracking Prevention
 // strips third-party storage on the popup, and even when it succeeds the
@@ -74,6 +74,8 @@ export function AuthProvider({ children }) {
         if (snap.exists()) {
           setUser(u);
           setAccessDenied(false);
+          // Non-critical: record last active time for admin visibility
+          setDoc(doc(db, 'allowedUsers', email), { lastSeenAt: serverTimestamp() }, { merge: true }).catch(() => {});
         } else {
           await signOut(auth);
           setUser(null);

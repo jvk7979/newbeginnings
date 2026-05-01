@@ -14,12 +14,24 @@ export const THEMES = [
 ];
 
 const DEFAULT_THEME = 'sage';
-const STORAGE_KEY = 'nb_theme';
+const STORAGE_KEY   = 'nb_theme';
+const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 
 const ThemeContext = createContext(null);
 
 function applyTheme(id) {
   document.documentElement.dataset.theme = id;
+}
+
+function applyDarkMode(mode) {
+  if (mode === 'dark') {
+    document.documentElement.dataset.mode = 'dark';
+  } else if (mode === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.mode = prefersDark ? 'dark' : 'light';
+  } else {
+    document.documentElement.dataset.mode = 'light';
+  }
 }
 
 export function ThemeProvider({ children }) {
@@ -30,9 +42,21 @@ export function ThemeProvider({ children }) {
     return DEFAULT_THEME;
   });
 
+  const [darkMode, setDarkModeState] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    return localStorage.getItem(DARK_KEY) || 'light';
+  });
+
+  useEffect(() => { applyTheme(theme); }, [theme]);
+
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+    applyDarkMode(darkMode);
+    if (darkMode !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => applyDarkMode('system');
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [darkMode]);
 
   const setTheme = useCallback((id) => {
     if (!THEMES.some(t => t.id === id)) return;
@@ -40,8 +64,13 @@ export function ThemeProvider({ children }) {
     try { localStorage.setItem(STORAGE_KEY, id); } catch { /* private mode */ }
   }, []);
 
+  const setDarkMode = useCallback((mode) => {
+    setDarkModeState(mode);
+    try { localStorage.setItem(DARK_KEY, mode); } catch { /* private mode */ }
+  }, []);
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, themes: THEMES }}>
+    <ThemeContext.Provider value={{ theme, setTheme, themes: THEMES, darkMode, setDarkMode }}>
       {children}
     </ThemeContext.Provider>
   );

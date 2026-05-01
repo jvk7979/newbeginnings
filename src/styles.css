@@ -945,3 +945,25 @@ textarea:focus-visible,
   object-position: left center;
   display: block;
 }
+
+/* ── Universal dark mode ────────────────────────────────────────────────────
+ * Overrides bg/fg/border tokens for any active theme.
+ * Accent colors stay per-theme so each palette keeps its personality.
+ * Applied via document.documentElement.dataset.mode = 'dark'.
+ * ───────────────────────────────────────────────────────────────────────── */
+:root[data-mode="dark"] {
+  --c-bg0: #111111;
+  --c-bg1: #1C1C1C;
+  --c-bg2: #262626;
+  --c-bg3: #333333;
+  --c-fg1: #F0F0F0;
+  --c-fg2: #BEBEBE;
+  --c-fg3: #888888;
+  --c-border: #383838;
+  --c-border-light: #4A4A4A;
+  --c-success-bg: #0D2B0F;
+  --c-warning-bg: #2B1F00;
+  --c-danger-bg: #2B0A0A;
+  --c-info-bg: #0A1A2B;
+  --c-accent-bg: color-mix(in srgb, var(--c-accent) 15%, #111111);
+}

@@ -2,7 +2,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { db } from '../firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+
+const ROLES = ['Editor', 'Viewer'];
+
+function timeAgo(ts) {
+  if (!ts) return null;
+  const secs = Math.floor((Date.now() - ts.toMillis()) / 1000);
+  if (secs < 60) return 'just now';
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+  if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
+  if (secs < 86400 * 7) return `${Math.floor(secs / 86400)}d ago`;
+  return ts.toDate().toLocaleDateString();
+}
 import { listAllUploadedBlobs, deleteFileFromDB, fmtSize } from '../utils/fileStorage';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -107,6 +119,11 @@ export default function AccessPage() {
   const removeUser = async (uid) => {
     await deleteDoc(doc(db, 'allowedUsers', uid));
     await loadUsers();
+  };
+
+  const changeRole = async (uid, role) => {
+    await updateDoc(doc(db, 'allowedUsers', uid), { role });
+    setUsers(prev => prev.map(u => u.id === uid ? { ...u, role } : u));
   };
 
   if (!isAdmin) {
@@ -215,7 +232,10 @@ export default function AccessPage() {
               initials={(u.name || u.email)[0].toUpperCase()}
               name={u.name}
               email={u.email}
+              role={u.role || 'Editor'}
+              lastSeenAt={u.lastSeenAt}
               onRemove={() => removeUser(u.id)}
+              onRoleChange={(role) => changeRole(u.id, role)}
             />
           ))
         )}
@@ -233,19 +253,30 @@ export default function AccessPage() {
   );
 }
 
-function UserRow({ initials, name, email, badge, accent, onRemove }) {
+function UserRow({ initials, name, email, badge, accent, role, lastSeenAt, onRemove, onRoleChange }) {
+  const lastSeen = lastSeenAt ? timeAgo(lastSeenAt) : null;
   return (
-    <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '12px 16px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '12px 16px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
       <div style={{ width: 34, height: 34, borderRadius: '50%', background: accent ? C.accentBg : C.bg2, border: `1px solid ${accent ? alpha(C.accent, 33) : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: accent ? C.accent : C.fg2, fontSize: 14, fontWeight: 700, flexShrink: 0 }}>
         {initials}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1 }}>{name}</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</span>
+          {lastSeen && (
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, whiteSpace: 'nowrap' }}>· Last seen {lastSeen}</span>
+          )}
+        </div>
       </div>
-      {badge && (
+      {badge ? (
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, padding: '2px 8px', flexShrink: 0 }}>{badge}</span>
-      )}
+      ) : onRoleChange ? (
+        <select value={role || 'Editor'} onChange={e => onRoleChange(e.target.value)}
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg0, color: C.fg2, cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
+          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+        </select>
+      ) : null}
       {onRemove && (
         <button onClick={onRemove}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 6, cursor: 'pointer', padding: '4px 10px', flexShrink: 0 }}

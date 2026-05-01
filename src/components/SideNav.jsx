@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { useIdeas, usePlans, useProjects, useBackup } from '../context/AppContext';
@@ -36,9 +36,26 @@ const ACTIVE_MAP = {
   'document-detail': 'documents',
 };
 
-function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAdmin, onSignOut, onExport, onImport, mobile = false }) {
+const DARK_MODE_OPTIONS = [
+  { id: 'light',  label: 'Light',  icon: '☀️' },
+  { id: 'dark',   label: 'Dark',   icon: '🌙' },
+  { id: 'system', label: 'System', icon: '⚙️' },
+];
+
+function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, setDarkMode, user, isAdmin, onSignOut, onExport, onImport, mobile = false }) {
   const [themeOpen, setThemeOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const previewRef = useRef(null);
+
+  const handleThemeHover = useCallback((id) => {
+    previewRef.current = id;
+    document.documentElement.dataset.theme = id;
+  }, []);
+
+  const handleThemeLeave = useCallback(() => {
+    document.documentElement.dataset.theme = theme;
+    previewRef.current = null;
+  }, [theme]);
 
   return (
     <div style={{
@@ -114,6 +131,19 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
 
       {/* Theme picker */}
       <div style={{ padding: '8px 8px 6px', borderTop: `1px solid ${C.border}`, flexShrink: 0 }}>
+        {/* Dark mode toggle */}
+        <div style={{ display: 'flex', gap: 3, marginBottom: 6, background: C.bg2, borderRadius: 7, padding: 3 }}>
+          {DARK_MODE_OPTIONS.map(opt => (
+            <button key={opt.id} onClick={() => setDarkMode(opt.id)}
+              aria-pressed={darkMode === opt.id}
+              title={opt.label}
+              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '4px 0', borderRadius: 5, border: 'none', cursor: 'pointer', fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: darkMode === opt.id ? 600 : 400, background: darkMode === opt.id ? C.bg1 : 'transparent', color: darkMode === opt.id ? C.fg1 : C.fg3, boxShadow: darkMode === opt.id ? `0 1px 3px rgba(0,0,0,0.12)` : 'none', transition: 'all 120ms' }}>
+              <span>{opt.icon}</span>
+              <span>{opt.label}</span>
+            </button>
+          ))}
+        </div>
+
         <button onClick={() => setThemeOpen(o => !o)}
           style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 6, background: 'none', border: 'none', cursor: 'pointer', padding: '5px 8px', borderRadius: 6 }}
           onMouseEnter={e => e.currentTarget.style.background = C.bg2}
@@ -126,16 +156,6 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
           </svg>
         </button>
         {themeOpen && (
-          // role="radiogroup" + role="radio" so screen readers announce the
-          // mutually-exclusive selection correctly. Arrow keys move within
-          // the group; only the active radio is in the tab order so users
-          // don't have to Tab through every theme to leave the group.
-          // Single column so every label gets the full sidebar width.
-          // The previous 2-column grid put each cell at ~100px wide,
-          // leaving only ~44px for the label after swatch + padding —
-          // long names like "Transformative Teal" ellipsised to
-          // "Transformati…". 1fr now means each radio gets the whole
-          // ~204px and every theme name renders fully on every theme.
           <div role="radiogroup" aria-label="Theme"
             style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3, margin: '6px 0 2px' }}>
             {themes.map((t, i) => {
@@ -149,22 +169,24 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
                 else if (e.key === 'Home') nextIdx = 0;
                 else if (e.key === 'End')  nextIdx = themes.length - 1;
                 setTheme(themes[nextIdx].id);
-                // Move focus to the new radio (re-query because the active
-                // tabIndex flips after setTheme re-renders).
                 setTimeout(() => {
                   const buttons = e.currentTarget?.parentElement?.querySelectorAll('[role="radio"]');
                   buttons?.[nextIdx]?.focus();
                 }, 0);
               };
               return (
-                <button key={t.id} onClick={() => setTheme(t.id)} onKeyDown={onArrowNav}
+                <button key={t.id}
+                  onClick={() => setTheme(t.id)}
+                  onKeyDown={onArrowNav}
+                  onMouseEnter={() => handleThemeHover(t.id)}
+                  onMouseLeave={handleThemeLeave}
                   role="radio"
                   aria-checked={active}
                   tabIndex={active ? 0 : -1}
                   title={t.label}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 7px', borderRadius: 6, background: active ? C.accentBg : C.bg2, border: `1px solid ${active ? alpha(C.accent, 55) : C.border}`, cursor: 'pointer', transition: 'all 120ms' }}>
                   <span aria-hidden="true" style={{ display: 'inline-flex', flexShrink: 0, borderRadius: 3, overflow: 'hidden', border: `1px solid ${C.border}` }}>
-                    {t.swatch.map((s, i) => <span key={i} style={{ width: 7, height: 14, background: s, display: 'block' }} />)}
+                    {t.swatch.map((s, si) => <span key={si} style={{ width: 7, height: 14, background: s, display: 'block' }} />)}
                   </span>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: active ? 600 : 400, color: active ? C.accent : C.fg2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.label}</span>
                 </button>
@@ -237,7 +259,7 @@ export default function SideNav({ currentPage, onNavigate }) {
   const { projects } = useProjects();
   const { importData } = useBackup();
   const { showToast }                          = useToast();
-  const { theme, setTheme, themes }            = useTheme();
+  const { theme, setTheme, themes, darkMode, setDarkMode } = useTheme();
   const [mobileOpen, setMobileOpen]            = useState(false);
   const [confirmSignOut, setConfirmSignOut]    = useState(false);
   const [confirmImport, setConfirmImport]      = useState(null);
@@ -338,7 +360,7 @@ export default function SideNav({ currentPage, onNavigate }) {
   };
 
   const navProps = {
-    activeTab, themes, theme, setTheme, user, isAdmin,
+    activeTab, themes, theme, setTheme, darkMode, setDarkMode, user, isAdmin,
     onSignOut: () => setConfirmSignOut(true),
     onExport: handleExport,
     onImport: handleImport,

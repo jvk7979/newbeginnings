@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { C, alpha } from '../tokens';
 import { useIdeas, usePlans, useFiles } from '../context/AppContext';
 import IdeaCard from '../components/IdeaCard';
@@ -24,23 +24,22 @@ const QUICK_ACTIONS = [
   },
 ];
 
+const IDEA_STATUS_LABELS = { draft: 'Draft', validating: 'Researching', active: 'Active', archived: 'Archived' };
+const PLAN_STATUS_LABELS = { draft: 'Draft', active: 'Active', archived: 'Archived' };
+const STATUS_COLORS = {
+  draft: '#8A6000', validating: '#0070B8', active: '#2E7D32', archived: '#888',
+};
+
 function SectionHeader({ label, actionLabel, onAction }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
-      <span style={{
-        fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
-        letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, whiteSpace: 'nowrap',
-      }}>
+      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, whiteSpace: 'nowrap' }}>
         {label}
       </span>
       <div style={{ flex: 1, height: 1, background: C.border }} />
       {actionLabel && (
         <button onClick={onAction}
-          style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent,
-            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-            fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5,
-          }}
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
           onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
           onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
           {actionLabel}
@@ -51,15 +50,144 @@ function SectionHeader({ label, actionLabel, onAction }) {
   );
 }
 
+// Build a map of ISO date string → activity count from ideas + plans
+function buildActivityMap(ideas, plans) {
+  const map = {};
+  const bump = (dateStr) => {
+    if (!dateStr) return;
+    // Accept "YYYY-MM-DD" or ISO strings; normalise to YYYY-MM-DD
+    const key = String(dateStr).slice(0, 10);
+    if (key.length === 10) map[key] = (map[key] || 0) + 1;
+  };
+  ideas.forEach(i => bump(i.date));
+  plans.forEach(p => bump(p.updated || p.date));
+  return map;
+}
+
+function ActivityHeatmap({ ideas, plans }) {
+  const activityMap = useMemo(() => buildActivityMap(ideas, plans), [ideas, plans]);
+  const maxCount = useMemo(() => Math.max(1, ...Object.values(activityMap)), [activityMap]);
+
+  // Build 12 weeks × 7 days grid (84 cells), ending today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const cells = useMemo(() => {
+    const result = [];
+    // Start from the Monday 11 weeks + (today's day-of-week) days ago
+    const start = new Date(today);
+    start.setDate(start.getDate() - 83); // 84 days back
+    for (let d = 0; d < 84; d++) {
+      const date = new Date(start);
+      date.setDate(start.getDate() + d);
+      const key = date.toISOString().slice(0, 10);
+      result.push({ date, key, count: activityMap[key] || 0 });
+    }
+    return result;
+  }, [activityMap]);
+
+  const getColor = (count) => {
+    if (count === 0) return C.bg2;
+    const intensity = Math.min(count / maxCount, 1);
+    if (intensity < 0.25) return alpha(C.accent, 55);
+    if (intensity < 0.5)  return alpha(C.accent, 99);
+    if (intensity < 0.75) return alpha(C.accent, 155);
+    return C.accent;
+  };
+
+  const WEEK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const weeks = [];
+  for (let w = 0; w < 12; w++) weeks.push(cells.slice(w * 7, w * 7 + 7));
+
+  const totalActivity = Object.values(activityMap).reduce((a, b) => a + b, 0);
+
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <SectionHeader label="Activity — last 12 weeks" />
+      <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px' }}>
+        <div style={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+          {/* Day labels */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginRight: 4, paddingTop: 0 }}>
+            {WEEK_DAYS.map((d, i) => (
+              <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, lineHeight: 1, height: 12, display: 'flex', alignItems: 'center' }}>{d}</div>
+            ))}
+          </div>
+          {/* Grid: 12 columns (weeks), 7 rows (days) */}
+          <div style={{ display: 'flex', gap: 3, flex: 1, overflowX: 'auto' }}>
+            {weeks.map((week, wi) => (
+              <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {week.map((cell) => (
+                  <div key={cell.key}
+                    title={`${cell.key}: ${cell.count} activit${cell.count === 1 ? 'y' : 'ies'}`}
+                    style={{ width: 12, height: 12, borderRadius: 2, background: getColor(cell.count), flexShrink: 0, cursor: cell.count > 0 ? 'default' : 'default' }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 10 }}>
+          {totalActivity === 0 ? 'No activity yet — start adding ideas and plans.' : `${totalActivity} total activit${totalActivity === 1 ? 'y' : 'ies'} in the last 12 weeks`}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatBreakdown({ kind, items }) {
+  const groups = useMemo(() => {
+    const labelMap = kind === 'ideas' ? IDEA_STATUS_LABELS : kind === 'plans' ? PLAN_STATUS_LABELS : null;
+    if (!labelMap) {
+      const byType = {};
+      items.forEach(f => {
+        const ext = f.fileName?.split('.').pop()?.toUpperCase() || 'File';
+        byType[ext] = (byType[ext] || 0) + 1;
+      });
+      return Object.entries(byType).map(([label, count]) => ({ label, count, color: C.accent }));
+    }
+    return Object.entries(labelMap).map(([status, label]) => ({
+      label,
+      count: items.filter(i => i.status === status).length,
+      color: STATUS_COLORS[status] || C.fg3,
+    })).filter(g => g.count > 0);
+  }, [kind, items]);
+
+  if (groups.length === 0) return null;
+  const total = items.length;
+
+  return (
+    <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
+      {groups.map(g => (
+        <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ height: 6, borderRadius: 3, background: g.color, width: `${Math.max(8, (g.count / total) * 100)}%`, transition: 'width 300ms ease' }} />
+          </div>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: g.color, fontWeight: 700, minWidth: 18, textAlign: 'right' }}>{g.count}</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, minWidth: 72 }}>{g.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Dashboard({ onNavigate }) {
   const { ideas } = useIdeas();
   const { plans } = usePlans();
   const { files } = useFiles();
-  // AppContext already sorts ideas/files by id desc on every snapshot, so
-  // "recent" is just the head of the array — no extra sort needed.
-  // Memoized to keep referential equality stable for IdeaCard children.
+  const [expandedStat, setExpandedStat] = useState(null);
+
   const recentIdeas = useMemo(() => ideas.slice(0, 4), [ideas]);
   const recentFiles = useMemo(() => files.slice(0, 3), [files]);
+
+  const stats = [
+    { key: 'ideas',     label: 'Ideas',     count: ideas.length, dest: 'ideas',     icon: ICON_IDEA, items: ideas },
+    { key: 'plans',     label: 'Plans',     count: plans.length, dest: 'plans',     icon: ICON_PLAN, items: plans },
+    { key: 'documents', label: 'Documents', count: files.length, dest: 'documents', icon: ICON_FILE, items: files },
+  ];
+
+  const handleStatClick = (s) => {
+    if (s.count === 0) { onNavigate(s.dest); return; }
+    setExpandedStat(prev => prev === s.key ? null : s.key);
+  };
 
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
@@ -85,27 +213,40 @@ export default function Dashboard({ onNavigate }) {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats — click to expand breakdown, double-click or click again to navigate */}
       <div className="stat-grid" style={{ marginBottom: 32 }}>
-        {[
-          { label: 'Ideas',     count: ideas.length, dest: 'ideas',     icon: ICON_IDEA },
-          { label: 'Plans',     count: plans.length, dest: 'plans',     icon: ICON_PLAN },
-          { label: 'Documents', count: files.length, dest: 'documents', icon: ICON_FILE },
-        ].map(s => (
-          <button key={s.label} onClick={() => onNavigate(s.dest)} className="stat-card"
-            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px 14px 16px', borderRadius: 12, background: C.bg1, border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'left', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', width: '100%' }}>
-            <span className="stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
-              {s.icon}
-            </span>
-            <div>
-              <div className="stat-count" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
-              <div className="stat-label" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
-            </div>
-          </button>
+        {stats.map(s => (
+          <div key={s.key} style={{ background: C.bg1, border: `1px solid ${expandedStat === s.key ? C.accent : C.border}`, borderRadius: 12, boxShadow: expandedStat === s.key ? `0 0 0 2px ${alpha(C.accent, 22)}` : '0 1px 4px rgba(0,0,0,0.05)', transition: 'border 150ms, box-shadow 150ms', overflow: 'hidden' }}>
+            <button onClick={() => handleStatClick(s)} className="stat-card"
+              style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px 14px 16px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+              <span className="stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
+                {s.icon}
+              </span>
+              <div style={{ flex: 1 }}>
+                <div className="stat-count" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
+                <div className="stat-label" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="12" height="12" style={{ transform: expandedStat === s.key ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }}><polyline points="6 9 12 15 18 9"/></svg>
+                <button onClick={e => { e.stopPropagation(); onNavigate(s.dest); }}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  View all →
+                </button>
+              </div>
+            </button>
+            {expandedStat === s.key && (
+              <div style={{ padding: '0 20px 14px 16px' }}>
+                <StatBreakdown kind={s.key} items={s.items} />
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
-      {/* Quick Actions — compact horizontal strip */}
+      {/* Activity heatmap */}
+      <ActivityHeatmap ideas={ideas} plans={plans} />
+
+      {/* Quick Actions */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 36, flexWrap: 'wrap' }}>
         {QUICK_ACTIONS.map(q => (
           <button key={q.label} onClick={() => onNavigate(q.dest)}
@@ -126,7 +267,7 @@ export default function Dashboard({ onNavigate }) {
         ))}
       </div>
 
-      {/* Recent Ideas — full width */}
+      {/* Recent Ideas */}
       <div style={{ marginBottom: 40 }}>
         <SectionHeader
           label="Recent Ideas"
