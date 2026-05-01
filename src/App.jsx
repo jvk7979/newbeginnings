@@ -156,7 +156,7 @@ function NotFound({ label, dest, onNavigate }) {
 }
 
 export default function App() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const { ideas } = useIdeas();
   const { plans } = usePlans();
   const { files } = useFiles();
@@ -206,6 +206,13 @@ export default function App() {
     const newHash = id ? `#/${dest}/${id}` : `#/${dest}`;
     if (window.location.hash !== newHash) window.location.hash = newHash;
   };
+
+  // Redirect non-admins away from the access page (e.g. cached URL).
+  useEffect(() => {
+    if (!authLoading && user && !isAdmin && page === 'access') {
+      navigate('dashboard');
+    }
+  }, [authLoading, user, isAdmin, page]);
 
   if (authLoading) return <Spinner />;
   if (!user)       return <SignInPage />;
