@@ -158,15 +158,12 @@ export function AuthProvider({ children }) {
         return await signInWithPopup(auth, googleProvider);
       } catch (err) {
         const code = err?.code || '';
-        if (
-          code === 'auth/popup-blocked' ||
-          code === 'auth/popup-closed-by-user' ||
-          code === 'auth/cancelled-popup-request' ||
-          code === 'auth/operation-not-supported-in-this-environment'
-        ) {
-          // Popup was blocked or the environment doesn't support it.
-          // Fall back to redirect flow — getRedirectResult above handles
-          // the return trip.
+        // Only fall back to redirect in environments that have no window.open()
+        // at all (e.g., iOS WKWebView). For popup-blocked / popup-closed errors
+        // we throw instead: the redirect fallback also fails on iOS Safari because
+        // ITP's bounce-tracker protection strips the auth state mid-redirect,
+        // silently dropping the user back on the sign-in page in a loop.
+        if (code === 'auth/operation-not-supported-in-this-environment') {
           return signInWithRedirect(auth, googleProvider);
         }
         throw err;

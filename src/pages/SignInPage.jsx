@@ -87,8 +87,12 @@ export default function SignInPage() {
       const code = err?.code || '';
       console.error('[auth/signIn]', code, err?.message);
       let msg;
-      if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-        msg = 'Sign-in popup was blocked or closed. Allow popups for this site and try again.';
+      if (code === 'auth/popup-blocked') {
+        msg = /iPhone|iPad|iPod/i.test(navigator.userAgent || '')
+          ? 'Safari blocked the sign-in popup. Go to Settings → Safari and turn off "Block Pop-ups", then try again.'
+          : 'Sign-in popup was blocked. Allow popups for this site and try again.';
+      } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        msg = 'Sign-in was cancelled. Tap "Continue with Google" to try again.';
       } else if (code === 'auth/network-request-failed') {
         msg = 'Network error. Check your connection and try again.';
       } else if (code === 'auth/unauthorized-domain') {
