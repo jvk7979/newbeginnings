@@ -1,11 +1,7 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans } from '../context/AppContext';
-import { useToast } from '../context/ToastContext';
 import Badge from '../components/Badge';
-import BulkSelectionBar from '../components/BulkSelectionBar';
-import ConfirmModal from '../components/ConfirmModal';
-import SelectableCheckbox from '../components/SelectableCheckbox';
 import { CATEGORIES } from '../utils/categoryStyles';
 
 const FILTERS = [
@@ -17,45 +13,13 @@ const FILTERS = [
   { id: 'archived',  label: 'Archived' },
 ];
 
-const STATUS_OPTIONS = [
-  { id: 'draft',     label: 'Draft' },
-  { id: 'active',    label: 'Active' },
-  { id: 'in-review', label: 'In Review' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'archived',  label: 'Archived' },
-];
-
-function PlanCard({ plan, onNavigate, selectable, selected, selectionMode, onToggleSelect }) {
-  const handleClick = () => {
-    if (selectionMode && selectable) onToggleSelect?.(!selected);
-    else onNavigate('plan-detail', plan);
-  };
+function PlanCard({ plan, onNavigate }) {
   return (
     <div className="card-rich plan-card"
-      role="button" tabIndex={0}
-      aria-pressed={selectable ? selected : undefined}
-      onKeyDown={e => {
-        if (e.key === 'Enter') handleClick();
-        if (e.key === ' ' && selectable) { e.preventDefault(); onToggleSelect?.(!selected); }
-      }}
-      style={{
-        background: selected ? C.accentBg : C.bg1,
-        border: `1px solid ${selected ? alpha(C.accent, 55) : C.border}`,
-        borderLeft: `4px solid ${C.accent}`,
-        borderRadius: 10, cursor: 'pointer',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-        display: 'flex', flexDirection: 'column',
-      }}
-      onClick={handleClick}>
+      style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}
+      onClick={() => onNavigate('plan-detail', plan)}>
       <div className="plan-card-head">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-          {selectable && (
-            <SelectableCheckbox checked={selected}
-              onChange={(v) => onToggleSelect?.(v)}
-              label={`Select plan ${plan.title}`} />
-          )}
-          <div className="plan-card-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", color: C.fg1 }}>{plan.title}</div>
-        </div>
+        <div className="plan-card-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", color: C.fg1 }}>{plan.title}</div>
         <div className="plan-card-tags">
           {plan.category && (
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '2px 8px' }}>
@@ -83,16 +47,15 @@ function PlanCard({ plan, onNavigate, selectable, selected, selectionMode, onTog
 }
 
 export default function PlansPage({ onNavigate }) {
-  const { plans, updatePlan, deletePlan } = usePlans();
-  const { showToast } = useToast();
+  const { plans } = usePlans();
   const [filter, setFilter]     = useState('all');
   const [catFilter, setCatFilter] = useState('All');
   const [search, setSearch]     = useState('');
   const [sort,   setSort]       = useState('newest');
-  const [selectedIds, setSelectedIds] = useState(() => new Set());
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const sq = search.trim().toLowerCase();
+  // AppContext already sorts plans by id desc; reverse / title-sort here only
+  // when needed and memoize to avoid reallocating on every keystroke.
   const filtered = useMemo(() => {
     let arr = plans;
     if (sort === 'oldest')   arr = [...plans].reverse();
@@ -104,34 +67,9 @@ export default function PlansPage({ onNavigate }) {
     );
   }, [plans, sort, filter, catFilter, sq]);
 
-  const selectionMode = selectedIds.size > 0;
-  const toggleSelect = (id, next) => {
-    setSelectedIds(prev => {
-      const out = new Set(prev);
-      if (next) out.add(id); else out.delete(id);
-      return out;
-    });
-  };
-  const clearSelection = () => setSelectedIds(new Set());
-
-  const handleBulkStatus = async (statusId) => {
-    const ids = Array.from(selectedIds);
-    await Promise.all(ids.map(id => updatePlan(id, { status: statusId })));
-    showToast(`Updated ${ids.length} plan${ids.length === 1 ? '' : 's'}`, 'success');
-    clearSelection();
-  };
-
-  const handleBulkDelete = async () => {
-    const ids = Array.from(selectedIds);
-    await Promise.all(ids.map(id => deletePlan(id)));
-    showToast(`Deleted ${ids.length} plan${ids.length === 1 ? '' : 's'}`, 'success');
-    setConfirmDelete(false);
-    clearSelection();
-  };
-
   return (
     <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%', paddingBottom: selectionMode ? 96 : 0 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div className="plans-page-header">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
           <div className="grad-text page-title">Business Plans</div>
@@ -214,34 +152,10 @@ export default function PlansPage({ onNavigate }) {
         </div>
       ) : (
         <div className="grid-2">
-          {filtered.map(p => (
-            <PlanCard key={p.id} plan={p} onNavigate={onNavigate}
-              selectable
-              selected={selectedIds.has(p.id)}
-              selectionMode={selectionMode}
-              onToggleSelect={(v) => toggleSelect(p.id, v)} />
-          ))}
+          {filtered.map(p => <PlanCard key={p.id} plan={p} onNavigate={onNavigate} />)}
         </div>
       )}
       </div>
-
-      <BulkSelectionBar
-        count={selectedIds.size}
-        itemLabel="plan"
-        statuses={STATUS_OPTIONS}
-        onChangeStatus={handleBulkStatus}
-        onDelete={() => setConfirmDelete(true)}
-        onClear={clearSelection} />
-
-      {confirmDelete && (
-        <ConfirmModal
-          title={`Delete ${selectedIds.size} plan${selectedIds.size === 1 ? '' : 's'}?`}
-          message="This permanently removes the selected plans and their attached files. This can't be undone."
-          confirmLabel="Delete"
-          variant="danger"
-          onCancel={() => setConfirmDelete(false)}
-          onConfirm={handleBulkDelete} />
-      )}
     </div>
   );
 }
