@@ -987,9 +987,9 @@ textarea:focus-visible,
   min-height: 0;
 }
 .calc-left {
-  width: 55%;
+  width: 65%;
   min-width: 320px;
-  max-width: 700px;
+  max-width: 960px;
   overflow-y: auto;
   flex-shrink: 0;
 }
@@ -1006,9 +1006,9 @@ textarea:focus-visible,
   padding: 20px;
 }
 
-/* Tablet (769–1024px): keep 55% but cap width */
+/* Tablet (769–1024px): keep 60% but cap width */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .calc-left { width: 55%; max-width: 520px; }
+  .calc-left { width: 60%; max-width: 600px; }
 }
 
 /* Mobile / small tablet (≤ 768px): stack panels vertically, whole page scrolls */
