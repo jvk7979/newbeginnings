@@ -97,6 +97,13 @@ function DonutChart({ segments, totalLabel }) {
       <circle cx="50" cy="50" r="38" fill="none" stroke={C.border} strokeWidth="16" />
     </svg>
   );
+  if (segments.length === 1) return (
+    <svg viewBox="0 0 100 100" width={130} height={130}>
+      <circle cx="50" cy="50" r="38" fill="none" stroke={segments[0].color} strokeWidth="16" />
+      <text x="50" y="46" textAnchor="middle" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fill: C.fg3 }}>TOTAL</text>
+      <text x="50" y="60" textAnchor="middle" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 'bold', fill: C.fg1 }}>{totalLabel}</text>
+    </svg>
+  );
   const R = 38, IR = 22, cx = 50, cy = 50;
   let angle = -Math.PI / 2;
   const arcs = segments.map(seg => {
@@ -297,7 +304,7 @@ export default function CalculationsPage() {
   const ebitdaColor  = calc.ebitda > 0 ? '#2a7d3c' : '#c0392b';
 
   const sliderMin = 10, sliderMax = 100;
-  const bePct  = calc.breakEvenCapacity !== null ? Math.min(100, Math.max(0, calc.breakEvenCapacity)) : null;
+  const bePct  = calc.breakEvenCapacity !== null ? Math.min(sliderMax, Math.max(sliderMin, calc.breakEvenCapacity)) : null;
   const beLeft = bePct !== null ? `${((bePct - sliderMin) / (sliderMax - sliderMin)) * 100}%` : null;
 
   // ── Render ────────────────────────────────────────────────────────────────────
@@ -353,7 +360,7 @@ export default function CalculationsPage() {
           <Section id="model" label="Plant Model" open={openSections.includes('model')} onToggle={toggleSection}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 4 }}>
               {PRESET_LIST.map(p => (
-                <button key={p.id} onClick={() => setConfirmPreset(p.id)}
+                <button key={p.id} onClick={() => { if (p.id !== activePreset) setConfirmPreset(p.id); }}
                   style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 8, border: `1.5px solid ${activePreset === p.id ? C.accent : C.border}`, background: activePreset === p.id ? C.accentBg : C.bg2, cursor: 'pointer', transition: 'all 120ms' }}>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: activePreset === p.id ? 700 : 500, color: activePreset === p.id ? C.accent : C.fg1 }}>{p.label}</span>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: activePreset === p.id ? C.accent : C.fg3 }}>{p.sub}</span>
@@ -537,7 +544,7 @@ export default function CalculationsPage() {
 
           {/* Tab bar */}
           <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, background: C.bg1, padding: '0 20px', flexShrink: 0 }}>
-            {[['summary', 'Summary'], ['pl', 'P&L Breakdown'], ['projection', '5-Yr Projection']].map(([id, lbl]) => (
+            {[['summary', 'Summary'], ['pl', 'P&L Breakdown'], ['projection', `${lifetime}-Yr Projection`]].map(([id, lbl]) => (
               <button key={id} onClick={() => setRightTab(id)}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: rightTab === id ? 600 : 400, color: rightTab === id ? C.accent : C.fg3, background: 'none', border: 'none', borderBottom: `2px solid ${rightTab === id ? C.accent : 'transparent'}`, padding: '10px 16px 12px', cursor: 'pointer', marginRight: 4 }}>
                 {lbl}
