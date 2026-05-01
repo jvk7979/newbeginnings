@@ -226,6 +226,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     showToast('Sections reordered', 'success');
   };
 
+  const handleDeleteSection = async (i) => {
+    const next = sections.filter((_, idx) => idx !== i);
+    setSections(next);
+    await updatePlan(plan.id, { sections: next });
+    showToast('Section deleted', 'info');
+  };
+
   const handleExportPDF = () => {
     const w = window.open('', '_blank');
     if (!w) { showToast('Allow pop-ups to export PDF', 'info'); return; }
@@ -304,6 +311,18 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             {/* Order intentional: source document up top so the user
                 lands on it first, then Executive Summary derived from
                 that document, then notes, then sources, then sections. */}
+            {sections.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.fg3 }}>Progress</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{sections.filter(s => s.done).length} / {sections.length}</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, background: C.bg2, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 3, background: C.accent, width: `${(sections.filter(s => s.done).length / sections.length) * 100}%`, transition: 'width 350ms ease' }} />
+                </div>
+              </div>
+            )}
+
             {attachedFile && (
               <div style={{ marginBottom: summary || notes ? 14 : 28 }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Attached Document</div>
@@ -327,18 +346,6 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 10 }}>Sources</div>
                 <SourcesView sources={plan.sources} />
-              </div>
-            )}
-
-            {sections.length > 0 && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.fg3 }}>Progress</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{sections.filter(s => s.done).length} / {sections.length}</span>
-                </div>
-                <div style={{ height: 6, borderRadius: 3, background: C.bg2, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', borderRadius: 3, background: C.accent, width: `${(sections.filter(s => s.done).length / sections.length) * 100}%`, transition: 'width 350ms ease' }} />
-                </div>
               </div>
             )}
 
@@ -427,18 +434,34 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                         <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: sec.done ? C.fg3 : C.fg1, textDecoration: sec.done ? 'line-through' : 'none', lineHeight: 1.3, marginBottom: 8 }}>
                           {sec.title}
                         </div>
-                        {/* Pencil edit — 44px tap area on mobile */}
-                        <button
-                          aria-label={`Edit section: ${sec.title}`}
-                          onClick={() => { setEditingSecIdx(i); setEditingSecDraft({ title: sec.title, content: sec.content }); }}
-                          style={{ flexShrink: 0, width: 44, height: 44, marginTop: -8, marginRight: -8, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                          onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
-                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
+                        <div style={{ display: 'flex', flexShrink: 0, marginTop: -8, marginRight: -8 }}>
+                          {/* Pencil edit — 44px tap area on mobile */}
+                          <button
+                            aria-label={`Edit section: ${sec.title}`}
+                            onClick={() => { setEditingSecIdx(i); setEditingSecDraft({ title: sec.title, content: sec.content }); }}
+                            style={{ width: 44, height: 44, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                          </button>
+                          {/* Trash delete — 44px tap area */}
+                          <button
+                            aria-label={`Delete section: ${sec.title}`}
+                            onClick={() => handleDeleteSection(i)}
+                            style={{ width: 44, height: 44, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.danger; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                              <polyline points="3 6 5 6 21 6"/>
+                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                              <path d="M10 11v6M14 11v6"/>
+                              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: sec.done ? C.fg3 : C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
                         {sec.content}
