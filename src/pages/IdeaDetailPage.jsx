@@ -34,6 +34,8 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [category, setCategory]       = useState(idea.category || '');
   const [desc, setDesc]               = useState(idea.desc || '');
   const [notes, setNotes]             = useState(idea.notes || '');
+  const [estimatedCapex,   setEstimatedCapex]   = useState(idea.estimatedCapex   ?? '');
+  const [estimatedPayback, setEstimatedPayback] = useState(idea.estimatedPayback ?? '');
   const [sources, setSources]         = useState(Array.isArray(idea.sources) ? idea.sources : []);
   const [attachedFile, setAttachedFile] = useState(idea.attachedFile || null);
   const [pendingFile,  setPendingFile]  = useState(null);
@@ -93,7 +95,12 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
       // explicit Remove button (which calls handleRemoveFile and sets
       // attachedFile to null directly).
       const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
-      await updateIdea(idea.id, { title: title.trim(), status, category: category || '', desc: desc.trim(), notes: notes.trim(), sources: cleanSources, sections, attachedFile: nextFile });
+      await updateIdea(idea.id, {
+        title: title.trim(), status, category: category || '',
+        desc: desc.trim(), notes: notes.trim(), sources: cleanSources, sections, attachedFile: nextFile,
+        estimatedCapex:   estimatedCapex   !== '' ? Number(estimatedCapex)   : undefined,
+        estimatedPayback: estimatedPayback !== '' ? Number(estimatedPayback) : undefined,
+      });
       if (blobToDelete) {
         try { await deleteFileFromDB(blobToDelete); }
         catch (e) { console.warn('[orphan blob]', blobToDelete, e); }
@@ -120,6 +127,8 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     setNotes(idea.notes || '');
     setSources(Array.isArray(idea.sources) ? idea.sources : []);
     setSections(idea.sections || []);
+    setEstimatedCapex(idea.estimatedCapex   ?? '');
+    setEstimatedPayback(idea.estimatedPayback ?? '');
     setAttachedFile(idea.attachedFile || null);
     setPendingFile(null);
     setReplacingFile(false);
@@ -401,6 +410,21 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 placeholder="Problem being solved, target customer, rough mechanics…"
                 onFocus={focus} onBlur={blur} />
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>{desc.length} characters · Captured {idea.date}</div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label style={labelStyle}>Estimated CAPEX (₹) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
+                <input type="number" min={0} style={inputStyle} value={estimatedCapex}
+                  onChange={e => setEstimatedCapex(e.target.value)}
+                  onFocus={focus} onBlur={blur} />
+              </div>
+              <div>
+                <label style={labelStyle}>Estimated Payback (yrs) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
+                <input type="number" min={0} step={0.5} style={inputStyle} value={estimatedPayback}
+                  onChange={e => setEstimatedPayback(e.target.value)}
+                  onFocus={focus} onBlur={blur} />
+              </div>
             </div>
 
             <div>
