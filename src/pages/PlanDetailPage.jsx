@@ -390,40 +390,51 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                     borderRadius: dragOverIdx === i && dragIdx !== i ? 8 : 0,
                     transition: 'opacity 150ms',
                   }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                    {/* Drag handle — hidden on touch-only devices via pointer media, accessible via keyboard via ↑↓ in edit mode */}
                     <div
+                      role="img"
+                      aria-hidden="true"
                       title="Drag to reorder"
-                      style={{ cursor: 'grab', color: C.fg3, flexShrink: 0, paddingTop: 5, fontSize: 18, lineHeight: 1, userSelect: 'none', touchAction: 'none' }}>
+                      style={{ cursor: 'grab', color: C.fg3, flexShrink: 0, paddingTop: 6, fontSize: 17, lineHeight: 1, userSelect: 'none', touchAction: 'none', minWidth: 20 }}>
                       ⠿
                     </div>
+                    {/* Done checkbox — 44px tap area wrapper for touch compliance */}
                     <button
-                      title={sec.done ? 'Mark incomplete' : 'Mark complete'}
+                      aria-label={sec.done ? `Mark "${sec.title}" incomplete` : `Mark "${sec.title}" complete`}
                       onClick={() => toggleSectionDone(i)}
                       style={{
-                        flexShrink: 0, width: 22, height: 22, borderRadius: 5, marginTop: 3,
-                        border: `2px solid ${sec.done ? C.accent : C.border}`,
-                        background: sec.done ? C.accent : 'transparent',
+                        flexShrink: 0, width: 44, height: 44, borderRadius: 8, marginTop: -10,
+                        border: 'none', background: 'transparent',
                         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         padding: 0,
                       }}>
-                      {sec.done && (
-                        <svg viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="10" height="10">
-                          <polyline points="2 6 5 9 10 3"/>
-                        </svg>
-                      )}
+                      <span style={{
+                        width: 20, height: 20, borderRadius: 5, flexShrink: 0,
+                        border: `2px solid ${sec.done ? C.accent : C.border}`,
+                        background: sec.done ? C.accent : 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {sec.done && (
+                          <svg viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="10" height="10">
+                            <polyline points="2 6 5 9 10 3"/>
+                          </svg>
+                        )}
+                      </span>
                     </button>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                         <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: sec.done ? C.fg3 : C.fg1, textDecoration: sec.done ? 'line-through' : 'none', lineHeight: 1.3, marginBottom: 8 }}>
                           {sec.title}
                         </div>
+                        {/* Pencil edit — 44px tap area on mobile */}
                         <button
-                          title="Edit section"
+                          aria-label={`Edit section: ${sec.title}`}
                           onClick={() => { setEditingSecIdx(i); setEditingSecDraft({ title: sec.title, content: sec.content }); }}
-                          style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          style={{ flexShrink: 0, width: 44, height: 44, marginTop: -8, marginRight: -8, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
                           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
-                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                           </svg>
