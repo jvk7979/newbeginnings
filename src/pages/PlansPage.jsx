@@ -1,7 +1,11 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans } from '../context/AppContext';
+import { useToast } from '../context/ToastContext';
 import Badge from '../components/Badge';
+import QuickEditForm from '../components/QuickEditForm';
+import SavedViewsBar from '../components/SavedViewsBar';
+import ComparePanel from '../components/ComparePanel';
 import { CATEGORIES } from '../utils/categoryStyles';
 
 const FILTERS = [
@@ -13,7 +17,36 @@ const FILTERS = [
   { id: 'archived',  label: 'Archived' },
 ];
 
-function PlanCard({ plan, onNavigate }) {
+const PLAN_STATUSES = [
+  { id: 'draft',     label: 'Draft' },
+  { id: 'active',    label: 'Active' },
+  { id: 'in-review', label: 'In Review' },
+  { id: 'completed', label: 'Completed' },
+  { id: 'archived',  label: 'Archived' },
+];
+
+const PLAN_CATEGORY_OPTIONS = CATEGORIES.filter(c => c !== 'All');
+
+const isStateEqual = (a, b) =>
+  (a?.search ?? '') === (b?.search ?? '') &&
+  (a?.filter ?? 'all') === (b?.filter ?? 'all') &&
+  (a?.catFilter ?? 'All') === (b?.catFilter ?? 'All') &&
+  (a?.sort ?? 'newest') === (b?.sort ?? 'newest');
+
+function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSaveEdit }) {
+  if (editing) {
+    return (
+      <div className="card-rich plan-card"
+        style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column', padding: 16 }}>
+        <QuickEditForm
+          initialTitle={plan.title} initialStatus={plan.status} initialCategory={plan.category}
+          statuses={PLAN_STATUSES}
+          categories={PLAN_CATEGORY_OPTIONS}
+          onSave={onSaveEdit}
+          onCancel={onCancelEdit} />
+      </div>
+    );
+  }
   return (
     <div className="card-rich plan-card"
       style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}
@@ -27,6 +60,23 @@ function PlanCard({ plan, onNavigate }) {
             </span>
           )}
           <Badge status={plan.status} />
+          <button
+            type="button"
+            aria-label={`Quick edit ${plan.title}`}
+            title="Quick edit"
+            onClick={e => { e.stopPropagation(); onStartEdit?.(); }}
+            style={{
+              width: 28, height: 28, borderRadius: 6, border: 'none',
+              background: 'transparent', color: C.fg3, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
         </div>
       </div>
       <div className="plan-card-meta">
@@ -47,15 +97,16 @@ function PlanCard({ plan, onNavigate }) {
 }
 
 export default function PlansPage({ onNavigate }) {
-  const { plans } = usePlans();
+  const { plans, updatePlan } = usePlans();
+  const { showToast } = useToast();
   const [filter, setFilter]     = useState('all');
   const [catFilter, setCatFilter] = useState('All');
   const [search, setSearch]     = useState('');
   const [sort,   setSort]       = useState('newest');
+  const [editingId, setEditingId] = useState(null);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   const sq = search.trim().toLowerCase();
-  // AppContext already sorts plans by id desc; reverse / title-sort here only
-  // when needed and memoize to avoid reallocating on every keystroke.
   const filtered = useMemo(() => {
     let arr = plans;
     if (sort === 'oldest')   arr = [...plans].reverse();
@@ -67,6 +118,20 @@ export default function PlansPage({ onNavigate }) {
     );
   }, [plans, sort, filter, catFilter, sq]);
 
+  const currentState = { search, filter, catFilter, sort };
+  const applyView = (v) => {
+    setSearch(v.search ?? '');
+    setFilter(v.filter ?? 'all');
+    setCatFilter(v.catFilter ?? 'All');
+    setSort(v.sort ?? 'newest');
+  };
+
+  const handleQuickSave = async (id, patch) => {
+    await updatePlan(id, patch);
+    setEditingId(null);
+    showToast('Plan updated', 'success');
+  };
+
   return (
     <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
@@ -77,15 +142,33 @@ export default function PlansPage({ onNavigate }) {
             {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} / ${plans.length}` : plans.length}
           </div>
         </div>
-        <button className="plans-new-btn"
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}
-          onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-          onMouseLeave={e => e.currentTarget.style.background = C.accent}
-          onClick={() => onNavigate('new-plan')}
-          aria-label="New plan">
-          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span className="plans-new-btn-label">New Plan</span>
-        </button>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
+          <button onClick={() => setCompareOpen(true)}
+            disabled={plans.length < 2}
+            style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
+              padding: '8px 14px', borderRadius: 8,
+              background: 'transparent', color: plans.length < 2 ? C.fg3 : C.fg2,
+              border: `1px solid ${C.border}`,
+              cursor: plans.length < 2 ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}
+            title={plans.length < 2 ? 'Need at least 2 plans' : 'Compare plans side by side'}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+              <rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/>
+            </svg>
+            Compare
+          </button>
+          <button className="plans-new-btn"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
+            onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
+            onMouseLeave={e => e.currentTarget.style.background = C.accent}
+            onClick={() => onNavigate('new-plan')}
+            aria-label="New plan">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span className="plans-new-btn-label">New Plan</span>
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -124,7 +207,7 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* Category filters */}
-      <div className="chip-scroll-wrap" style={{ marginBottom: 20 }}>
+      <div className="chip-scroll-wrap" style={{ marginBottom: 14 }}>
         <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
           {CATEGORIES.map(c => (
             <button key={c} onClick={() => setCatFilter(c)}
@@ -134,6 +217,11 @@ export default function PlansPage({ onNavigate }) {
           ))}
         </div>
       </div>
+
+      <SavedViewsBar scope="plans"
+        currentState={currentState}
+        onApply={applyView}
+        isStateEqual={isStateEqual} />
 
       {/* Empty states */}
       {plans.length === 0 ? (
@@ -152,10 +240,21 @@ export default function PlansPage({ onNavigate }) {
         </div>
       ) : (
         <div className="grid-2">
-          {filtered.map(p => <PlanCard key={p.id} plan={p} onNavigate={onNavigate} />)}
+          {filtered.map(p => (
+            <PlanCard key={p.id} plan={p} onNavigate={onNavigate}
+              editing={editingId === p.id}
+              onStartEdit={() => setEditingId(p.id)}
+              onCancelEdit={() => setEditingId(null)}
+              onSaveEdit={(patch) => handleQuickSave(p.id, patch)} />
+          ))}
         </div>
       )}
       </div>
+
+      <ComparePanel open={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        items={plans} kind="plan"
+        onOpen={(it) => onNavigate('plan-detail', it)} />
     </div>
   );
 }
