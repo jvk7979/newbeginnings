@@ -1,7 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { auth, googleProvider, db } from '../firebase';
-import { signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  signInWithPopup, signInWithRedirect, getRedirectResult, signOut,
+  onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence,
+} from 'firebase/auth';
+import { doc, getDocFromServer, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // iOS Safari + signInWithPopup is unreliable: Intelligent Tracking Prevention
 // strips third-party storage on the popup, and even when it succeeds the
@@ -25,18 +28,27 @@ export function AuthProvider({ children }) {
   const [loading, setLoading]           = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
   const [userRole, setUserRole]         = useState('Editor');
-  // On mobile we use signInWithRedirect. After the redirect completes the
-  // page reloads and Firebase processes the result asynchronously. We keep
-  // the combined loading flag true until getRedirectResult settles so the
-  // app never flashes the sign-in page during this processing window.
-  const [redirectSettled, setRedirectSettled] = useState(!isMobile);
 
-  // After signInWithRedirect, Firebase processes the credential during
-  // page load and onAuthStateChanged fires automatically. We call
-  // getRedirectResult so redirect-stage errors surface and are stored in
-  // sessionStorage. We also settle the redirectSettled flag here so the
-  // loading indicator stays up until we know the final auth state.
+  // On mobile we use signInWithRedirect. The page navigates away and returns,
+  // causing Firebase to fire onAuthStateChanged(null) before the redirect
+  // result is processed. We must NOT drop the loading spinner on that null —
+  // a real user may arrive milliseconds later.
+  //
+  // Strategy: park the null in a ref and only resolve it after
+  // getRedirectResult() settles. appReady gates the final loading flag so
+  // the spinner stays up until we have a definitive auth decision.
+  const [appReady, setAppReady]         = useState(!isMobile);
+  const redirectReadyRef                = useRef(!isMobile);
+  const pendingNullRef                  = useRef(false); // null arrived while redirect was pending
+
   useEffect(() => {
+    if (!isMobile) return;
+
+    // Prefer local persistence; fall back to session if IndexedDB is blocked
+    // (common in iOS Safari private mode where ITP clears IndexedDB).
+    setPersistence(auth, browserLocalPersistence)
+      .catch(() => setPersistence(auth, browserSessionPersistence).catch(() => {}));
+
     getRedirectResult(auth)
       .catch(err => {
         const code = err?.code || 'unknown';
@@ -46,20 +58,40 @@ export function AuthProvider({ children }) {
           sessionStorage.setItem('auth_redirect_error', JSON.stringify({ code, msg, at: Date.now() }));
         } catch { /* sessionStorage may be blocked in private mode */ }
       })
-      .finally(() => setRedirectSettled(true));
+      .finally(() => {
+        redirectReadyRef.current = true;
+        // If onAuthStateChanged already parked a null while we were waiting,
+        // the redirect brought no user — safe to show the sign-in screen now.
+        if (pendingNullRef.current) {
+          setUser(null);
+          setLoading(false);
+        }
+        setAppReady(true);
+      });
   }, []);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       if (!u) {
+        if (isMobile && !redirectReadyRef.current) {
+          // Redirect hasn't settled yet — this null is the pre-redirect state.
+          // Park it; getRedirectResult.finally() will resolve the loading state.
+          pendingNullRef.current = true;
+          return;
+        }
         setUser(null);
         setLoading(false);
         return;
       }
+
+      // A real user arrived — discard any parked null.
+      pendingNullRef.current = false;
+
       // Normalize email (lowercase + trim) so allowedUsers/<id> lookups
       // are case-insensitive — matches the same rule used server-side
       // in functions/index.js and firestore.rules.
       const email = (u.email || '').toLowerCase().trim();
+
       // Reject unverified emails — defense in depth against a federated
       // provider that doesn't confirm ownership (Google sign-in always
       // returns email_verified=true, so this never blocks the happy path).
@@ -77,12 +109,16 @@ export function AuthProvider({ children }) {
         return;
       }
       try {
-        const snap = await getDoc(doc(db, 'allowedUsers', email));
+        // getDocFromServer bypasses Firestore's offline cache so we always
+        // hit the live allowlist. A cached doc could be stale (e.g. user
+        // was added after a previous denied attempt that got cached).
+        const snap = await getDocFromServer(doc(db, 'allowedUsers', email));
         if (snap.exists()) {
           setUser(u);
           setAccessDenied(false);
           setUserRole(snap.data()?.role || 'Editor');
-          // Non-critical: record last active time for admin visibility
+          // Non-critical: record last active time for admin visibility.
+          // Fails silently for non-admins (Firestore write rule = admins only).
           setDoc(doc(db, 'allowedUsers', email), { lastSeenAt: serverTimestamp() }, { merge: true }).catch(() => {});
         } else {
           await signOut(auth);
@@ -121,7 +157,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      user, loading: loading || !redirectSettled, accessDenied,
+      user, loading: loading || !appReady, accessDenied,
       isAdmin,
       isViewer: !isAdmin && userRole === 'Viewer',
       userRole,
