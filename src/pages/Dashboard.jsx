@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { C, alpha } from '../tokens';
 import { useIdeas, usePlans, useFiles } from '../context/AppContext';
-import IdeaCard from '../components/IdeaCard';
 import heroImg from '../assets/hero_latest.png';
 
 const ICON_IDEA = <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>;
@@ -24,11 +23,19 @@ const QUICK_ACTIONS = [
   },
 ];
 
-const IDEA_STATUS_LABELS = { draft: 'Draft', validating: 'Researching', active: 'Active', archived: 'Archived' };
+const IDEA_STATUS_LABELS = { draft: 'Draft', validating: 'Validating', active: 'Active', archived: 'Archived' };
 const PLAN_STATUS_LABELS = { draft: 'Draft', active: 'Active', archived: 'Archived' };
 const STATUS_COLORS = {
   draft: '#8A6000', validating: '#0070B8', active: '#2E7D32', archived: '#888',
 };
+
+function fmtINR(n) {
+  if (!n || !isFinite(n)) return '—';
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
+  if (n >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
+  if (n >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
+  return `₹${n.toFixed(0)}`;
+}
 
 function SectionHeader({ label, actionLabel, onAction }) {
   return (
@@ -92,7 +99,7 @@ export default function Dashboard({ onNavigate }) {
   const { files } = useFiles();
   const [expandedStat, setExpandedStat] = useState(null);
 
-  const recentIdeas = useMemo(() => ideas.slice(0, 4), [ideas]);
+  const recentIdeas = useMemo(() => ideas.slice(0, 5), [ideas]);
   const recentFiles = useMemo(() => files.slice(0, 3), [files]);
 
   const stats = [
@@ -181,11 +188,11 @@ export default function Dashboard({ onNavigate }) {
         ))}
       </div>
 
-      {/* Recent Ideas */}
+      {/* Ideas Pipeline */}
       <div style={{ marginBottom: 40 }}>
         <SectionHeader
-          label="Recent Ideas"
-          actionLabel={ideas.length > 0 ? 'View all Ideas' : null}
+          label="Ideas Pipeline"
+          actionLabel={ideas.length > 0 ? 'View all →' : null}
           onAction={() => onNavigate('ideas')}
         />
         {recentIdeas.length === 0 ? (
@@ -201,8 +208,44 @@ export default function Dashboard({ onNavigate }) {
             </button>
           </div>
         ) : (
-          <div className="grid-2">
-            {recentIdeas.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
+          <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: C.bg2, borderBottom: `1px solid ${C.border}` }}>
+                  {['IDEA', 'STAGE', 'CAPEX', 'PAYBACK'].map(h => (
+                    <th key={h} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', color: C.fg3, padding: '8px 14px', textAlign: h === 'IDEA' ? 'left' : 'right', whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {recentIdeas.map((idea, i) => {
+                  const sc = STATUS_COLORS[idea.status] || C.fg3;
+                  return (
+                    <tr key={idea.id}
+                      style={{ borderBottom: i < recentIdeas.length - 1 ? `1px solid ${C.border}` : 'none', cursor: 'pointer', transition: 'background 120ms' }}
+                      onClick={() => onNavigate('idea-detail', idea)}
+                      onMouseEnter={e => e.currentTarget.style.background = C.bg2}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <td style={{ padding: '10px 14px', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {idea.title}
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: sc }}>
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc, flexShrink: 0 }} />
+                          {IDEA_STATUS_LABELS[idea.status] || idea.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600, color: C.fg1, whiteSpace: 'nowrap' }}>
+                        {fmtINR(idea.estimatedCapex)}
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg2, whiteSpace: 'nowrap' }}>
+                        {idea.estimatedPayback ? `${idea.estimatedPayback}y` : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
