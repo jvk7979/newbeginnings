@@ -460,6 +460,10 @@ export default function CalculationsPage() {
 
           {/* Financing & Subsidies */}
           <Section id="financing" label="Financing & Subsidies" open={openSections.includes('financing')} onToggle={toggleSection}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Project name</div>
+            <input value={projectName} placeholder="e.g. Coir Unit Konaseema"
+              onChange={e => setProjectName(e.target.value)}
+              style={{ ...IS, marginBottom: 10 }} />
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Total CAPEX (₹)</div>
             <input type="number" value={capex} min={0} step={100000} onChange={e => setCapex(Number(e.target.value) || 0)} style={{ ...IS, marginBottom: 10 }} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
@@ -618,7 +622,7 @@ export default function CalculationsPage() {
                   <tbody>
                     {calc.rows.map((row, i) => {
                       const isBreakEven = row.cumNCF >= 0 && (i === 0 || calc.rows[i - 1].cumNCF < 0);
-                      const rowDscrColor = row.dscr === null ? C.fg2 : row.dscr >= 1.25 ? '#2a7d3c' : '#c0392b';
+                      const rowDscrColor = row.dscr === null ? C.fg2 : row.dscr >= 1.5 ? '#2a7d3c' : row.dscr >= 1.25 ? '#b06000' : '#c0392b';
                       return (
                         <tr key={row.t} style={{ background: isBreakEven ? alpha(C.accent, 22) : i % 2 === 0 ? C.bg0 : C.bg1, borderBottom: `1px solid ${C.border}` }}>
                           <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg2, fontWeight: 600 }}>{row.t}</td>
