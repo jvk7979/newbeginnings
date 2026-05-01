@@ -114,7 +114,7 @@ export default function NewIdeaPage({ onNavigate }) {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <label style={labelStyle}>Estimated CAPEX (₹) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
+            <label style={labelStyle}>Project Cost Est. (₹) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
             <input type="number" min={0} style={inputStyle} value={form.estimatedCapex}
               onChange={e => setForm({ ...form, estimatedCapex: e.target.value })}
               onFocus={focus} onBlur={blur} />

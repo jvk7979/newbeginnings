@@ -212,7 +212,7 @@ export default function Dashboard({ onNavigate }) {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: C.bg2, borderBottom: `1px solid ${C.border}` }}>
-                  {['IDEA', 'STAGE', 'CAPEX', 'PAYBACK'].map(h => (
+                  {['IDEA', 'STAGE', 'COST EST.', 'PAYBACK'].map(h => (
                     <th key={h} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', color: C.fg3, padding: '8px 14px', textAlign: h === 'IDEA' ? 'left' : 'right', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>

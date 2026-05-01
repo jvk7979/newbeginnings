@@ -3,12 +3,15 @@ import { C, alpha } from '../tokens';
 
 export default function QuickEditForm({
   initialTitle, initialStatus, initialCategory,
+  initialEstimatedCapex, initialEstimatedPayback,
   statuses, categories,
   onSave, onCancel,
 }) {
   const [title, setTitle] = useState(initialTitle || '');
   const [status, setStatus] = useState(initialStatus || '');
   const [category, setCategory] = useState(initialCategory || '');
+  const [estimatedCapex, setEstimatedCapex] = useState(initialEstimatedCapex ?? '');
+  const [estimatedPayback, setEstimatedPayback] = useState(initialEstimatedPayback ?? '');
   const [saving, setSaving] = useState(false);
   const inputRef = useRef(null);
 
@@ -17,13 +20,19 @@ export default function QuickEditForm({
   const dirty =
     title !== (initialTitle || '') ||
     status !== (initialStatus || '') ||
-    category !== (initialCategory || '');
+    category !== (initialCategory || '') ||
+    String(estimatedCapex) !== String(initialEstimatedCapex ?? '') ||
+    String(estimatedPayback) !== String(initialEstimatedPayback ?? '');
 
   const submit = async () => {
     if (!title.trim() || saving) return;
     setSaving(true);
     try {
-      await onSave({ title: title.trim(), status, category: category || initialCategory });
+      await onSave({
+        title: title.trim(), status, category: category || initialCategory,
+        estimatedCapex:   estimatedCapex   !== '' ? Number(estimatedCapex)   : undefined,
+        estimatedPayback: estimatedPayback !== '' ? Number(estimatedPayback) : undefined,
+      });
     } finally { setSaving(false); }
   };
 
@@ -74,6 +83,21 @@ export default function QuickEditForm({
             </select>
           </label>
         )}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <label style={{ flex: 1, minWidth: 130, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.fg3, letterSpacing: 0.4, textTransform: 'uppercase' }}>Project Cost Est. (₹)</span>
+          <input type="number" min={0} value={estimatedCapex} onChange={e => setEstimatedCapex(e.target.value)}
+            placeholder="optional"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: '6px 10px', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
+        </label>
+        <label style={{ flex: 1, minWidth: 130, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: C.fg3, letterSpacing: 0.4, textTransform: 'uppercase' }}>Payback (yrs)</span>
+          <input type="number" min={0} step={0.5} value={estimatedPayback} onChange={e => setEstimatedPayback(e.target.value)}
+            placeholder="optional"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: '6px 10px', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
+        </label>
       </div>
 
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>

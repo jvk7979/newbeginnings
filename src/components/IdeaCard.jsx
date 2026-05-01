@@ -40,6 +40,7 @@ export default function IdeaCard({
         }}>
         <QuickEditForm
           initialTitle={title} initialStatus={status} initialCategory={category}
+          initialEstimatedCapex={estimatedCapex} initialEstimatedPayback={estimatedPayback}
           statuses={IDEA_STATUSES}
           categories={IDEA_CATEGORIES}
           onSave={async (patch) => { await onSaveEdit?.(patch); }}
@@ -110,7 +111,7 @@ export default function IdeaCard({
       {(estimatedCapex || estimatedPayback) && (
         <div style={{ display: 'flex', gap: 20, paddingTop: 10, paddingBottom: 10, borderTop: `1px solid ${C.border}` }}>
           <div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 2 }}>CAPEX</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 2 }}>Project Cost Est.</div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: C.fg1 }}>{fmtINR(estimatedCapex)}</div>
           </div>
           <div>
