@@ -251,6 +251,58 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
               </div>
             </div>
 
+            {sections.length > 0 && (
+              <div style={{ marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.fg3 }}>Progress</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{sections.filter(s => s.done).length} / {sections.length}</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, background: C.bg2, overflow: 'hidden', marginBottom: 20 }}>
+                  <div style={{ height: '100%', borderRadius: 3, background: C.accent, width: `${(sections.filter(s => s.done).length / sections.length) * 100}%`, transition: 'width 350ms ease' }} />
+                </div>
+              </div>
+            )}
+
+            {sections.map((sec, i) => (
+              editingSecIdx === i ? (
+                <div key={i} style={{ background: C.bg1, border: `1px solid ${C.accentDim}`, borderRadius: 10, padding: '16px 18px', marginBottom: 20, boxShadow: `0 0 0 2px ${alpha(C.accentDim, 22)}` }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, marginBottom: 10 }}>Section {i + 1}</div>
+                  <input autoFocus value={editingSecDraft.title} onChange={e => setEditingSecDraft(d => ({ ...d, title: e.target.value }))} placeholder="Section title" style={{ ...inputStyle, marginBottom: 10, fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17 }} onFocus={focus} onBlur={blur} />
+                  <textarea value={editingSecDraft.content} onChange={e => setEditingSecDraft(d => ({ ...d, content: e.target.value }))} placeholder="Section content…" style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.7 }} onFocus={focus} onBlur={blur} />
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10, flexWrap: 'wrap' }}>
+                    <button onClick={() => { setEditingSecIdx(null); setEditingSecDraft(null); }} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 6, padding: '7px 16px', cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={() => handleSaveSection(i, editingSecDraft)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: '#fff', background: C.accent, border: 'none', borderRadius: 6, padding: '7px 18px', cursor: 'pointer' }}>Save</button>
+                  </div>
+                </div>
+              ) : (
+                <div key={i} draggable onDragStart={() => setDragIdx(i)} onDragOver={e => { e.preventDefault(); setDragOverIdx(i); }} onDragLeave={() => setDragOverIdx(prev => prev === i ? null : prev)} onDrop={() => handleDrop(i)} onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                  style={{ marginBottom: 28, paddingBottom: 28, borderBottom: i < sections.length - 1 ? `1px solid ${C.border}` : 'none', opacity: dragIdx === i ? 0.4 : 1, outline: dragOverIdx === i && dragIdx !== i ? `2px solid ${C.accentDim}` : 'none', borderRadius: dragOverIdx === i && dragIdx !== i ? 8 : 0, transition: 'opacity 150ms' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                    <div role="img" aria-hidden="true" title="Drag to reorder" style={{ cursor: 'grab', color: C.fg3, flexShrink: 0, paddingTop: 6, fontSize: 17, lineHeight: 1, userSelect: 'none', touchAction: 'none', minWidth: 20 }}>⠿</div>
+                    <button aria-label={sec.done ? `Mark "${sec.title}" incomplete` : `Mark "${sec.title}" complete`} onClick={() => toggleSectionDone(i)} style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 8, marginTop: -10, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                      <span style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, border: `2px solid ${sec.done ? C.accent : C.border}`, background: sec.done ? C.accent : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {sec.done && <svg viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="10" height="10"><polyline points="2 6 5 9 10 3"/></svg>}
+                      </span>
+                    </button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: sec.done ? C.fg3 : C.fg1, textDecoration: sec.done ? 'line-through' : 'none', lineHeight: 1.3, marginBottom: 8 }}>{sec.title}</div>
+                        <div style={{ display: 'flex', flexShrink: 0, marginTop: -8, marginRight: -8 }}>
+                          <button aria-label={`Edit section: ${sec.title}`} onClick={() => { setEditingSecIdx(i); setEditingSecDraft({ title: sec.title, content: sec.content }); }} style={{ width: 44, height: 44, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button aria-label={`Delete section: ${sec.title}`} onClick={() => handleDeleteSection(i)} style={{ width: 44, height: 44, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.danger; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                          </button>
+                        </div>
+                      </div>
+                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: sec.done ? C.fg3 : C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{sec.content}</div>
+                    </div>
+                  </div>
+                </div>
+              )
+            ))}
+
             {idea.desc && (
               <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px' }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Description</div>
@@ -278,121 +330,6 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 <AttachedFileViewer file={attachedFile} editing={false} />
               </div>
             )}
-
-            {/* Sections */}
-            {sections.length > 0 && (
-              <div style={{ marginBottom: 4 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.fg3 }}>Progress</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{sections.filter(s => s.done).length} / {sections.length}</span>
-                </div>
-                <div style={{ height: 6, borderRadius: 3, background: C.bg2, overflow: 'hidden', marginBottom: 20 }}>
-                  <div style={{ height: '100%', borderRadius: 3, background: C.accent, width: `${(sections.filter(s => s.done).length / sections.length) * 100}%`, transition: 'width 350ms ease' }} />
-                </div>
-              </div>
-            )}
-
-            {sections.map((sec, i) => (
-              editingSecIdx === i ? (
-                <div key={i} style={{ background: C.bg1, border: `1px solid ${C.accentDim}`, borderRadius: 10, padding: '16px 18px', marginBottom: 20, boxShadow: `0 0 0 2px ${alpha(C.accentDim, 22)}` }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, marginBottom: 10 }}>Section {i + 1}</div>
-                  <input
-                    autoFocus
-                    value={editingSecDraft.title}
-                    onChange={e => setEditingSecDraft(d => ({ ...d, title: e.target.value }))}
-                    placeholder="Section title"
-                    style={{ ...inputStyle, marginBottom: 10, fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17 }}
-                    onFocus={focus} onBlur={blur} />
-                  <textarea
-                    value={editingSecDraft.content}
-                    onChange={e => setEditingSecDraft(d => ({ ...d, content: e.target.value }))}
-                    placeholder="Section content…"
-                    style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.7 }}
-                    onFocus={focus} onBlur={blur} />
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10, flexWrap: 'wrap' }}>
-                    <button onClick={() => { setEditingSecIdx(null); setEditingSecDraft(null); }}
-                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 6, padding: '7px 16px', cursor: 'pointer' }}>
-                      Cancel
-                    </button>
-                    <button onClick={() => handleSaveSection(i, editingSecDraft)}
-                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: '#fff', background: C.accent, border: 'none', borderRadius: 6, padding: '7px 18px', cursor: 'pointer' }}>
-                      Save
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div key={i}
-                  draggable
-                  onDragStart={() => setDragIdx(i)}
-                  onDragOver={e => { e.preventDefault(); setDragOverIdx(i); }}
-                  onDragLeave={() => setDragOverIdx(prev => prev === i ? null : prev)}
-                  onDrop={() => handleDrop(i)}
-                  onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
-                  style={{
-                    marginBottom: 28, paddingBottom: 28,
-                    borderBottom: i < sections.length - 1 ? `1px solid ${C.border}` : 'none',
-                    opacity: dragIdx === i ? 0.4 : 1,
-                    outline: dragOverIdx === i && dragIdx !== i ? `2px solid ${C.accentDim}` : 'none',
-                    borderRadius: dragOverIdx === i && dragIdx !== i ? 8 : 0,
-                    transition: 'opacity 150ms',
-                  }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <div role="img" aria-hidden="true" title="Drag to reorder"
-                      style={{ cursor: 'grab', color: C.fg3, flexShrink: 0, paddingTop: 6, fontSize: 17, lineHeight: 1, userSelect: 'none', touchAction: 'none', minWidth: 20 }}>
-                      ⠿
-                    </div>
-                    <button
-                      aria-label={sec.done ? `Mark "${sec.title}" incomplete` : `Mark "${sec.title}" complete`}
-                      onClick={() => toggleSectionDone(i)}
-                      style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 8, marginTop: -10, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-                      <span style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, border: `2px solid ${sec.done ? C.accent : C.border}`, background: sec.done ? C.accent : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {sec.done && (
-                          <svg viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="10" height="10">
-                            <polyline points="2 6 5 9 10 3"/>
-                          </svg>
-                        )}
-                      </span>
-                    </button>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: sec.done ? C.fg3 : C.fg1, textDecoration: sec.done ? 'line-through' : 'none', lineHeight: 1.3, marginBottom: 8 }}>
-                          {sec.title}
-                        </div>
-                        <div style={{ display: 'flex', flexShrink: 0, marginTop: -8, marginRight: -8 }}>
-                          <button
-                            aria-label={`Edit section: ${sec.title}`}
-                            onClick={() => { setEditingSecIdx(i); setEditingSecDraft({ title: sec.title, content: sec.content }); }}
-                            style={{ width: 44, height: 44, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                            onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
-                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                          </button>
-                          <button
-                            aria-label={`Delete section: ${sec.title}`}
-                            onClick={() => handleDeleteSection(i)}
-                            style={{ width: 44, height: 44, borderRadius: 8, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                            onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.danger; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
-                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-                              <polyline points="3 6 5 6 21 6"/>
-                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                              <path d="M10 11v6M14 11v6"/>
-                              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: sec.done ? C.fg3 : C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                        {sec.content}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            ))}
 
             {/* AI Analysis in view mode */}
             <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16 }}>
