@@ -24,8 +24,9 @@ const FilesPage       = lazy(() => import('./pages/FilesPage'));
 const FileDetailPage  = lazy(() => import('./pages/FileDetailPage'));
 const AboutPage       = lazy(() => import('./pages/AboutPage'));
 const AccessPage      = lazy(() => import('./pages/AccessPage'));
+const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
 
-const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about', 'access'];
+const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about', 'access', 'calculations'];
 const DETAIL   = ['idea-detail', 'plan-detail', 'new-idea', 'new-plan', 'document-detail'];
 
 const parseHash = () => {
@@ -241,6 +242,7 @@ export default function App() {
         return <FileDetailPage key={file.id} file={file} onNavigate={navigate} />;
       case 'about':          return <AboutPage onNavigate={navigate} />;
       case 'access':         return <AccessPage onNavigate={navigate} />;
+      case 'calculations':   return <CalculationsPage onNavigate={navigate} />;
       default:               return <Dashboard onNavigate={navigate} />;
     }
   };
