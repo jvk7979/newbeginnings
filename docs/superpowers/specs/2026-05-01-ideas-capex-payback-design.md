@@ -111,9 +111,41 @@ Replace the current "Recent Ideas" section (which renders up to 4 `IdeaCard` com
 
 - Shows up to 5 ideas, sorted by most recently updated (`idea.date` descending — same sort as current Recent Ideas)
 - `fmtINR` inlined in Dashboard (same pattern as IdeaCard)
-- Status badge colours: amber for `validating`, grey/muted for `draft`, green for `active`, muted for `archived` — matching existing status badge usage in the app
+- Status badge colours: use the shared `Badge` component (see Badge Changes section below)
 - Row hover: subtle background change (`C.bg2`)
 - If no ideas exist: show the existing empty state text
+
+## Badge.jsx Changes
+
+Update `Badge.jsx` to fix the `validating` label and make borders more visible across all statuses.
+
+### Label fix
+`validating` currently renders as "Researching". Change to **"Validating"**. This affects all pages that show a badge with `status="validating"` (IdeaCard, Dashboard pipeline table, IdeasPage tabs).
+
+Also update `IDEA_STATUSES` in `IdeaCard.jsx` — the `validating` entry currently has `label: 'Researching'`, change to `label: 'Validating'`.
+
+### Border visibility
+The current border colours use `33` hex alpha (~20% opacity), making them barely visible. Increase to `55` (~33% opacity) for all statuses so the coloured border is clearly visible — matching the pill style in the design reference.
+
+Updated `configs` object in `Badge.jsx`:
+
+```js
+const configs = {
+  active:        { label: 'Active',       bg: '#EAF5EE', color: '#2E7D52', border: '#2E7D5255' },
+  completed:     { label: 'Completed',    bg: '#E8F4FF', color: '#1D5FA6', border: '#1D5FA655' },
+  'in-review':   { label: 'In Review',    bg: '#F0EAF8', color: '#6B3FA6', border: '#6B3FA655' },
+  progress:      { label: 'In Progress',  bg: '#FDF0E4', color: '#C4681C', border: '#C4681C55' },
+  'in-progress': { label: 'In Progress',  bg: '#FDF0E4', color: '#C4681C', border: '#C4681C55' },
+  stalled:       { label: 'Stalled',      bg: '#FAEAEA', color: '#B03030', border: '#B0303055' },
+  paused:        { label: 'Paused',       bg: '#FAEAEA', color: '#B03030', border: '#B0303055' },
+  draft:         { label: 'Draft',        bg: '#EAF0FA', color: '#2B5FA6', border: '#2B5FA655' },
+  new:           { label: 'New',          bg: '#EAF0FA', color: '#2B5FA6', border: '#2B5FA655' },
+  validating:    { label: 'Validating',   bg: '#FDF5E4', color: '#B8892A', border: '#B8892A55' },
+  researching:   { label: 'Researching',  bg: '#FDF5E4', color: '#B8892A', border: '#B8892A55' },
+  planning:      { label: 'Planning',     bg: '#F0EAF8', color: '#6B3FA6', border: '#6B3FA655' },
+  archived:      { label: 'Archived',     bg: '#EDE8DE', color: '#9A8E80', border: '#9A8E8055' },
+};
+```
 
 ## Out of Scope
 
