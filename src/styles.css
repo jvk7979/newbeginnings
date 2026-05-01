@@ -674,21 +674,23 @@ textarea:focus-visible,
 @media (max-width: 768px) {
   .stat-grid { gap: 8px; }
   .stat-grid .stat-card {
-    padding: 10px 8px 10px 10px !important;
-    gap: 8px !important;
+    padding: 12px 12px 12px 12px !important;
+    gap: 10px !important;
   }
   .stat-grid .stat-icon {
     width: 32px !important;
     height: 32px !important;
     border-radius: 7px !important;
   }
-  .stat-grid .stat-count { font-size: 24px !important; }
+  .stat-grid .stat-count { font-size: 22px !important; }
   .stat-grid .stat-label {
     font-size: 12px !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* Cards are too narrow on mobile to show View all — hide it; the card tap still works */
+  .stat-grid .stat-actions { display: none !important; }
 }
 
 /* Page header title — smaller on mobile so count badge + button fit in one row */
