@@ -4,14 +4,17 @@ import {
   signInWithPopup, signInWithRedirect, getRedirectResult, signOut,
   onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence,
 } from 'firebase/auth';
-import { doc, getDocFromServer, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, getDocFromServer, setDoc, serverTimestamp } from 'firebase/firestore';
 
-// iOS Safari + signInWithPopup is unreliable: Intelligent Tracking Prevention
-// strips third-party storage on the popup, and even when it succeeds the
-// pop-up window is often blocked. signInWithRedirect avoids both problems
-// because the auth flow happens in the top-level navigation. We use the
-// redirect path on any touch device and keep the popup on desktop where
-// it's faster.
+// On mobile we try signInWithPopup first — it avoids the cross-domain redirect
+// bounce (github.io → google.com → firebaseapp.com → github.io) that iOS
+// Safari's ITP bounce-tracking protection can break by clearing localStorage.
+// signInWithPopup opens Google in a separate window and communicates back via
+// postMessage, which ITP does not block.
+//
+// If the popup is blocked by the browser, we silently fall back to
+// signInWithRedirect. We still process getRedirectResult on every mobile
+// load so that a redirect-fallback session is not lost on return.
 const isMobile = typeof navigator !== 'undefined'
   && /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent || '');
 
@@ -29,14 +32,9 @@ export function AuthProvider({ children }) {
   const [accessDenied, setAccessDenied] = useState(false);
   const [userRole, setUserRole]         = useState('Editor');
 
-  // On mobile we use signInWithRedirect. The page navigates away and returns,
-  // causing Firebase to fire onAuthStateChanged(null) before the redirect
-  // result is processed. We must NOT drop the loading spinner on that null —
-  // a real user may arrive milliseconds later.
-  //
-  // Strategy: park the null in a ref and only resolve it after
-  // getRedirectResult() settles. appReady gates the final loading flag so
-  // the spinner stays up until we have a definitive auth decision.
+  // appReady gates the final loading flag. On mobile we keep the spinner
+  // until getRedirectResult settles, so a redirect-fallback session is never
+  // interrupted by a premature sign-in screen.
   const [appReady, setAppReady]         = useState(!isMobile);
   const redirectReadyRef                = useRef(!isMobile);
   const pendingNullRef                  = useRef(false); // null arrived while redirect was pending
@@ -49,6 +47,8 @@ export function AuthProvider({ children }) {
     setPersistence(auth, browserLocalPersistence)
       .catch(() => setPersistence(auth, browserSessionPersistence).catch(() => {}));
 
+    // Process any redirect-fallback result from a previous signInWithRedirect
+    // call. Most of the time this returns null (popup path was used).
     getRedirectResult(auth)
       .catch(err => {
         const code = err?.code || 'unknown';
@@ -61,7 +61,7 @@ export function AuthProvider({ children }) {
       .finally(() => {
         redirectReadyRef.current = true;
         // If onAuthStateChanged already parked a null while we were waiting,
-        // the redirect brought no user — safe to show the sign-in screen now.
+        // no redirect user is coming — safe to show the sign-in screen now.
         if (pendingNullRef.current) {
           setUser(null);
           setLoading(false);
@@ -109,10 +109,17 @@ export function AuthProvider({ children }) {
         return;
       }
       try {
-        // getDocFromServer bypasses Firestore's offline cache so we always
-        // hit the live allowlist. A cached doc could be stale (e.g. user
-        // was added after a previous denied attempt that got cached).
-        const snap = await getDocFromServer(doc(db, 'allowedUsers', email));
+        // Try a live server read first so we always see the current allowlist.
+        // If the network is unavailable, fall back to the local Firestore cache
+        // so users on spotty mobile connections aren't incorrectly signed out.
+        let snap;
+        try {
+          snap = await getDocFromServer(doc(db, 'allowedUsers', email));
+        } catch (serverErr) {
+          if (serverErr?.code !== 'unavailable') throw serverErr;
+          snap = await getDoc(doc(db, 'allowedUsers', email));
+        }
+
         if (snap.exists()) {
           setUser(u);
           setAccessDenied(false);
@@ -141,13 +148,29 @@ export function AuthProvider({ children }) {
     return unsub;
   }, []);
 
-  const signInWithGoogle = () => {
+  const signInWithGoogle = async () => {
     setAccessDenied(false);
     if (isMobile) {
-      // On mobile we navigate to Google. The browser leaves the page; the
-      // returned promise resolves before the redirect, but visibly the
-      // user never sees that resolution.
-      return signInWithRedirect(auth, googleProvider);
+      try {
+        // Popup is more reliable than redirect on modern iOS Safari (15+).
+        // It communicates via postMessage so ITP's bounce-tracker protection
+        // cannot clear the auth state mid-flow.
+        return await signInWithPopup(auth, googleProvider);
+      } catch (err) {
+        const code = err?.code || '';
+        if (
+          code === 'auth/popup-blocked' ||
+          code === 'auth/popup-closed-by-user' ||
+          code === 'auth/cancelled-popup-request' ||
+          code === 'auth/operation-not-supported-in-this-environment'
+        ) {
+          // Popup was blocked or the environment doesn't support it.
+          // Fall back to redirect flow — getRedirectResult above handles
+          // the return trip.
+          return signInWithRedirect(auth, googleProvider);
+        }
+        throw err;
+      }
     }
     return signInWithPopup(auth, googleProvider);
   };
