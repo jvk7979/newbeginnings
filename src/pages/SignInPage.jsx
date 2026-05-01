@@ -63,17 +63,15 @@ const FEATURES = [
 ];
 
 export default function SignInPage() {
-  const { signInWithGoogle, accessDenied } = useAuth();
+  const { signInWithGoogle, accessDenied, verifyError, retryAuth } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
 
-  // Once the access check completes (accessDenied flips, or onAuthStateChanged
-  // settles the user), drop the spinner so the button is interactive again.
-  // Previously loading was only reset on catch, leaving the button stuck on
-  // "Signing in…" after an access-denied result.
+  // Reset button loading state when auth context settles (access denied or
+  // network verify error), so the user can interact with the page again.
   useEffect(() => {
-    if (accessDenied) setLoading(false);
-  }, [accessDenied]);
+    if (accessDenied || verifyError) setLoading(false);
+  }, [accessDenied, verifyError]);
 
   const handleSignIn = async () => {
     setLoading(true);
@@ -178,6 +176,20 @@ export default function SignInPage() {
                 <button onClick={handleSignIn} disabled={loading}
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 6, cursor: loading ? 'not-allowed' : 'pointer', padding: '6px 16px' }}>
                   {loading ? 'Retrying…' : 'Try again'}
+                </button>
+              </div>
+            </div>
+          )}
+          {verifyError && !error && (
+            <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, marginTop: 12, textAlign: 'center', lineHeight: 1.5 }}>
+              Couldn't verify your account — connection issue.
+              <span style={{ display: 'block', fontSize: 13, color: C.fg3, marginTop: 4 }}>
+                You won't need to sign in with Google again.
+              </span>
+              <div style={{ marginTop: 10 }}>
+                <button onClick={() => retryAuth()} disabled={loading}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 44)}`, borderRadius: 6, cursor: loading ? 'not-allowed' : 'pointer', padding: '6px 16px' }}>
+                  {loading ? 'Retrying…' : 'Retry →'}
                 </button>
               </div>
             </div>
