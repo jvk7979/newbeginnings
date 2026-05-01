@@ -24,22 +24,29 @@ export function AuthProvider({ children }) {
   const [user, setUser]                 = useState(null);
   const [loading, setLoading]           = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [userRole, setUserRole]         = useState('Editor');
+  // On mobile we use signInWithRedirect. After the redirect completes the
+  // page reloads and Firebase processes the result asynchronously. We keep
+  // the combined loading flag true until getRedirectResult settles so the
+  // app never flashes the sign-in page during this processing window.
+  const [redirectSettled, setRedirectSettled] = useState(!isMobile);
 
   // After signInWithRedirect, Firebase processes the credential during
-  // page load and onAuthStateChanged fires automatically. We still call
-  // getRedirectResult so any redirect-stage error (popup blocked, third-
-  // party cookies stripped, network failure) surfaces — and we persist
-  // it to sessionStorage so SignInPage can render it after the redirect
-  // navigation wipes any in-memory error state.
+  // page load and onAuthStateChanged fires automatically. We call
+  // getRedirectResult so redirect-stage errors surface and are stored in
+  // sessionStorage. We also settle the redirectSettled flag here so the
+  // loading indicator stays up until we know the final auth state.
   useEffect(() => {
-    getRedirectResult(auth).catch(err => {
-      const code = err?.code || 'unknown';
-      const msg  = err?.message || String(err);
-      console.error('[auth/redirect]', code, msg);
-      try {
-        sessionStorage.setItem('auth_redirect_error', JSON.stringify({ code, msg, at: Date.now() }));
-      } catch { /* sessionStorage may be blocked in private mode */ }
-    });
+    getRedirectResult(auth)
+      .catch(err => {
+        const code = err?.code || 'unknown';
+        const msg  = err?.message || String(err);
+        console.error('[auth/redirect]', code, msg);
+        try {
+          sessionStorage.setItem('auth_redirect_error', JSON.stringify({ code, msg, at: Date.now() }));
+        } catch { /* sessionStorage may be blocked in private mode */ }
+      })
+      .finally(() => setRedirectSettled(true));
   }, []);
 
   useEffect(() => {
@@ -74,6 +81,7 @@ export function AuthProvider({ children }) {
         if (snap.exists()) {
           setUser(u);
           setAccessDenied(false);
+          setUserRole(snap.data()?.role || 'Editor');
           // Non-critical: record last active time for admin visibility
           setDoc(doc(db, 'allowedUsers', email), { lastSeenAt: serverTimestamp() }, { merge: true }).catch(() => {});
         } else {
@@ -81,10 +89,16 @@ export function AuthProvider({ children }) {
           setUser(null);
           setAccessDenied(true);
         }
-      } catch {
+      } catch (err) {
+        // Only hard-deny on permission errors — the user is definitively not
+        // allowed. Network/timeout errors are transient (common on mobile);
+        // signing the user out with accessDenied=true would show a false
+        // "Access denied" message. Instead, sign out silently so they can retry.
         await signOut(auth);
         setUser(null);
-        setAccessDenied(true);
+        if (err?.code === 'permission-denied' || err?.code === 'PERMISSION_DENIED') {
+          setAccessDenied(true);
+        }
       }
       setLoading(false);
     });
@@ -103,10 +117,14 @@ export function AuthProvider({ children }) {
   };
   const signOutUser = () => signOut(auth);
 
+  const isAdmin = ADMIN_EMAILS.has((user?.email || '').toLowerCase().trim());
+
   return (
     <AuthContext.Provider value={{
-      user, loading, accessDenied,
-      isAdmin: ADMIN_EMAILS.has((user?.email || '').toLowerCase().trim()),
+      user, loading: loading || !redirectSettled, accessDenied,
+      isAdmin,
+      isViewer: !isAdmin && userRole === 'Viewer',
+      userRole,
       signInWithGoogle, signOutUser,
     }}>
       {children}

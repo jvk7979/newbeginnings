@@ -156,8 +156,16 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
           </svg>
         </button>
         {themeOpen && (
+          <div style={{ margin: '4px 0 2px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, padding: '0 2px' }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg3 }}>Choose theme</span>
+              <button onClick={() => setThemeOpen(false)} aria-label="Close theme picker"
+                style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', color: C.fg3, width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, lineHeight: 1, flexShrink: 0 }}
+                onMouseEnter={e => { e.currentTarget.style.background = C.bg3; e.currentTarget.style.color = C.fg1; }}
+                onMouseLeave={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg3; }}>×</button>
+            </div>
           <div role="radiogroup" aria-label="Theme"
-            style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3, margin: '6px 0 2px' }}>
+            style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
             {themes.map((t, i) => {
               const active = theme === t.id;
               const onArrowNav = (e) => {
@@ -192,6 +200,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
                 </button>
               );
             })}
+          </div>
           </div>
         )}
       </div>
