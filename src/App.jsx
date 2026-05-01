@@ -6,6 +6,7 @@ import { useIdeas, usePlans, useFiles, useBackup } from './context/AppContext';
 import SideNav from './components/SideNav';
 import SignInPage from './pages/SignInPage';
 import Footer from './components/Footer';
+import CommandPalette from './components/CommandPalette';
 
 // Code-split every authenticated page so initial JS only contains the
 // sign-in flow + chrome. Each page becomes its own chunk fetched on first
@@ -163,6 +164,7 @@ export default function App() {
 
   const [page,   setPage]   = useState(() => parseHash().page);
   const [itemId, setItemId] = useState(() => parseHash().itemId);
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -171,6 +173,19 @@ export default function App() {
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Cmd/Ctrl+K toggles the command palette globally. Ignored while typing
+  // in inputs/textareas/contenteditables — the palette has its own input.
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setPaletteOpen(o => !o);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   // Successful render in a tab means chunks did load. Drop the per-tab
@@ -236,6 +251,7 @@ export default function App() {
         </div>
         <Footer />
       </div>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onNavigate={navigate} />
     </div>
   );
 }
