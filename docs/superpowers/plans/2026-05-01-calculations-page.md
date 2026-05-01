@@ -1,0 +1,800 @@
+# Calculations Page Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Create a scratch-pad financial calculator page for Konaseema agri-processing projects with editable presets, capacity utilisation slider, donut chart, and full project-finance calculations.
+
+**Architecture:** Single `src/pages/CalculationsPage.jsx` file containing all state, a `useMemo` calculation engine, and all sub-components (DonutChart, Section, field inputs). No Firestore. Routing wired through App.jsx and SideNav.jsx. Right panel uses three tabs: Summary (donut + insight), P&L Breakdown (metric cards), 5-Yr Projection (table).
+
+**Tech Stack:** React 18, Vite, inline styles via `C.*` token proxy and `alpha()`, pure-SVG donut chart, no external charting library.
+
+---
+
+### Task 1: Wire routing — SideNav + App.jsx + stub page
+
+**Files:**
+- Modify: `src/components/SideNav.jsx:10-31` (NAV_ITEMS array)
+- Modify: `src/App.jsx:17-27` (lazy imports)
+- Modify: `src/App.jsx:28` (LINKABLE array)
+- Modify: `src/App.jsx:225-246` (renderPage switch)
+- Create: `src/pages/CalculationsPage.jsx`
+
+- [ ] **Step 1: Add Calculations nav item to SideNav**
+
+In `src/components/SideNav.jsx`, find the NAV_ITEMS array. Add this object after the `about` entry (before the closing `];`):
+
+```jsx
+  {
+    id: 'calculations', label: 'Calculations',
+    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>,
+  },
+```
+
+- [ ] **Step 2: Add lazy import and route in App.jsx**
+
+Find the block of `const X = lazy(...)` imports in `src/App.jsx`. Add after the `AccessPage` line:
+
+```jsx
+const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
+```
+
+Find the `LINKABLE` array:
+```jsx
+const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about', 'access'];
+```
+Replace with:
+```jsx
+const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about', 'access', 'calculations'];
+```
+
+Find the `case 'access':` line in `renderPage()`. Add after it:
+```jsx
+      case 'calculations':     return <CalculationsPage onNavigate={navigate} />;
+```
+
+- [ ] **Step 3: Create stub CalculationsPage.jsx**
+
+Create `src/pages/CalculationsPage.jsx`:
+
+```jsx
+import { C } from '../tokens';
+
+export default function CalculationsPage() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.bg0, alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 20, fontWeight: 700, color: C.fg1 }}>Calculations — coming soon</div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Verify build**
+
+```bash
+npm run build 2>&1 | tail -6
+```
+
+Expected: `✓ built in` with no errors. If you see `CalculationsPage is not defined`, the import in App.jsx is wrong.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/components/SideNav.jsx src/App.jsx src/pages/CalculationsPage.jsx
+git commit -m "Wire Calculations route: SideNav nav item + App.jsx lazy import + stub page"
+```
+
+---
+
+### Task 2: Complete CalculationsPage.jsx
+
+**Files:**
+- Rewrite: `src/pages/CalculationsPage.jsx`
+
+This is a single-file implementation. Write the complete file in one step.
+
+- [ ] **Step 1: Write CalculationsPage.jsx**
+
+Replace the entire contents of `src/pages/CalculationsPage.jsx` with:
+
+```jsx
+import { useState, useMemo } from 'react';
+import { C, alpha } from '../tokens';
+
+// ─── Presets ──────────────────────────────────────────────────────────────────
+
+const COCO_PEAT = {
+  projectName: 'Coco Peat', capex: 5500000, lifetime: 10, discountRate: 12,
+  debtPct: 60, interestRate: 10, tenure: 7,
+  pmegpEnabled: true, pmegpPct: 25, citusEnabled: true, apmsmeEnabled: false,
+  revenueRows: [
+    { id: 1, name: 'Cocopeat blocks', unit: 'kg', price: 8, qty: 5000 },
+    { id: 2, name: 'Grow bags', unit: 'unit', price: 12, qty: 4000 },
+  ],
+  varRows: [],
+  fixedRows: [
+    { id: 1, name: 'Labour', amount: 240000 },
+    { id: 2, name: 'Electricity', amount: 60000 },
+  ],
+  receivableDays: 30, payableDays: 15, inventoryDays: 20,
+  capacityPct: 80,
+};
+
+const COCONUT_PROCESSING = {
+  projectName: 'Coconut Processing', capex: 20000000, lifetime: 10, discountRate: 12,
+  debtPct: 70, interestRate: 10, tenure: 7,
+  pmegpEnabled: true, pmegpPct: 25, citusEnabled: true, apmsmeEnabled: false,
+  revenueRows: [
+    { id: 1, name: 'Coir fiber', unit: 'kg', price: 18, qty: 20000 },
+    { id: 2, name: 'Shell charcoal', unit: 'kg', price: 25, qty: 10000 },
+  ],
+  varRows: [],
+  fixedRows: [
+    { id: 1, name: 'Labour', amount: 600000 },
+    { id: 2, name: 'Electricity', amount: 180000 },
+  ],
+  receivableDays: 45, payableDays: 20, inventoryDays: 30,
+  capacityPct: 60,
+};
+
+const CUSTOM_BLANK = {
+  projectName: 'Custom Project', capex: 0, lifetime: 10, discountRate: 12,
+  debtPct: 60, interestRate: 10, tenure: 7,
+  pmegpEnabled: false, pmegpPct: 25, citusEnabled: false, apmsmeEnabled: false,
+  revenueRows: [{ id: 1, name: '', unit: '', price: 0, qty: 0 }],
+  varRows: [],
+  fixedRows: [{ id: 1, name: '', amount: 0 }],
+  receivableDays: 30, payableDays: 15, inventoryDays: 20,
+  capacityPct: 100,
+};
+
+const PRESETS = { 'coco-peat': COCO_PEAT, 'coconut-processing': COCONUT_PROCESSING, 'custom': CUSTOM_BLANK };
+const PRESET_LIST = [
+  { id: 'coco-peat', label: 'Coco Peat', sub: '₹50–60 L' },
+  { id: 'coconut-processing', label: 'Coconut Processing', sub: '₹2 Cr' },
+  { id: 'custom', label: 'Custom', sub: 'Start blank' },
+];
+
+const PRODUCT_COLORS = ['#b5860d', '#2563a8', '#2d7a3c', '#7c3d9a', '#c0392b', '#0891b2', '#d97706'];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmtINR(n) {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  const sign = n < 0 ? '-' : '';
+  const abs = Math.abs(n);
+  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
+  if (abs >= 100000)   return `${sign}₹${(abs / 100000).toFixed(1)} L`;
+  if (abs >= 1000)     return `${sign}₹${(abs / 1000).toFixed(1)} K`;
+  return `${sign}₹${abs.toFixed(0)}`;
+}
+
+function calcIRR(cashFlows) {
+  if (!cashFlows[0] || cashFlows[0] >= 0) return null;
+  let rate = 0.15;
+  for (let i = 0; i < 200; i++) {
+    let npv = 0, dnpv = 0;
+    for (let t = 0; t < cashFlows.length; t++) {
+      const pv = Math.pow(1 + rate, t);
+      npv  += cashFlows[t] / pv;
+      dnpv -= t * cashFlows[t] / (pv * (1 + rate));
+    }
+    if (Math.abs(dnpv) < 1e-10) break;
+    const next = rate - npv / dnpv;
+    if (!isFinite(next)) break;
+    if (Math.abs(next - rate) < 1e-9) { rate = next; break; }
+    rate = Math.max(-0.99, Math.min(next, 5));
+  }
+  return (rate > -0.99 && rate < 5) ? rate * 100 : null;
+}
+
+// ─── DonutChart ───────────────────────────────────────────────────────────────
+
+function DonutChart({ segments, totalLabel }) {
+  const total = segments.reduce((s, seg) => s + seg.value, 0);
+  if (total === 0) return (
+    <svg viewBox="0 0 100 100" width={120} height={120}>
+      <circle cx="50" cy="50" r="38" fill="none" stroke={C.border} strokeWidth="16" />
+    </svg>
+  );
+  const R = 38, IR = 22, cx = 50, cy = 50;
+  let angle = -Math.PI / 2;
+  const arcs = segments.map(seg => {
+    const sweep = (seg.value / total) * 2 * Math.PI;
+    const cos1 = Math.cos(angle), sin1 = Math.sin(angle);
+    const cos2 = Math.cos(angle + sweep), sin2 = Math.sin(angle + sweep);
+    const x1 = cx + R * cos1, y1 = cy + R * sin1;
+    const x2 = cx + R * cos2, y2 = cy + R * sin2;
+    const ix1 = cx + IR * cos1, iy1 = cy + IR * sin1;
+    const ix2 = cx + IR * cos2, iy2 = cy + IR * sin2;
+    const large = sweep > Math.PI ? 1 : 0;
+    const path = `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${R} ${R} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} L ${ix2.toFixed(2)} ${iy2.toFixed(2)} A ${IR} ${IR} 0 ${large} 0 ${ix1.toFixed(2)} ${iy1.toFixed(2)} Z`;
+    angle += sweep;
+    return { ...seg, path };
+  });
+  return (
+    <svg viewBox="0 0 100 100" width={130} height={130}>
+      {arcs.map((seg, i) => <path key={i} d={seg.path} fill={seg.color} />)}
+      <text x="50" y="46" textAnchor="middle" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '9px', fill: C.fg3 }}>TOTAL</text>
+      <text x="50" y="60" textAnchor="middle" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 'bold', fill: C.fg1 }}>{totalLabel}</text>
+    </svg>
+  );
+}
+
+// ─── Section (collapsible) ────────────────────────────────────────────────────
+
+function Section({ id, label, open, onToggle, children }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <button onClick={() => onToggle(id)}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '5px 0', marginBottom: open ? 8 : 0 }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, whiteSpace: 'nowrap' }}>{label}</span>
+        <div style={{ flex: 1, height: 1, background: C.border }} />
+        <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="10" height="10"
+          style={{ transform: open ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 150ms', flexShrink: 0 }}>
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      {open && <div>{children}</div>}
+    </div>
+  );
+}
+
+const IS = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'inherit', background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 8px', width: '100%', boxSizing: 'border-box', outline: 'none' };
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export default function CalculationsPage() {
+  const [activePreset, setActivePreset] = useState('coco-peat');
+  const [projectName, setProjectName]   = useState(COCO_PEAT.projectName);
+  const [capex, setCapex]               = useState(COCO_PEAT.capex);
+  const [lifetime, setLifetime]         = useState(COCO_PEAT.lifetime);
+  const [discountRate, setDiscountRate] = useState(COCO_PEAT.discountRate);
+  const [debtPct, setDebtPct]           = useState(COCO_PEAT.debtPct);
+  const [interestRate, setInterestRate] = useState(COCO_PEAT.interestRate);
+  const [tenure, setTenure]             = useState(COCO_PEAT.tenure);
+  const [pmegpEnabled, setPmegpEnabled] = useState(COCO_PEAT.pmegpEnabled);
+  const [pmegpPct, setPmegpPct]         = useState(COCO_PEAT.pmegpPct);
+  const [citusEnabled, setCitusEnabled] = useState(COCO_PEAT.citusEnabled);
+  const [apmsmeEnabled, setApmsmeEnabled] = useState(COCO_PEAT.apmsmeEnabled);
+  const [revenueRows, setRevenueRows]   = useState(COCO_PEAT.revenueRows.map(r => ({...r})));
+  const [varRows, setVarRows]           = useState(COCO_PEAT.varRows.map(r => ({...r})));
+  const [fixedRows, setFixedRows]       = useState(COCO_PEAT.fixedRows.map(r => ({...r})));
+  const [receivableDays, setReceivableDays] = useState(COCO_PEAT.receivableDays);
+  const [payableDays, setPayableDays]   = useState(COCO_PEAT.payableDays);
+  const [inventoryDays, setInventoryDays] = useState(COCO_PEAT.inventoryDays);
+  const [capacityPct, setCapacityPct]   = useState(COCO_PEAT.capacityPct);
+  const [openSections, setOpenSections] = useState(['model', 'capacity', 'products', 'costs', 'financing', 'wc']);
+  const [costTab, setCostTab]           = useState('fixed');
+  const [rightTab, setRightTab]         = useState('summary');
+  const [confirmPreset, setConfirmPreset] = useState(null);
+
+  const toggleSection = (id) => setOpenSections(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
+
+  const applyPreset = (id) => {
+    const p = PRESETS[id];
+    setActivePreset(id);
+    setProjectName(p.projectName); setCapex(p.capex); setLifetime(p.lifetime);
+    setDiscountRate(p.discountRate); setDebtPct(p.debtPct); setInterestRate(p.interestRate);
+    setTenure(p.tenure); setPmegpEnabled(p.pmegpEnabled); setPmegpPct(p.pmegpPct);
+    setCitusEnabled(p.citusEnabled); setApmsmeEnabled(p.apmsmeEnabled);
+    setRevenueRows(p.revenueRows.map(r => ({...r})));
+    setVarRows(p.varRows.map(r => ({...r})));
+    setFixedRows(p.fixedRows.map(r => ({...r})));
+    setReceivableDays(p.receivableDays); setPayableDays(p.payableDays);
+    setInventoryDays(p.inventoryDays); setCapacityPct(p.capacityPct);
+  };
+
+  const updateRevenueRow = (id, f, v) => setRevenueRows(rs => rs.map(r => r.id === id ? {...r, [f]: v} : r));
+  const addRevenueRow    = () => setRevenueRows(rs => [...rs, { id: Date.now(), name: '', unit: '', price: 0, qty: 0 }]);
+  const removeRevenueRow = (id) => setRevenueRows(rs => rs.filter(r => r.id !== id));
+
+  const updateVarRow = (id, f, v) => setVarRows(rs => rs.map(r => r.id === id ? {...r, [f]: v} : r));
+  const addVarRow    = () => setVarRows(rs => [...rs, { id: Date.now(), name: '', unit: '', price: 0, qty: 0 }]);
+  const removeVarRow = (id) => setVarRows(rs => rs.filter(r => r.id !== id));
+
+  const updateFixedRow = (id, f, v) => setFixedRows(rs => rs.map(r => r.id === id ? {...r, [f]: v} : r));
+  const addFixedRow    = () => setFixedRows(rs => [...rs, { id: Date.now(), name: '', amount: 0 }]);
+  const removeFixedRow = (id) => setFixedRows(rs => rs.filter(r => r.id !== id));
+
+  // ── Calculation engine ──────────────────────────────────────────────────────
+
+  const calc = useMemo(() => {
+    const pmegp  = pmegpEnabled ? pmegpPct / 100 : 0;
+    const citus  = citusEnabled ? 0.25 : 0;
+    const apmsme = apmsmeEnabled ? 0.20 : 0;
+    const effectiveCapex  = capex * (1 - pmegp) * (1 - citus) * (1 - apmsme);
+    const loan            = effectiveCapex * (debtPct / 100);
+    const equity          = effectiveCapex * ((100 - debtPct) / 100);
+    const annualPrincipal = tenure > 0 ? loan / tenure : 0;
+    const cap             = capacityPct / 100;
+
+    const fullRevenue      = revenueRows.reduce((s, r) => s + (Number(r.price) || 0) * (Number(r.qty) || 0), 0);
+    const fullVariableCosts = varRows.reduce((s, r) => s + (Number(r.price) || 0) * (Number(r.qty) || 0), 0);
+    const fixedCosts       = fixedRows.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+
+    const revenue      = fullRevenue * cap;
+    const variableCosts = fullVariableCosts * cap;
+    const ebitda       = revenue - variableCosts - fixedCosts;
+    const ebitdaMargin = revenue > 0 ? (ebitda / revenue) * 100 : 0;
+
+    const breakEvenCapacity = (fullRevenue - fullVariableCosts) > 0
+      ? (fixedCosts / (fullRevenue - fullVariableCosts)) * 100
+      : null;
+
+    const rows = [];
+    let wdvBook = capex;
+    let cumNCF  = -equity;
+    for (let t = 1; t <= lifetime; t++) {
+      const depreciation = wdvBook * 0.15;
+      wdvBook = Math.max(0, wdvBook - depreciation);
+      const loanBalance = Math.max(0, loan - (t - 1) * annualPrincipal);
+      const principal   = t <= tenure ? annualPrincipal : 0;
+      const interest    = loanBalance * (interestRate / 100);
+      const ebit        = ebitda - depreciation;
+      const ebt         = ebit - interest;
+      const tax         = Math.max(0, ebt * 0.30);
+      const pat         = ebt - tax;
+      const ncf         = pat + depreciation - principal;
+      cumNCF += ncf;
+      const dscr = (principal + interest) > 0 ? ebitda / (principal + interest) : null;
+      rows.push({ t, revenue, variableCosts, fixedCosts, ebitda, depreciation, interest, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
+    }
+
+    const cashFlows = [-equity, ...rows.map(r => r.ncf)];
+    const irr = equity > 0 ? calcIRR(cashFlows) : null;
+
+    const r   = discountRate / 100;
+    const npv = cashFlows.reduce((s, cf, t) => s + cf / Math.pow(1 + r, t), 0);
+
+    const paybackRow = rows.find(row => row.cumNCF >= 0);
+    const payback    = paybackRow ? paybackRow.t : null;
+
+    const varPct       = revenue > 0 ? variableCosts / revenue : 0;
+    const breakEvenRev = revenue > 0 && (1 - varPct) > 0 ? fixedCosts / (1 - varPct) : null;
+
+    const workingCapital = revenue > 0
+      ? (receivableDays + inventoryDays - payableDays) * revenue / 365
+      : 0;
+
+    const revenueByProduct = revenueRows.map((row, i) => ({
+      name: row.name || `Product ${i + 1}`,
+      value: (Number(row.price) || 0) * (Number(row.qty) || 0) * cap,
+      color: PRODUCT_COLORS[i % PRODUCT_COLORS.length],
+    })).filter(s => s.value > 0);
+
+    const dscrY1 = rows[0]?.dscr ?? null;
+
+    return {
+      effectiveCapex, equity, revenue, variableCosts, fixedCosts, ebitda, ebitdaMargin,
+      rows, irr, npv, payback, breakEvenRev, breakEvenCapacity, workingCapital,
+      revenueByProduct, dscrY1,
+    };
+  }, [capex, lifetime, discountRate, debtPct, interestRate, tenure,
+      pmegpEnabled, pmegpPct, citusEnabled, apmsmeEnabled,
+      revenueRows, varRows, fixedRows,
+      receivableDays, payableDays, inventoryDays, capacityPct]);
+
+  // ── Insight text ─────────────────────────────────────────────────────────────
+
+  const insight = useMemo(() => {
+    const { irr, payback } = calc;
+    if (irr === null && payback === null)
+      return { verdict: 'Add data', text: 'Enter revenue and cost rows to see projections.', positive: false };
+    if (irr !== null && irr > discountRate * 1.5 && payback !== null && payback < tenure * 0.6)
+      return { verdict: `Strong returns at ${capacityPct}% capacity`, text: `Payback in ${payback} yr${payback !== 1 ? 's' : ''} with IRR of ${irr.toFixed(0)}% — comfortably exceeds cost of capital.`, positive: true };
+    if (irr !== null && irr > discountRate && payback !== null && payback <= tenure)
+      return { verdict: `Viable at ${capacityPct}% capacity`, text: `Payback in ${payback} yr${payback !== 1 ? 's' : ''} with IRR of ${irr.toFixed(1)}% — meets the ${discountRate}% hurdle rate.`, positive: true };
+    return { verdict: `Marginal at ${capacityPct}% capacity`, text: `IRR of ${irr !== null ? irr.toFixed(1) + '%' : '—'} does not meet the ${discountRate}% hurdle rate. Review pricing or cost structure.`, positive: false };
+  }, [calc, discountRate, tenure, capacityPct]);
+
+  // ── Color helpers ─────────────────────────────────────────────────────────────
+
+  const irrColor     = calc.irr === null ? C.fg3 : calc.irr > discountRate + 3 ? '#2a7d3c' : calc.irr > discountRate - 3 ? '#b06000' : '#c0392b';
+  const npvColor     = !isFinite(calc.npv) ? C.fg3 : calc.npv > 0 ? '#2a7d3c' : '#c0392b';
+  const paybackColor = calc.payback === null ? C.fg3 : calc.payback < tenure * 0.6 ? '#2a7d3c' : calc.payback < tenure * 0.8 ? '#b06000' : '#c0392b';
+  const dscrColor    = calc.dscrY1 === null ? C.fg3 : calc.dscrY1 >= 1.5 ? '#2a7d3c' : calc.dscrY1 >= 1.25 ? '#b06000' : '#c0392b';
+  const ebitdaColor  = calc.ebitda > 0 ? '#2a7d3c' : '#c0392b';
+
+  const sliderMin = 10, sliderMax = 100;
+  const bePct = calc.breakEvenCapacity !== null ? Math.min(100, Math.max(0, calc.breakEvenCapacity)) : null;
+  const beLeft = bePct !== null ? `${((bePct - sliderMin) / (sliderMax - sliderMin)) * 100}%` : null;
+
+  // ── Render ────────────────────────────────────────────────────────────────────
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.bg0 }}>
+
+      {/* ── Top metric bar ──────────────────────────────────────────────────── */}
+      <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '12px 20px', flexShrink: 0, display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        {[
+          { label: 'Annual Revenue', value: fmtINR(calc.revenue), sub: null, color: C.fg1 },
+          { label: 'EBITDA', value: fmtINR(calc.ebitda), sub: `${calc.ebitdaMargin.toFixed(0)}% margin`, color: ebitdaColor },
+          { label: 'IRR', value: calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—', sub: `vs ${discountRate}% hurdle`, color: irrColor },
+          { label: 'Payback', value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—', sub: `${tenure}-yr tenure`, color: paybackColor },
+        ].map(m => (
+          <div key={m.label}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 3 }}>{m.label}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800, color: m.color, lineHeight: 1 }}>{m.value}</div>
+            {m.sub && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 2 }}>{m.sub}</div>}
+          </div>
+        ))}
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          {insight.positive && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: alpha(C.accent, 22), border: `1px solid ${alpha(C.accent, 55)}`, borderRadius: 20, padding: '5px 14px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.accent }}>{insight.verdict}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Confirm preset reset modal ──────────────────────────────────────── */}
+      {confirmPreset && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '28px 32px', maxWidth: 360, fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: C.fg1, marginBottom: 8 }}>Reset to {PRESETS[confirmPreset].projectName}?</div>
+            <div style={{ fontSize: 14, color: C.fg2, marginBottom: 20 }}>All current inputs will be replaced with preset values.</div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => setConfirmPreset(null)} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '7px 18px', borderRadius: 6, background: C.bg2, border: `1px solid ${C.border}`, color: C.fg2, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => { applyPreset(confirmPreset); setConfirmPreset(null); }} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '7px 18px', borderRadius: 6, background: C.accent, border: 'none', color: '#fff', cursor: 'pointer' }}>Reset</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Two-panel split ─────────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+
+        {/* ── LEFT PANEL: Inputs ──────────────────────────────────────────────── */}
+        <div style={{ width: '40%', minWidth: 280, overflowY: 'auto', borderRight: `1px solid ${C.border}`, padding: '16px 14px' }}>
+
+          {/* Plant Model */}
+          <Section id="model" label="Plant Model" open={openSections.includes('model')} onToggle={toggleSection}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 4 }}>
+              {PRESET_LIST.map(p => (
+                <button key={p.id} onClick={() => setConfirmPreset(p.id)}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 8, border: `1.5px solid ${activePreset === p.id ? C.accent : C.border}`, background: activePreset === p.id ? C.accentBg : C.bg2, cursor: 'pointer', transition: 'all 120ms' }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: activePreset === p.id ? 700 : 500, color: activePreset === p.id ? C.accent : C.fg1 }}>{p.label}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: activePreset === p.id ? C.accent : C.fg3 }}>{p.sub}</span>
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          {/* Capacity Utilisation */}
+          <Section id="capacity" label="Capacity Utilisation" open={openSections.includes('capacity')} onToggle={toggleSection}>
+            <div style={{ textAlign: 'center', marginBottom: 6 }}>
+              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 56, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{capacityPct}</span>
+              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent }}>%</span>
+            </div>
+            <div style={{ position: 'relative', marginBottom: 18, paddingTop: 18 }}>
+              {beLeft && (
+                <div style={{ position: 'absolute', top: 0, left: beLeft, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pointerEvents: 'none' }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, whiteSpace: 'nowrap' }}>break-even {Math.round(bePct)}%</span>
+                  <div style={{ width: 1, height: 8, background: C.fg3 }} />
+                </div>
+              )}
+              <input type="range" min={sliderMin} max={sliderMax} step={5} value={capacityPct}
+                onChange={e => setCapacityPct(Number(e.target.value))}
+                style={{ width: '100%', accentColor: C.accent, cursor: 'pointer' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3 }}>10%</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3 }}>100%</span>
+              </div>
+            </div>
+          </Section>
+
+          {/* Product Mix (revenue rows) */}
+          <Section id="products" label="Product Mix" open={openSections.includes('products')} onToggle={toggleSection}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
+              {['Product', 'Unit', 'Price ₹', 'Qty/yr', ''].map((h, i) => (
+                <div key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, paddingLeft: i === 0 ? 14 : 0 }}>{h}</div>
+              ))}
+            </div>
+            {revenueRows.map((row, i) => (
+              <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: PRODUCT_COLORS[i % PRODUCT_COLORS.length], flexShrink: 0 }} />
+                  <input value={row.name} placeholder="Product" onChange={e => updateRevenueRow(row.id, 'name', e.target.value)} style={{ ...IS, flex: 1 }} />
+                </div>
+                <input value={row.unit} placeholder="kg" onChange={e => updateRevenueRow(row.id, 'unit', e.target.value)} style={IS} />
+                <input type="number" value={row.price} min={0} onChange={e => updateRevenueRow(row.id, 'price', e.target.value)} style={IS} />
+                <input type="number" value={row.qty} min={0} onChange={e => updateRevenueRow(row.id, 'qty', e.target.value)} style={IS} />
+                <button onClick={() => removeRevenueRow(row.id)} disabled={revenueRows.length === 1}
+                  style={{ background: 'none', border: 'none', cursor: revenueRows.length === 1 ? 'default' : 'pointer', color: revenueRows.length === 1 ? C.fg3 : C.danger, fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+              </div>
+            ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+              <button onClick={addRevenueRow} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add product</button>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.revenue)}/yr at {capacityPct}%</span>
+            </div>
+          </Section>
+
+          {/* Costs */}
+          <Section id="costs" label="Costs" open={openSections.includes('costs')} onToggle={toggleSection}>
+            <div style={{ display: 'flex', gap: 0, marginBottom: 10, borderBottom: `1px solid ${C.border}` }}>
+              {[['variable', 'Variable'], ['fixed', 'Fixed']].map(([id, lbl]) => (
+                <button key={id} onClick={() => setCostTab(id)}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: costTab === id ? 700 : 400, color: costTab === id ? C.accent : C.fg3, background: 'none', border: 'none', borderBottom: `2px solid ${costTab === id ? C.accent : 'transparent'}`, padding: '3px 12px 7px', cursor: 'pointer' }}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+            {costTab === 'variable' ? (
+              <>
+                {varRows.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 8 }}>No variable costs — add raw materials, packaging, etc.</div>}
+                {varRows.map((row, i) => (
+                  <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+                    {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Qty/yr', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
+                    <input value={row.name} placeholder="Material" onChange={e => updateVarRow(row.id, 'name', e.target.value)} style={IS} />
+                    <input value={row.unit} placeholder="kg" onChange={e => updateVarRow(row.id, 'unit', e.target.value)} style={IS} />
+                    <input type="number" value={row.price} min={0} onChange={e => updateVarRow(row.id, 'price', e.target.value)} style={IS} />
+                    <input type="number" value={row.qty} min={0} onChange={e => updateVarRow(row.id, 'qty', e.target.value)} style={IS} />
+                    <button onClick={() => removeVarRow(row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.danger, fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+                  </div>
+                ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                  <button onClick={addVarRow} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.variableCosts)}/yr</span>
+                </div>
+              </>
+            ) : (
+              <>
+                {fixedRows.map((row, i) => (
+                  <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+                    {i === 0 && ['Item', 'Annual (₹)', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
+                    <input value={row.name} placeholder="Expense" onChange={e => updateFixedRow(row.id, 'name', e.target.value)} style={IS} />
+                    <input type="number" value={row.amount} min={0} onChange={e => updateFixedRow(row.id, 'amount', e.target.value)} style={IS} />
+                    <button onClick={() => removeFixedRow(row.id)} disabled={fixedRows.length === 1}
+                      style={{ background: 'none', border: 'none', cursor: fixedRows.length === 1 ? 'default' : 'pointer', color: fixedRows.length === 1 ? C.fg3 : C.danger, fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+                  </div>
+                ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                  <button onClick={addFixedRow} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.fixedCosts)}/yr</span>
+                </div>
+              </>
+            )}
+          </Section>
+
+          {/* Financing & Subsidies */}
+          <Section id="financing" label="Financing & Subsidies" open={openSections.includes('financing')} onToggle={toggleSection}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Total CAPEX (₹)</div>
+            <input type="number" value={capex} min={0} step={100000} onChange={e => setCapex(Number(e.target.value) || 0)} style={{ ...IS, marginBottom: 10 }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+              <div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Lifetime (yrs)</div>
+                <input type="number" value={lifetime} min={1} max={30} onChange={e => setLifetime(Number(e.target.value) || 1)} style={IS} />
+              </div>
+              <div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Discount rate (%)</div>
+                <input type="number" value={discountRate} min={1} max={50} step={0.5} onChange={e => setDiscountRate(Number(e.target.value) || 1)} style={IS} />
+              </div>
+            </div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Debt {debtPct}% / Equity {100 - debtPct}%</div>
+            <input type="range" min={0} max={100} step={5} value={debtPct} onChange={e => setDebtPct(Number(e.target.value))} style={{ width: '100%', accentColor: C.accent, marginBottom: 10 }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+              <div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Interest rate (%)</div>
+                <input type="number" value={interestRate} min={0} max={30} step={0.5} onChange={e => setInterestRate(Number(e.target.value) || 0)} style={IS} />
+              </div>
+              <div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 4 }}>Loan tenure (yrs)</div>
+                <input type="number" value={tenure} min={1} max={20} onChange={e => setTenure(Number(e.target.value) || 1)} style={IS} />
+              </div>
+            </div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 6 }}>Subsidies</div>
+            {[
+              { id: 'pmegp', label: 'PMEGP', enabled: pmegpEnabled, setEnabled: setPmegpEnabled, pct: pmegpPct, setPct: setPmegpPct, editable: true },
+              { id: 'citus', label: 'CITUS (25%)', enabled: citusEnabled, setEnabled: setCitusEnabled, editable: false },
+              { id: 'apmsme', label: 'AP MSME 4.0 (20%)', enabled: apmsmeEnabled, setEnabled: setApmsmeEnabled, editable: false },
+            ].map(sub => (
+              <div key={sub.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <input type="checkbox" id={`sub-${sub.id}`} checked={sub.enabled} onChange={e => sub.setEnabled(e.target.checked)} style={{ accentColor: C.accent, width: 15, height: 15, cursor: 'pointer', flexShrink: 0 }} />
+                <label htmlFor={`sub-${sub.id}`} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg1, cursor: 'pointer', flex: 1 }}>{sub.label}</label>
+                {sub.editable && sub.enabled && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <input type="number" value={sub.pct} min={0} max={100} step={5} onChange={e => sub.setPct(Number(e.target.value) || 0)}
+                      style={{ width: 48, fontFamily: "'DM Sans', sans-serif", fontSize: 12, padding: '3px 5px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.bg2, color: C.fg1, outline: 'none' }} />
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>%</span>
+                  </div>
+                )}
+              </div>
+            ))}
+            {(pmegpEnabled || citusEnabled || apmsmeEnabled) && (
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, marginTop: 4 }}>
+                Effective CAPEX: {fmtINR(calc.effectiveCapex)}
+              </div>
+            )}
+          </Section>
+
+          {/* Working Capital */}
+          <Section id="wc" label="Working Capital" open={openSections.includes('wc')} onToggle={toggleSection}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              {[['Receivable days', receivableDays, setReceivableDays], ['Payable days', payableDays, setPayableDays], ['Inventory days', inventoryDays, setInventoryDays]].map(([lbl, val, set]) => (
+                <div key={lbl}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg2, marginBottom: 4 }}>{lbl}</div>
+                  <input type="number" value={val} min={0} max={180} onChange={e => set(Number(e.target.value) || 0)} style={IS} />
+                </div>
+              ))}
+            </div>
+            {calc.workingCapital > 0 && (
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 8 }}>
+                Required: <strong style={{ color: C.fg1 }}>{fmtINR(calc.workingCapital)}</strong>
+              </div>
+            )}
+          </Section>
+
+        </div>
+
+        {/* ── RIGHT PANEL: Output ──────────────────────────────────────────────── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+
+          {/* Tab bar */}
+          <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, background: C.bg1, padding: '0 20px', flexShrink: 0 }}>
+            {[['summary', 'Summary'], ['pl', 'P&L Breakdown'], ['projection', '5-Yr Projection']].map(([id, lbl]) => (
+              <button key={id} onClick={() => setRightTab(id)}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: rightTab === id ? 600 : 400, color: rightTab === id ? C.accent : C.fg3, background: 'none', border: 'none', borderBottom: `2px solid ${rightTab === id ? C.accent : 'transparent'}`, padding: '10px 16px 12px', cursor: 'pointer', marginRight: 4 }}>
+                {lbl}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+
+            {/* ── Summary tab ──────────────────────────────────────────────── */}
+            {rightTab === 'summary' && (
+              <div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Revenue Composition</div>
+                <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 28, flexWrap: 'wrap' }}>
+                  <DonutChart segments={calc.revenueByProduct} totalLabel={fmtINR(calc.revenue)} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {calc.revenueByProduct.map(seg => {
+                      const pct = calc.revenue > 0 ? ((seg.value / calc.revenue) * 100).toFixed(0) : 0;
+                      return (
+                        <div key={seg.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: 2, background: seg.color, flexShrink: 0 }} />
+                          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, minWidth: 120 }}>{seg.name}</span>
+                          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 600, color: C.fg1 }}>{fmtINR(seg.value)}</span>
+                          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>· {pct}%</span>
+                        </div>
+                      );
+                    })}
+                    {calc.revenueByProduct.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>Add products to see breakdown.</div>}
+                  </div>
+                </div>
+
+                {/* Insight card */}
+                <div style={{ background: insight.positive ? alpha(C.accent, 11) : C.bg2, border: `1px solid ${insight.positive ? alpha(C.accent, 44) : C.border}`, borderRadius: 10, padding: '16px 20px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: insight.positive ? alpha(C.accent, 33) : C.bg3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                    {insight.positive
+                      ? <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                      : <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, color: insight.positive ? C.accent : C.fg2, marginBottom: 4 }}>{insight.verdict}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.6 }}>{insight.text}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── P&L Breakdown tab ────────────────────────────────────────── */}
+            {rightTab === 'pl' && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+                {[
+                  { label: 'Effective CAPEX', value: fmtINR(calc.effectiveCapex), sub: 'after subsidies', color: C.fg1 },
+                  { label: 'Annual Revenue', value: fmtINR(calc.revenue), sub: `at ${capacityPct}% capacity`, color: C.fg1 },
+                  { label: 'EBITDA', value: fmtINR(calc.ebitda), sub: `${calc.ebitdaMargin.toFixed(1)}% margin`, color: ebitdaColor },
+                  { label: 'IRR', value: calc.irr !== null ? `${calc.irr.toFixed(1)}%` : '—', sub: `vs ${discountRate}% hurdle`, color: irrColor },
+                  { label: 'NPV', value: fmtINR(calc.npv), sub: `at ${discountRate}% discount`, color: npvColor },
+                  { label: 'Payback', value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '> lifetime', sub: `${tenure}-yr loan tenure`, color: paybackColor },
+                  { label: 'Y1 DSCR', value: calc.dscrY1 !== null ? calc.dscrY1.toFixed(2) : '—', sub: '≥ 1.25 comfortable', color: dscrColor },
+                  { label: 'Break-even Rev', value: calc.breakEvenRev !== null ? fmtINR(calc.breakEvenRev) + '/yr' : '—', sub: 'revenue to cover fixed costs', color: C.fg1 },
+                  { label: 'Working Capital', value: fmtINR(calc.workingCapital), sub: `${receivableDays}R + ${inventoryDays}I − ${payableDays}P days`, color: C.fg1 },
+                ].map(card => (
+                  <div key={card.label} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.fg3, marginBottom: 6 }}>{card.label}</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: card.color, marginBottom: 4 }}>{card.value}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3 }}>{card.sub}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── 5-Yr Projection tab ──────────────────────────────────────── */}
+            {rightTab === 'projection' && (
+              <div style={{ overflowX: 'auto', border: `1px solid ${C.border}`, borderRadius: 10 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ background: C.bg2 }}>
+                      {['Yr', 'Revenue', 'Var', 'Fixed', 'EBITDA', 'Depr.', 'Interest', 'EBT', 'Tax', 'PAT', 'Principal', 'NCF', 'Cum NCF', 'DSCR', 'Loan Bal.'].map(h => (
+                        <th key={h} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, color: C.fg3, padding: '8px 9px', textAlign: 'right', whiteSpace: 'nowrap', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {calc.rows.map((row, i) => {
+                      const isBreakEven = row.cumNCF >= 0 && (i === 0 || calc.rows[i - 1].cumNCF < 0);
+                      const rowDscrColor = row.dscr === null ? C.fg2 : row.dscr >= 1.25 ? '#2a7d3c' : '#c0392b';
+                      return (
+                        <tr key={row.t} style={{ background: isBreakEven ? alpha(C.accent, 22) : i % 2 === 0 ? C.bg0 : C.bg1, borderBottom: `1px solid ${C.border}` }}>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg2, fontWeight: 600 }}>{row.t}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg1 }}>{fmtINR(row.revenue)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg2 }}>{fmtINR(row.variableCosts)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg2 }}>{fmtINR(row.fixedCosts)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg1, fontWeight: 600 }}>{fmtINR(row.ebitda)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.depreciation)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.interest)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: row.ebt < 0 ? '#c0392b' : C.fg1 }}>{fmtINR(row.ebt)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.tax)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: row.pat < 0 ? '#c0392b' : C.fg1 }}>{fmtINR(row.pat)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.principal)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: row.ncf < 0 ? '#c0392b' : '#2a7d3c', fontWeight: 700 }}>{fmtINR(row.ncf)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: row.cumNCF < 0 ? '#c0392b' : '#2a7d3c', fontWeight: 700 }}>{fmtINR(row.cumNCF)}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: rowDscrColor, fontWeight: 600 }}>{row.dscr !== null ? row.dscr.toFixed(2) : '—'}</td>
+                          <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.loanBalance)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: Verify build**
+
+```bash
+npm run build 2>&1 | tail -8
+```
+
+Expected: `✓ built in` with no errors. Common errors:
+- `alpha is not a function` → check `import { C, alpha } from '../tokens';`
+- `C.danger is not defined` → replace any `C.danger` with `'#c0392b'` (no danger token exists — use hardcoded hex)
+- `calcIRR is not defined` → function must be defined before use; check order
+
+- [ ] **Step 3: Manual smoke test**
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173/newbeginnings/` (or the port Vite picks).
+
+- Click **Calculations** in the sidebar — page loads with metric bar and two-panel layout
+- Preset bar shows "Coco Peat" selected with inputs pre-populated
+- Drag the Capacity Utilisation slider — large % updates, metric bar recalculates live
+- Click **Coconut Processing** preset → confirm modal appears → Reset → inputs switch to ₹2Cr values
+- Click **Summary** tab → donut chart renders with product segments and insight card
+- Click **P&L Breakdown** → 9 metric cards visible
+- Click **5-Yr Projection** → year-by-year table, DSCR column green/red
+- Add a product row → donut updates with new segment
+- Add a fixed cost → metrics recalculate
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add src/pages/CalculationsPage.jsx src/components/SideNav.jsx src/App.jsx
+git commit -m "Add Calculations page: two-panel project-finance calculator with capacity slider, donut chart, and full WDV/IRR/DSCR engine"
+```
+
+---
+
+### Task 3: Push
+
+- [ ] **Step 1: Push to origin**
+
+```bash
+git push origin main
+```
+
+Expected: GitHub Actions deploys automatically within ~2 minutes. Verify at the GitHub Pages URL.
