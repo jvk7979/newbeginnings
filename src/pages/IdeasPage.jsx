@@ -15,6 +15,14 @@ const FILTERS = [
   { id: 'archived',   label: 'Archived' },
 ];
 
+const STATUS_CHIP_COLORS = {
+  all:        { color: C.accent,   bg: C.accentBg,  border: alpha(C.accent, 55) },
+  draft:      { color: '#2B5FA6',  bg: '#EAF0FA',   border: '#2B5FA655' },
+  validating: { color: '#B8892A',  bg: '#FDF5E4',   border: '#B8892A55' },
+  active:     { color: '#2E7D52',  bg: '#EAF5EE',   border: '#2E7D5255' },
+  archived:   { color: '#9A8E80',  bg: '#EDE8DE',   border: '#9A8E8055' },
+};
+
 const DEFAULT_VIEW = { search: '', filter: 'all', catFilter: '', sort: 'newest' };
 const isStateEqual = (a, b) =>
   (a?.search ?? '') === (b?.search ?? '') &&
@@ -100,14 +108,15 @@ export default function IdeasPage({ onNavigate }) {
         {FILTERS.filter(f => f.id === 'all' || ideas.some(i => i.status === f.id)).map(f => {
           const count = f.id === 'all' ? ideas.length : ideas.filter(i => i.status === f.id).length;
           const active = filter === f.id;
+          const sc = STATUS_CHIP_COLORS[f.id] || STATUS_CHIP_COLORS.draft;
           return (
             <button key={f.id} onClick={() => setFilter(f.id)}
               style={{
                 fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: active ? 700 : 500,
                 padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
-                background: active ? C.accent : C.bg1,
-                color: active ? '#fff' : C.fg1,
-                border: `1.5px solid ${active ? C.accent : C.fg3}`,
+                background: active ? sc.bg : 'transparent',
+                color: sc.color,
+                border: `1.5px solid ${active ? sc.border : C.border}`,
                 transition: 'all 120ms',
               }}>
               {f.label} <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, opacity: active ? 0.85 : 0.65 }}>{count}</span>

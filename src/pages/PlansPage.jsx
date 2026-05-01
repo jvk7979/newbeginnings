@@ -17,6 +17,15 @@ const FILTERS = [
   { id: 'archived',  label: 'Archived' },
 ];
 
+const STATUS_CHIP_COLORS = {
+  all:          { color: C.accent,   bg: C.accentBg,  border: alpha(C.accent, 55) },
+  draft:        { color: '#2B5FA6',  bg: '#EAF0FA',   border: '#2B5FA655' },
+  active:       { color: '#2E7D52',  bg: '#EAF5EE',   border: '#2E7D5255' },
+  'in-review':  { color: '#6B3FA6',  bg: '#F0EAF8',   border: '#6B3FA655' },
+  completed:    { color: '#1D5FA6',  bg: '#E8F4FF',   border: '#1D5FA655' },
+  archived:     { color: '#9A8E80',  bg: '#EDE8DE',   border: '#9A8E8055' },
+};
+
 const PLAN_STATUSES = [
   { id: 'draft',     label: 'Draft' },
   { id: 'active',    label: 'Active' },
@@ -190,12 +199,16 @@ export default function PlansPage({ onNavigate }) {
       <div className="filter-bar">
         <div className="chip-scroll-wrap" style={{ flex: 1 }}>
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
-            {FILTERS.map(f => (
-              <button key={f.id} onClick={() => setFilter(f.id)}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '5px 14px', borderRadius: 999, border: `1.5px solid ${filter === f.id ? C.accent : C.border}`, background: 'transparent', color: filter === f.id ? C.accent : C.fg2, cursor: 'pointer', fontWeight: filter === f.id ? 600 : 400, flexShrink: 0, transition: 'all 120ms' }}>
-                {f.label}
-              </button>
-            ))}
+            {FILTERS.map(f => {
+              const sc = STATUS_CHIP_COLORS[f.id] || STATUS_CHIP_COLORS.draft;
+              const active = filter === f.id;
+              return (
+                <button key={f.id} onClick={() => setFilter(f.id)}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '5px 14px', borderRadius: 999, border: `1.5px solid ${active ? sc.border : C.border}`, background: active ? sc.bg : 'transparent', color: sc.color, cursor: 'pointer', fontWeight: active ? 600 : 400, flexShrink: 0, transition: 'all 120ms' }}>
+                  {f.label}
+                </button>
+              );
+            })}
           </div>
         </div>
         <select value={sort} onChange={e => setSort(e.target.value)} className="filter-sort"

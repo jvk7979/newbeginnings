@@ -26,7 +26,19 @@ const QUICK_ACTIONS = [
 const IDEA_STATUS_LABELS = { draft: 'Draft', validating: 'Validating', active: 'Active', archived: 'Archived' };
 const PLAN_STATUS_LABELS = { draft: 'Draft', active: 'Active', archived: 'Archived' };
 const STATUS_COLORS = {
-  draft: '#8A6000', validating: '#0070B8', active: '#2E7D32', archived: '#888',
+  draft:         '#2B5FA6',
+  new:           '#2B5FA6',
+  validating:    '#B8892A',
+  researching:   '#B8892A',
+  active:        '#2E7D52',
+  'in-review':   '#6B3FA6',
+  planning:      '#6B3FA6',
+  completed:     '#1D5FA6',
+  'in-progress': '#C4681C',
+  progress:      '#C4681C',
+  archived:      '#9A8E80',
+  stalled:       '#B03030',
+  paused:        '#B03030',
 };
 
 function fmtINR(n) {
