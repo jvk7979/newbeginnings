@@ -130,8 +130,14 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, user, isAd
           // mutually-exclusive selection correctly. Arrow keys move within
           // the group; only the active radio is in the tab order so users
           // don't have to Tab through every theme to leave the group.
+          // Single column so every label gets the full sidebar width.
+          // The previous 2-column grid put each cell at ~100px wide,
+          // leaving only ~44px for the label after swatch + padding —
+          // long names like "Transformative Teal" ellipsised to
+          // "Transformati…". 1fr now means each radio gets the whole
+          // ~204px and every theme name renders fully on every theme.
           <div role="radiogroup" aria-label="Theme"
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, margin: '6px 0 2px' }}>
+            style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3, margin: '6px 0 2px' }}>
             {themes.map((t, i) => {
               const active = theme === t.id;
               const onArrowNav = (e) => {
