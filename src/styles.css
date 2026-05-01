@@ -969,6 +969,8 @@ textarea:focus-visible,
 
 /* ── Calculations page responsive layout ────────────────────────────────── */
 .calc-page {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
