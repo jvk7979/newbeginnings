@@ -1,4 +1,4 @@
-import { C } from '../tokens';
+import { C, alpha } from '../tokens';
 
 export default function SelectableCheckbox({ checked, onChange, label = 'Select item' }) {
   return (
@@ -11,7 +11,7 @@ export default function SelectableCheckbox({ checked, onChange, label = 'Select 
       onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); onChange(!checked); } }}
       style={{
         width: 22, height: 22, borderRadius: 5,
-        border: `1.5px solid ${checked ? C.accent : C.fg3}`,
+        border: `1.5px solid ${checked ? C.accent : alpha(C.fg3, 55)}`,
         background: checked ? C.accent : C.bg1,
         cursor: 'pointer', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
