@@ -37,11 +37,14 @@ function buildActivityMap(ideas, plans) {
 
 function ActivityHeatmap({ ideas, plans }) {
   const activityMap = useMemo(() => buildActivityMap(ideas, plans), [ideas, plans]);
-  const maxCount = useMemo(() => Math.max(1, ...Object.values(activityMap)), [activityMap]);
+  const maxCount = useMemo(() => {
+    const vals = Object.values(activityMap);
+    return vals.length === 0 ? 1 : Math.max(1, ...vals);
+  }, [activityMap]);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
   const cells = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const result = [];
     const start = new Date(today);
     start.setDate(start.getDate() - 83);
