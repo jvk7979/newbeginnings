@@ -12,7 +12,7 @@ import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useIdeas();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '', sources: [] });
+  const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '', sources: [], estimatedCapex: '', estimatedPayback: '' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +38,12 @@ export default function NewIdeaPage({ onNavigate }) {
       let attachedFile = null;
       if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
       const sources = (form.sources || []).map(s => (s || '').trim()).filter(Boolean);
-      addIdea({ title: form.title.trim(), status: form.status, category: form.category || '', desc: form.desc.trim(), sources, attachedFile });
+      addIdea({
+        title: form.title.trim(), status: form.status, category: form.category || '',
+        desc: form.desc.trim(), sources, attachedFile,
+        ...(form.estimatedCapex  ? { estimatedCapex:   Number(form.estimatedCapex)  } : {}),
+        ...(form.estimatedPayback ? { estimatedPayback: Number(form.estimatedPayback) } : {}),
+      });
       showToast('Idea saved', 'success');
       onNavigate('ideas');
     } catch {
@@ -106,6 +111,20 @@ export default function NewIdeaPage({ onNavigate }) {
             placeholder="Describe the problem, target customer, rough mechanics…"
             onFocus={focus} onBlur={blur} />
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>{form.desc.length} characters</div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div>
+            <label style={labelStyle}>Estimated CAPEX (₹) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
+            <input type="number" min={0} style={inputStyle} value={form.estimatedCapex}
+              onChange={e => setForm({ ...form, estimatedCapex: e.target.value })}
+              onFocus={focus} onBlur={blur} />
+          </div>
+          <div>
+            <label style={labelStyle}>Estimated Payback (yrs) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
+            <input type="number" min={0} step={0.5} style={inputStyle} value={form.estimatedPayback}
+              onChange={e => setForm({ ...form, estimatedPayback: e.target.value })}
+              onFocus={focus} onBlur={blur} />
+          </div>
         </div>
         <div>
           <label style={labelStyle}>Sources (optional)</label>
