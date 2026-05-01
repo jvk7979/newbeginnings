@@ -45,6 +45,10 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
   const pagePadRef = useRef(null);
+  const [editingSecIdx,   setEditingSecIdx]   = useState(null);
+  const [editingSecDraft, setEditingSecDraft] = useState(null);
+  const [dragIdx,         setDragIdx]         = useState(null);
+  const [dragOverIdx,     setDragOverIdx]     = useState(null);
 
   useEffect(() => {
     const scroll = () => { pagePadRef.current?.scrollTo?.({ top: 0 }); window.scrollTo?.({ top: 0 }); };
@@ -193,6 +197,63 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     }
   };
 
+  const escHtml = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const toggleSectionDone = async (i) => {
+    const next = sections.map((s, idx) => idx === i ? { ...s, done: !s.done } : s);
+    setSections(next);
+    await updatePlan(plan.id, { sections: next });
+  };
+
+  const handleSaveSection = async (i, draft) => {
+    const next = sections.map((s, idx) => idx === i ? { ...s, ...draft } : s);
+    setSections(next);
+    setEditingSecIdx(null);
+    setEditingSecDraft(null);
+    await updatePlan(plan.id, { sections: next });
+    showToast('Section saved', 'success');
+  };
+
+  const handleDrop = async (dropIdx) => {
+    if (dragIdx === null || dragIdx === dropIdx) { setDragIdx(null); setDragOverIdx(null); return; }
+    const next = [...sections];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(dropIdx, 0, moved);
+    setSections(next);
+    setDragIdx(null);
+    setDragOverIdx(null);
+    await updatePlan(plan.id, { sections: next });
+    showToast('Sections reordered', 'success');
+  };
+
+  const handleExportPDF = () => {
+    const w = window.open('', '_blank');
+    if (!w) { showToast('Allow pop-ups to export PDF', 'info'); return; }
+    const doneCount = sections.filter(s => s.done).length;
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escHtml(title)}</title>
+      <style>
+        body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1a1a;line-height:1.6}
+        h1{font-size:26px;font-weight:700;margin-bottom:6px}
+        .meta{font-size:13px;color:#666;margin-bottom:22px}
+        .summary{background:#f5f3ff;border-left:3px solid #7c3aed;padding:12px 16px;margin-bottom:22px;border-radius:4px;font-size:15px;white-space:pre-wrap}
+        h2{font-size:19px;font-weight:600;margin:28px 0 6px}
+        .done-tag{font-size:12px;font-weight:400;color:#16a34a;margin-left:8px}
+        .content{font-size:15px;white-space:pre-wrap;margin-top:6px}
+        hr{border:none;border-top:1px solid #e5e7eb;margin:20px 0}
+        @media print{@page{margin:20mm}body{margin:0}}
+      </style>
+    </head><body>
+    <h1>${escHtml(title)}</h1>
+    <div class="meta">${escHtml(category)} · ${escHtml(status)} · Updated ${escHtml(plan.updated)}${sections.length ? ` · ${doneCount}/${sections.length} complete` : ''}</div>
+    ${summary ? `<div class="summary"><strong>Executive Summary</strong><br><br>${escHtml(summary)}</div>` : ''}
+    ${notes ? `<hr><p><strong>Notes</strong></p><p style="white-space:pre-wrap;font-size:15px">${escHtml(notes)}</p>` : ''}
+    ${sections.map((s, i) => `<hr><h2>${i + 1}. ${escHtml(s.title || 'Untitled')}${s.done ? '<span class="done-tag">✓ Done</span>' : ''}</h2><div class="content">${escHtml(s.content || '')}</div>`).join('')}
+    </body></html>`);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 400);
+  };
+
   return (
     <>
     <div ref={pagePadRef} className="page-pad" style={{ background: C.bg0 }}>
@@ -204,9 +265,16 @@ export default function PlanDetailPage({ plan, onNavigate }) {
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
           Business Plans
         </button>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {!isEditing && sections.length > 0 && (
+            <button onClick={handleExportPDF}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              Export PDF
+            </button>
+          )}
           {!isEditing && (
-            <button onClick={() => setIsEditing(true)}
+            <button onClick={() => { setIsEditing(true); setEditingSecIdx(null); setEditingSecDraft(null); }}
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 14px' }}>
               Edit
             </button>
@@ -262,14 +330,112 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               </div>
             )}
 
+            {sections.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.fg3 }}>Progress</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{sections.filter(s => s.done).length} / {sections.length}</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, background: C.bg2, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 3, background: C.accent, width: `${(sections.filter(s => s.done).length / sections.length) * 100}%`, transition: 'width 350ms ease' }} />
+                </div>
+              </div>
+            )}
+
             {sections.length === 0 && (
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginBottom: 32 }}>No sections yet. Click Edit to add sections.</div>
             )}
+
             {sections.map((sec, i) => (
-              <div key={i} style={{ marginBottom: 28, paddingBottom: 28, borderBottom: i < sections.length - 1 ? `1px solid ${C.border}` : 'none' }}>
-                <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: C.fg1, marginBottom: 10 }}>{sec.title}</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{sec.content}</div>
-              </div>
+              editingSecIdx === i ? (
+                <div key={i} style={{ background: C.bg1, border: `1px solid ${C.accentDim}`, borderRadius: 10, padding: '16px 18px', marginBottom: 20, boxShadow: `0 0 0 2px ${alpha(C.accentDim, 22)}` }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, marginBottom: 10 }}>Section {i + 1}</div>
+                  <input
+                    autoFocus
+                    value={editingSecDraft.title}
+                    onChange={e => setEditingSecDraft(d => ({ ...d, title: e.target.value }))}
+                    placeholder="Section title"
+                    style={{ ...inputStyle, marginBottom: 10, fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17 }}
+                    onFocus={focus} onBlur={blur} />
+                  <textarea
+                    value={editingSecDraft.content}
+                    onChange={e => setEditingSecDraft(d => ({ ...d, content: e.target.value }))}
+                    placeholder="Section content…"
+                    style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.7 }}
+                    onFocus={focus} onBlur={blur} />
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10, flexWrap: 'wrap' }}>
+                    <button onClick={() => { setEditingSecIdx(null); setEditingSecDraft(null); }}
+                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 6, padding: '7px 16px', cursor: 'pointer' }}>
+                      Cancel
+                    </button>
+                    <button onClick={() => handleSaveSection(i, editingSecDraft)}
+                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: '#fff', background: C.accent, border: 'none', borderRadius: 6, padding: '7px 18px', cursor: 'pointer' }}>
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div key={i}
+                  draggable
+                  onDragStart={() => setDragIdx(i)}
+                  onDragOver={e => { e.preventDefault(); setDragOverIdx(i); }}
+                  onDragLeave={() => setDragOverIdx(prev => prev === i ? null : prev)}
+                  onDrop={() => handleDrop(i)}
+                  onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                  style={{
+                    marginBottom: 28, paddingBottom: 28,
+                    borderBottom: i < sections.length - 1 ? `1px solid ${C.border}` : 'none',
+                    opacity: dragIdx === i ? 0.4 : 1,
+                    outline: dragOverIdx === i && dragIdx !== i ? `2px solid ${C.accentDim}` : 'none',
+                    borderRadius: dragOverIdx === i && dragIdx !== i ? 8 : 0,
+                    transition: 'opacity 150ms',
+                  }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                    <div
+                      title="Drag to reorder"
+                      style={{ cursor: 'grab', color: C.fg3, flexShrink: 0, paddingTop: 5, fontSize: 18, lineHeight: 1, userSelect: 'none', touchAction: 'none' }}>
+                      ⠿
+                    </div>
+                    <button
+                      title={sec.done ? 'Mark incomplete' : 'Mark complete'}
+                      onClick={() => toggleSectionDone(i)}
+                      style={{
+                        flexShrink: 0, width: 22, height: 22, borderRadius: 5, marginTop: 3,
+                        border: `2px solid ${sec.done ? C.accent : C.border}`,
+                        background: sec.done ? C.accent : 'transparent',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: 0,
+                      }}>
+                      {sec.done && (
+                        <svg viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="10" height="10">
+                          <polyline points="2 6 5 9 10 3"/>
+                        </svg>
+                      )}
+                    </button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: sec.done ? C.fg3 : C.fg1, textDecoration: sec.done ? 'line-through' : 'none', lineHeight: 1.3, marginBottom: 8 }}>
+                          {sec.title}
+                        </div>
+                        <button
+                          title="Edit section"
+                          onClick={() => { setEditingSecIdx(i); setEditingSecDraft({ title: sec.title, content: sec.content }); }}
+                          style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: sec.done ? C.fg3 : C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                        {sec.content}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
             ))}
           </>
         )}
