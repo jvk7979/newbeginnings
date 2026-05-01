@@ -1,7 +1,10 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { useIdeas } from '../context/AppContext';
+import { useToast } from '../context/ToastContext';
 import IdeaCard from '../components/IdeaCard';
+import BulkSelectionBar from '../components/BulkSelectionBar';
+import ConfirmModal from '../components/ConfirmModal';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 
 const FILTERS = [
@@ -12,17 +15,24 @@ const FILTERS = [
   { id: 'archived',  label: 'Archived' },
 ];
 
+const STATUS_OPTIONS = [
+  { id: 'draft',      label: 'Draft' },
+  { id: 'validating', label: 'Researching' },
+  { id: 'active',     label: 'Active' },
+  { id: 'archived',   label: 'Archived' },
+];
+
 export default function IdeasPage({ onNavigate }) {
-  const { ideas } = useIdeas();
+  const { ideas, updateIdea, deleteIdea } = useIdeas();
+  const { showToast } = useToast();
   const [filter, setFilter]     = useState('all');
   const [catFilter, setCatFilter] = useState('');
   const [search, setSearch]     = useState('');
   const [sort,   setSort]       = useState('newest');
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const sq = search.trim().toLowerCase();
-  // AppContext already sorts ideas by id desc (newest-first by insertion).
-  // For 'oldest' we just reverse; for 'az' we sort by title. Memoized so
-  // we don't reallocate on every keystroke / parent re-render.
   const filtered = useMemo(() => {
     let arr = ideas;
     if (sort === 'oldest')   arr = [...ideas].reverse();
@@ -34,9 +44,34 @@ export default function IdeasPage({ onNavigate }) {
     );
   }, [ideas, sort, filter, catFilter, sq]);
 
+  const selectionMode = selectedIds.size > 0;
+  const toggleSelect = (id, next) => {
+    setSelectedIds(prev => {
+      const out = new Set(prev);
+      if (next) out.add(id); else out.delete(id);
+      return out;
+    });
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkStatus = async (statusId) => {
+    const ids = Array.from(selectedIds);
+    await Promise.all(ids.map(id => updateIdea(id, { status: statusId })));
+    showToast(`Updated ${ids.length} idea${ids.length === 1 ? '' : 's'}`, 'success');
+    clearSelection();
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    await Promise.all(ids.map(id => deleteIdea(id)));
+    showToast(`Deleted ${ids.length} idea${ids.length === 1 ? '' : 's'}`, 'success');
+    setConfirmDelete(false);
+    clearSelection();
+  };
+
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%', paddingBottom: selectionMode ? 96 : 0 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
           <div className="grad-text page-title">Ideas</div>
@@ -109,10 +144,35 @@ export default function IdeasPage({ onNavigate }) {
         </div>
       ) : (
         <div className="grid-2">
-          {filtered.map(i => <IdeaCard key={i.id} {...i} onClick={() => onNavigate('idea-detail', i)} />)}
+          {filtered.map(i => (
+            <IdeaCard key={i.id} {...i}
+              selectable
+              selected={selectedIds.has(i.id)}
+              selectionMode={selectionMode}
+              onToggleSelect={(v) => toggleSelect(i.id, v)}
+              onClick={() => onNavigate('idea-detail', i)} />
+          ))}
         </div>
       )}
       </div>
+
+      <BulkSelectionBar
+        count={selectedIds.size}
+        itemLabel="idea"
+        statuses={STATUS_OPTIONS}
+        onChangeStatus={handleBulkStatus}
+        onDelete={() => setConfirmDelete(true)}
+        onClear={clearSelection} />
+
+      {confirmDelete && (
+        <ConfirmModal
+          title={`Delete ${selectedIds.size} idea${selectedIds.size === 1 ? '' : 's'}?`}
+          message="This permanently removes the selected ideas and their attached files. This can't be undone."
+          confirmLabel="Delete"
+          variant="danger"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={handleBulkDelete} />
+      )}
     </div>
   );
 }
