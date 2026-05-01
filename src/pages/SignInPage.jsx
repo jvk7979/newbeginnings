@@ -107,7 +107,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: C.bg0 }}>
+    <div className="auth-page" style={{ display: 'flex', minHeight: '100vh', background: C.bg0 }}>
 
       {/* Left panel — branding (desktop only) */}
       <div style={{ display: 'none', flex: 1, background: C.accentBg, borderRight: `1px solid ${C.border}`, padding: '60px 48px', flexDirection: 'column', justifyContent: 'space-between' }} className="show-on-desktop">
@@ -143,7 +143,7 @@ export default function SignInPage() {
 
       {/* Right panel — sign in */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
-        <div style={{ width: '100%', maxWidth: 380, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 16, padding: '36px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+        <div className="auth-card" style={{ width: '100%', maxWidth: 380, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 16, padding: '36px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
 
           {/* Wordmark — mobile/iPad only (left panel renders its own on desktop) */}
           <div className="hide-on-desktop" style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
@@ -158,9 +158,9 @@ export default function SignInPage() {
           </div>
 
           <button onClick={handleSignIn} disabled={loading}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, width: '100%', padding: '13px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: loading ? C.bg1 : '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 500, color: C.fg1, boxShadow: '0 1px 4px rgba(0,0,0,0.10)', transition: 'all 150ms' }}
-            onMouseEnter={e => { if (!loading) e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.15)'; }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.10)'; }}>
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, width: '100%', padding: '14px 20px', borderRadius: 8, border: `1.5px solid ${C.borderLight}`, background: loading ? C.bg1 : '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 500, color: C.fg1, boxShadow: '0 2px 8px rgba(0,0,0,0.10)', transition: 'all 150ms' }}
+            onMouseEnter={e => { if (!loading) e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.16)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)'; }}>
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
               <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -200,8 +200,12 @@ export default function SignInPage() {
             <div role="alert" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.danger, marginTop: 12, textAlign: 'center' }}>{error}</div>
           )}
 
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 28, textAlign: 'center', lineHeight: 1.6 }}>
-            Your data is stored privately.<br />No one else can see it.
+          <div style={{ borderTop: `1px solid ${C.border}`, margin: '24px 0 0 0' }} />
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 16, textAlign: 'center', lineHeight: 1.6 }}>
+            🔒 Your data is stored privately. No one else can see it.
+          </p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, margin: '8px 0 0', textAlign: 'center', letterSpacing: '0.04em' }}>
+            By invitation only · Rajahmundry
           </p>
         </div>
       </div>

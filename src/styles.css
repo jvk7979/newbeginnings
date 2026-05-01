@@ -693,6 +693,25 @@ textarea:focus-visible,
   .stat-grid .stat-actions { display: none !important; }
 }
 
+/* Auth page — sign-in responsive overrides */
+@media (max-width: 768px) {
+  /* Switch to the accent/sage background so the white card pops against it,
+     matching the visual contrast the desktop left panel creates */
+  .auth-page {
+    background: var(--c-accent-bg) !important;
+  }
+  /* Stronger shadow since the card now sits on a coloured surface */
+  .auth-card {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.13) !important;
+  }
+}
+/* iPad portrait — give the card a bit more width so it doesn't look tiny */
+@media (min-width: 500px) and (max-width: 768px) {
+  .auth-card {
+    max-width: 440px !important;
+  }
+}
+
 /* Page header title — smaller on mobile so count badge + button fit in one row */
 .page-title {
   font-family: 'Playfair Display', Georgia, serif;
