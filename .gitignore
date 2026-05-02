@@ -1,8 +1,12 @@
 node_modules/
 dist/
 .claude/
+# Playwright outputs (keep e2e/ source, ignore test artifacts)
+playwright-report/
+test-results/
 .playwright-mcp/
 e2e-screenshots/
+# Loose test/audit screenshots from root
 *.test.png
 *.test.jpeg
 e2e-*.png
