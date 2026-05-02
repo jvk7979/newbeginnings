@@ -1,0 +1,20 @@
+#!/bin/sh
+# Runs E2E tests (web viewport only, ~90s) before every push.
+# Full 3-viewport suite runs in CI before deploy.
+#
+# To install: npm run hooks:install
+# To skip once: git push --no-verify
+
+echo ">> E2E pre-push check (web)..."
+npm run test:e2e:web -- --reporter=list
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "  E2E tests failed — push blocked."
+  echo "  Run 'npm run test:e2e' to debug, or 'git push --no-verify' to skip."
+  exit 1
+fi
+
+echo ">> E2E tests passed."
+exit 0
