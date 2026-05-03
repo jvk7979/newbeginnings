@@ -1576,7 +1576,7 @@ textarea:focus-visible,
    strip. Inspired by Bold BI / Keap finance panels. */
 .calc-page-redesign .calc-metric-dashboard {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 14px;
   background: var(--c-bg1);
   border-bottom: 1px solid var(--c-border);
@@ -1620,8 +1620,95 @@ textarea:focus-visible,
 
 .calc-page-redesign .calc-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-column: 1 / -1;            /* span both top-row columns */
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+}
+
+/* Revenue Composition card — sits next to the IRR gauge. White panel,
+   donut on the left, breakdown list on the right. */
+.calc-page-redesign .calc-composition-card {
+  background: var(--c-bg0);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.calc-page-redesign .calc-composition-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 10px;
+}
+.calc-page-redesign .calc-composition-empty {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg3);
+  font-style: italic;
+  padding: 24px 0;
+  text-align: center;
+}
+.calc-page-redesign .calc-composition-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+.calc-page-redesign .calc-composition-chart {
+  flex-shrink: 0;
+}
+.calc-page-redesign .calc-composition-list {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.calc-page-redesign .calc-composition-row,
+.calc-page-redesign .calc-composition-total {
+  display: grid;
+  grid-template-columns: 12px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+}
+.calc-page-redesign .calc-composition-total {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--c-border);
+  grid-template-columns: 0 1fr auto auto;
+}
+.calc-page-redesign .calc-composition-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.calc-page-redesign .calc-composition-name {
+  color: var(--c-fg1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.calc-page-redesign .calc-composition-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--c-fg1);
+  text-align: right;
+}
+.calc-page-redesign .calc-composition-pct {
+  color: var(--c-fg3);
+  font-size: 12px;
+  text-align: right;
+  min-width: 32px;
 }
 .calc-page-redesign .calc-kpi-card {
   background: var(--c-bg0);
@@ -1679,9 +1766,8 @@ textarea:focus-visible,
 }
 
 @media (max-width: 1024px) {
-  .calc-page-redesign .calc-metric-dashboard {
-    grid-template-columns: 280px 1fr;
-  }
+  .calc-page-redesign .calc-composition-body { gap: 12px; }
+  .calc-page-redesign .calc-kpi-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
   .calc-page-redesign .calc-metric-dashboard {
@@ -1690,11 +1776,12 @@ textarea:focus-visible,
   }
   .calc-page-redesign .calc-kpi-value { font-size: 19px; }
   .calc-page-redesign .calc-kpi-icon { width: 32px; height: 32px; }
+  .calc-page-redesign .calc-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .calc-page-redesign .calc-composition-body { gap: 14px; }
 }
 @media (max-width: 480px) {
-  .calc-page-redesign .calc-kpi-grid {
-    grid-template-columns: 1fr;
-  }
+  .calc-page-redesign .calc-kpi-grid { grid-template-columns: 1fr; }
+  .calc-page-redesign .calc-composition-body { flex-direction: column; align-items: center; }
 }
 
 .calc-page-redesign .calc-pill-tabs {

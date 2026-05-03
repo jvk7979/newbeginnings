@@ -250,7 +250,7 @@ function PaybackTrack({ payback, tenure, color, width = 100, height = 14 }) {
 // into three coloured zones (below hurdle = red, hurdle to 1.5×hurdle =
 // amber, above 1.5×hurdle = green) and a needle points at the current IRR.
 // Auto-scales the max so very high IRRs still render with the needle inside.
-function IRRGauge({ value, hurdle, color }) {
+function IRRGauge({ value, hurdle }) {
   const W = 240, H = 132;
   const cx = W / 2;
   const cy = H - 14;
@@ -258,7 +258,11 @@ function IRRGauge({ value, hurdle, color }) {
   const stroke = 14;
 
   const safeHurdle = Math.max(1, hurdle);
-  const max = Math.max(safeHurdle * 3, value !== null ? Math.abs(value) * 1.05 : 0, 60);
+  // Pin max to a stable function of hurdle so the coloured zones stay in
+  // fixed positions on the dial when IRR changes — only the needle moves.
+  // Each zone gets a third of the dial: red 0..hurdle, amber hurdle..2×,
+  // green 2×..3×. Values above 3×hurdle peg the needle at the right.
+  const max = safeHurdle * 3;
 
   const pt = (ratio) => {
     const angle = Math.PI * (1 - Math.max(0, Math.min(1, ratio)));
@@ -270,14 +274,28 @@ function IRRGauge({ value, hurdle, color }) {
     return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
   };
 
-  const r1 = Math.min(1, safeHurdle / max);
-  const r2 = Math.min(1, (safeHurdle * 1.5) / max);
+  // Three equal-width zones, locked to the hurdle ratio (1/3 each).
+  const r1 = 1 / 3;        // hurdle line
+  const r2 = 2 / 3;        // 2× hurdle (start of green)
 
+  // Compute needle ratio from value, clamped to [0, 1].
   const valRatio = value === null ? 0 : Math.max(0, Math.min(1, value / max));
   const needleAngle = Math.PI * (1 - valRatio);
   const needleR = R - stroke / 2 - 4;
   const nx = cx + needleR * Math.cos(needleAngle);
   const ny = cy - needleR * Math.sin(needleAngle);
+
+  // The needle is a single SVG line that we transform by rotating around
+  // the pivot. CSS transition on `transform` gives us a smooth animation
+  // when valRatio (and therefore the rotation angle) changes.
+  // SVG default transform-origin works on the local coords, so we
+  // explicitly anchor it to the pivot via transformOrigin.
+  // Convert needleAngle (radians, where π = left, 0 = right) to a CSS
+  // rotation in degrees: needle points UP at angle π/2 → 0deg rotation.
+  // valRatio = 0    → angle π     → -90deg (left)
+  // valRatio = 0.5  → angle π/2   → 0deg   (up)
+  // valRatio = 1    → angle 0     → +90deg (right)
+  const needleDeg = (valRatio - 0.5) * 180;
 
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', maxWidth: W }} role="img" aria-label={`IRR gauge`}>
@@ -285,26 +303,35 @@ function IRRGauge({ value, hurdle, color }) {
       <path d={seg(r1, r2)} fill="none" stroke="#e6b34a" strokeWidth={stroke} />
       <path d={seg(r2, 1)}  fill="none" stroke="#5c8a52" strokeWidth={stroke} />
       {value !== null && (
-        <g>
-          <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#3a3528" strokeWidth="2.5" strokeLinecap="round" />
-          <circle cx={cx} cy={cy} r="7" fill="#3a3528" />
-          <circle cx={cx} cy={cy} r="3" fill="#fff" />
+        <g
+          style={{
+            transform: `rotate(${needleDeg}deg)`,
+            transformOrigin: `${cx}px ${cy}px`,
+            transition: 'transform 480ms cubic-bezier(0.34, 1.4, 0.64, 1)',
+          }}>
+          {/* Needle drawn pointing straight up; the rotation above sweeps it. */}
+          <line x1={cx} y1={cy} x2={cx} y2={cy - needleR} stroke="#3a3528" strokeWidth="2.5" strokeLinecap="round" />
         </g>
       )}
+      {/* Pivot stays static (drawn after the rotated group so it sits on top) */}
+      <circle cx={cx} cy={cy} r="7" fill="#3a3528" />
+      <circle cx={cx} cy={cy} r="3" fill="#fff" />
       {/* Tick labels at the corners */}
       <text x={cx - R} y={cy + 14} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="10" fill={C.fg3}>0</text>
-      <text x={cx + R} y={cy + 14} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="10" fill={C.fg3}>{Math.round(max)}%</text>
+      <text x={cx + R} y={cy + 14} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="10" fill={C.fg3}>{Math.round(max)}%+</text>
       {/* Hurdle marker — small tick at the hurdle ratio so users can see
-          where the cost-of-capital line sits on the dial */}
+          where the cost-of-capital line sits on the dial. Anchored at the
+          fixed 1/3 ratio so it never drifts. */}
       {(() => {
-        const [tx1, ty1] = pt(r1);
         const a = Math.PI * (1 - r1);
+        const tx1 = cx + (R - stroke / 2 - 1) * Math.cos(a);
+        const ty1 = cy - (R - stroke / 2 - 1) * Math.sin(a);
         const tx2 = cx + (R + stroke / 2 + 4) * Math.cos(a);
         const ty2 = cy - (R + stroke / 2 + 4) * Math.sin(a);
         return (
           <g>
-            <line x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke={C.fg2} strokeWidth="1" />
-            <text x={tx2} y={ty2 - 4} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="9" fill={C.fg3}>hurdle</text>
+            <line x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke={C.fg2} strokeWidth="1.2" />
+            <text x={tx2 + 2} y={ty2 - 4} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="9" fill={C.fg3}>hurdle</text>
           </g>
         );
       })()}
@@ -555,7 +582,44 @@ export default function CalculationsPage({ onNavigate }) {
           <div className="calc-gauge-sub">vs {dr}% hurdle rate</div>
         </div>
 
-        {/* KPI tile grid — 2×2 of icon cards */}
+        {/* Revenue Composition — donut + per-product breakdown.
+            Lives inline with the gauge so users see the project's
+            top-line health (IRR + revenue mix) at a glance, without
+            having to open the Summary tab. */}
+        <div className="calc-composition-card">
+          <div className="calc-composition-eyebrow">Revenue Composition</div>
+          {calc.revenueByProduct.length === 0 ? (
+            <div className="calc-composition-empty">
+              Add products in the Assumptions panel to see the revenue mix.
+            </div>
+          ) : (
+            <div className="calc-composition-body">
+              <div className="calc-composition-chart">
+                <DonutChart segments={calc.revenueByProduct} totalLabel={fmtINR(calc.revenue)} />
+              </div>
+              <div className="calc-composition-list">
+                {calc.revenueByProduct.map(seg => {
+                  const pct = calc.revenue > 0 ? ((seg.value / calc.revenue) * 100).toFixed(0) : 0;
+                  return (
+                    <div key={seg.name} className="calc-composition-row">
+                      <span className="calc-composition-dot" style={{ background: seg.color }} />
+                      <span className="calc-composition-name">{seg.name || 'Untitled'}</span>
+                      <span className="calc-composition-value">{fmtINR(seg.value)}</span>
+                      <span className="calc-composition-pct">{pct}%</span>
+                    </div>
+                  );
+                })}
+                <div className="calc-composition-total">
+                  <span className="calc-composition-name"><strong>Total Revenue</strong></span>
+                  <span className="calc-composition-value"><strong>{fmtINR(calc.revenue)}</strong></span>
+                  <span className="calc-composition-pct">100%</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* KPI tile grid — 4 across in a row spanning the full width */}
         <div className="calc-kpi-grid">
           {[
             {
@@ -902,37 +966,11 @@ export default function CalculationsPage({ onNavigate }) {
 
           <div className="calc-right-body">
 
-            {/* Summary — Revenue Composition card + insight callout */}
+            {/* Summary — verdict callout. Revenue Composition lives in the
+                Project Health Dashboard up top so users see top-line health
+                (IRR + revenue mix) at a glance without opening this tab. */}
             {rightTab === 'summary' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Revenue Composition</div>
-                  <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
-                    <DonutChart segments={calc.revenueByProduct} totalLabel={fmtINR(calc.revenue)} />
-                    <div style={{ flex: 1, minWidth: 240, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {calc.revenueByProduct.map(seg => {
-                        const pct = calc.revenue > 0 ? ((seg.value / calc.revenue) * 100).toFixed(0) : 0;
-                        return (
-                          <div key={seg.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <div style={{ width: 10, height: 10, borderRadius: 2, background: seg.color, flexShrink: 0 }} />
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seg.name}</span>
-                            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 600, color: C.fg1, minWidth: 60, textAlign: 'right' }}>{fmtINR(seg.value)}</span>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, minWidth: 36, textAlign: 'right' }}>{pct}%</span>
-                          </div>
-                        );
-                      })}
-                      {calc.revenueByProduct.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>Add products to see breakdown.</div>}
-                    </div>
-                  </div>
-                  {calc.revenueByProduct.length > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: C.fg1, flex: 1 }}>Total Revenue</span>
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: C.fg1, minWidth: 60, textAlign: 'right' }}>{fmtINR(calc.revenue)}</span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, minWidth: 36, textAlign: 'right' }}>100%</span>
-                    </div>
-                  )}
-                </div>
-
                 <div style={{ background: insight.positive ? alpha(C.accent, 11) : alpha('#c0392b', 11), border: `1px solid ${insight.positive ? alpha(C.accent, 44) : alpha('#c0392b', 44)}`, borderRadius: 10, padding: '14px 18px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                   <div style={{ width: 26, height: 26, borderRadius: '50%', background: insight.positive ? alpha(C.accent, 33) : alpha('#c0392b', 33), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
                     {insight.positive
