@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react';
 import { C, alpha } from '../tokens';
-import { useIdeas, usePlans, useFiles } from '../context/AppContext';
+import { useIdeas, usePlans } from '../context/AppContext';
 import heroImg from '../assets/hero_latest.png';
 
 const ICON_IDEA = <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>;
 const ICON_PLAN = <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
-const ICON_FILE = <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>;
-const ICON_DOC  = <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>;
 
 const QUICK_ACTIONS = [
   {
@@ -108,16 +106,14 @@ function StatBreakdown({ kind, items }) {
 export default function Dashboard({ onNavigate }) {
   const { ideas } = useIdeas();
   const { plans } = usePlans();
-  const { files } = useFiles();
   const [expandedStat, setExpandedStat] = useState(null);
 
   const recentIdeas = useMemo(() => ideas.slice(0, 5), [ideas]);
-  const recentFiles = useMemo(() => files.slice(0, 3), [files]);
+  const recentProjects = useMemo(() => plans.slice(0, 3), [plans]);
 
   const stats = [
     { key: 'ideas',     label: 'Ideas',     count: ideas.length, dest: 'ideas',     icon: ICON_IDEA, items: ideas },
     { key: 'projects',  label: 'Projects',  count: plans.length, dest: 'projects',  icon: ICON_PLAN, items: plans },
-    { key: 'documents', label: 'Documents', count: files.length, dest: 'documents', icon: ICON_FILE, items: files },
   ];
 
   const handleStatClick = (s) => {
@@ -131,22 +127,6 @@ export default function Dashboard({ onNavigate }) {
       {/* Hero */}
       <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015' }}>
         <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(14px,3vw,28px) clamp(16px,4vw,36px)' }}>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button onClick={() => onNavigate('new-idea')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-              onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-              onMouseLeave={e => e.currentTarget.style.background = C.accent}>
-              + New Idea
-            </button>
-            <button onClick={() => onNavigate('ideas')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}>
-              View All Ideas
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Stats — click to expand breakdown, double-click or click again to navigate */}
@@ -204,7 +184,7 @@ export default function Dashboard({ onNavigate }) {
       <div style={{ marginBottom: 40 }}>
         <SectionHeader
           label="Ideas Pipeline"
-          actionLabel={ideas.length > 0 ? 'View all →' : null}
+          actionLabel={ideas.length > 0 ? 'View all Ideas' : null}
           onAction={() => onNavigate('ideas')}
         />
         {recentIdeas.length === 0 ? (
@@ -225,7 +205,7 @@ export default function Dashboard({ onNavigate }) {
               <thead>
                 <tr style={{ background: C.bg2, borderBottom: `1px solid ${C.border}` }}>
                   {['IDEA', 'STAGE', 'COST EST.', 'PAYBACK'].map(h => (
-                    <th key={h} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', color: C.fg3, padding: '8px 14px', textAlign: h === 'IDEA' ? 'left' : 'right', whiteSpace: 'nowrap' }}>{h}</th>
+                    <th key={h} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', color: C.fg3, padding: '14px 14px 10px', textAlign: h === 'IDEA' ? 'left' : 'right', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -262,35 +242,45 @@ export default function Dashboard({ onNavigate }) {
         )}
       </div>
 
-      {/* Recent Documents */}
-      {files.length > 0 && (
+      {/* Recent Projects */}
+      {plans.length > 0 && (
         <div style={{ marginBottom: 24 }}>
           <SectionHeader
-            label="Recent Documents"
-            actionLabel="View all Documents"
-            onAction={() => onNavigate('documents')}
+            label="Recent Projects"
+            actionLabel="View all Projects"
+            onAction={() => onNavigate('projects')}
           />
           <div className="grid-3">
-            {recentFiles.map(f => (
-              <div key={f.id} role="button" tabIndex={0} className="card-rich"
-                style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 18px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
-                onClick={() => onNavigate('document-detail', f)}
-                onKeyDown={e => e.key === 'Enter' && onNavigate('document-detail', f)}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
-                    {ICON_DOC}
-                  </span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, padding: '2px 6px', letterSpacing: '0.05em' }}>
-                    {f.fileName?.split('.').pop()?.toUpperCase() || 'PDF'}
-                  </span>
+            {recentProjects.map(p => {
+              const sc = STATUS_COLORS[p.status] || C.fg3;
+              return (
+                <div key={p.id} role="button" tabIndex={0} className="card-rich"
+                  style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, padding: '16px 18px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
+                  onClick={() => onNavigate('project-detail', p)}
+                  onKeyDown={e => e.key === 'Enter' && onNavigate('project-detail', p)}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
+                      {ICON_PLAN}
+                    </span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: sc }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc, flexShrink: 0 }} />
+                      {PLAN_STATUS_LABELS[p.status] || p.status}
+                    </span>
+                    {p.eligibleForCalc && (
+                      <span title="Eligible for Calculations"
+                        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: 4, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}` }}>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="11" height="11"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{p.title}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: `1px solid ${C.border}`, marginTop: 'auto' }}>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>Updated {p.updated}</span>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, fontWeight: 600 }}>Open →</span>
+                  </div>
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{f.title}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: `1px solid ${C.border}`, marginTop: 'auto' }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>{f.date}</span>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, fontWeight: 600 }}>Open →</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

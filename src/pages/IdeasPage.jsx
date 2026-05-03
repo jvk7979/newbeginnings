@@ -146,13 +146,15 @@ export default function IdeasPage({ onNavigate }) {
       </div>
 
       {/* Filters row */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="ideas-filter-row" style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
         <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
+          className="ideas-filter-select"
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none' }}>
           <option value="">All Categories</option>
           {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         <select value={sort} onChange={e => setSort(e.target.value)}
+          className="ideas-filter-select ideas-filter-sort"
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, padding: '6px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg1, color: C.fg2, cursor: 'pointer', outline: 'none', marginLeft: 'auto' }}>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>

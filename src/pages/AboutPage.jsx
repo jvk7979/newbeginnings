@@ -1,7 +1,10 @@
-import { useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import logoImg from '../assets/logo.png';
-import { useIdeas, usePlans } from '../context/AppContext';
+
+// Cap line length at ~70-75ch on long-prose blocks; the surrounding
+// outer container stays wider so the Page-by-page grid + Region focus
+// can use the extra horizontal space.
+const PROSE_MAX = 680;
 
 function SectionHeader({ label, actionLabel, onAction }) {
   return (
@@ -19,86 +22,6 @@ function SectionHeader({ label, actionLabel, onAction }) {
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
       )}
-    </div>
-  );
-}
-
-function buildActivityMap(ideas, plans) {
-  const map = {};
-  const bump = (dateStr) => {
-    if (!dateStr) return;
-    const key = String(dateStr).slice(0, 10);
-    if (key.length === 10) map[key] = (map[key] || 0) + 1;
-  };
-  ideas.forEach(i => bump(i.date));
-  plans.forEach(p => bump(p.updated || p.date));
-  return map;
-}
-
-function ActivityHeatmap({ ideas, plans }) {
-  const activityMap = useMemo(() => buildActivityMap(ideas, plans), [ideas, plans]);
-  const maxCount = useMemo(() => {
-    const vals = Object.values(activityMap);
-    return vals.length === 0 ? 1 : Math.max(1, ...vals);
-  }, [activityMap]);
-
-  const cells = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const result = [];
-    const start = new Date(today);
-    start.setDate(start.getDate() - 83);
-    for (let d = 0; d < 84; d++) {
-      const date = new Date(start);
-      date.setDate(start.getDate() + d);
-      const key = date.toISOString().slice(0, 10);
-      result.push({ date, key, count: activityMap[key] || 0 });
-    }
-    return result;
-  }, [activityMap]);
-
-  const getColor = (count) => {
-    if (count === 0) return C.bg2;
-    const intensity = Math.min(count / maxCount, 1);
-    if (intensity < 0.25) return alpha(C.accent, 55);
-    if (intensity < 0.5)  return alpha(C.accent, 99);
-    if (intensity < 0.75) return alpha(C.accent, 155);
-    return C.accent;
-  };
-
-  const WEEK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  const weeks = [];
-  for (let w = 0; w < 12; w++) weeks.push(cells.slice(w * 7, w * 7 + 7));
-
-  const totalActivity = Object.values(activityMap).reduce((a, b) => a + b, 0);
-
-  return (
-    <div style={{ marginBottom: 32 }}>
-      <SectionHeader label="Activity — last 12 weeks" />
-      <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px' }}>
-        <div style={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginRight: 4, paddingTop: 0 }}>
-            {WEEK_DAYS.map((d, i) => (
-              <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, lineHeight: 1, height: 12, display: 'flex', alignItems: 'center' }}>{d}</div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: 3, flex: 1, overflowX: 'auto' }}>
-            {weeks.map((week, wi) => (
-              <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {week.map((cell) => (
-                  <div key={cell.key}
-                    title={`${cell.key}: ${cell.count} activit${cell.count === 1 ? 'y' : 'ies'}`}
-                    style={{ width: 12, height: 12, borderRadius: 2, background: getColor(cell.count), flexShrink: 0 }}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 10 }}>
-          {totalActivity === 0 ? 'No activity yet — start adding ideas and projects.' : `${totalActivity} total activit${totalActivity === 1 ? 'y' : 'ies'} in the last 12 weeks`}
-        </div>
-      </div>
     </div>
   );
 }
@@ -146,8 +69,6 @@ const REGIONS = [
 ];
 
 export default function AboutPage({ onNavigate }) {
-  const { ideas } = useIdeas();
-  const { plans } = usePlans();
   return (
     <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
@@ -163,16 +84,18 @@ export default function AboutPage({ onNavigate }) {
       {/* Why I built this — first-person opening */}
       <div style={{ marginBottom: 32 }}>
         <SectionHeader label="Why I built this" />
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.75, margin: '0 0 14px 0' }}>
-          I built this so we'd have one place to capture every venture idea, talk it through as a family, and run the numbers without flipping between five apps. Half-finished spreadsheets, ideas lost in WhatsApp threads, feasibility reports buried in email — everything we used to scatter now lives in one trail.
-        </p>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.75, margin: 0 }}>
-          Everything you see here started in our living-room conversations about what to build next in the Godavari and Konaseema region.
-        </p>
+        <div style={{ maxWidth: PROSE_MAX }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.75, margin: '0 0 14px 0' }}>
+            I built this so we'd have one place to capture every venture idea, talk it through as a family, and run the numbers without flipping between five apps. Half-finished spreadsheets, ideas lost in WhatsApp threads, feasibility reports buried in email — everything we used to scatter now lives in one trail.
+          </p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.75, margin: 0 }}>
+            Everything you see here started in our living-room conversations about what to build next in the Godavari and Konaseema region.
+          </p>
+        </div>
       </div>
 
       {/* Mission */}
-      <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 10, padding: '24px 28px', marginBottom: 32 }}>
+      <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 10, padding: '24px 28px', marginBottom: 32, maxWidth: PROSE_MAX }}>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>Mission</div>
         <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
           "To identify, evaluate, and build sustainable ventures that create local value —
@@ -181,7 +104,7 @@ export default function AboutPage({ onNavigate }) {
       </div>
 
       {/* How to use this site — workflow walkthrough */}
-      <div style={{ marginBottom: 32 }}>
+      <div style={{ marginBottom: 32, maxWidth: PROSE_MAX }}>
         <SectionHeader label="How I use this site" />
         <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '20px 24px' }}>
           <ol style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.85, margin: 0, paddingLeft: 22 }}>
@@ -242,9 +165,6 @@ export default function AboutPage({ onNavigate }) {
           ))}
         </div>
       </div>
-
-      {/* Activity heatmap — workspace pulse */}
-      <ActivityHeatmap ideas={ideas} plans={plans} />
 
       </div>
     </div>
