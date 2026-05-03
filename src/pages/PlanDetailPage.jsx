@@ -293,75 +293,73 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     setTimeout(() => w.print(), 400);
   };
 
+  const linkedIdea = plan.linkedIdeaId != null ? ideas.find(i => i.id === plan.linkedIdeaId) : null;
+  const sectionsDone = sections.filter(s => s.done).length;
+
   return (
     <>
-    <div ref={pagePadRef} className="page-pad" style={{ background: C.bg0 }}>
+    <div ref={pagePadRef} className="page-pad plan-detail-redesign" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <button onClick={() => onNavigate('projects')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
-          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          Projects
-        </button>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          {!isEditing && sections.length > 0 && (
-            <button onClick={handleExportPDF}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 5 }}>
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-              Export PDF
-            </button>
-          )}
-          {!isEditing && (
-            <button onClick={() => { setIsEditing(true); setEditingSecIdx(null); setEditingSecDraft(null); }}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 14px' }}>
-              Edit
-            </button>
-          )}
-          {!isViewer && (
-            <button onClick={handleDelete}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
-              Delete
-            </button>
+      {/* ── EDITORIAL HERO BAND ─────────────────────────────────────────
+          Sage-cream gradient + Playfair title + linked-idea pill + status
+          / category / eligible pills, in the same voice as the Idea
+          detail and Calculations heroes. */}
+      <section className="plan-hero">
+        <div className="plan-hero-toolbar">
+          <button onClick={() => onNavigate('projects')} className="plan-hero-back">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Projects
+          </button>
+          <div className="plan-hero-actions">
+            {!isEditing && sections.length > 0 && (
+              <button onClick={handleExportPDF} className="plan-hero-btn plan-hero-btn-ghost">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                Export PDF
+              </button>
+            )}
+            {!isEditing && (
+              <button onClick={() => { setIsEditing(true); setEditingSecIdx(null); setEditingSecDraft(null); }} className="plan-hero-btn plan-hero-btn-secondary">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+            )}
+            {!isViewer && (
+              <button onClick={handleDelete} className="plan-hero-btn plan-hero-btn-danger">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Delete
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="plan-hero-eyebrow">Project · Updated {plan.updated}</div>
+        <h1 className="plan-hero-title">{plan.title}</h1>
+        {linkedIdea && (
+          <button onClick={() => onNavigate('idea-detail', linkedIdea)}
+            aria-label={`Open linked idea: ${linkedIdea.title}`}
+            className="plan-hero-linked">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            From idea: <span className="plan-hero-linked-title">{linkedIdea.title}</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        )}
+        <div className="plan-hero-pills">
+          <Badge status={status} />
+          {category && <span className="plan-hero-category">{category}</span>}
+          {plan.eligibleForCalc && (
+            <span title="This project appears in the Calculations page dropdown" className="plan-hero-eligible">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+              Eligible for Calculations
+            </span>
           )}
         </div>
-      </div>
+      </section>
 
       <div>
 
         {/* ── VIEW MODE ── */}
         {!isEditing && (
           <>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Project</div>
-            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,30px)', fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 8px 0' }}>{plan.title}</h1>
-            {(() => {
-              const linked = plan.linkedIdeaId != null ? ideas.find(i => i.id === plan.linkedIdeaId) : null;
-              return linked ? (
-                <button onClick={() => onNavigate('idea-detail', linked)}
-                  aria-label={`Open linked idea: ${linked.title}`}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 12, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 999, padding: '4px 12px', cursor: 'pointer' }}
-                  onMouseEnter={e => e.currentTarget.style.background = alpha(C.accent, 22)}
-                  onMouseLeave={e => e.currentTarget.style.background = C.accentBg}>
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                  From idea: <span style={{ fontWeight: 600 }}>{linked.title}</span>
-                  <span aria-hidden="true">→</span>
-                </button>
-              ) : null;
-            })()}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 20 }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3 }}>Updated {plan.updated}</span>
-              {category && (
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '2px 8px' }}>{category}</span>
-              )}
-              <Badge status={status} />
-              {plan.eligibleForCalc && (
-                <span title="This project appears in the Calculations page dropdown"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, padding: '2px 8px' }}>
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
-                  Eligible for Calculations
-                </span>
-              )}
-            </div>
 
             {/* Order intentional: source document up top so the user
                 lands on it first, then Executive Summary derived from
@@ -421,29 +419,29 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             ))}
 
             {attachedFile && (
-              <div style={{ marginBottom: summary || notes ? 14 : 28 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Attached Document</div>
+              <section className="plan-section">
+                <div className="plan-section-eyebrow">Attached Document</div>
                 <AttachedFileViewer file={attachedFile} editing={false} />
-              </div>
+              </section>
             )}
             {summary && (
-              <div style={{ background: C.accentBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: notes ? 14 : 28 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Executive Summary</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{summary}</div>
-              </div>
+              <section className="plan-section plan-section-summary">
+                <div className="plan-section-eyebrow">Executive Summary</div>
+                <div className="plan-section-prose">{summary}</div>
+              </section>
             )}
             {notes && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 8 }}>Notes</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{notes}</div>
-              </div>
+              <section className="plan-section">
+                <div className="plan-section-eyebrow">Notes</div>
+                <div className="plan-section-prose">{notes}</div>
+              </section>
             )}
 
             {Array.isArray(plan.sources) && plan.sources.filter(s => (s || '').trim()).length > 0 && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px', marginBottom: 28 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3, marginBottom: 10 }}>Sources</div>
+              <section className="plan-section">
+                <div className="plan-section-eyebrow">Sources</div>
                 <SourcesView sources={plan.sources} />
-              </div>
+              </section>
             )}
 
             {sections.length === 0 && (

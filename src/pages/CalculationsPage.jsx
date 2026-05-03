@@ -251,11 +251,11 @@ function PaybackTrack({ payback, tenure, color, width = 100, height = 14 }) {
 // amber, above 1.5×hurdle = green) and a needle points at the current IRR.
 // Auto-scales the max so very high IRRs still render with the needle inside.
 function IRRGauge({ value, hurdle }) {
-  const W = 240, H = 132;
+  const W = 180, H = 100;
   const cx = W / 2;
-  const cy = H - 14;
-  const R = 88;
-  const stroke = 14;
+  const cy = H - 10;
+  const R = 64;
+  const stroke = 12;
 
   const safeHurdle = Math.max(1, hurdle);
   // Pin max to a stable function of hurdle so the coloured zones stay in

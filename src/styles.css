@@ -892,6 +892,197 @@ textarea:focus-visible,
   .idea-detail-redesign .idea-kpi-value { font-size: 15px; }
 }
 
+/* ── Plan (Project) detail editorial hero band + sections ────────────
+   Same voice as the Idea detail editorial treatment. */
+.plan-detail-redesign .plan-hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--c-accent-bg) 0%, var(--c-bg1) 60%, var(--c-bg0) 100%);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 16px 22px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(60,40,10,0.06);
+}
+.plan-detail-redesign .plan-hero-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.plan-detail-redesign .plan-hero-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg2);
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 5px 12px;
+  transition: background 120ms;
+}
+.plan-detail-redesign .plan-hero-back:hover {
+  background: var(--c-bg2);
+  color: var(--c-fg1);
+}
+.plan-detail-redesign .plan-hero-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.plan-detail-redesign .plan-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 120ms, color 120ms;
+}
+.plan-detail-redesign .plan-hero-btn-ghost {
+  background: var(--c-bg1);
+  color: var(--c-fg2);
+  border-color: var(--c-border);
+}
+.plan-detail-redesign .plan-hero-btn-ghost:hover {
+  background: var(--c-bg2);
+  color: var(--c-fg1);
+}
+.plan-detail-redesign .plan-hero-btn-secondary {
+  background: var(--c-bg1);
+  color: var(--c-accent);
+  border-color: rgba(116,140,98,0.4);
+}
+.plan-detail-redesign .plan-hero-btn-secondary:hover {
+  background: rgba(116,140,98,0.12);
+}
+.plan-detail-redesign .plan-hero-btn-danger {
+  background: transparent;
+  color: var(--c-danger);
+  border-color: rgba(192,57,43,0.4);
+}
+.plan-detail-redesign .plan-hero-btn-danger:hover {
+  background: rgba(192,57,43,0.08);
+}
+.plan-detail-redesign .plan-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: 6px;
+}
+.plan-detail-redesign .plan-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(24px, 3.6vw, 36px);
+  font-weight: 700;
+  color: var(--c-fg1);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.plan-detail-redesign .plan-hero-linked {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-accent);
+  background: var(--c-accent-bg);
+  border: 1px solid rgba(116,140,98,0.4);
+  border-radius: 999px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background 120ms;
+}
+.plan-detail-redesign .plan-hero-linked:hover {
+  background: rgba(116,140,98,0.16);
+}
+.plan-detail-redesign .plan-hero-linked-title {
+  font-weight: 700;
+}
+.plan-detail-redesign .plan-hero-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.plan-detail-redesign .plan-hero-category {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg3);
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+.plan-detail-redesign .plan-hero-eligible {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-accent);
+  background: var(--c-accent-bg);
+  border: 1px solid rgba(116,140,98,0.4);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+@media (max-width: 768px) {
+  .plan-detail-redesign .plan-hero { padding: 14px 16px 18px; border-radius: 10px; }
+  .plan-detail-redesign .plan-hero-toolbar { margin-bottom: 12px; }
+}
+
+.plan-detail-redesign .plan-section {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.plan-detail-redesign .plan-section:last-child {
+  border-bottom: none;
+}
+.plan-detail-redesign .plan-section-summary {
+  background: rgba(116,140,98,0.06);
+  border-left: 3px solid var(--c-accent);
+  padding: 14px 16px;
+  margin: 6px 0 12px;
+  border-radius: 0 8px 8px 0;
+  border-bottom: none;
+}
+.plan-detail-redesign .plan-section-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 12px;
+}
+.plan-detail-redesign .plan-section-summary .plan-section-eyebrow {
+  color: var(--c-accent);
+}
+.plan-detail-redesign .plan-section-prose {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--c-fg2);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
 /* Idea detail content sections — hairline-separated editorial blocks
    that replace the previous bordered-card chrome for Description /
    Notes / Sources / Attached Document / Linked Projects / AI Analysis. */
@@ -1709,76 +1900,80 @@ textarea:focus-visible,
 /* ── Project Health Dashboard — IRR gauge + KPI tile grid ─────────────
    Dashboard-style metric layout that replaces the previous flat metric
    strip. Inspired by Bold BI / Keap finance panels. */
+/* Compact dashboard — flex row that wraps. Goal: gauge + composition +
+   4 KPI tiles fit on one line so the Assumptions panel below stays
+   visible without scrolling on web/iPad. */
 .calc-page-redesign .calc-metric-dashboard {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   background: var(--c-bg1);
   border-bottom: 1px solid var(--c-border);
-  padding: 18px 20px 20px;
+  padding: 10px 14px 12px;
+  align-items: stretch;
 }
 .calc-page-redesign .calc-gauge-card {
+  flex: 0 0 200px;
   background: var(--c-bg0);
   border: 1px solid var(--c-border);
-  border-radius: 12px;
-  padding: 14px 18px 18px;
+  border-radius: 10px;
+  padding: 8px 12px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   position: relative;
+  min-width: 0;
 }
 .calc-page-redesign .calc-gauge-eyebrow {
   font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--c-fg3);
   align-self: flex-start;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .calc-page-redesign .calc-gauge-value {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(36px, 4vw, 48px);
+  font-size: 28px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.01em;
-  margin-top: -4px;
+  margin-top: -8px;
 }
 .calc-page-redesign .calc-gauge-sub {
   font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--c-fg3);
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .calc-page-redesign .calc-kpi-grid {
-  display: grid;
-  grid-column: 1 / -1;            /* span both top-row columns */
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  display: contents; /* let KPI cards flex with the dashboard parent */
 }
 
 /* Revenue Composition card — sits next to the IRR gauge. White panel,
    donut on the left, breakdown list on the right. */
 .calc-page-redesign .calc-composition-card {
+  flex: 1 1 240px;
+  min-width: 220px;
   background: var(--c-bg0);
   border: 1px solid var(--c-border);
-  border-radius: 12px;
-  padding: 14px 18px 16px;
+  border-radius: 10px;
+  padding: 8px 12px 10px;
   display: flex;
   flex-direction: column;
-  min-width: 0;
 }
 .calc-page-redesign .calc-composition-eyebrow {
   font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--c-fg3);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .calc-page-redesign .calc-composition-empty {
   font-family: 'DM Sans', sans-serif;
@@ -1791,7 +1986,7 @@ textarea:focus-visible,
 .calc-page-redesign .calc-composition-body {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
 }
@@ -1808,11 +2003,14 @@ textarea:focus-visible,
 .calc-page-redesign .calc-composition-row,
 .calc-page-redesign .calc-composition-total {
   display: grid;
-  grid-template-columns: 12px 1fr auto auto;
+  grid-template-columns: 10px 1fr auto auto;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
+}
+.calc-page-redesign .calc-composition-list {
+  gap: 3px;
 }
 .calc-page-redesign .calc-composition-total {
   margin-top: 4px;
@@ -1846,13 +2044,15 @@ textarea:focus-visible,
   min-width: 32px;
 }
 .calc-page-redesign .calc-kpi-card {
+  flex: 1 1 110px;
+  min-width: 110px;
   background: var(--c-bg0);
   border: 1px solid var(--c-border);
   border-radius: 10px;
-  padding: 12px 14px;
+  padding: 8px 10px;
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  gap: 8px;
+  align-items: center;
   transition: border-color 120ms, box-shadow 120ms;
 }
 .calc-page-redesign .calc-kpi-card:hover {
@@ -1860,62 +2060,56 @@ textarea:focus-visible,
   box-shadow: 0 1px 4px rgba(60,40,10,0.06);
 }
 .calc-page-redesign .calc-kpi-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid currentColor;
-  border-color: rgba(0,0,0,0.06);
 }
+.calc-page-redesign .calc-kpi-icon svg { width: 15px; height: 15px; }
 .calc-page-redesign .calc-kpi-content {
   flex: 1;
   min-width: 0;
 }
 .calc-page-redesign .calc-kpi-label {
   font-family: 'DM Sans', sans-serif;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color: var(--c-fg3);
 }
 .calc-page-redesign .calc-kpi-value {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 800;
   line-height: 1;
-  margin: 4px 0 2px;
+  margin: 2px 0 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .calc-page-redesign .calc-kpi-sub {
   font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--c-fg3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .calc-page-redesign .calc-kpi-chart {
-  margin-top: 6px;
-  max-width: 100%;
-  overflow: hidden;
+  display: none; /* compact mode hides mini-charts; keep KPIs slim */
 }
 
-@media (max-width: 1024px) {
-  .calc-page-redesign .calc-composition-body { gap: 12px; }
-  .calc-page-redesign .calc-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-}
 @media (max-width: 768px) {
-  .calc-page-redesign .calc-metric-dashboard {
-    grid-template-columns: 1fr;
-    padding: 14px 14px 16px;
-  }
-  .calc-page-redesign .calc-kpi-value { font-size: 19px; }
-  .calc-page-redesign .calc-kpi-icon { width: 32px; height: 32px; }
-  .calc-page-redesign .calc-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .calc-page-redesign .calc-composition-body { gap: 14px; }
+  .calc-page-redesign .calc-metric-dashboard { padding: 8px 10px 10px; gap: 6px; }
+  .calc-page-redesign .calc-gauge-card { flex: 1 1 100%; }
+  .calc-page-redesign .calc-composition-card { flex: 1 1 100%; min-width: 0; }
+  .calc-page-redesign .calc-kpi-card { flex: 1 1 calc(50% - 4px); }
 }
 @media (max-width: 480px) {
-  .calc-page-redesign .calc-kpi-grid { grid-template-columns: 1fr; }
   .calc-page-redesign .calc-composition-body { flex-direction: column; align-items: center; }
 }
 
