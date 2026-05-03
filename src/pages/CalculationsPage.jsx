@@ -18,19 +18,21 @@ function fmtINR(n) {
 
 const IS = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'inherit', background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 8px', width: '100%', boxSizing: 'border-box', outline: 'none' };
 
-function Section({ id, label, open, onToggle, children }) {
+// Each input section renders as its own elevated card to match the
+// mockup's clearly delineated control panels. Header is a clickable
+// row that collapses the body; chevron rotates to indicate state.
+function Section({ id, label, open, onToggle, children, accent }) {
   return (
-    <div style={{ marginBottom: 14 }}>
+    <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, marginBottom: 12, overflow: 'hidden', boxShadow: accent ? `0 0 0 1px ${alpha(C.accent, 22)}` : '0 1px 2px rgba(0,0,0,0.04)' }}>
       <button onClick={() => onToggle(id)}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '5px 0', marginBottom: open ? 8 : 0 }}>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, whiteSpace: 'nowrap' }}>{label}</span>
-        <div style={{ flex: 1, height: 1, background: C.border }} />
-        <svg viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="10" height="10"
+        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: accent ? alpha(C.accent, 8) : 'transparent', border: 'none', borderBottom: open ? `1px solid ${C.border}` : 'none', cursor: 'pointer', padding: '10px 14px' }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: accent ? C.accent : C.fg3, whiteSpace: 'nowrap', flex: 1, textAlign: 'left' }}>{label}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke={accent ? C.accent : C.fg3} strokeWidth="2" strokeLinecap="round" width="11" height="11"
           style={{ transform: open ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 150ms', flexShrink: 0 }}>
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
-      {open && <div>{children}</div>}
+      {open && <div style={{ padding: '12px 14px' }}>{children}</div>}
     </div>
   );
 }
@@ -229,9 +231,9 @@ export default function CalculationsPage({ onNavigate }) {
   return (
     <div className="calc-page">
 
-      {/* ── Header bar ───────────────────────────────────────────────────────── */}
-      <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '14px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 10 }}>
+      {/* ── Top header card (mockup row 1: Title + tagline · Reset/Save) ─── */}
+      <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '16px 20px 14px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>Financial Calculator</div>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>Model revenue, EBITDA, IRR, and payback. Saved per project.</div>
@@ -251,41 +253,52 @@ export default function CalculationsPage({ onNavigate }) {
             </button>
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3 }}>Project</span>
-          <select value={selectedProjectId || ''}
-            onChange={e => setSelectedProjectId(Number(e.target.value))}
-            aria-label="Select project"
-            style={{ ...IS, fontSize: 14, padding: '6px 10px', cursor: 'pointer', maxWidth: 380 }}>
-            {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-          </select>
-          {isDirty && (
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, fontStyle: 'italic' }}>Unsaved changes</span>
-          )}
-        </div>
       </div>
 
-      {/* ── Live output bar ──────────────────────────────────────────────────── */}
-      <div className="calc-topbar" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '12px 20px', display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        {[
-          { label: 'Annual Revenue', value: fmtINR(calc.revenue), sub: null, color: C.fg1 },
-          { label: 'EBITDA', value: fmtINR(calc.ebitda), sub: `${calc.ebitdaMargin.toFixed(0)}% margin`, color: ebitdaColor },
-          { label: 'IRR', value: calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—', sub: `vs ${dr}% hurdle`, color: irrColor },
-          { label: 'NPV', value: fmtINR(calc.npv), sub: `at ${dr}% discount`, color: npvColor },
-          { label: 'Payback', value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—', sub: `${tn}-yr tenure`, color: paybackColor },
-        ].map(m => (
-          <div key={m.label}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 3 }}>{m.label}</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 800, color: m.color, lineHeight: 1 }}>{m.value}</div>
-            {m.sub && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 2 }}>{m.sub}</div>}
-          </div>
-        ))}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: insight.positive ? alpha(C.accent, 22) : alpha('#c0392b', 22), border: `1px solid ${insight.positive ? alpha(C.accent, 55) : alpha('#c0392b', 55)}`, borderRadius: 20, padding: '5px 14px' }}>
+      {/* ── Project selector strip (mockup row 2: PROJECT · selector) ─────── */}
+      <div style={{ background: C.bg0, borderBottom: `1px solid ${C.border}`, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.fg3 }}>Project</span>
+        <select value={selectedProjectId || ''}
+          onChange={e => setSelectedProjectId(Number(e.target.value))}
+          aria-label="Select project"
+          style={{ ...IS, background: C.bg1, fontSize: 14, padding: '6px 10px', cursor: 'pointer', maxWidth: 380 }}>
+          {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+        </select>
+        {isDirty && (
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: '#b06000', fontStyle: 'italic' }}>● Unsaved changes</span>
+        )}
+      </div>
+
+      {/* ── Live output card (mockup row 3: LIVE OUTPUT · big project name + capacity chip · status pill · metric tiles) ── */}
+      <div className="calc-topbar" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '14px 20px 16px' }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.fg3, marginBottom: 10 }}>Live Output</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
+          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,26px)', fontWeight: 700, color: C.fg1, lineHeight: 1.2, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
+            {selectedProject.title}
+          </h1>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 999, padding: '3px 10px' }}>
+            {input.capacityPct}% capacity
+          </span>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: insight.positive ? alpha(C.accent, 22) : alpha('#c0392b', 22), border: `1px solid ${insight.positive ? alpha(C.accent, 55) : alpha('#c0392b', 55)}`, borderRadius: 999, padding: '5px 14px' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: insight.positive ? C.accent : '#c0392b' }} />
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: insight.positive ? C.accent : '#c0392b' }}>{insight.verdict}</span>
           </div>
+        </div>
+        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          {[
+            { label: 'Annual Revenue', value: fmtINR(calc.revenue), sub: null, color: C.fg1 },
+            { label: 'EBITDA', value: fmtINR(calc.ebitda), sub: `${calc.ebitdaMargin.toFixed(0)}% margin`, color: ebitdaColor },
+            { label: 'IRR', value: calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—', sub: `vs ${dr}% hurdle`, color: irrColor },
+            { label: 'NPV', value: fmtINR(calc.npv), sub: `at ${dr}% discount`, color: npvColor },
+            { label: 'Payback', value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—', sub: `${tn}-yr tenure`, color: paybackColor },
+          ].map(m => (
+            <div key={m.label}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 3 }}>{m.label}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800, color: m.color, lineHeight: 1 }}>{m.value}</div>
+              {m.sub && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 2 }}>{m.sub}</div>}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -298,9 +311,12 @@ export default function CalculationsPage({ onNavigate }) {
           {/* Capacity Utilisation */}
           <Section id="capacity" label="Capacity Utilisation" open={openSections.includes('capacity')} onToggle={toggleSection}>
             <Hint>What % of your maximum planned output you expect to achieve. Most projects run at 60–80% in Year 1.</Hint>
-            <div style={{ textAlign: 'center', marginBottom: 6 }}>
-              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 56, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{input.capacityPct}</span>
-              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent }}>%</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2 }}>Capacity</span>
+              <div>
+                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{input.capacityPct}</span>
+                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: C.accent }}>%</span>
+              </div>
             </div>
             <div style={{ position: 'relative', marginBottom: 12, paddingTop: 18 }}>
               {beLeft && (
@@ -437,8 +453,10 @@ export default function CalculationsPage({ onNavigate }) {
             </div>
           </Section>
 
-          {/* Subsidy Stack */}
-          <Section id="subsidies" label="Subsidy Stack" open={openSections.includes('subsidies')} onToggle={toggleSection}>
+          {/* Subsidy Stack — accent-highlighted card to mirror the mockup's
+              "Subsidy Stack" panel; individual checkboxes preserved for
+              flexibility, savings line surfaced as a prominent footer. */}
+          <Section id="subsidies" label="Subsidy Stack" open={openSections.includes('subsidies')} onToggle={toggleSection} accent>
             <Hint>Tick what you're eligible for — they stack multiplicatively.</Hint>
             {[
               { id: 'pmegp', label: 'PMEGP', enabled: input.pmegpEnabled, setEnabled: (v) => setI({ pmegpEnabled: v }), pct: input.pmegpPct, setPct: (v) => setI({ pmegpPct: v }), editable: true },
@@ -458,8 +476,12 @@ export default function CalculationsPage({ onNavigate }) {
               </div>
             ))}
             {(input.pmegpEnabled || input.citusEnabled || input.apmsmeEnabled) && (
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, marginTop: 6 }}>
-                Effective CAPEX: {fmtINR(calc.effectiveCapex)} · Saves {fmtINR(Number(input.capex) - calc.effectiveCapex)}
+              <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${alpha(C.accent, 22)}`, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 6 }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2 }}>Effective CAPEX</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: C.fg1 }}>{fmtINR(calc.effectiveCapex)}</span>
+                <span style={{ flexBasis: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.accent }}>
+                  Saves {fmtINR(Number(input.capex) - calc.effectiveCapex)}
+                </span>
               </div>
             )}
           </Section>
@@ -509,31 +531,47 @@ export default function CalculationsPage({ onNavigate }) {
 
           <div className="calc-right-body">
 
-            {/* Summary */}
+            {/* Summary — Revenue Composition card + insight callout */}
             {rightTab === 'summary' && (
-              <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Revenue Composition</div>
-                <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 28, flexWrap: 'wrap' }}>
-                  <DonutChart segments={calc.revenueByProduct} totalLabel={fmtINR(calc.revenue)} />
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {calc.revenueByProduct.map(seg => {
-                      const pct = calc.revenue > 0 ? ((seg.value / calc.revenue) * 100).toFixed(0) : 0;
-                      return (
-                        <div key={seg.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{ width: 10, height: 10, borderRadius: 2, background: seg.color, flexShrink: 0 }} />
-                          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, minWidth: 120 }}>{seg.name}</span>
-                          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 600, color: C.fg1 }}>{fmtINR(seg.value)}</span>
-                          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>· {pct}%</span>
-                        </div>
-                      );
-                    })}
-                    {calc.revenueByProduct.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>Add products to see breakdown.</div>}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 18px' }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 14 }}>Revenue Composition</div>
+                  <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+                    <DonutChart segments={calc.revenueByProduct} totalLabel={fmtINR(calc.revenue)} />
+                    <div style={{ flex: 1, minWidth: 240, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {calc.revenueByProduct.map(seg => {
+                        const pct = calc.revenue > 0 ? ((seg.value / calc.revenue) * 100).toFixed(0) : 0;
+                        return (
+                          <div key={seg.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ width: 10, height: 10, borderRadius: 2, background: seg.color, flexShrink: 0 }} />
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seg.name}</span>
+                            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 600, color: C.fg1, minWidth: 60, textAlign: 'right' }}>{fmtINR(seg.value)}</span>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, minWidth: 36, textAlign: 'right' }}>{pct}%</span>
+                          </div>
+                        );
+                      })}
+                      {calc.revenueByProduct.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>Add products to see breakdown.</div>}
+                    </div>
                   </div>
+                  {calc.revenueByProduct.length > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: C.fg1, flex: 1 }}>Total Revenue</span>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: C.fg1, minWidth: 60, textAlign: 'right' }}>{fmtINR(calc.revenue)}</span>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, minWidth: 36, textAlign: 'right' }}>100%</span>
+                    </div>
+                  )}
                 </div>
 
-                <div style={{ background: insight.positive ? alpha(C.accent, 11) : alpha('#c0392b', 11), border: `1px solid ${insight.positive ? alpha(C.accent, 44) : alpha('#c0392b', 44)}`, borderRadius: 10, padding: '14px 18px' }}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: insight.positive ? C.accent : '#c0392b', marginBottom: 4 }}>{insight.verdict}</div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.6 }}>{insight.text}</div>
+                <div style={{ background: insight.positive ? alpha(C.accent, 11) : alpha('#c0392b', 11), border: `1px solid ${insight.positive ? alpha(C.accent, 44) : alpha('#c0392b', 44)}`, borderRadius: 10, padding: '14px 18px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: insight.positive ? alpha(C.accent, 33) : alpha('#c0392b', 33), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                    {insight.positive
+                      ? <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                      : <svg viewBox="0 0 24 24" fill="none" stroke="#c0392b" strokeWidth="2" strokeLinecap="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: insight.positive ? C.accent : '#c0392b', marginBottom: 4 }}>{insight.verdict}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.6 }}>{insight.text}</div>
+                  </div>
                 </div>
               </div>
             )}
