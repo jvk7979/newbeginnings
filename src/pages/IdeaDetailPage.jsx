@@ -9,7 +9,7 @@ import { analyzeIdea, generatePlanSection } from '../utils/gemini';
 import ConfirmModal from '../components/ConfirmModal';
 import AttachedFileViewer from '../components/AttachedFileViewer';
 import AttachmentEditor from '../components/AttachmentEditor';
-import DiscussionThread from '../components/DiscussionThread';
+import IdeaTopics from '../components/IdeaTopics';
 import { SourcesEditor, SourcesView } from '../components/SourcesField';
 import { uploadFileToDB, deleteFileFromDB } from '../utils/fileStorage';
 
@@ -531,7 +531,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
         )}
 
         {/* ── DISCUSSION ── always visible */}
-        <DiscussionThread collectionName="ideaDiscussions" docId={idea.id} />
+        <IdeaTopics ideaId={idea.id} />
       </div>
       </div>
     </div>
