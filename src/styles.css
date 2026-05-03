@@ -1347,9 +1347,39 @@ textarea:focus-visible,
     padding: 18px 18px 20px;
     margin: -12px 0 22px;
     border-radius: 10px;
+    /* On mobile reorder so the greeting leads:
+       eyebrow -> title -> tagline -> meta -> actions */
+    display: flex;
+    flex-direction: column;
   }
-  .dashboard-redesign .dashboard-editorial-meta { font-size: 12px; gap: 8px; }
+  /* Flatten the toolbar so its children participate in the section's
+     flex order. The eyebrow stays at the top; actions push to the
+     bottom so they don't sit above the headline. */
+  .dashboard-redesign .dashboard-editorial-toolbar { display: contents; }
+  .dashboard-redesign .dashboard-editorial-eyebrow { order: 1; margin-bottom: 8px; }
+  .dashboard-redesign .dashboard-editorial-title { order: 2; }
+  .dashboard-redesign .dashboard-editorial-tagline { order: 3; }
+  .dashboard-redesign .dashboard-editorial-meta { order: 4; font-size: 12px; gap: 8px; }
   .dashboard-redesign .dashboard-editorial-meta strong { font-size: 13px; }
+  .dashboard-redesign .dashboard-editorial-actions { order: 5; margin-top: 12px; }
+  .dashboard-redesign .dashboard-editorial-btn { padding: 8px 14px; }
+}
+
+/* Hero photo constraints — cap height on tablet/web so wider viewports
+   don't get a 600px-tall photo, and floor it on mobile so the photo
+   doesn't shrink to a 100px decorative strip. */
+.dashboard-redesign .hero-bleed img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-redesign .hero-bleed img { max-height: 240px; }
+}
+@media (max-width: 768px) {
+  .dashboard-redesign .hero-bleed img { min-height: 160px; max-height: 200px; }
 }
 
 /* Stat grid — 2 equal columns (Ideas + Projects), gentle on mobile */
