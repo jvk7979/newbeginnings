@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans, useIdeas } from '../context/AppContext';
+import { useAutosave } from '../utils/useAutosave';
+import AutosaveStatus from '../components/AutosaveStatus';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { formatText } from '../utils/textFormatter';
@@ -55,6 +57,26 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [dragIdx,         setDragIdx]         = useState(null);
   const [dragOverIdx,     setDragOverIdx]     = useState(null);
 
+  // Autosave — text fields only (file upload + delete blob coordination
+  // stays on the explicit Save flow). Disabled outside edit mode so just
+  // viewing a project never echoes back a write.
+  const autosaveValue = useMemo(() => ({
+    title: title.trim(),
+    summary: summary.trim(),
+    notes: notes.trim(),
+    category, status, sections,
+    sources: sources.map(s => (s || '').trim()).filter(Boolean),
+    linkedIdeaId: linkedIdeaId === '' ? null : Number(linkedIdeaId),
+    eligibleForCalc,
+  }), [title, summary, notes, category, status, sections, sources, linkedIdeaId, eligibleForCalc]);
+  const onAutosave = useCallback(async (val) => {
+    if (!val.title) return; // refuse to autosave a blank title
+    await updatePlan(plan.id, val);
+  }, [plan.id, updatePlan]);
+  const { status: autosaveStatus, lastSavedAt, retry: retryAutosave, cancelPending: cancelAutosave } = useAutosave(
+    autosaveValue, onAutosave, { delay: 1500, enabled: isEditing && !isViewer, key: plan.id }
+  );
+
   useEffect(() => {
     const scroll = () => { pagePadRef.current?.scrollTo?.({ top: 0 }); window.scrollTo?.({ top: 0 }); };
     scroll();
@@ -83,6 +105,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const handleRemoveFile = () => { setAttachedFile(null); setPendingFile(null); setReplacingFile(false); };
 
   const handleSave = async () => {
+    // Kill any pending autosave timer so it can't race the explicit save.
+    cancelAutosave();
     setSaving(true);
     try {
       // Order matters here:
@@ -592,7 +616,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               <button onClick={handleSave} disabled={saving}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
                 onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
@@ -603,6 +627,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
                 Cancel
               </button>
+              <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} compact />
             </div>
           </div>
         )}

@@ -100,8 +100,14 @@ export function useAutosave(value, onSave, { delay = 1500, enabled = true, key }
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
     return doSave();
   }, [doSave]);
+  // Cancel any pending debounced save without firing it. Used when an
+  // explicit Save handler takes over so the in-flight autosave can't
+  // race with the explicit write.
+  const cancelPending = useCallback(() => {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+  }, []);
 
   const isDirty = stableJson(value) !== savedSnapshotRef.current;
 
-  return { status, lastSavedAt, retry, flushNow, isDirty };
+  return { status, lastSavedAt, retry, flushNow, cancelPending, isDirty };
 }

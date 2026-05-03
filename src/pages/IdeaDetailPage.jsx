@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { getCategoryStyle, IDEA_CATEGORIES } from '../utils/categoryStyles';
 import { useIdeas, usePlans } from '../context/AppContext';
@@ -12,6 +12,8 @@ import AttachmentEditor from '../components/AttachmentEditor';
 import IdeaTopics from '../components/IdeaTopics';
 import { SourcesEditor, SourcesView } from '../components/SourcesField';
 import { uploadFileToDB, deleteFileFromDB } from '../utils/fileStorage';
+import { useAutosave } from '../utils/useAutosave';
+import AutosaveStatus from '../components/AutosaveStatus';
 
 const STATUS_BADGE = {
   draft:      { bg: C.bg2,      color: C.fg3,      label: 'Draft' },
@@ -54,6 +56,26 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [confirmDel, setConfirmDel] = useState(false);
   const pagePadRef = useRef(null);
 
+  // Autosave for idea text fields. Skips file/blob coordination — those
+  // commit on the explicit Save button. Disabled outside edit mode.
+  const autosaveValue = useMemo(() => ({
+    title: title.trim(),
+    status, category,
+    desc: desc.trim(),
+    notes: notes.trim(),
+    estimatedCapex:   estimatedCapex   === '' ? null : Number(estimatedCapex),
+    estimatedPayback: estimatedPayback === '' ? null : Number(estimatedPayback),
+    sources: sources.map(s => (s || '').trim()).filter(Boolean),
+    sections,
+  }), [title, status, category, desc, notes, estimatedCapex, estimatedPayback, sources, sections]);
+  const onAutosave = useCallback(async (val) => {
+    if (!val.title) return;
+    await updateIdea(idea.id, val);
+  }, [idea.id, updateIdea]);
+  const { status: autosaveStatus, lastSavedAt, retry: retryAutosave, cancelPending: cancelAutosave } = useAutosave(
+    autosaveValue, onAutosave, { delay: 1500, enabled: isEditing && !isViewer, key: idea.id }
+  );
+
   // Force scroll to top whenever we open a new idea — guards against any
   // late-firing scroll, browser hash-jumps, or stale scroll position.
   useEffect(() => {
@@ -73,6 +95,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const handleRemoveFile = () => { setAttachedFile(null); setPendingFile(null); setReplacingFile(false); };
 
   const handleSave = async () => {
+    cancelAutosave();
     setSaving(true);
     try {
       // Order matters here:
@@ -515,7 +538,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               <button onClick={handleSave} disabled={saving}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
                 onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
@@ -526,6 +549,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
                 Cancel
               </button>
+              <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} compact />
             </div>
           </div>
         )}

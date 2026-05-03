@@ -173,7 +173,7 @@ export default function CalculationsPage({ onNavigate }) {
     },
     [selectedProject?.id, updatePlan]
   );
-  const { status: autosaveStatus, lastSavedAt, retry: retryAutosave } = useAutosave(
+  const { status: autosaveStatus, lastSavedAt, retry: retryAutosave, flushNow, isDirty } = useAutosave(
     input, onAutosave, { delay: 1500, enabled: !!selectedProject, key: selectedProject?.id }
   );
 
@@ -229,7 +229,7 @@ export default function CalculationsPage({ onNavigate }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>Financial Calculator</div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>Model revenue, EBITDA, IRR, and payback. Changes save automatically.</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>Model revenue, EBITDA, IRR, and payback. Changes save automatically — Save commits immediately.</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap' }} data-testid="calc-autosave">
             <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} />
@@ -238,6 +238,13 @@ export default function CalculationsPage({ onNavigate }) {
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '6px 14px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
               Reset
+            </button>
+            <button onClick={flushNow}
+              disabled={!isDirty || autosaveStatus === 'saving'}
+              title={isDirty ? 'Save now (skip the autosave wait)' : 'No unsaved changes'}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '6px 16px', borderRadius: 6, background: !isDirty || autosaveStatus === 'saving' ? C.bg2 : C.accent, color: !isDirty || autosaveStatus === 'saving' ? C.fg3 : '#fff', border: 'none', cursor: !isDirty || autosaveStatus === 'saving' ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save
             </button>
           </div>
         </div>
