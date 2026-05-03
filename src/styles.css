@@ -664,6 +664,49 @@ textarea:focus-visible,
   width: 100%;
 }
 
+/* Ideas Pipeline mini-table on Dashboard — horizontal scroll wrapper.
+   On phones the table is wider than the viewport, so we keep the
+   native scrollbar visible (always, not just while scrolling) and add
+   a right-edge fade so users see clipping is intentional and that
+   they can scroll for the PAYBACK column. */
+.ideas-pipeline-scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.ideas-pipeline-scroll::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  background: linear-gradient(to right, transparent, var(--c-bg1) 90%);
+  pointer-events: none;
+}
+@media (max-width: 768px) {
+  /* Force the scrollbar to remain visible on mobile so the affordance
+     is obvious — iOS/Android usually only show it mid-scroll. */
+  .ideas-pipeline-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-fg3) transparent;
+  }
+  .ideas-pipeline-scroll::-webkit-scrollbar {
+    height: 6px;
+    -webkit-appearance: none;
+    display: block;
+  }
+  .ideas-pipeline-scroll::-webkit-scrollbar-track {
+    background: var(--c-bg2);
+    border-radius: 3px;
+  }
+  .ideas-pipeline-scroll::-webkit-scrollbar-thumb {
+    background: var(--c-fg3);
+    border-radius: 3px;
+  }
+}
+
 /* Stat grid — 2 equal columns (Ideas + Projects), gentle on mobile */
 .stat-grid {
   display: grid;

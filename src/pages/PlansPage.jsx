@@ -6,7 +6,7 @@ import Badge from '../components/Badge';
 import QuickEditForm from '../components/QuickEditForm';
 import SavedViewsBar from '../components/SavedViewsBar';
 import ComparePanel from '../components/ComparePanel';
-import { CATEGORIES } from '../utils/categoryStyles';
+import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 
 const FILTERS = [
   { id: 'all',       label: 'All' },
@@ -56,6 +56,7 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
       </div>
     );
   }
+  const cat = getCategoryStyle(plan.category);
   return (
     <div className="card-rich plan-card"
       style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}
@@ -63,7 +64,7 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
       {/* Top row: category tag (left) · status + actions (right) — mirrors IdeaCard */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8 }}>
         {plan.category
-          ? <span style={{ display: 'inline-block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, padding: '2px 8px', borderRadius: 4 }}>{plan.category}</span>
+          ? <span style={{ display: 'inline-block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: cat.color, background: cat.bg, padding: '2px 8px', borderRadius: 4 }}>{plan.category}</span>
           : <span />
         }
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
