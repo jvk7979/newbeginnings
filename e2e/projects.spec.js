@@ -9,7 +9,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('page title is Projects', async ({ page }) => {
-  await expect(page.locator('text=Projects').first()).toBeVisible();
+  // Scope to the page heading (.page-title) so this doesn't match the
+  // sidenav "Projects" item, which exists in the DOM but is hidden on mobile.
+  await expect(page.locator('.page-title').filter({ hasText: 'Projects' }).first()).toBeVisible();
 });
 
 test('search input is visible', async ({ page }) => {
