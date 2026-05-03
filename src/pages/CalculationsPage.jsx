@@ -20,22 +20,26 @@ function fmtINR(n) {
 
 const IS = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'inherit', background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '5px 8px', width: '100%', boxSizing: 'border-box', outline: 'none' };
 
-// Each input section renders as its own elevated card to match the
-// mockup's clearly delineated control panels. Header is a clickable
-// row that collapses the body; chevron rotates to indicate state.
-function Section({ id, label, open, onToggle, children, accent }) {
+// Editorial assumption group — hairline-separated typographic block instead
+// of the previous heavy bordered card. The header shows the section label
+// (eyebrow style) on the left, a quick-summary chip on the right (so users
+// see the current key value at a glance even when collapsed), and a chevron
+// for expand/collapse. Accent variant adds a sage left-border for emphasis
+// (Subsidy Stack).
+function Section({ id, label, summary, open, onToggle, children, accent }) {
   return (
-    <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, marginBottom: 12, overflow: 'hidden', boxShadow: accent ? `0 0 0 1px ${alpha(C.accent, 22)}` : '0 1px 2px rgba(0,0,0,0.04)' }}>
-      <button onClick={() => onToggle(id)}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: accent ? alpha(C.accent, 8) : 'transparent', border: 'none', borderBottom: open ? `1px solid ${C.border}` : 'none', cursor: 'pointer', padding: '10px 14px' }}>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: accent ? C.accent : C.fg3, whiteSpace: 'nowrap', flex: 1, textAlign: 'left' }}>{label}</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke={accent ? C.accent : C.fg3} strokeWidth="2" strokeLinecap="round" width="11" height="11"
-          style={{ transform: open ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 150ms', flexShrink: 0 }}>
+    <section className="calc-assumption-group" data-accent={accent ? 'true' : 'false'} data-open={open ? 'true' : 'false'}>
+      <button onClick={() => onToggle(id)} className="calc-assumption-header" type="button" aria-expanded={open}>
+        <span className="calc-assumption-eyebrow">{label}</span>
+        {summary && <span className="calc-assumption-summary">{summary}</span>}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="11" height="11"
+          className="calc-assumption-chevron"
+          style={{ transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
-      {open && <div style={{ padding: '12px 14px' }}>{children}</div>}
-    </div>
+      {open && <div className="calc-assumption-body">{children}</div>}
+    </section>
   );
 }
 
@@ -481,11 +485,17 @@ export default function CalculationsPage({ onNavigate }) {
       {/* ── Two-panel split ──────────────────────────────────────────────────── */}
       <div className="calc-panels">
 
-        {/* ── LEFT PANEL: Inputs ────────────────────────────────────────────── */}
-        <div className="calc-left" style={{ borderRight: `1px solid ${C.border}`, padding: '16px 14px' }}>
+        {/* ── LEFT PANEL: Assumptions (editorial typographic groups) ───────── */}
+        <div className="calc-left calc-assumptions">
+          <div className="calc-assumptions-title">
+            <span className="calc-assumptions-eyebrow">Assumptions</span>
+            <span className="calc-assumptions-hint">Click any group to expand or collapse</span>
+          </div>
 
           {/* Capacity Utilisation */}
-          <Section id="capacity" label="Capacity Utilisation" open={openSections.includes('capacity')} onToggle={toggleSection}>
+          <Section id="capacity" label="Capacity Utilisation"
+            summary={`${input.capacityPct}%`}
+            open={openSections.includes('capacity')} onToggle={toggleSection}>
             <Hint>What % of your maximum planned output you expect to achieve. Most projects run at 60–80% in Year 1.</Hint>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2 }}>Capacity</span>
@@ -522,7 +532,9 @@ export default function CalculationsPage({ onNavigate }) {
           </Section>
 
           {/* Product Mix */}
-          <Section id="products" label="Products & Pricing" open={openSections.includes('products')} onToggle={toggleSection}>
+          <Section id="products" label="Products & Pricing"
+            summary={`${fmtINR(calc.revenue)}/yr`}
+            open={openSections.includes('products')} onToggle={toggleSection}>
             <Hint>List everything you sell. Price × Qty at 100% capacity; the slider scales them.</Hint>
             <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
               {['Product', 'Unit', 'Price ₹', 'Qty/yr', ''].map((h, i) => (
@@ -550,7 +562,9 @@ export default function CalculationsPage({ onNavigate }) {
           </Section>
 
           {/* Costs */}
-          <Section id="costs" label="Operating Costs" open={openSections.includes('costs')} onToggle={toggleSection}>
+          <Section id="costs" label="Operating Costs"
+            summary={`${fmtINR(calc.variableCosts + calc.fixedCosts)}/yr`}
+            open={openSections.includes('costs')} onToggle={toggleSection}>
             <div style={{ display: 'flex', gap: 0, marginBottom: 10, borderBottom: `1px solid ${C.border}` }}>
               {[['variable', 'Variable'], ['fixed', 'Fixed']].map(([id, lbl]) => (
                 <button key={id} onClick={() => setCostTab(id)}
@@ -601,7 +615,9 @@ export default function CalculationsPage({ onNavigate }) {
           </Section>
 
           {/* Financing & Subsidies */}
-          <Section id="financing" label="Financing" open={openSections.includes('financing')} onToggle={toggleSection}>
+          <Section id="financing" label="Financing"
+            summary={`${input.debtPct}% debt · ${fmtINR(input.capex)}`}
+            open={openSections.includes('financing')} onToggle={toggleSection}>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Total CAPEX (₹)</div>
             <Hint>Total capital before subsidies — land, civil work, machinery, electrification.</Hint>
             <input type="number" value={input.capex} min={0} step={100000} onChange={e => setI({ capex: Number(e.target.value) || 0 })} style={{ ...IS, marginBottom: 10 }} />
@@ -632,7 +648,13 @@ export default function CalculationsPage({ onNavigate }) {
           {/* Subsidy Stack — accent-highlighted card to mirror the mockup's
               "Subsidy Stack" panel; individual checkboxes preserved for
               flexibility, savings line surfaced as a prominent footer. */}
-          <Section id="subsidies" label="Subsidy Stack" open={openSections.includes('subsidies')} onToggle={toggleSection} accent>
+          <Section id="subsidies" label="Subsidy Stack"
+            summary={
+              (input.pmegpEnabled || input.citusEnabled || input.apmsmeEnabled)
+                ? `Saves ${fmtINR(Number(input.capex) - calc.effectiveCapex)}`
+                : 'none active'
+            }
+            open={openSections.includes('subsidies')} onToggle={toggleSection} accent>
             <Hint>Tick what you're eligible for — they stack multiplicatively.</Hint>
             {[
               { id: 'pmegp', label: 'PMEGP', enabled: input.pmegpEnabled, setEnabled: (v) => setI({ pmegpEnabled: v }), pct: input.pmegpPct, setPct: (v) => setI({ pmegpPct: v }), editable: true },
@@ -663,7 +685,9 @@ export default function CalculationsPage({ onNavigate }) {
           </Section>
 
           {/* Working Capital */}
-          <Section id="wc" label="Working Capital" open={openSections.includes('wc')} onToggle={toggleSection}>
+          <Section id="wc" label="Working Capital"
+            summary={calc.workingCapital > 0 ? fmtINR(calc.workingCapital) : `${input.receivableDays + input.inventoryDays - input.payableDays}d cycle`}
+            open={openSections.includes('wc')} onToggle={toggleSection}>
             <Hint>Cash you need day-to-day.</Hint>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
               {[
