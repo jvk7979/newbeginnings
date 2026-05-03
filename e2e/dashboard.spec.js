@@ -24,14 +24,14 @@ test('stat card click is interactive', async ({ page }) => {
   const card = page.locator('button.stat-card').first();
   await card.click();
   await page.waitForTimeout(400);
-  // Hash changes away from #/dashboard (navigated to ideas/plans/documents)
+  // Hash changes away from #/dashboard (navigated to ideas/projects/documents)
   const hash = await page.evaluate(() => window.location.hash);
   expect(hash).not.toBe('#/dashboard');
 });
 
 test('quick action buttons are present', async ({ page }) => {
   await expect(page.locator('button').filter({ hasText: '+ New Idea' }).first()).toBeVisible();
-  await expect(page.locator('button').filter({ hasText: '+ New Plan' }).first()).toBeVisible();
+  await expect(page.locator('button').filter({ hasText: '+ New Project' }).first()).toBeVisible();
   await expect(page.locator('button').filter({ hasText: 'Upload Document' }).first()).toBeVisible();
 });
 

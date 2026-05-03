@@ -96,7 +96,7 @@ function ActivityHeatmap({ ideas, plans }) {
           </div>
         </div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 10 }}>
-          {totalActivity === 0 ? 'No activity yet — start adding ideas and plans.' : `${totalActivity} total activit${totalActivity === 1 ? 'y' : 'ies'} in the last 12 weeks`}
+          {totalActivity === 0 ? 'No activity yet — start adding ideas and projects.' : `${totalActivity} total activit${totalActivity === 1 ? 'y' : 'ies'} in the last 12 weeks`}
         </div>
       </div>
     </div>
@@ -111,8 +111,8 @@ const PILLARS = [
   },
   {
     icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
-    title: 'Plans',
-    desc: 'Build structured business plans with multiple sections. Store feasibility reports, financial models, and strategic roadmaps in one place.',
+    title: 'Projects',
+    desc: 'Build structured projects with multiple sections. Store feasibility reports, financial models, and strategic roadmaps in one place.',
   },
   {
     icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><circle cx="11" cy="14" r="3"/><path d="M13.5 16.5l2.5 2.5"/></svg>,
@@ -122,7 +122,7 @@ const PILLARS = [
   {
     icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg>,
     title: 'Discussion',
-    desc: 'Every idea and plan has a comment thread. Brainstorm, ask questions, and align as a family.',
+    desc: 'Every idea and project has a comment thread. Brainstorm, ask questions, and align as a family.',
   },
 ];
 
@@ -205,9 +205,9 @@ export default function AboutPage({ onNavigate }) {
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
           Explore Ideas
         </button>
-        <button onClick={() => onNavigate('plans')}
+        <button onClick={() => onNavigate('projects')}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
-          Business Plans
+          Projects
         </button>
         <button onClick={() => onNavigate('documents')}
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer' }}>

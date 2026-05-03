@@ -59,7 +59,7 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
   return (
     <div className="card-rich plan-card"
       style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}
-      onClick={() => onNavigate('plan-detail', plan)}>
+      onClick={() => onNavigate('project-detail', plan)}>
       <div className="plan-card-head">
         <div className="plan-card-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", color: C.fg1 }}>{plan.title}</div>
         <div className="plan-card-tags">
@@ -146,7 +146,7 @@ export default function PlansPage({ onNavigate }) {
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div className="plans-page-header">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
-          <div className="grad-text page-title">Business Plans</div>
+          <div className="grad-text page-title">Projects</div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px', whiteSpace: 'nowrap' }}>
             {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} / ${plans.length}` : plans.length}
           </div>
@@ -162,7 +162,7 @@ export default function PlansPage({ onNavigate }) {
               cursor: plans.length < 2 ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', gap: 5,
             }}
-            title={plans.length < 2 ? 'Need at least 2 plans' : 'Compare plans side by side'}>
+            title={plans.length < 2 ? 'Need at least 2 projects' : 'Compare projects side by side'}>
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
               <rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/>
             </svg>
@@ -172,10 +172,10 @@ export default function PlansPage({ onNavigate }) {
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
             onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
             onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={() => onNavigate('new-plan')}
-            aria-label="New plan">
+            onClick={() => onNavigate('new-project')}
+            aria-label="New project">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span className="plans-new-btn-label">New Plan</span>
+            <span className="plans-new-btn-label">New Project</span>
           </button>
         </div>
       </div>
@@ -185,7 +185,7 @@ export default function PlansPage({ onNavigate }) {
         <svg aria-hidden="true" focusable="false" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search by title or summary…"
-          aria-label="Search plans"
+          aria-label="Search projects"
           style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '8px 36px 8px 32px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' }}
           onFocus={e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; }}
           onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }} />
@@ -240,16 +240,16 @@ export default function PlansPage({ onNavigate }) {
       {plans.length === 0 ? (
         <div style={{ background: C.bg1, border: `2px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 14 }}>📋</div>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, color: C.fg1, marginBottom: 8 }}>No business plans yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 20 }}>Create your first structured business plan to get started.</div>
+          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, color: C.fg1, marginBottom: 8 }}>No projects yet</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 20 }}>Create your first project to get started.</div>
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
             onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
             onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={() => onNavigate('new-plan')}>+ Create Business Plan</button>
+            onClick={() => onNavigate('new-project')}>+ Create Project</button>
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginTop: 40, textAlign: 'center' }}>
-          {search ? `No plans matching "${search}"` : `No plans with status "${filter}".`}
+          {search ? `No projects matching "${search}"` : `No projects with status "${filter}".`}
         </div>
       ) : (
         <div className="grid-2">
@@ -267,7 +267,7 @@ export default function PlansPage({ onNavigate }) {
       <ComparePanel open={compareOpen}
         onClose={() => setCompareOpen(false)}
         items={plans} kind="plan"
-        onOpen={(it) => onNavigate('plan-detail', it)} />
+        onOpen={(it) => onNavigate('project-detail', it)} />
     </div>
   );
 }

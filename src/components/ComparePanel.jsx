@@ -49,7 +49,7 @@ export default function ComparePanel({ open, onClose, items, kind, onOpen }) {
   };
 
   return (
-    <div role="dialog" aria-label={`Compare ${kind === 'plan' ? 'plans' : 'ideas'}`} aria-modal="true"
+    <div role="dialog" aria-label={`Compare ${kind === 'plan' ? 'projects' : 'ideas'}`} aria-modal="true"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
       style={{
         position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.55)',
@@ -69,7 +69,7 @@ export default function ComparePanel({ open, onClose, items, kind, onOpen }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
             <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: C.fg1 }}>
-              Compare {kind === 'plan' ? 'plans' : 'ideas'}
+              Compare {kind === 'plan' ? 'projects' : 'ideas'}
             </span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px' }}>
               {picked.length}/{MAX_SLOTS}
@@ -89,7 +89,7 @@ export default function ComparePanel({ open, onClose, items, kind, onOpen }) {
         <div style={{ padding: '12px 16px', borderBottom: `1px solid ${C.border}` }}>
           <input type="text" value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder={`Search ${kind === 'plan' ? 'plans' : 'ideas'} to add (max ${MAX_SLOTS})…`}
+            placeholder={`Search ${kind === 'plan' ? 'projects' : 'ideas'} to add (max ${MAX_SLOTS})…`}
             aria-label="Search items to compare"
             style={{
               width: '100%', boxSizing: 'border-box',
@@ -130,7 +130,7 @@ export default function ComparePanel({ open, onClose, items, kind, onOpen }) {
           {picked.length === 0 ? (
             <div style={{ padding: '40px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", color: C.fg3 }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>⚖️</div>
-              <div style={{ fontSize: 15 }}>Pick 2 or 3 {kind === 'plan' ? 'plans' : 'ideas'} above to compare side-by-side.</div>
+              <div style={{ fontSize: 15 }}>Pick 2 or 3 {kind === 'plan' ? 'projects' : 'ideas'} above to compare side-by-side.</div>
             </div>
           ) : (
             <div style={{

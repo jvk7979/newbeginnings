@@ -15,7 +15,7 @@ const QUICK_ACTIONS = [
   },
   {
     icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
-    label: '+ New Plan', dest: 'new-plan', primary: false,
+    label: '+ New Project', dest: 'new-project', primary: false,
   },
   {
     icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
@@ -71,7 +71,7 @@ function SectionHeader({ label, actionLabel, onAction }) {
 
 function StatBreakdown({ kind, items }) {
   const groups = useMemo(() => {
-    const labelMap = kind === 'ideas' ? IDEA_STATUS_LABELS : kind === 'plans' ? PLAN_STATUS_LABELS : null;
+    const labelMap = kind === 'ideas' ? IDEA_STATUS_LABELS : kind === 'projects' ? PLAN_STATUS_LABELS : null;
     if (!labelMap) {
       const byType = {};
       items.forEach(f => {
@@ -116,7 +116,7 @@ export default function Dashboard({ onNavigate }) {
 
   const stats = [
     { key: 'ideas',     label: 'Ideas',     count: ideas.length, dest: 'ideas',     icon: ICON_IDEA, items: ideas },
-    { key: 'plans',     label: 'Plans',     count: plans.length, dest: 'plans',     icon: ICON_PLAN, items: plans },
+    { key: 'projects',  label: 'Projects',  count: plans.length, dest: 'projects',  icon: ICON_PLAN, items: plans },
     { key: 'documents', label: 'Documents', count: files.length, dest: 'documents', icon: ICON_FILE, items: files },
   ];
 

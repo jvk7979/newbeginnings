@@ -57,8 +57,7 @@ function Wordmark({ size = 'lg', align = 'left' }) {
 
 const FEATURES = [
   { icon: '💡', label: 'Ideas',     desc: 'Capture and evaluate venture ideas' },
-  { icon: '📋', label: 'Plans',     desc: 'Build structured business plans' },
-  { icon: '🚀', label: 'Projects',  desc: 'Track active ventures and KPIs' },
+  { icon: '📋', label: 'Projects',  desc: 'Build structured project plans, track active ventures and KPIs' },
   { icon: '📄', label: 'Documents', desc: 'Store and read PDFs and reports' },
 ];
 
@@ -119,8 +118,8 @@ export default function SignInPage() {
               Your private workspace for Rajahmundry ventures.
             </p>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
-              Capture ideas rooted in the Godavari and Konaseema region, build business plans,
-              track projects, and manage documents — all in one place.
+              Capture ideas rooted in the Godavari and Konaseema region, build projects,
+              and manage documents — all in one place.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {FEATURES.map(f => (

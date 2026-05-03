@@ -26,8 +26,8 @@ const AboutPage       = lazy(() => import('./pages/AboutPage'));
 const AccessPage      = lazy(() => import('./pages/AccessPage'));
 const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
 
-const LINKABLE = ['dashboard', 'ideas', 'plans', 'documents', 'about', 'access', 'calculations'];
-const DETAIL   = ['idea-detail', 'plan-detail', 'new-idea', 'new-plan', 'document-detail'];
+const LINKABLE = ['dashboard', 'ideas', 'projects', 'documents', 'about', 'access', 'calculations'];
+const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'document-detail'];
 
 const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
@@ -232,11 +232,11 @@ export default function App() {
       case 'idea-detail':
         if (!itemId || !idea) return <NotFound label="Idea" dest="ideas" onNavigate={navigate} />;
         return <IdeaDetailPage key={idea.id} idea={idea} onNavigate={navigate} />;
-      case 'plans':          return <PlansPage onNavigate={navigate} />;
-      case 'plan-detail':
-        if (!itemId || !plan) return <NotFound label="Business plan" dest="plans" onNavigate={navigate} />;
+      case 'projects':       return <PlansPage onNavigate={navigate} />;
+      case 'project-detail':
+        if (!itemId || !plan) return <NotFound label="Project" dest="projects" onNavigate={navigate} />;
         return <PlanDetailPage key={plan.id} plan={plan} onNavigate={navigate} />;
-      case 'new-plan':       return <NewPlanPage onNavigate={navigate} />;
+      case 'new-project':    return <NewPlanPage onNavigate={navigate} />;
       case 'documents':      return <FilesPage onNavigate={navigate} />;
       case 'document-detail':
         if (!itemId || !file) return <NotFound label="Document" dest="documents" onNavigate={navigate} />;

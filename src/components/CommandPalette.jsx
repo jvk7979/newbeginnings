@@ -23,13 +23,13 @@ export default function CommandPalette({ open, onClose, onNavigate }) {
     const items = [
       { id: 'go-home',      label: 'Go to Home',       group: 'Navigate', keywords: 'home dashboard',           run: () => onNavigate('dashboard') },
       { id: 'go-ideas',     label: 'Go to Ideas',      group: 'Navigate', keywords: 'ideas brainstorm',         run: () => onNavigate('ideas') },
-      { id: 'go-plans',     label: 'Go to Plans',      group: 'Navigate', keywords: 'plans business',           run: () => onNavigate('plans') },
+      { id: 'go-projects',  label: 'Go to Projects',   group: 'Navigate', keywords: 'projects plans business',  run: () => onNavigate('projects') },
       { id: 'go-documents', label: 'Go to Documents',  group: 'Navigate', keywords: 'documents files pdf',      run: () => onNavigate('documents') },
       { id: 'go-about',     label: 'Go to About',      group: 'Navigate', keywords: 'about info',               run: () => onNavigate('about') },
       ...(isAdmin ? [{ id: 'go-access', label: 'Go to Access (admin)', group: 'Navigate', keywords: 'access users admin allow', run: () => onNavigate('access') }] : []),
 
       { id: 'new-idea', label: 'New idea',          group: 'Create', keywords: 'new add create idea',          run: () => onNavigate('new-idea') },
-      { id: 'new-plan', label: 'New business plan', group: 'Create', keywords: 'new add create plan business', run: () => onNavigate('new-plan') },
+      { id: 'new-project', label: 'New project', group: 'Create', keywords: 'new add create project plan', run: () => onNavigate('new-project') },
 
       ...themes.map(t => ({
         id: `theme-${t.id}`, label: `Theme: ${t.label}`, group: 'Theme',

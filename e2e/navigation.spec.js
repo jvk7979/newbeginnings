@@ -22,7 +22,7 @@ test('About is last nav item after Calculations', async ({ page, viewport }) => 
   if (viewport.width < 769) test.skip();
   await goto(page, 'dashboard');
   const navItems = await page.locator('[class*="sidenav"] a, [class*="sidenav"] button')
-    .filter({ hasText: /Home|Ideas|Plans|Documents|Calculations|About/ })
+    .filter({ hasText: /Home|Ideas|Projects|Documents|Calculations|About/ })
     .allInnerTexts();
   const clean = navItems.map(t => t.trim()).filter(Boolean);
   const calcIdx = clean.findIndex(t => t.includes('Calculations'));
@@ -31,7 +31,7 @@ test('About is last nav item after Calculations', async ({ page, viewport }) => 
   expect(aboutIdx).toBeGreaterThan(calcIdx);
 });
 
-const NAV_PAGES = ['dashboard', 'ideas', 'plans', 'documents', 'calculations', 'about'];
+const NAV_PAGES = ['dashboard', 'ideas', 'projects', 'documents', 'calculations', 'about'];
 
 for (const hash of NAV_PAGES) {
   test(`hash routing to #/${hash} renders content`, async ({ page }) => {

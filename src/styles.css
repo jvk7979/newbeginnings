@@ -807,7 +807,7 @@ textarea:focus-visible,
   .grid-4 { gap: 8px; }
 }
 
-/* ── Plans page — desktop defaults, mobile-tuned overrides ───────────────── */
+/* ── Projects page — desktop defaults, mobile-tuned overrides ─────────────── */
 .plans-page-header {
   display: flex;
   justify-content: space-between;
@@ -936,7 +936,7 @@ textarea:focus-visible,
   }
 }
 
-/* Very narrow phones: keep the New Plan button as an icon-only target so
+/* Very narrow phones: keep the New Project button as an icon-only target so
    the title + count + button never crowd into each other. */
 @media (max-width: 420px) {
   .plans-new-btn {

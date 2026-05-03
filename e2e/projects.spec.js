@@ -1,15 +1,15 @@
 /**
- * Plans page tests — search, status/category filter chips, empty state, new plan form.
+ * Projects page tests — search, status/category filter chips, empty state, new project form.
  */
 import { test, expect } from '@playwright/test';
 import { goto } from './helpers.js';
 
 test.beforeEach(async ({ page }) => {
-  await goto(page, 'plans');
+  await goto(page, 'projects');
 });
 
-test('page title is Business Plans', async ({ page }) => {
-  await expect(page.locator('text=Business Plans').first()).toBeVisible();
+test('page title is Projects', async ({ page }) => {
+  await expect(page.locator('text=Projects').first()).toBeVisible();
 });
 
 test('search input is visible', async ({ page }) => {
@@ -34,16 +34,16 @@ test('Compare button is present', async ({ page }) => {
   await expect(page.locator('button').filter({ hasText: 'Compare' }).first()).toBeVisible();
 });
 
-test('New Plan button is present', async ({ page }) => {
-  await expect(page.locator('button').filter({ hasText: /New Plan/ }).first()).toBeVisible();
+test('New Project button is present', async ({ page }) => {
+  await expect(page.locator('button').filter({ hasText: /New Project/ }).first()).toBeVisible();
 });
 
-test('empty state renders when no plans exist', async ({ page }) => {
-  await expect(page.locator('text=No business plans').first()).toBeVisible();
+test('empty state renders when no projects exist', async ({ page }) => {
+  await expect(page.locator('text=No projects').first()).toBeVisible();
 });
 
-test('New Plan page — form renders', async ({ page }) => {
-  await goto(page, 'new-plan');
+test('New Project page — form renders', async ({ page }) => {
+  await goto(page, 'new-project');
   // Title input (not the hidden file input)
   await expect(page.locator('input:not([type="file"])').first()).toBeVisible();
 });

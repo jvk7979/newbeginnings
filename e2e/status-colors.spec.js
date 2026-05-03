@@ -1,6 +1,6 @@
 /**
  * Status color tests — verify Option D muted pastel colors are applied
- * correctly on filter chips across Plans and Ideas pages.
+ * correctly on filter chips across Projects and Ideas pages.
  */
 import { test, expect } from '@playwright/test';
 import { goto } from './helpers.js';
@@ -27,8 +27,8 @@ function hexToRgb(hex) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-test('Plans page — filter chip text colors match Option D', async ({ page }) => {
-  await goto(page, 'plans');
+test('Projects page — filter chip text colors match Option D', async ({ page }) => {
+  await goto(page, 'projects');
   for (const [label, hex] of Object.entries(PLAN_CHIP_COLORS)) {
     const chip = page.locator('button').filter({ hasText: new RegExp(`^${label}`) }).first();
     await expect(chip).toBeVisible();
@@ -37,9 +37,9 @@ test('Plans page — filter chip text colors match Option D', async ({ page }) =
   }
 });
 
-test('Ideas page — status chip colors are applied (Plans-only full test)', async ({ page }) => {
+test('Ideas page — status chip colors are applied (Projects-only full test)', async ({ page }) => {
   // Ideas chips are data-conditional: only "All" shows in e2e (empty-data) mode.
-  // Full status chip color coverage is verified via the Plans page test above.
+  // Full status chip color coverage is verified via the Projects page test above.
   await goto(page, 'ideas');
   await expect(page.locator('button').filter({ hasText: /^All/ }).first()).toBeVisible();
 });

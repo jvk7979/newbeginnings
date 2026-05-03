@@ -111,7 +111,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       setPendingFile(null);
       setReplacingFile(false);
       setIsEditing(false);
-      showToast('Plan saved', 'success');
+      showToast('Project saved', 'success');
     } catch (err) {
       console.error('[savePlan]', err);
       showToast(err?.message || 'Failed to save. Please try again.', 'error');
@@ -139,8 +139,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const confirmDeletePlan = () => {
     const backup = { ...plan, sections: [...(plan.sections || [])] };
     deletePlan(plan.id);
-    showToast('Plan deleted', 'info', { label: 'Undo', onClick: () => restorePlan(backup) });
-    onNavigate('plans');
+    showToast('Project deleted', 'info', { label: 'Undo', onClick: () => restorePlan(backup) });
+    onNavigate('projects');
   };
 
   const handleGenerateSection = async (i) => {
@@ -270,9 +270,9 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <button onClick={() => onNavigate('plans')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
+        <button onClick={() => onNavigate('projects')} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          Business Plans
+          Projects
         </button>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           {!isEditing && sections.length > 0 && (
@@ -302,7 +302,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
         {/* ── VIEW MODE ── */}
         {!isEditing && (
           <>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Business Plan</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Project</div>
             <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,30px)', fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 8px 0' }}>{plan.title}</h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 20 }}>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3 }}>Updated {plan.updated}</span>
@@ -404,10 +404,10 @@ export default function PlanDetailPage({ plan, onNavigate }) {
         {/* ── EDIT MODE ── */}
         {isEditing && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 28 }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Editing Business Plan</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Editing Project</div>
 
             <div>
-              <label style={labelStyle}>Plan Title</label>
+              <label style={labelStyle}>Project Title</label>
               <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} maxLength={140} onFocus={focus} onBlur={blur} />
             </div>
 
@@ -555,8 +555,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     </div>
     {confirmDel && (
       <ConfirmModal
-        title="Delete business plan?"
-        message="Are you sure you want to delete this business plan? This action cannot be undone."
+        title="Delete project?"
+        message="Are you sure you want to delete this project? This action cannot be undone."
         confirmLabel="Delete"
         onConfirm={confirmDeletePlan}
         onCancel={() => setConfirmDel(false)} />
