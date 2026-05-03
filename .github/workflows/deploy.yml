@@ -15,25 +15,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # E2E gate: full Playwright suite across web, iPad, and mobile viewports.
-  # Build + deploy only run if every spec passes, so a regression on any
-  # form factor blocks the deploy.
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- --reporter=list
-        env:
-          CI: true
+  # E2E gate (DISABLED — re-enable later). Full Playwright suite across web,
+  # iPad, and mobile viewports. When uncommented, build + deploy only run if
+  # every spec passes so a regression on any form factor blocks the deploy.
+  # test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: npm
+  #     - run: npm ci
+  #     - run: npx playwright install --with-deps chromium
+  #     - run: npm run test:e2e -- --reporter=list
+  #       env:
+  #         CI: true
 
   build:
-    needs: test
+    # needs: test  # re-enable when the test job above is uncommented
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

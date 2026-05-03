@@ -1054,6 +1054,14 @@ textarea:focus-visible,
     gap: 18px !important;
   }
   .calc-topbar > div { flex-basis: 40%; }
+
+  /* Header card: stack title above the action row so the "Saved N ago"
+     pill + Reset/Save buttons stop squeezing the title/description into
+     a narrow column. */
+  .calc-header { padding: 14px 16px 12px !important; }
+  .calc-header-row { flex-direction: column; align-items: stretch !important; gap: 10px !important; }
+  .calc-header-title { flex: none !important; }
+  .calc-header-actions { width: 100%; justify-content: flex-start; }
 }
 
 /* ── Universal dark mode ────────────────────────────────────────────────────

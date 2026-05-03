@@ -225,13 +225,13 @@ export default function CalculationsPage({ onNavigate }) {
     <div className="calc-page">
 
       {/* ── Top header card (mockup row 1: Title + tagline · autosave pill) ── */}
-      <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '16px 20px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div style={{ minWidth: 0, flex: 1 }}>
+      <div className="calc-header" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '16px 20px 14px' }}>
+        <div className="calc-header-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+          <div className="calc-header-title" style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>Financial Calculator</div>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>Model revenue, EBITDA, IRR, and payback. Changes save automatically — Save commits immediately.</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap' }} data-testid="calc-autosave">
+          <div className="calc-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap' }} data-testid="calc-autosave">
             <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} />
             <button onClick={handleResetToDefaults}
               title="Reset every field to the default values"
