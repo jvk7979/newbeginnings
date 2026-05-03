@@ -1,8 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans } from '../context/AppContext';
-import { useToast } from '../context/ToastContext';
 import { runCalc, runSensitivity, DEFAULT_CALC_INPUT, PRODUCT_COLORS_EXPORT as PRODUCT_COLORS } from '../utils/calcEngine';
+import { useAutosave } from '../utils/useAutosave';
+import AutosaveStatus from '../components/AutosaveStatus';
+import ConfirmModal from '../components/ConfirmModal';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -40,9 +42,6 @@ function Section({ id, label, open, onToggle, children, accent }) {
 function Hint({ children }) {
   return <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, marginTop: 2, marginBottom: 6, lineHeight: 1.45 }}>{children}</div>;
 }
-
-// Stable JSON shape for "is the current input dirty vs the saved input"
-const stableJson = (o) => JSON.stringify(o, Object.keys(o || {}).sort());
 
 // ─── Empty States ─────────────────────────────────────────────────────────────
 
@@ -127,14 +126,11 @@ function DonutChart({ segments, totalLabel }) {
 
 export default function CalculationsPage({ onNavigate }) {
   const { plans, updatePlan } = usePlans();
-  const { showToast } = useToast();
 
   const eligible = useMemo(() => plans.filter(p => p.eligibleForCalc), [plans]);
 
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [input, setInput] = useState(DEFAULT_CALC_INPUT);
-  const [savedSnapshot, setSavedSnapshot] = useState(stableJson(DEFAULT_CALC_INPUT));
-  const [saving, setSaving] = useState(false);
   const [openSections, setOpenSections] = useState(['capacity', 'products', 'costs', 'financing', 'subsidies', 'wc']);
   const [costTab, setCostTab] = useState('fixed');
   const [rightTab, setRightTab] = useState('summary');
@@ -158,10 +154,7 @@ export default function CalculationsPage({ onNavigate }) {
     const saved = selectedProject.calc;
     const next = saved && typeof saved === 'object' ? { ...DEFAULT_CALC_INPUT, ...saved } : DEFAULT_CALC_INPUT;
     setInput(next);
-    setSavedSnapshot(stableJson(next));
   }, [selectedProject?.id]);
-
-  const isDirty = stableJson(input) !== savedSnapshot;
 
   const setI = (patch) => setInput(prev => ({ ...prev, ...patch }));
   const setRow = (field, id, k, v) => setInput(prev => ({ ...prev, [field]: prev[field].map(r => r.id === id ? { ...r, [k]: v } : r) }));
@@ -170,27 +163,27 @@ export default function CalculationsPage({ onNavigate }) {
 
   const toggleSection = (id) => setOpenSections(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
 
-  const handleSave = async () => {
-    if (!selectedProject || saving) return;
-    setSaving(true);
-    try {
-      await updatePlan(selectedProject.id, { calc: input });
-      setSavedSnapshot(stableJson(input));
-      showToast('Calculation saved', 'success');
-    } catch (err) {
-      console.error('[saveCalc]', err);
-      showToast('Could not save. Try again.', 'error');
-    } finally {
-      setSaving(false);
-    }
-  };
+  // Autosave — debounced 1500ms. Re-keying on selectedProjectId guarantees
+  // that switching projects loads the new doc's saved state without
+  // immediately overwriting it via a stale dirty-diff.
+  const onAutosave = useCallback(
+    async (val) => {
+      if (!selectedProject) return;
+      await updatePlan(selectedProject.id, { calc: val });
+    },
+    [selectedProject?.id, updatePlan]
+  );
+  const { status: autosaveStatus, lastSavedAt, retry: retryAutosave } = useAutosave(
+    input, onAutosave, { delay: 1500, enabled: !!selectedProject, key: selectedProject?.id }
+  );
 
-  const handleReset = () => {
-    if (!selectedProject) return;
-    const saved = selectedProject.calc;
-    const next = saved && typeof saved === 'object' ? { ...DEFAULT_CALC_INPUT, ...saved } : DEFAULT_CALC_INPUT;
-    setInput(next);
-    setSavedSnapshot(stableJson(next));
+  // Hard reset: blow away every input back to the empty defaults. The
+  // autosave layer will persist this fresh state shortly after.
+  const [confirmReset, setConfirmReset] = useState(false);
+  const handleResetToDefaults = () => setConfirmReset(true);
+  const doResetToDefaults = () => {
+    setInput(DEFAULT_CALC_INPUT);
+    setConfirmReset(false);
   };
 
   // Math
@@ -231,25 +224,20 @@ export default function CalculationsPage({ onNavigate }) {
   return (
     <div className="calc-page">
 
-      {/* ── Top header card (mockup row 1: Title + tagline · Reset/Save) ─── */}
+      {/* ── Top header card (mockup row 1: Title + tagline · autosave pill) ── */}
       <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '16px 20px 14px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>Financial Calculator</div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>Model revenue, EBITDA, IRR, and payback. Saved per project.</div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>Model revenue, EBITDA, IRR, and payback. Changes save automatically.</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
-            <button onClick={handleReset} disabled={!isDirty}
-              title={isDirty ? 'Discard changes since last save' : 'No changes to reset'}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '7px 14px', borderRadius: 6, background: 'transparent', color: isDirty ? C.fg2 : C.fg3, border: `1px solid ${C.border}`, cursor: isDirty ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap' }} data-testid="calc-autosave">
+            <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} />
+            <button onClick={handleResetToDefaults}
+              title="Reset every field to the default values"
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '6px 14px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
               Reset
-            </button>
-            <button onClick={handleSave} disabled={!isDirty || saving}
-              title={isDirty ? 'Save calculation to this project' : 'No changes to save'}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '7px 16px', borderRadius: 6, background: !isDirty || saving ? C.bg2 : C.accent, color: !isDirty || saving ? C.fg3 : '#fff', border: 'none', cursor: !isDirty || saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              {saving ? 'Saving…' : isDirty ? 'Save' : 'Saved'}
             </button>
           </div>
         </div>
@@ -264,9 +252,6 @@ export default function CalculationsPage({ onNavigate }) {
           style={{ ...IS, background: C.bg1, fontSize: 14, padding: '6px 10px', cursor: 'pointer', maxWidth: 380 }}>
           {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
         </select>
-        {isDirty && (
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: '#b06000', fontStyle: 'italic' }}>● Unsaved changes</span>
-        )}
       </div>
 
       {/* ── Live output card (mockup row 3: LIVE OUTPUT · big project name + capacity chip · status pill · metric tiles) ── */}
@@ -775,6 +760,16 @@ export default function CalculationsPage({ onNavigate }) {
           </div>
         </div>
       </div>
+
+      {confirmReset && (
+        <ConfirmModal
+          title="Reset all fields to defaults?"
+          message="This clears CAPEX, products, costs, financing, subsidies, and working capital back to their default values for this project. The change saves automatically."
+          confirmLabel="Reset to defaults"
+          variant="danger"
+          onConfirm={doResetToDefaults}
+          onCancel={() => setConfirmReset(false)} />
+      )}
     </div>
   );
 }
