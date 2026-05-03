@@ -1109,6 +1109,24 @@ textarea:focus-visible,
   cursor: not-allowed;
 }
 
+/* Frame the AutosaveStatus pill against the gradient hero — its idle
+   state uses muted grey text on a transparent background, which gets
+   lost on the cream-sage backdrop. A subtle white card with a hairline
+   gives it presence without overpowering the saving/saved/error states
+   (each of which already has its own coloured background). */
+.calc-page-redesign .calc-hero-autosave {
+  display: inline-flex;
+  align-items: center;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  padding: 0 4px;
+  box-shadow: 0 1px 2px rgba(60,40,10,0.04);
+}
+.calc-page-redesign .calc-hero-autosave > span {
+  border-color: transparent !important;
+}
+
 .calc-page-redesign .calc-hero-content {
   display: flex;
   align-items: flex-start;

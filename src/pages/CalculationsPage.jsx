@@ -378,7 +378,9 @@ export default function CalculationsPage({ onNavigate }) {
               className="calc-hero-project-picker">
               {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
             </select>
-            <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} />
+            <span className="calc-hero-autosave">
+              <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} />
+            </span>
             <button onClick={handleResetToDefaults} className="calc-hero-btn calc-hero-btn-secondary"
               title="Reset every field to the default values">
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
