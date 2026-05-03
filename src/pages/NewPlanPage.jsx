@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { C, alpha } from '../tokens';
-import { usePlans } from '../context/AppContext';
+import { usePlans, useIdeas } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { formatText } from '../utils/textFormatter';
 import PdfUploadZone from '../components/PdfUploadZone';
@@ -22,8 +22,9 @@ const PLAN_STATUSES = [
 
 export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = usePlans();
+  const { ideas } = useIdeas();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft', sources: [] });
+  const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft', sources: [], linkedIdeaId: '' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
@@ -60,7 +61,8 @@ export default function NewPlanPage({ onNavigate }) {
       let attachedFile = null;
       if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
       const sources = (form.sources || []).map(s => (s || '').trim()).filter(Boolean);
-      addPlan({ ...form, title: form.title.trim(), sources, sections: [], attachedFile });
+      const linkedIdeaId = form.linkedIdeaId ? Number(form.linkedIdeaId) : null;
+      addPlan({ ...form, title: form.title.trim(), sources, sections: [], attachedFile, linkedIdeaId });
       showToast('Project saved', 'success');
       onNavigate('projects');
     } catch (err) {
@@ -112,6 +114,22 @@ export default function NewPlanPage({ onNavigate }) {
                 {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
+          </div>
+        </div>
+
+        {/* Link to Idea (optional) */}
+        <div>
+          <label style={labelStyle}>Link to Idea (optional)</label>
+          <div className="select-wrap">
+            <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+              value={form.linkedIdeaId}
+              onChange={e => setForm({ ...form, linkedIdeaId: e.target.value })}>
+              <option value="">— None —</option>
+              {ideas.map(i => <option key={i.id} value={i.id}>{i.title}</option>)}
+            </select>
+          </div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
+            Connect this project to the idea it grew from. You can link many projects to one idea.
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { C, alpha } from '../tokens';
-import { usePlans } from '../context/AppContext';
+import { usePlans, useIdeas } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { formatText } from '../utils/textFormatter';
@@ -27,6 +27,7 @@ const PLAN_STATUSES = [
 
 export default function PlanDetailPage({ plan, onNavigate }) {
   const { updatePlan, deletePlan, restorePlan } = usePlans();
+  const { ideas } = useIdeas();
   const { showToast } = useToast();
   const { isViewer } = useAuth();
 
@@ -37,6 +38,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [status,       setStatus]       = useState(plan.status        || 'draft');
   const [sections,     setSections]     = useState(plan.sections      || []);
   const [sources,      setSources]      = useState(Array.isArray(plan.sources) ? plan.sources : []);
+  const [linkedIdeaId, setLinkedIdeaId] = useState(plan.linkedIdeaId ?? '');
   const [attachedFile, setAttachedFile] = useState(plan.attachedFile  || null);
   const [pendingFile,  setPendingFile]  = useState(null);
   const [replacingFile, setReplacingFile] = useState(false);
@@ -102,7 +104,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       // attachment requires an explicit Remove click, never a save with
       // an unconfirmed replace.
       const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
-      await updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, attachedFile: nextFile });
+      const cleanLinkedIdeaId = linkedIdeaId === '' ? null : Number(linkedIdeaId);
+      await updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, linkedIdeaId: cleanLinkedIdeaId, attachedFile: nextFile });
       if (blobToDelete) {
         try { await deleteFileFromDB(blobToDelete); }
         catch (e) { console.warn('[orphan blob]', blobToDelete, e); }
@@ -129,6 +132,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     setStatus(plan.status         || 'draft');
     setSections(plan.sections     || []);
     setSources(Array.isArray(plan.sources) ? plan.sources : []);
+    setLinkedIdeaId(plan.linkedIdeaId ?? '');
     setAttachedFile(plan.attachedFile || null);
     setPendingFile(null);
     setReplacingFile(false);
@@ -304,6 +308,20 @@ export default function PlanDetailPage({ plan, onNavigate }) {
           <>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Project</div>
             <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,30px)', fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 8px 0' }}>{plan.title}</h1>
+            {(() => {
+              const linked = plan.linkedIdeaId != null ? ideas.find(i => i.id === plan.linkedIdeaId) : null;
+              return linked ? (
+                <button onClick={() => onNavigate('idea-detail', linked)}
+                  aria-label={`Open linked idea: ${linked.title}`}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 12, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 999, padding: '4px 12px', cursor: 'pointer' }}
+                  onMouseEnter={e => e.currentTarget.style.background = alpha(C.accent, 22)}
+                  onMouseLeave={e => e.currentTarget.style.background = C.accentBg}>
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  From idea: <span style={{ fontWeight: 600 }}>{linked.title}</span>
+                  <span aria-hidden="true">→</span>
+                </button>
+              ) : null;
+            })()}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 20 }}>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3 }}>Updated {plan.updated}</span>
               {category && (
@@ -426,6 +444,21 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                 <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={status} onChange={e => setStatus(e.target.value)}>
                   {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
+              </div>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Linked Idea (optional)</label>
+              <div className="select-wrap">
+                <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+                  value={linkedIdeaId}
+                  onChange={e => setLinkedIdeaId(e.target.value)}>
+                  <option value="">— None —</option>
+                  {ideas.map(i => <option key={i.id} value={i.id}>{i.title}</option>)}
+                </select>
+              </div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
+                Connect this project to the idea it grew from. You can link many projects to one idea.
               </div>
             </div>
 

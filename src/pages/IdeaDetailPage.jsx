@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { C, alpha } from '../tokens';
 import { getCategoryStyle, IDEA_CATEGORIES } from '../utils/categoryStyles';
-import { useIdeas } from '../context/AppContext';
+import { useIdeas, usePlans } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { formatText } from '../utils/textFormatter';
@@ -24,8 +24,10 @@ const STATUS_OPTIONS = ['draft', 'validating', 'active', 'archived'];
 
 export default function IdeaDetailPage({ idea, onNavigate }) {
   const { updateIdea, deleteIdea, restoreIdea } = useIdeas();
+  const { plans } = usePlans();
   const { showToast } = useToast();
   const { isViewer } = useAuth();
+  const linkedProjects = plans.filter(p => p.linkedIdeaId === idea.id);
 
   // Edit form state — mirrors idea fields
   const [isEditing, setIsEditing]     = useState(false);
@@ -343,6 +345,37 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
               <div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Attached Document</div>
                 <AttachedFileViewer file={attachedFile} editing={false} />
+              </div>
+            )}
+
+            {/* Linked Projects — projects that point to this idea via linkedIdeaId */}
+            {linkedProjects.length > 0 && (
+              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Linked Projects · {linkedProjects.length}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {linkedProjects.map(p => (
+                    <button key={p.id} onClick={() => onNavigate('project-detail', p)}
+                      aria-label={`Open project: ${p.title}`}
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', width: '100%', background: C.bg0, border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.accent}`, borderRadius: 6, padding: '10px 14px', cursor: 'pointer', transition: 'background 120ms' }}
+                      onMouseEnter={e => e.currentTarget.style.background = C.bg2}
+                      onMouseLeave={e => e.currentTarget.style.background = C.bg0}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 600, color: C.fg1, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p.title}
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
+                          {p.status && <span style={{ textTransform: 'capitalize' }}>{String(p.status).replace('-', ' ')}</span>}
+                          {p.updated && <span>· Updated {p.updated}</span>}
+                        </div>
+                      </div>
+                      <span aria-hidden="true" style={{ color: C.accent, fontSize: 18, flexShrink: 0 }}>→</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
