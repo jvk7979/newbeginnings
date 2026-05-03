@@ -1388,6 +1388,132 @@ textarea:focus-visible,
   width: 140px;
 }
 
+/* ── Project Health Dashboard — IRR gauge + KPI tile grid ─────────────
+   Dashboard-style metric layout that replaces the previous flat metric
+   strip. Inspired by Bold BI / Keap finance panels. */
+.calc-page-redesign .calc-metric-dashboard {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 14px;
+  background: var(--c-bg1);
+  border-bottom: 1px solid var(--c-border);
+  padding: 18px 20px 20px;
+}
+.calc-page-redesign .calc-gauge-card {
+  background: var(--c-bg0);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+.calc-page-redesign .calc-gauge-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  align-self: flex-start;
+  margin-bottom: 4px;
+}
+.calc-page-redesign .calc-gauge-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(36px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-top: -4px;
+}
+.calc-page-redesign .calc-gauge-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  margin-top: 6px;
+}
+
+.calc-page-redesign .calc-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.calc-page-redesign .calc-kpi-card {
+  background: var(--c-bg0);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.calc-page-redesign .calc-kpi-card:hover {
+  border-color: var(--c-fg3);
+  box-shadow: 0 1px 4px rgba(60,40,10,0.06);
+}
+.calc-page-redesign .calc-kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid currentColor;
+  border-color: rgba(0,0,0,0.06);
+}
+.calc-page-redesign .calc-kpi-content {
+  flex: 1;
+  min-width: 0;
+}
+.calc-page-redesign .calc-kpi-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+}
+.calc-page-redesign .calc-kpi-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  margin: 4px 0 2px;
+}
+.calc-page-redesign .calc-kpi-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+}
+.calc-page-redesign .calc-kpi-chart {
+  margin-top: 6px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .calc-page-redesign .calc-metric-dashboard {
+    grid-template-columns: 280px 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .calc-page-redesign .calc-metric-dashboard {
+    grid-template-columns: 1fr;
+    padding: 14px 14px 16px;
+  }
+  .calc-page-redesign .calc-kpi-value { font-size: 19px; }
+  .calc-page-redesign .calc-kpi-icon { width: 32px; height: 32px; }
+}
+@media (max-width: 480px) {
+  .calc-page-redesign .calc-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .calc-page-redesign .calc-pill-tabs {
   display: flex;
   gap: 6px;

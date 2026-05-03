@@ -245,6 +245,73 @@ function PaybackTrack({ payback, tenure, color, width = 100, height = 14 }) {
   );
 }
 
+// ─── IRRGauge — semicircular gauge with red/yellow/green ranges ─────────────
+// Inspired by Bold BI / Keap-style financial dashboards. The arc is divided
+// into three coloured zones (below hurdle = red, hurdle to 1.5×hurdle =
+// amber, above 1.5×hurdle = green) and a needle points at the current IRR.
+// Auto-scales the max so very high IRRs still render with the needle inside.
+function IRRGauge({ value, hurdle, color }) {
+  const W = 240, H = 132;
+  const cx = W / 2;
+  const cy = H - 14;
+  const R = 88;
+  const stroke = 14;
+
+  const safeHurdle = Math.max(1, hurdle);
+  const max = Math.max(safeHurdle * 3, value !== null ? Math.abs(value) * 1.05 : 0, 60);
+
+  const pt = (ratio) => {
+    const angle = Math.PI * (1 - Math.max(0, Math.min(1, ratio)));
+    return [cx + R * Math.cos(angle), cy - R * Math.sin(angle)];
+  };
+  const seg = (a, b) => {
+    const [x1, y1] = pt(a);
+    const [x2, y2] = pt(b);
+    return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+  };
+
+  const r1 = Math.min(1, safeHurdle / max);
+  const r2 = Math.min(1, (safeHurdle * 1.5) / max);
+
+  const valRatio = value === null ? 0 : Math.max(0, Math.min(1, value / max));
+  const needleAngle = Math.PI * (1 - valRatio);
+  const needleR = R - stroke / 2 - 4;
+  const nx = cx + needleR * Math.cos(needleAngle);
+  const ny = cy - needleR * Math.sin(needleAngle);
+
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', maxWidth: W }} role="img" aria-label={`IRR gauge`}>
+      <path d={seg(0, r1)}  fill="none" stroke="#d96b5b" strokeWidth={stroke} />
+      <path d={seg(r1, r2)} fill="none" stroke="#e6b34a" strokeWidth={stroke} />
+      <path d={seg(r2, 1)}  fill="none" stroke="#5c8a52" strokeWidth={stroke} />
+      {value !== null && (
+        <g>
+          <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#3a3528" strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx={cx} cy={cy} r="7" fill="#3a3528" />
+          <circle cx={cx} cy={cy} r="3" fill="#fff" />
+        </g>
+      )}
+      {/* Tick labels at the corners */}
+      <text x={cx - R} y={cy + 14} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="10" fill={C.fg3}>0</text>
+      <text x={cx + R} y={cy + 14} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="10" fill={C.fg3}>{Math.round(max)}%</text>
+      {/* Hurdle marker — small tick at the hurdle ratio so users can see
+          where the cost-of-capital line sits on the dial */}
+      {(() => {
+        const [tx1, ty1] = pt(r1);
+        const a = Math.PI * (1 - r1);
+        const tx2 = cx + (R + stroke / 2 + 4) * Math.cos(a);
+        const ty2 = cy - (R + stroke / 2 + 4) * Math.sin(a);
+        return (
+          <g>
+            <line x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke={C.fg2} strokeWidth="1" />
+            <text x={tx2} y={ty2 - 4} textAnchor="middle" fontFamily="'DM Sans', sans-serif" fontSize="9" fill={C.fg3}>hurdle</text>
+          </g>
+        );
+      })()}
+    </svg>
+  );
+}
+
 // ─── CapacityRing (editorial redesign) ───────────────────────────────────────
 // Big SVG ring that lives in the hero band. Reads the current capacityPct,
 // fills the arc proportionally, and prints the % in Playfair inside the ring.
@@ -472,53 +539,68 @@ export default function CalculationsPage({ onNavigate }) {
           IRR is the dominant number on the page (Playfair, ~56px) and sits
           on the left with a vertical hairline. The other 4 metrics fan out
           to the right at smaller scale, monospace numerals. */}
-      <div className="calc-metric-band">
-        <div className="calc-metric-headline">
-          <div className="calc-metric-eyebrow">IRR</div>
-          <div className="calc-metric-headline-value" style={{ color: irrColor }}>
+      {/* Project Health Dashboard — IRR gauge + 4 KPI tiles in a grid.
+          Dashboard-style metric layout inspired by Bold BI / Keap finance
+          panels: a single dominant gauge for the headline metric, with
+          icon-led tiles for the rest. */}
+      <div className="calc-metric-dashboard">
+
+        {/* Big IRR gauge — semicircular with red/yellow/green zones */}
+        <div className="calc-gauge-card">
+          <div className="calc-gauge-eyebrow">IRR</div>
+          <IRRGauge value={calc.irr} hurdle={dr} />
+          <div className="calc-gauge-value" style={{ color: irrColor }}>
             {calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—'}
           </div>
-          <div className="calc-metric-chart">
-            <HurdleBar value={calc.irr} hurdle={dr} color={irrColor} width={140} />
-          </div>
-          <div className="calc-metric-sub">vs {dr}% hurdle rate</div>
+          <div className="calc-gauge-sub">vs {dr}% hurdle rate</div>
         </div>
-        <div className="calc-metric-row">
+
+        {/* KPI tile grid — 2×2 of icon cards */}
+        <div className="calc-kpi-grid">
           {[
             {
               label: 'Annual Revenue',
               value: fmtINR(calc.revenue),
               sub: `over ${input.lifetime} yrs`,
               color: C.accent,
-              chart: <Sparkline values={calc.rows.map(r => r.revenue)} color={C.accent} />,
+              icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>,
+              chart: <Sparkline values={calc.rows.map(r => r.revenue)} color={C.accent} width={120} height={26} />,
             },
             {
               label: 'EBITDA',
               value: fmtINR(calc.ebitda),
               sub: `${calc.ebitdaMargin.toFixed(0)}% margin`,
               color: ebitdaColor,
-              chart: <Sparkline values={calc.rows.map(r => r.ebitda)} color={ebitdaColor} />,
+              icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
+              chart: <Sparkline values={calc.rows.map(r => r.ebitda)} color={ebitdaColor} width={120} height={26} />,
             },
             {
               label: 'NPV',
               value: fmtINR(calc.npv),
               sub: `at ${dr}% discount`,
               color: npvColor,
-              chart: <NPVBar value={calc.npv} scale={calc.effectiveCapex} color={npvColor} />,
+              icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+              chart: <NPVBar value={calc.npv} scale={calc.effectiveCapex} color={npvColor} width={120} />,
             },
             {
               label: 'Payback',
               value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—',
               sub: `${tn}-yr tenure`,
               color: paybackColor,
-              chart: <PaybackTrack payback={calc.payback} tenure={tn} color={paybackColor} />,
+              icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+              chart: <PaybackTrack payback={calc.payback} tenure={tn} color={paybackColor} width={120} />,
             },
           ].map(m => (
-            <div key={m.label} className="calc-metric-cell">
-              <div className="calc-metric-eyebrow">{m.label}</div>
-              <div className="calc-metric-value" style={{ color: m.color }}>{m.value}</div>
-              {m.chart && <div className="calc-metric-chart">{m.chart}</div>}
-              {m.sub && <div className="calc-metric-sub">{m.sub}</div>}
+            <div key={m.label} className="calc-kpi-card">
+              <div className="calc-kpi-icon" style={{ background: alpha(m.color, 22), color: m.color }}>
+                {m.icon}
+              </div>
+              <div className="calc-kpi-content">
+                <div className="calc-kpi-label">{m.label}</div>
+                <div className="calc-kpi-value" style={{ color: m.color }}>{m.value}</div>
+                {m.sub && <div className="calc-kpi-sub">{m.sub}</div>}
+                {m.chart && <div className="calc-kpi-chart">{m.chart}</div>}
+              </div>
             </div>
           ))}
         </div>
