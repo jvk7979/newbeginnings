@@ -1248,6 +1248,14 @@ textarea:focus-visible,
   font-weight: 800;
   line-height: 1;
 }
+.calc-page-redesign .calc-metric-chart {
+  margin: 6px 0 2px;
+  width: 100px;
+  max-width: 100%;
+}
+.calc-page-redesign .calc-metric-headline .calc-metric-chart {
+  width: 140px;
+}
 
 .calc-page-redesign .calc-pill-tabs {
   display: flex;

@@ -105,6 +105,100 @@ function EmptyNoSelection({ eligible, onPick }) {
   );
 }
 
+// ─── Mini-charts for the headline metric band ────────────────────────────────
+// Tiny inline visualizations that sit between the metric value and its
+// sub-label. Each takes 100x28 by default and is purely decorative — the
+// underlying data is the same calc.rows the projection table uses.
+
+// Sparkline with a soft area fill underneath. Used for Revenue/EBITDA where
+// the year-over-year shape tells you whether the project ramps or fades.
+function Sparkline({ values, color, width = 100, height = 28 }) {
+  if (!values || values.length < 2) return null;
+  const min = Math.min(...values, 0);
+  const max = Math.max(...values, 0.001);
+  const range = max - min || 1;
+  const stepX = width / (values.length - 1);
+  const pts = values.map((v, i) => {
+    const x = (i * stepX).toFixed(1);
+    const y = (height - ((v - min) / range) * (height - 2) - 1).toFixed(1);
+    return `${x},${y}`;
+  });
+  const lastX = (width).toFixed(1);
+  const areaPath = `M 0,${height} L ${pts.join(' L ')} L ${lastX},${height} Z`;
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" style={{ display: 'block' }}>
+      <path d={areaPath} fill={color} fillOpacity="0.14" />
+      <polyline points={pts.join(' ')} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={pts[pts.length - 1].split(',')[0]} cy={pts[pts.length - 1].split(',')[1]} r="2" fill={color} />
+    </svg>
+  );
+}
+
+// Horizontal hurdle bar — fills proportionally, with a dashed marker at
+// the hurdle line so users can see "am I above or below my cost of capital?"
+function HurdleBar({ value, hurdle, color, width = 100, height = 8 }) {
+  if (value === null || !isFinite(value)) return null;
+  const safeMax = Math.max(hurdle * 2, value * 1.15, 1);
+  const fill = Math.max(0, Math.min(1, value / safeMax));
+  const hurdleX = Math.max(0, Math.min(1, hurdle / safeMax)) * width;
+  return (
+    <svg width={width} height={height + 4} viewBox={`0 0 ${width} ${height + 4}`} aria-hidden="true" style={{ display: 'block' }}>
+      <rect x="0" y="2" width={width} height={height} rx={height / 2} fill={color} fillOpacity="0.18" />
+      <rect x="0" y="2" width={fill * width} height={height} rx={height / 2} fill={color} />
+      <line x1={hurdleX} y1="0" x2={hurdleX} y2={height + 4} stroke={C.fg2} strokeWidth="1" strokeDasharray="2,2" />
+    </svg>
+  );
+}
+
+// Centered NPV bar — extends right (positive) or left (negative) from the
+// midline, scaled relative to capex. Conveys magnitude AND sign in one glance.
+function NPVBar({ value, scale, color, width = 100, height = 14 }) {
+  if (!isFinite(value)) return null;
+  const half = width / 2;
+  const safeScale = Math.max(Math.abs(scale) || 1, Math.abs(value) || 1);
+  const ratio = Math.max(-1, Math.min(1, value / safeScale));
+  const barWidth = Math.abs(ratio) * (half - 2);
+  const positive = value >= 0;
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" style={{ display: 'block' }}>
+      <line x1={half} y1="0" x2={half} y2={height} stroke={C.fg3} strokeWidth="1" strokeDasharray="2,2" />
+      <rect
+        x={positive ? half : half - barWidth}
+        y="3"
+        width={barWidth}
+        height={height - 6}
+        fill={color}
+        rx="1.5"
+      />
+    </svg>
+  );
+}
+
+// Payback track — a tenure-length axis with year-tick marks, a dot
+// at the payback year, and a faded "tenure window" highlight.
+function PaybackTrack({ payback, tenure, color, width = 100, height = 14 }) {
+  const ticks = Math.max(1, tenure);
+  const usable = width - 2;
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" style={{ display: 'block' }}>
+      <line x1="1" y1={height / 2} x2={width - 1} y2={height / 2} stroke={C.border} strokeWidth="1" />
+      {Array.from({ length: ticks + 1 }).map((_, i) => {
+        const tx = (i / ticks) * usable + 1;
+        return <line key={i} x1={tx} y1={height / 2 - 2.5} x2={tx} y2={height / 2 + 2.5} stroke={C.fg3} strokeWidth="1" />;
+      })}
+      {payback !== null && payback <= ticks && (
+        <circle
+          cx={Math.max(0, Math.min(1, payback / ticks)) * usable + 1}
+          cy={height / 2}
+          r="3.5"
+          fill={color}
+          stroke="#fff"
+          strokeWidth="1.5" />
+      )}
+    </svg>
+  );
+}
+
 // ─── CapacityRing (editorial redesign) ───────────────────────────────────────
 // Big SVG ring that lives in the hero band. Reads the current capacityPct,
 // fills the arc proportionally, and prints the % in Playfair inside the ring.
@@ -336,18 +430,46 @@ export default function CalculationsPage({ onNavigate }) {
           <div className="calc-metric-headline-value" style={{ color: irrColor }}>
             {calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—'}
           </div>
+          <div className="calc-metric-chart">
+            <HurdleBar value={calc.irr} hurdle={dr} color={irrColor} width={140} />
+          </div>
           <div className="calc-metric-sub">vs {dr}% hurdle rate</div>
         </div>
         <div className="calc-metric-row">
           {[
-            { label: 'Annual Revenue', value: fmtINR(calc.revenue),                                                                     sub: null,                                          color: C.fg1 },
-            { label: 'EBITDA',         value: fmtINR(calc.ebitda),                                                                      sub: `${calc.ebitdaMargin.toFixed(0)}% margin`,    color: ebitdaColor },
-            { label: 'NPV',            value: fmtINR(calc.npv),                                                                         sub: `at ${dr}% discount`,                          color: npvColor },
-            { label: 'Payback',        value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—',     sub: `${tn}-yr tenure`,                             color: paybackColor },
+            {
+              label: 'Annual Revenue',
+              value: fmtINR(calc.revenue),
+              sub: `over ${input.lifetime} yrs`,
+              color: C.accent,
+              chart: <Sparkline values={calc.rows.map(r => r.revenue)} color={C.accent} />,
+            },
+            {
+              label: 'EBITDA',
+              value: fmtINR(calc.ebitda),
+              sub: `${calc.ebitdaMargin.toFixed(0)}% margin`,
+              color: ebitdaColor,
+              chart: <Sparkline values={calc.rows.map(r => r.ebitda)} color={ebitdaColor} />,
+            },
+            {
+              label: 'NPV',
+              value: fmtINR(calc.npv),
+              sub: `at ${dr}% discount`,
+              color: npvColor,
+              chart: <NPVBar value={calc.npv} scale={calc.effectiveCapex} color={npvColor} />,
+            },
+            {
+              label: 'Payback',
+              value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—',
+              sub: `${tn}-yr tenure`,
+              color: paybackColor,
+              chart: <PaybackTrack payback={calc.payback} tenure={tn} color={paybackColor} />,
+            },
           ].map(m => (
             <div key={m.label} className="calc-metric-cell">
               <div className="calc-metric-eyebrow">{m.label}</div>
               <div className="calc-metric-value" style={{ color: m.color }}>{m.value}</div>
+              {m.chart && <div className="calc-metric-chart">{m.chart}</div>}
               {m.sub && <div className="calc-metric-sub">{m.sub}</div>}
             </div>
           ))}
