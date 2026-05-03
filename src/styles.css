@@ -947,6 +947,14 @@ textarea:focus-visible,
   }
 }
 
+/* Idea Topics — List view collapses to single column on tablets and phones
+   so the sidebar stacks above the active thread instead of squeezing both. */
+@media (max-width: 900px) {
+  .topic-list-view {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* Sidebar logo — fill available header width */
 .sidenav-logo-btn {
   flex: 1;
