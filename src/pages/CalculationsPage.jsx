@@ -347,7 +347,7 @@ function CapacityRing({ pct, color, track }) {
   const circumference = 2 * Math.PI * R;
   const dash = Math.max(0, Math.min(100, pct)) / 100 * circumference;
   return (
-    <svg viewBox="0 0 80 80" width={120} height={120} role="img" aria-label={`Operating at ${pct}% capacity`}>
+    <svg viewBox="0 0 80 80" width={92} height={92} role="img" aria-label={`Operating at ${pct}% capacity`}>
       <circle cx={cx} cy={cy} r={R} fill="none" stroke={track} strokeWidth="6" />
       <circle cx={cx} cy={cy} r={R} fill="none" stroke={color} strokeWidth="6"
         strokeDasharray={`${dash.toFixed(2)} ${circumference.toFixed(2)}`}
