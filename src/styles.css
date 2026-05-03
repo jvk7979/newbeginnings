@@ -1029,6 +1029,279 @@ textarea:focus-visible,
   padding: 20px;
 }
 
+/* ── Calculations editorial redesign ───────────────────────────────────────
+   New "Financial Story" hero band, headline metric strip, and pill tabs.
+   Lives on top of the existing two-pane (.calc-panels) layout so the input
+   rail / output pane plumbing stays identical. */
+
+.calc-page-redesign .calc-hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--c-accent-bg) 0%, var(--c-bg1) 55%, var(--c-bg0) 100%);
+  border-bottom: 1px solid var(--c-border);
+  padding: 18px 28px 22px;
+}
+.calc-page-redesign .calc-hero-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.calc-page-redesign .calc-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+.calc-page-redesign .calc-hero-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.calc-page-redesign .calc-hero-project-picker {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg1);
+  color: var(--c-fg1);
+  cursor: pointer;
+  outline: none;
+  max-width: 320px;
+}
+.calc-page-redesign .calc-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 120ms;
+}
+.calc-page-redesign .calc-hero-btn-secondary {
+  background: transparent;
+  color: var(--c-fg2);
+  border-color: var(--c-border);
+}
+.calc-page-redesign .calc-hero-btn-secondary:hover {
+  background: var(--c-bg2);
+}
+.calc-page-redesign .calc-hero-btn-primary {
+  background: var(--c-accent);
+  color: #fff;
+}
+.calc-page-redesign .calc-hero-btn-primary:hover:not(:disabled) {
+  background: var(--c-accent-dim);
+}
+.calc-page-redesign .calc-hero-btn-primary:disabled {
+  background: var(--c-bg2);
+  color: var(--c-fg3);
+  cursor: not-allowed;
+}
+
+.calc-page-redesign .calc-hero-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.calc-page-redesign .calc-hero-text {
+  flex: 1;
+  min-width: 0;
+}
+.calc-page-redesign .calc-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 700;
+  color: var(--c-fg1);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.calc-page-redesign .calc-hero-verdict-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 13px;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.calc-page-redesign .calc-hero-verdict-pill .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor;
+}
+.calc-page-redesign .calc-hero[data-positive="true"] .calc-hero-verdict-pill {
+  background: rgba(116,140,98,0.16);
+  color: var(--c-accent);
+  border: 1px solid rgba(116,140,98,0.4);
+}
+.calc-page-redesign .calc-hero[data-positive="false"] .calc-hero-verdict-pill {
+  background: rgba(192,57,43,0.14);
+  color: #c0392b;
+  border: 1px solid rgba(192,57,43,0.4);
+}
+.calc-page-redesign .calc-hero-blurb {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(14px, 1.4vw, 16px);
+  color: var(--c-fg2);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 560px;
+}
+.calc-page-redesign .calc-hero-dial {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.calc-page-redesign .calc-hero-dial-chips {
+  display: flex;
+  gap: 4px;
+}
+.calc-page-redesign .calc-hero-dial-chip {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-fg2);
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  transition: all 120ms;
+}
+.calc-page-redesign .calc-hero-dial-chip[data-active="true"] {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+  font-weight: 700;
+}
+
+.calc-page-redesign .calc-metric-band {
+  background: var(--c-bg1);
+  border-bottom: 1px solid var(--c-border);
+  padding: 18px 28px 20px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.calc-page-redesign .calc-metric-headline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 28px;
+  border-right: 1px solid var(--c-border);
+  min-width: 140px;
+}
+.calc-page-redesign .calc-metric-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+}
+.calc-page-redesign .calc-metric-headline-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(40px, 5.2vw, 60px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.calc-page-redesign .calc-metric-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+}
+.calc-page-redesign .calc-metric-row {
+  display: flex;
+  gap: 28px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.calc-page-redesign .calc-metric-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.calc-page-redesign .calc-metric-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.calc-page-redesign .calc-pill-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 20px;
+  background: var(--c-bg1);
+  border-bottom: 1px solid var(--c-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.calc-page-redesign .calc-pill-tabs::-webkit-scrollbar { display: none; }
+.calc-page-redesign .calc-pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-fg2);
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 120ms;
+}
+.calc-page-redesign .calc-pill:hover {
+  background: var(--c-bg2);
+}
+.calc-page-redesign .calc-pill[data-active="true"] {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .calc-page-redesign .calc-hero { padding: 14px 16px 18px; }
+  .calc-page-redesign .calc-hero-content { gap: 16px; }
+  .calc-page-redesign .calc-hero-dial { align-self: center; }
+  .calc-page-redesign .calc-metric-band {
+    padding: 14px 16px 16px;
+    gap: 18px;
+  }
+  .calc-page-redesign .calc-metric-headline {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--c-border);
+    padding-bottom: 12px;
+    width: 100%;
+  }
+  .calc-page-redesign .calc-metric-row { gap: 18px 24px; }
+  .calc-page-redesign .calc-pill-tabs { padding: 10px 14px; }
+}
+
 /* Tablet (769–1024px): keep 60% but cap width */
 @media (min-width: 769px) and (max-width: 1024px) {
   .calc-left { width: 60%; max-width: 600px; }

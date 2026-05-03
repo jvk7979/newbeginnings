@@ -105,6 +105,28 @@ function EmptyNoSelection({ eligible, onPick }) {
   );
 }
 
+// ─── CapacityRing (editorial redesign) ───────────────────────────────────────
+// Big SVG ring that lives in the hero band. Reads the current capacityPct,
+// fills the arc proportionally, and prints the % in Playfair inside the ring.
+function CapacityRing({ pct, color, track }) {
+  const R = 32, cx = 40, cy = 40;
+  const circumference = 2 * Math.PI * R;
+  const dash = Math.max(0, Math.min(100, pct)) / 100 * circumference;
+  return (
+    <svg viewBox="0 0 80 80" width={120} height={120} role="img" aria-label={`Operating at ${pct}% capacity`}>
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke={track} strokeWidth="6" />
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke={color} strokeWidth="6"
+        strokeDasharray={`${dash.toFixed(2)} ${circumference.toFixed(2)}`}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${cx} ${cy})`} />
+      <text x={cx} y={cy + 1} textAnchor="middle"
+        style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, fill: color }}>{pct}%</text>
+      <text x={cx} y={cy + 11} textAnchor="middle"
+        style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 5, letterSpacing: '0.14em', fontWeight: 700, fill: track === '#000' ? '#888' : track }}>CAPACITY</text>
+    </svg>
+  );
+}
+
 // ─── DonutChart (kept from original, used in Summary tab) ─────────────────────
 
 function DonutChart({ segments, totalLabel }) {
@@ -245,73 +267,88 @@ export default function CalculationsPage({ onNavigate }) {
   if (!selectedProject)      return <EmptyNoSelection eligible={eligible} onPick={(id) => setSelectedProjectId(Number(id))} />;
 
   return (
-    <div className="calc-page">
+    <div className="calc-page calc-page-redesign">
 
-      {/* ── Top header card (mockup row 1: Title + tagline · autosave pill) ── */}
-      <div className="calc-header" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '16px 20px 14px' }}>
-        <div className="calc-header-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div className="calc-header-title" style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 700, color: C.fg1, lineHeight: 1.2 }}>Financial Calculator</div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 2 }}>Model revenue, EBITDA, IRR, and payback. Changes save automatically — Save commits immediately.</div>
-          </div>
-          <div className="calc-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap' }} data-testid="calc-autosave">
+      {/* ── EDITORIAL HERO BAND ────────────────────────────────────────────
+          Toolbar (eyebrow + project picker + autosave/reset/save) sits at
+          the top, then a magazine-spread layout: project title + verdict
+          paragraph on the left, capacity ring on the right. */}
+      <div className="calc-hero" data-positive={insight.positive ? 'true' : 'false'}>
+
+        <div className="calc-hero-toolbar">
+          <span className="calc-hero-eyebrow">Financial Story</span>
+          <div className="calc-hero-toolbar-actions" data-testid="calc-autosave">
+            <select value={selectedProjectId || ''}
+              onChange={e => setSelectedProjectId(Number(e.target.value))}
+              aria-label="Select project"
+              className="calc-hero-project-picker">
+              {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+            </select>
             <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} />
-            <button onClick={handleResetToDefaults}
-              title="Reset every field to the default values"
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, padding: '6px 14px', borderRadius: 6, background: 'transparent', color: C.fg2, border: `1px solid ${C.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <button onClick={handleResetToDefaults} className="calc-hero-btn calc-hero-btn-secondary"
+              title="Reset every field to the default values">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
               Reset
             </button>
             <button onClick={flushNow}
               disabled={!isDirty || autosaveStatus === 'saving'}
-              title={isDirty ? 'Save now (skip the autosave wait)' : 'No unsaved changes'}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '6px 16px', borderRadius: 6, background: !isDirty || autosaveStatus === 'saving' ? C.bg2 : C.accent, color: !isDirty || autosaveStatus === 'saving' ? C.fg3 : '#fff', border: 'none', cursor: !isDirty || autosaveStatus === 'saving' ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              className="calc-hero-btn calc-hero-btn-primary"
+              title={isDirty ? 'Save now (skip the autosave wait)' : 'No unsaved changes'}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
               Save
             </button>
           </div>
         </div>
-      </div>
 
-      {/* ── Project selector strip (mockup row 2: PROJECT · selector) ─────── */}
-      <div style={{ background: C.bg0, borderBottom: `1px solid ${C.border}`, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.fg3 }}>Project</span>
-        <select value={selectedProjectId || ''}
-          onChange={e => setSelectedProjectId(Number(e.target.value))}
-          aria-label="Select project"
-          style={{ ...IS, background: C.bg1, fontSize: 14, padding: '6px 10px', cursor: 'pointer', maxWidth: 380 }}>
-          {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-        </select>
-      </div>
+        <div className="calc-hero-content">
+          <div className="calc-hero-text">
+            <h1 className="calc-hero-title">{selectedProject.title}</h1>
+            <div className="calc-hero-verdict-pill">
+              <span className="dot" />
+              <span>{insight.verdict}</span>
+            </div>
+            <p className="calc-hero-blurb">{insight.text}</p>
+          </div>
 
-      {/* ── Live output card (mockup row 3: LIVE OUTPUT · big project name + capacity chip · status pill · metric tiles) ── */}
-      <div className="calc-topbar" style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: '14px 20px 16px' }}>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.fg3, marginBottom: 10 }}>Live Output</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
-          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,26px)', fontWeight: 700, color: C.fg1, lineHeight: 1.2, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
-            {selectedProject.title}
-          </h1>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 999, padding: '3px 10px' }}>
-            {input.capacityPct}% capacity
-          </span>
-          <div style={{ flex: 1 }} />
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: insight.positive ? alpha(C.accent, 22) : alpha('#c0392b', 22), border: `1px solid ${insight.positive ? alpha(C.accent, 55) : alpha('#c0392b', 55)}`, borderRadius: 999, padding: '5px 14px' }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: insight.positive ? C.accent : '#c0392b' }} />
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: insight.positive ? C.accent : '#c0392b' }}>{insight.verdict}</span>
+          <div className="calc-hero-dial">
+            <CapacityRing pct={input.capacityPct} color={C.accent} track={alpha(C.accent, 22)} />
+            <div className="calc-hero-dial-chips">
+              {[40, 60, 80, 100].map(v => (
+                <button key={v} onClick={() => setI({ capacityPct: v })}
+                  aria-pressed={input.capacityPct === v}
+                  className="calc-hero-dial-chip"
+                  data-active={input.capacityPct === v ? 'true' : 'false'}>
+                  {v}%
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      </div>
+
+      {/* ── HEADLINE METRIC BAND ───────────────────────────────────────────
+          IRR is the dominant number on the page (Playfair, ~56px) and sits
+          on the left with a vertical hairline. The other 4 metrics fan out
+          to the right at smaller scale, monospace numerals. */}
+      <div className="calc-metric-band">
+        <div className="calc-metric-headline">
+          <div className="calc-metric-eyebrow">IRR</div>
+          <div className="calc-metric-headline-value" style={{ color: irrColor }}>
+            {calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—'}
+          </div>
+          <div className="calc-metric-sub">vs {dr}% hurdle rate</div>
+        </div>
+        <div className="calc-metric-row">
           {[
-            { label: 'Annual Revenue', value: fmtINR(calc.revenue), sub: null, color: C.fg1 },
-            { label: 'EBITDA', value: fmtINR(calc.ebitda), sub: `${calc.ebitdaMargin.toFixed(0)}% margin`, color: ebitdaColor },
-            { label: 'IRR', value: calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—', sub: `vs ${dr}% hurdle`, color: irrColor },
-            { label: 'NPV', value: fmtINR(calc.npv), sub: `at ${dr}% discount`, color: npvColor },
-            { label: 'Payback', value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—', sub: `${tn}-yr tenure`, color: paybackColor },
+            { label: 'Annual Revenue', value: fmtINR(calc.revenue),                                                                     sub: null,                                          color: C.fg1 },
+            { label: 'EBITDA',         value: fmtINR(calc.ebitda),                                                                      sub: `${calc.ebitdaMargin.toFixed(0)}% margin`,    color: ebitdaColor },
+            { label: 'NPV',            value: fmtINR(calc.npv),                                                                         sub: `at ${dr}% discount`,                          color: npvColor },
+            { label: 'Payback',        value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—',     sub: `${tn}-yr tenure`,                             color: paybackColor },
           ].map(m => (
-            <div key={m.label}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, marginBottom: 3 }}>{m.label}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800, color: m.color, lineHeight: 1 }}>{m.value}</div>
-              {m.sub && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 2 }}>{m.sub}</div>}
+            <div key={m.label} className="calc-metric-cell">
+              <div className="calc-metric-eyebrow">{m.label}</div>
+              <div className="calc-metric-value" style={{ color: m.color }}>{m.value}</div>
+              {m.sub && <div className="calc-metric-sub">{m.sub}</div>}
             </div>
           ))}
         </div>
@@ -528,8 +565,8 @@ export default function CalculationsPage({ onNavigate }) {
         {/* ── RIGHT PANEL: Output ───────────────────────────────────────────── */}
         <div className="calc-right">
 
-          {/* Tab bar — 5 tabs */}
-          <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, background: C.bg1, padding: '0 20px', flexShrink: 0, overflowX: 'auto' }}>
+          {/* Pill tab bar — 5 tabs, rounded chips for the editorial look */}
+          <div className="calc-pill-tabs">
             {[
               ['summary',     'Summary'],
               ['pl',          'P&L & Capex'],
@@ -538,7 +575,8 @@ export default function CalculationsPage({ onNavigate }) {
               ['compare',     'Compare'],
             ].map(([id, lbl]) => (
               <button key={id} onClick={() => setRightTab(id)}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: rightTab === id ? 600 : 400, color: rightTab === id ? C.accent : C.fg3, background: 'none', border: 'none', borderBottom: `2px solid ${rightTab === id ? C.accent : 'transparent'}`, padding: '10px 16px 12px', cursor: 'pointer', marginRight: 4, whiteSpace: 'nowrap' }}>
+                className="calc-pill"
+                data-active={rightTab === id ? 'true' : 'false'}>
                 {lbl}
               </button>
             ))}
