@@ -2135,6 +2135,7 @@ textarea:focus-visible,
   border: 1px solid var(--c-border);
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: all 120ms;
 }
 .calc-page-redesign .calc-pill:hover {
@@ -2446,10 +2447,38 @@ textarea:focus-visible,
   .calc-page-redesign .calc-assumption-summary { font-size: 11px; }
 }
 
+/* iPad-specific (768-1024): gauge + composition fit on top row, KPIs
+   wrap to a 4-up row beneath cleanly. Right-pane pill-tabs need extra
+   padding so the rightmost tab doesn't get clipped against the edge. */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .calc-page-redesign .calc-gauge-card { flex: 1 1 220px; min-width: 200px; }
+  .calc-page-redesign .calc-composition-card { flex: 1 1 240px; }
+  .calc-page-redesign .calc-kpi-card { flex: 1 1 calc(25% - 8px); min-width: 0; }
+  .calc-page-redesign .calc-pill-tabs { padding-right: 32px; }
+}
+
 @media (max-width: 768px) {
+  /* Hero stacks vertically so the title gets the full card width and
+     the dial sits centered beneath it instead of squeezing the title
+     into a 5-line stack. */
   .calc-page-redesign .calc-hero { padding: 14px 16px 18px; }
-  .calc-page-redesign .calc-hero-content { gap: 16px; }
+  .calc-page-redesign .calc-hero-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
   .calc-page-redesign .calc-hero-dial { align-self: center; }
+  .calc-page-redesign .calc-hero-title {
+    font-size: clamp(22px, 5vw, 28px);
+  }
+  /* Autosave pill: drop the card chrome on mobile so it recedes from
+     the Reset / Save buttons instead of reading as a third button. */
+  .calc-page-redesign .calc-hero-autosave {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
   .calc-page-redesign .calc-metric-band {
     padding: 14px 16px 16px;
     gap: 18px;

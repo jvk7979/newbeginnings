@@ -482,14 +482,18 @@ export default function CalculationsPage({ onNavigate }) {
     return { verdict: `Below break-even at ${cp}% capacity`, text: `IRR of ${irr !== null ? irr.toFixed(1) + '%' : '—'} does not meet the ${dr}% hurdle rate. Review pricing or cost structure.`, positive: false };
   }, [calc, input.discountRate, input.tenure, input.capacityPct]);
 
-  // Color helpers
+  // Color helpers — gate on actual signal so an empty/zero project doesn't
+  // flash all-red (which reads as "broken" rather than "blank"). The
+  // thresholds only kick in once the user has entered enough data to
+  // compute meaningful values; before that, every metric stays neutral.
   const dr = Number(input.discountRate) || 0;
   const tn = Number(input.tenure) || 1;
-  const irrColor     = calc.irr === null ? C.fg3 : calc.irr > dr + 3 ? '#2a7d3c' : calc.irr > dr - 3 ? '#b06000' : '#c0392b';
-  const npvColor     = !isFinite(calc.npv) ? C.fg3 : calc.npv > 0 ? '#2a7d3c' : '#c0392b';
-  const paybackColor = calc.payback === null ? C.fg3 : calc.payback < tn * 0.6 ? '#2a7d3c' : calc.payback < tn * 0.8 ? '#b06000' : '#c0392b';
-  const dscrColor    = calc.dscrY1 === null ? C.fg3 : calc.dscrY1 >= 1.5 ? '#2a7d3c' : calc.dscrY1 >= 1.25 ? '#b06000' : '#c0392b';
-  const ebitdaColor  = calc.ebitda > 0 ? '#2a7d3c' : '#c0392b';
+  const hasData = calc.revenue > 0 || calc.effectiveCapex > 0;
+  const irrColor     = !hasData || calc.irr === null ? C.fg2 : calc.irr > dr + 3 ? '#2a7d3c' : calc.irr > dr - 3 ? '#b06000' : '#c0392b';
+  const npvColor     = !hasData || !isFinite(calc.npv) ? C.fg2 : calc.npv > 0 ? '#2a7d3c' : '#c0392b';
+  const paybackColor = !hasData || calc.payback === null ? C.fg2 : calc.payback < tn * 0.6 ? '#2a7d3c' : calc.payback < tn * 0.8 ? '#b06000' : '#c0392b';
+  const dscrColor    = !hasData || calc.dscrY1 === null ? C.fg2 : calc.dscrY1 >= 1.5 ? '#2a7d3c' : calc.dscrY1 >= 1.25 ? '#b06000' : '#c0392b';
+  const ebitdaColor  = !hasData ? C.fg2 : calc.ebitda > 0 ? '#2a7d3c' : '#c0392b';
 
   const sliderMin = 10, sliderMax = 100;
   const bePct  = calc.breakEvenCapacity !== null ? Math.min(sliderMax, Math.max(sliderMin, calc.breakEvenCapacity)) : null;
@@ -968,11 +972,21 @@ export default function CalculationsPage({ onNavigate }) {
 
             {/* Summary — verdict callout. Revenue Composition lives in the
                 Project Health Dashboard up top so users see top-line health
-                (IRR + revenue mix) at a glance without opening this tab. */}
+                (IRR + revenue mix) at a glance without opening this tab.
+                Editorial sage-cream treatment with left-stripe accent;
+                colour signals positive/negative without going alarm-red. */}
             {rightTab === 'summary' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ background: insight.positive ? alpha(C.accent, 11) : alpha('#c0392b', 11), border: `1px solid ${insight.positive ? alpha(C.accent, 44) : alpha('#c0392b', 44)}`, borderRadius: 10, padding: '14px 18px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: insight.positive ? alpha(C.accent, 33) : alpha('#c0392b', 33), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                <div style={{
+                  background: insight.positive ? 'rgba(116,140,98,0.06)' : 'rgba(192,57,43,0.05)',
+                  borderLeft: `3px solid ${insight.positive ? C.accent : '#c0392b'}`,
+                  border: `1px solid ${insight.positive ? 'rgba(116,140,98,0.18)' : 'rgba(192,57,43,0.16)'}`,
+                  borderLeftWidth: 3,
+                  borderRadius: '0 8px 8px 0',
+                  padding: '14px 18px',
+                  display: 'flex', gap: 14, alignItems: 'flex-start',
+                }}>
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: insight.positive ? 'rgba(116,140,98,0.18)' : 'rgba(192,57,43,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
                     {insight.positive
                       ? <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
                       : <svg viewBox="0 0 24 24" fill="none" stroke="#c0392b" strokeWidth="2" strokeLinecap="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
