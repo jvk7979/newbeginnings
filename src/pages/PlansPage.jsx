@@ -60,14 +60,13 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
     <div className="card-rich plan-card"
       style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}
       onClick={() => onNavigate('project-detail', plan)}>
-      <div className="plan-card-head">
-        <div className="plan-card-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", color: C.fg1 }}>{plan.title}</div>
-        <div className="plan-card-tags">
-          {plan.category && (
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '2px 8px' }}>
-              {plan.category}
-            </span>
-          )}
+      {/* Top row: category tag (left) · status + actions (right) — mirrors IdeaCard */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8 }}>
+        {plan.category
+          ? <span style={{ display: 'inline-block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.fg2, background: C.bg2, border: `1px solid ${C.border}`, padding: '2px 8px', borderRadius: 4 }}>{plan.category}</span>
+          : <span />
+        }
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {plan.eligibleForCalc && (
             <span title="Eligible for Calculations"
               aria-label="Eligible for Calculations"
@@ -95,6 +94,14 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
           </button>
         </div>
       </div>
+
+      <div className="plan-card-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", color: C.fg1 }}>{plan.title}</div>
+
+      <div className="plan-card-summary"
+        style={{ fontFamily: "'DM Sans', sans-serif", color: plan.summary ? C.fg2 : C.fg3, fontStyle: plan.summary ? 'normal' : 'italic' }}>
+        {plan.summary || 'No summary yet.'}
+      </div>
+
       <div className="plan-card-meta">
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg3 }}>Updated {plan.updated}</span>
         {plan.attachedFile && (
@@ -103,10 +110,6 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
             {plan.attachedFile.type}
           </span>
         )}
-      </div>
-      <div className="plan-card-summary"
-        style={{ fontFamily: "'DM Sans', sans-serif", color: plan.summary ? C.fg2 : C.fg3, fontStyle: plan.summary ? 'normal' : 'italic' }}>
-        {plan.summary || 'No summary yet.'}
       </div>
     </div>
   );

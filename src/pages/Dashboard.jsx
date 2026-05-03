@@ -200,8 +200,8 @@ export default function Dashboard({ onNavigate }) {
             </button>
           </div>
         ) : (
-          <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, overflowX: 'auto', overflowY: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 460 }}>
               <thead>
                 <tr style={{ background: C.bg2, borderBottom: `1px solid ${C.border}` }}>
                   {['IDEA', 'STAGE', 'COST EST.', 'PAYBACK'].map(h => (
