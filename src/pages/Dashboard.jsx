@@ -121,13 +121,48 @@ export default function Dashboard({ onNavigate }) {
     setExpandedStat(prev => prev === s.key ? null : s.key);
   };
 
-  return (
-    <div className="page-pad" style={{ background: C.bg0 }}>
+  // Editorial date string for the hero eyebrow ("Today · May 3").
+  const today = new Date();
+  const todayStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  const eligibleCount = plans.filter(p => p.eligibleForCalc).length;
 
-      {/* Hero */}
+  return (
+    <div className="page-pad dashboard-redesign" style={{ background: C.bg0 }}>
+
+      {/* Hero photo — brand visual anchor, kept as the magazine cover */}
       <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015' }}>
         <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', display: 'block' }} />
       </div>
+
+      {/* ── Editorial intro band — matches the Calculations hero's voice
+          (eyebrow + Playfair title + italic tagline + meta strip) so the
+          dashboard reads as the same publication. ──────────────────── */}
+      <section className="dashboard-editorial">
+        <div className="dashboard-editorial-toolbar">
+          <span className="dashboard-editorial-eyebrow">Today · {todayStr}</span>
+          <div className="dashboard-editorial-actions">
+            <button onClick={() => onNavigate('new-idea')} className="dashboard-editorial-btn dashboard-editorial-btn-primary">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Idea
+            </button>
+            <button onClick={() => onNavigate('new-project')} className="dashboard-editorial-btn dashboard-editorial-btn-secondary">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Project
+            </button>
+          </div>
+        </div>
+        <h1 className="dashboard-editorial-title">Welcome back.</h1>
+        <p className="dashboard-editorial-tagline">A fresh start. Endless possibilities.</p>
+        <div className="dashboard-editorial-meta">
+          <span><strong>{ideas.length}</strong> idea{ideas.length !== 1 ? 's' : ''}</span>
+          <span className="sep" />
+          <span><strong>{plans.length}</strong> project{plans.length !== 1 ? 's' : ''}</span>
+          {eligibleCount > 0 && <>
+            <span className="sep" />
+            <span><strong>{eligibleCount}</strong> ready to calculate</span>
+          </>}
+        </div>
+      </section>
 
       {/* Stats — click to expand breakdown, double-click or click again to navigate */}
       <div className="stat-grid" style={{ marginBottom: 32 }}>
