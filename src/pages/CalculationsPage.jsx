@@ -174,7 +174,7 @@ export default function CalculationsPage({ onNavigate }) {
     [selectedProject?.id, updatePlan]
   );
   const { status: autosaveStatus, lastSavedAt, retry: retryAutosave, flushNow, isDirty } = useAutosave(
-    input, onAutosave, { delay: 1500, enabled: !!selectedProject, key: selectedProject?.id }
+    input, onAutosave, { delay: 30000, enabled: !!selectedProject, key: selectedProject?.id }
   );
 
   // Hard reset: blow away every input back to the empty defaults. The

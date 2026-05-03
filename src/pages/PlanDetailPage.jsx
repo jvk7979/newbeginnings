@@ -74,7 +74,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     await updatePlan(plan.id, val);
   }, [plan.id, updatePlan]);
   const { status: autosaveStatus, lastSavedAt, retry: retryAutosave, cancelPending: cancelAutosave } = useAutosave(
-    autosaveValue, onAutosave, { delay: 1500, enabled: isEditing && !isViewer, key: plan.id }
+    autosaveValue, onAutosave, { delay: 30000, enabled: isEditing && !isViewer, key: plan.id }
   );
 
   useEffect(() => {

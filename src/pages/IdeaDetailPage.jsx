@@ -73,7 +73,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     await updateIdea(idea.id, val);
   }, [idea.id, updateIdea]);
   const { status: autosaveStatus, lastSavedAt, retry: retryAutosave, cancelPending: cancelAutosave } = useAutosave(
-    autosaveValue, onAutosave, { delay: 1500, enabled: isEditing && !isViewer, key: idea.id }
+    autosaveValue, onAutosave, { delay: 30000, enabled: isEditing && !isViewer, key: idea.id }
   );
 
   // Force scroll to top whenever we open a new idea — guards against any
