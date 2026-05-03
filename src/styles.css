@@ -1398,8 +1398,208 @@ textarea:focus-visible,
   flex-shrink: 0;
   transition: transform 150ms;
 }
+/* Animated expand/collapse — grid-rows trick lets us transition height
+   without measuring it in JS. Inner div is the actual content; outer
+   row collapses the grid track from 1fr to 0fr smoothly. */
 .calc-page-redesign .calc-assumption-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms ease, opacity 200ms ease;
+  opacity: 0;
+}
+.calc-page-redesign .calc-assumption-body[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.calc-page-redesign .calc-assumption-body-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.calc-page-redesign .calc-assumption-body[data-open="true"] .calc-assumption-body-inner {
   padding: 4px 0 14px;
+}
+
+/* Field label — small DM Sans label that sits above an input/stepper. */
+.calc-page-redesign .calc-field-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-fg2);
+  margin-bottom: 4px;
+}
+
+/* Stepper — segmented chip with - / number / + buttons. */
+.calc-page-redesign .calc-stepper {
+  display: flex;
+  align-items: stretch;
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.calc-page-redesign .calc-stepper:focus-within {
+  border-color: var(--c-accent-dim);
+  box-shadow: 0 0 0 2px rgba(116,140,98,0.25);
+}
+.calc-page-redesign .calc-stepper-btn {
+  width: 30px;
+  background: transparent;
+  border: none;
+  color: var(--c-fg2);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  transition: background 120ms, color 120ms;
+  flex-shrink: 0;
+}
+.calc-page-redesign .calc-stepper-btn:hover:not(:disabled) {
+  background: rgba(116,140,98,0.12);
+  color: var(--c-accent);
+}
+.calc-page-redesign .calc-stepper-btn:disabled {
+  color: var(--c-fg3);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.calc-page-redesign .calc-stepper-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  background: var(--c-bg1);
+  border: none;
+  border-left: 1px solid var(--c-border);
+  border-right: 1px solid var(--c-border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  text-align: center;
+  outline: none;
+  padding: 5px 4px;
+  -moz-appearance: textfield;
+}
+.calc-page-redesign .calc-stepper-input::-webkit-outer-spin-button,
+.calc-page-redesign .calc-stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Preset chip row — quick-pick presets that sit under a stepper. */
+.calc-page-redesign .calc-chip-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.calc-page-redesign .calc-chip-preset {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-fg3);
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  transition: all 120ms;
+}
+.calc-page-redesign .calc-chip-preset:hover {
+  background: var(--c-bg2);
+  color: var(--c-fg2);
+}
+.calc-page-redesign .calc-chip-preset[data-active="true"] {
+  background: rgba(116,140,98,0.16);
+  border-color: rgba(116,140,98,0.55);
+  color: var(--c-accent);
+  font-weight: 700;
+}
+
+/* Cost split bar — variable vs fixed share, top of Operating Costs. */
+.calc-page-redesign .calc-cost-split {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+}
+.calc-page-redesign .calc-cost-split-bar {
+  display: flex;
+  height: 10px;
+  background: var(--c-bg2);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.calc-page-redesign .calc-cost-split-seg {
+  height: 100%;
+  transition: width 220ms ease;
+}
+.calc-page-redesign .calc-cost-split-var,
+.calc-page-redesign .calc-cost-split-bar .calc-cost-split-var {
+  background: var(--c-accent);
+}
+.calc-page-redesign .calc-cost-split-fixed,
+.calc-page-redesign .calc-cost-split-bar .calc-cost-split-fixed {
+  background: #8a7d6a;
+}
+.calc-page-redesign .calc-cost-split-legend {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg2);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.calc-page-redesign .calc-cost-split-legend em {
+  font-style: normal;
+  color: var(--c-fg3);
+}
+.calc-page-redesign .calc-cost-split-legend .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* Subsidy savings progress bar — top of Subsidy Stack. */
+.calc-page-redesign .calc-subsidy-savings {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: rgba(116,140,98,0.08);
+  border: 1px solid rgba(116,140,98,0.3);
+  border-radius: 8px;
+}
+.calc-page-redesign .calc-subsidy-savings-bar {
+  height: 8px;
+  background: rgba(116,140,98,0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.calc-page-redesign .calc-subsidy-savings-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--c-accent-dim), var(--c-accent));
+  transition: width 240ms ease;
+}
+.calc-page-redesign .calc-subsidy-savings-legend {
+  display: flex;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-accent);
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.calc-page-redesign .calc-subsidy-savings-legend strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {

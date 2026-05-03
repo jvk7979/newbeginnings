@@ -38,8 +38,50 @@ function Section({ id, label, summary, open, onToggle, children, accent }) {
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
-      {open && <div className="calc-assumption-body">{children}</div>}
+      {/* Always-mounted body so the CSS grid-rows transition can animate
+          collapse/expand; aria-hidden + tabIndex hide the inputs from
+          screen readers and the tab order while collapsed. */}
+      <div className="calc-assumption-body" data-open={open ? 'true' : 'false'} aria-hidden={!open}>
+        <div className="calc-assumption-body-inner" inert={open ? undefined : ''}>
+          {children}
+        </div>
+      </div>
     </section>
+  );
+}
+
+// Stepper — wraps a numeric input with - / + buttons. Same control surface
+// as the input itself, so accessibility and existing autosave wiring are
+// unaffected; the buttons just nudge the value by `step` within [min, max].
+function Stepper({ value, onChange, min = 0, max, step = 1, ariaLabel }) {
+  const v = Number(value) || 0;
+  const dec = () => onChange(Math.max(min, v - step));
+  const inc = () => onChange(max !== undefined ? Math.min(max, v + step) : v + step);
+  return (
+    <div className="calc-stepper" role="group" aria-label={ariaLabel}>
+      <button type="button" onClick={dec} disabled={v <= min} className="calc-stepper-btn" aria-label={`Decrease ${ariaLabel || ''}`}>−</button>
+      <input type="number" value={value} min={min} max={max} step={step}
+        onChange={e => onChange(Number(e.target.value) || 0)}
+        className="calc-stepper-input" />
+      <button type="button" onClick={inc} disabled={max !== undefined && v >= max} className="calc-stepper-btn" aria-label={`Increase ${ariaLabel || ''}`}>+</button>
+    </div>
+  );
+}
+
+// ChipRow — preset-value picker that complements a stepper or input below it.
+// Highlights the active value (or null if the current value isn't one of
+// the presets) so users can switch by tap instead of typing.
+function ChipRow({ values, current, onPick, suffix = '' }) {
+  const cur = Number(current);
+  return (
+    <div className="calc-chip-row">
+      {values.map(v => (
+        <button key={v} type="button" onClick={() => onPick(v)}
+          className="calc-chip-preset" data-active={cur === v ? 'true' : 'false'}>
+          {v}{suffix}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -565,6 +607,26 @@ export default function CalculationsPage({ onNavigate }) {
           <Section id="costs" label="Operating Costs"
             summary={`${fmtINR(calc.variableCosts + calc.fixedCosts)}/yr`}
             open={openSections.includes('costs')} onToggle={toggleSection}>
+            {/* Variable-vs-fixed split bar — shows the cost mix at a glance
+                so users see whether the project is variable-heavy (commodity)
+                or fixed-heavy (overhead-driven) without opening either tab. */}
+            {(calc.variableCosts + calc.fixedCosts) > 0 && (() => {
+              const total = calc.variableCosts + calc.fixedCosts;
+              const varPct = (calc.variableCosts / total) * 100;
+              const fixedPct = 100 - varPct;
+              return (
+                <div className="calc-cost-split">
+                  <div className="calc-cost-split-bar">
+                    <div className="calc-cost-split-seg calc-cost-split-var" style={{ width: `${varPct}%` }} />
+                    <div className="calc-cost-split-seg calc-cost-split-fixed" style={{ width: `${fixedPct}%` }} />
+                  </div>
+                  <div className="calc-cost-split-legend">
+                    <span><span className="dot calc-cost-split-var" /> Variable {fmtINR(calc.variableCosts)} <em>· {varPct.toFixed(0)}%</em></span>
+                    <span><span className="dot calc-cost-split-fixed" /> Fixed {fmtINR(calc.fixedCosts)} <em>· {fixedPct.toFixed(0)}%</em></span>
+                  </div>
+                </div>
+              );
+            })()}
             <div style={{ display: 'flex', gap: 0, marginBottom: 10, borderBottom: `1px solid ${C.border}` }}>
               {[['variable', 'Variable'], ['fixed', 'Fixed']].map(([id, lbl]) => (
                 <button key={id} onClick={() => setCostTab(id)}
@@ -618,29 +680,34 @@ export default function CalculationsPage({ onNavigate }) {
           <Section id="financing" label="Financing"
             summary={`${input.debtPct}% debt · ${fmtINR(input.capex)}`}
             open={openSections.includes('financing')} onToggle={toggleSection}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Total CAPEX (₹)</div>
+            <div className="calc-field-label">Total CAPEX (₹)</div>
             <Hint>Total capital before subsidies — land, civil work, machinery, electrification.</Hint>
-            <input type="number" value={input.capex} min={0} step={100000} onChange={e => setI({ capex: Number(e.target.value) || 0 })} style={{ ...IS, marginBottom: 10 }} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+            <input type="number" value={input.capex} min={0} step={100000} onChange={e => setI({ capex: Number(e.target.value) || 0 })} style={{ ...IS, marginBottom: 12 }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Lifetime (yrs)</div>
-                <input type="number" value={input.lifetime} min={1} max={30} onChange={e => setI({ lifetime: Number(e.target.value) || 1 })} style={IS} />
+                <div className="calc-field-label">Lifetime (yrs)</div>
+                <Stepper value={input.lifetime} onChange={v => setI({ lifetime: Math.max(1, v) })} min={1} max={30} ariaLabel="lifetime" />
               </div>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Discount %</div>
-                <input type="number" value={input.discountRate} min={1} max={50} step={0.5} onChange={e => setI({ discountRate: Number(e.target.value) || 1 })} style={IS} />
+                <div className="calc-field-label">Discount %</div>
+                <Stepper value={input.discountRate} onChange={v => setI({ discountRate: Math.max(1, v) })} min={1} max={50} step={0.5} ariaLabel="discount rate" />
+                <ChipRow values={[8, 10, 12, 15]} current={input.discountRate} onPick={v => setI({ discountRate: v })} suffix="%" />
               </div>
             </div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Debt {input.debtPct}% / Equity {100 - input.debtPct}%</div>
-            <input type="range" min={0} max={100} step={5} value={input.debtPct} onChange={e => setI({ debtPct: Number(e.target.value) })} style={{ width: '100%', accentColor: C.accent, marginBottom: 10 }} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+
+            <div className="calc-field-label">Debt <strong style={{ color: C.fg1 }}>{input.debtPct}%</strong> · Equity {100 - input.debtPct}%</div>
+            <input type="range" min={0} max={100} step={5} value={input.debtPct} onChange={e => setI({ debtPct: Number(e.target.value) })} style={{ width: '100%', accentColor: C.accent, marginBottom: 12 }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Interest %</div>
-                <input type="number" value={input.interestRate} min={0} max={30} step={0.5} onChange={e => setI({ interestRate: Number(e.target.value) || 0 })} style={IS} />
+                <div className="calc-field-label">Interest %</div>
+                <Stepper value={input.interestRate} onChange={v => setI({ interestRate: Math.max(0, v) })} min={0} max={30} step={0.5} ariaLabel="interest rate" />
               </div>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, marginBottom: 2 }}>Tenure (yrs)</div>
-                <input type="number" value={input.tenure} min={1} max={20} onChange={e => setI({ tenure: Number(e.target.value) || 1 })} style={IS} />
+                <div className="calc-field-label">Tenure (yrs)</div>
+                <Stepper value={input.tenure} onChange={v => setI({ tenure: Math.max(1, v) })} min={1} max={20} ariaLabel="tenure" />
+                <ChipRow values={[5, 7, 10, 15]} current={input.tenure} onPick={v => setI({ tenure: v })} suffix="y" />
               </div>
             </div>
           </Section>
@@ -655,6 +722,25 @@ export default function CalculationsPage({ onNavigate }) {
                 : 'none active'
             }
             open={openSections.includes('subsidies')} onToggle={toggleSection} accent>
+            {/* Savings progress bar — visualizes how much capex the active
+                subsidies have shaved off, so the impact is felt before the
+                user re-checks the metric band. */}
+            {(input.pmegpEnabled || input.citusEnabled || input.apmsmeEnabled) && Number(input.capex) > 0 && (() => {
+              const saved = Number(input.capex) - calc.effectiveCapex;
+              const savedPct = (saved / Number(input.capex)) * 100;
+              return (
+                <div className="calc-subsidy-savings">
+                  <div className="calc-subsidy-savings-bar">
+                    <div className="calc-subsidy-savings-fill" style={{ width: `${Math.min(100, savedPct)}%` }} />
+                  </div>
+                  <div className="calc-subsidy-savings-legend">
+                    <span><strong>{savedPct.toFixed(0)}%</strong> capex saved</span>
+                    <span>·</span>
+                    <span>{fmtINR(saved)} off</span>
+                  </div>
+                </div>
+              );
+            })()}
             <Hint>Tick what you're eligible for — they stack multiplicatively.</Hint>
             {[
               { id: 'pmegp', label: 'PMEGP', enabled: input.pmegpEnabled, setEnabled: (v) => setI({ pmegpEnabled: v }), pct: input.pmegpPct, setPct: (v) => setI({ pmegpPct: v }), editable: true },
@@ -688,22 +774,24 @@ export default function CalculationsPage({ onNavigate }) {
           <Section id="wc" label="Working Capital"
             summary={calc.workingCapital > 0 ? fmtINR(calc.workingCapital) : `${input.receivableDays + input.inventoryDays - input.payableDays}d cycle`}
             open={openSections.includes('wc')} onToggle={toggleSection}>
-            <Hint>Cash you need day-to-day.</Hint>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+            <Hint>Cash you need day-to-day. Common values: 30 / 45 / 60 / 90 days.</Hint>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               {[
-                ['Receivable d', input.receivableDays, (v) => setI({ receivableDays: v })],
-                ['Payable d',    input.payableDays,    (v) => setI({ payableDays: v })],
-                ['Inventory d',  input.inventoryDays,  (v) => setI({ inventoryDays: v })],
-              ].map(([lbl, val, set]) => (
-                <div key={lbl}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg2, marginBottom: 2 }}>{lbl}</div>
-                  <input type="number" value={val} min={0} max={180} onChange={e => set(Number(e.target.value) || 0)} style={IS} />
+                ['Receivable d', 'receivableDays'],
+                ['Payable d',    'payableDays'],
+                ['Inventory d',  'inventoryDays'],
+              ].map(([lbl, key]) => (
+                <div key={key}>
+                  <div className="calc-field-label">{lbl}</div>
+                  <Stepper value={input[key]} onChange={v => setI({ [key]: Math.max(0, Math.min(180, v)) })} min={0} max={180} step={5} ariaLabel={lbl} />
+                  <ChipRow values={[15, 30, 45, 60]} current={input[key]} onPick={v => setI({ [key]: v })} suffix="d" />
                 </div>
               ))}
             </div>
             {calc.workingCapital > 0 && (
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 8 }}>
-                Required: <strong style={{ color: C.fg1 }}>{fmtINR(calc.workingCapital)}</strong>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
+                Required: <strong style={{ color: C.fg1, fontFamily: "'JetBrains Mono', monospace" }}>{fmtINR(calc.workingCapital)}</strong>
+                <span style={{ marginLeft: 8 }}>· {input.receivableDays + input.inventoryDays - input.payableDays}d cash cycle</span>
               </div>
             )}
           </Section>
