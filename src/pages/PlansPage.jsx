@@ -68,6 +68,13 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
               {plan.category}
             </span>
           )}
+          {plan.eligibleForCalc && (
+            <span title="Eligible for Calculations"
+              aria-label="Eligible for Calculations"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: 5, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, flexShrink: 0 }}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+            </span>
+          )}
           <Badge status={plan.status} />
           <button
             type="button"

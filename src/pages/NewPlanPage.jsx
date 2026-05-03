@@ -24,7 +24,7 @@ export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = usePlans();
   const { ideas } = useIdeas();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft', sources: [], linkedIdeaId: '' });
+  const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft', sources: [], linkedIdeaId: '', eligibleForCalc: false });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
@@ -62,7 +62,7 @@ export default function NewPlanPage({ onNavigate }) {
       if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
       const sources = (form.sources || []).map(s => (s || '').trim()).filter(Boolean);
       const linkedIdeaId = form.linkedIdeaId ? Number(form.linkedIdeaId) : null;
-      addPlan({ ...form, title: form.title.trim(), sources, sections: [], attachedFile, linkedIdeaId });
+      addPlan({ ...form, title: form.title.trim(), sources, sections: [], attachedFile, linkedIdeaId, eligibleForCalc: !!form.eligibleForCalc });
       showToast('Project saved', 'success');
       onNavigate('projects');
     } catch (err) {
@@ -131,6 +131,24 @@ export default function NewPlanPage({ onNavigate }) {
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
             Connect this project to the idea it grew from. You can link many projects to one idea.
           </div>
+        </div>
+
+        {/* Calculations eligibility — opt-in, controls Calculations page dropdown */}
+        <div>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', padding: '10px 12px', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8 }}>
+            <input type="checkbox"
+              checked={!!form.eligibleForCalc}
+              onChange={e => setForm({ ...form, eligibleForCalc: e.target.checked })}
+              style={{ accentColor: C.accent, width: 18, height: 18, marginTop: 1, cursor: 'pointer', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, marginBottom: 2 }}>
+                Eligible for Calculations
+              </div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, lineHeight: 1.45 }}>
+                Make this project selectable in the Calculations page dropdown so you can run financial scenarios against it. You can change this later.
+              </div>
+            </div>
+          </label>
         </div>
 
         {/* File attachment — above summary so AI button activates immediately */}

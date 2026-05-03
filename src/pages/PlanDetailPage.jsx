@@ -39,6 +39,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [sections,     setSections]     = useState(plan.sections      || []);
   const [sources,      setSources]      = useState(Array.isArray(plan.sources) ? plan.sources : []);
   const [linkedIdeaId, setLinkedIdeaId] = useState(plan.linkedIdeaId ?? '');
+  const [eligibleForCalc, setEligibleForCalc] = useState(!!plan.eligibleForCalc);
   const [attachedFile, setAttachedFile] = useState(plan.attachedFile  || null);
   const [pendingFile,  setPendingFile]  = useState(null);
   const [replacingFile, setReplacingFile] = useState(false);
@@ -105,7 +106,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       // an unconfirmed replace.
       const cleanSources = sources.map(s => (s || '').trim()).filter(Boolean);
       const cleanLinkedIdeaId = linkedIdeaId === '' ? null : Number(linkedIdeaId);
-      await updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, linkedIdeaId: cleanLinkedIdeaId, attachedFile: nextFile });
+      await updatePlan(plan.id, { title: title.trim(), summary: summary.trim(), notes: notes.trim(), category, status, sections, sources: cleanSources, linkedIdeaId: cleanLinkedIdeaId, eligibleForCalc, attachedFile: nextFile });
       if (blobToDelete) {
         try { await deleteFileFromDB(blobToDelete); }
         catch (e) { console.warn('[orphan blob]', blobToDelete, e); }
@@ -133,6 +134,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     setSections(plan.sections     || []);
     setSources(Array.isArray(plan.sources) ? plan.sources : []);
     setLinkedIdeaId(plan.linkedIdeaId ?? '');
+    setEligibleForCalc(!!plan.eligibleForCalc);
     setAttachedFile(plan.attachedFile || null);
     setPendingFile(null);
     setReplacingFile(false);
@@ -328,6 +330,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 4, padding: '2px 8px' }}>{category}</span>
               )}
               <Badge status={status} />
+              {plan.eligibleForCalc && (
+                <span title="This project appears in the Calculations page dropdown"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, padding: '2px 8px' }}>
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+                  Eligible for Calculations
+                </span>
+              )}
             </div>
 
             {/* Order intentional: source document up top so the user
@@ -460,6 +469,23 @@ export default function PlanDetailPage({ plan, onNavigate }) {
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
                 Connect this project to the idea it grew from. You can link many projects to one idea.
               </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', padding: '10px 12px', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8 }}>
+                <input type="checkbox"
+                  checked={eligibleForCalc}
+                  onChange={e => setEligibleForCalc(e.target.checked)}
+                  style={{ accentColor: C.accent, width: 18, height: 18, marginTop: 1, cursor: 'pointer', flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, marginBottom: 2 }}>
+                    Eligible for Calculations
+                  </div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, lineHeight: 1.45 }}>
+                    Make this project selectable in the Calculations page dropdown so you can run financial scenarios against it.
+                  </div>
+                </div>
+              </label>
             </div>
 
             <div>
