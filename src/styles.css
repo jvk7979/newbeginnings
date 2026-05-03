@@ -712,14 +712,22 @@ textarea:focus-visible,
 /* ── Idea detail editorial hero band ─────────────────────────────────
    Sage-cream gradient + Playfair title + status/category pills, in the
    same voice as the Calculations and Dashboard hero bands. */
+/* Full-bleed hero — escapes the page-pad's 32x36 padding via negative
+   margin so the gradient runs edge-to-edge (matching the Calculations
+   hero treatment). Inner content stays capped at 800px so the text
+   keeps the same reading width as the rest of the page. */
 .idea-detail-redesign .idea-hero {
   position: relative;
   background: linear-gradient(135deg, var(--c-accent-bg) 0%, var(--c-bg1) 60%, var(--c-bg0) 100%);
-  border: 1px solid var(--c-border);
-  border-radius: 12px;
-  padding: 16px 22px 20px;
-  margin-bottom: 14px;
-  box-shadow: 0 1px 3px rgba(60,40,10,0.06);
+  border: none;
+  border-bottom: 1px solid var(--c-border);
+  margin: -32px -36px 24px;
+  padding: 0;
+}
+.idea-detail-redesign .idea-hero-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 18px 36px 22px;
 }
 .idea-detail-redesign .idea-hero-toolbar {
   display: flex;
@@ -884,8 +892,10 @@ textarea:focus-visible,
 
 @media (max-width: 768px) {
   .idea-detail-redesign .idea-hero {
-    padding: 14px 16px 18px;
-    border-radius: 10px;
+    margin: -24px -24px 22px;
+  }
+  .idea-detail-redesign .idea-hero-inner {
+    padding: 14px 24px 18px;
   }
   .idea-detail-redesign .idea-hero-toolbar { margin-bottom: 12px; }
   .idea-detail-redesign .idea-kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -894,14 +904,19 @@ textarea:focus-visible,
 
 /* ── Plan (Project) detail editorial hero band + sections ────────────
    Same voice as the Idea detail editorial treatment. */
+/* Full-bleed hero — same treatment as Idea detail. Inner stays at 800px. */
 .plan-detail-redesign .plan-hero {
   position: relative;
   background: linear-gradient(135deg, var(--c-accent-bg) 0%, var(--c-bg1) 60%, var(--c-bg0) 100%);
-  border: 1px solid var(--c-border);
-  border-radius: 12px;
-  padding: 16px 22px 20px;
-  margin-bottom: 14px;
-  box-shadow: 0 1px 3px rgba(60,40,10,0.06);
+  border: none;
+  border-bottom: 1px solid var(--c-border);
+  margin: -32px -36px 24px;
+  padding: 0;
+}
+.plan-detail-redesign .plan-hero-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 18px 36px 22px;
 }
 .plan-detail-redesign .plan-hero-toolbar {
   display: flex;
@@ -1044,8 +1059,16 @@ textarea:focus-visible,
   padding: 2px 8px;
 }
 @media (max-width: 768px) {
-  .plan-detail-redesign .plan-hero { padding: 14px 16px 18px; border-radius: 10px; }
+  .plan-detail-redesign .plan-hero {
+    margin: -24px -24px 22px;
+  }
+  .plan-detail-redesign .plan-hero-inner {
+    padding: 14px 24px 18px;
+  }
   .plan-detail-redesign .plan-hero-toolbar { margin-bottom: 12px; }
+  /* Stack the toolbar vertically on very narrow viewports so back +
+     Export PDF + Edit + Delete don't fight on a single cramped row */
+  .plan-detail-redesign .plan-hero-actions { flex-wrap: wrap; }
 }
 
 .plan-detail-redesign .plan-section {

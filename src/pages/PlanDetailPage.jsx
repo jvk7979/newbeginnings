@@ -15,7 +15,7 @@ import DiscussionThread from '../components/DiscussionThread';
 import { SourcesEditor, SourcesView } from '../components/SourcesField';
 import { uploadFileToDB, deleteFileFromDB, mimeForType, fetchFileBlob } from '../utils/fileStorage';
 import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
-import { CATEGORIES } from '../utils/categoryStyles';
+import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
 
@@ -299,13 +299,13 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   return (
     <>
     <div ref={pagePadRef} className="page-pad plan-detail-redesign" style={{ background: C.bg0 }}>
-      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
-      {/* ── EDITORIAL HERO BAND ─────────────────────────────────────────
+      {/* ── EDITORIAL HERO BAND (full-bleed) ────────────────────────────
           Sage-cream gradient + Playfair title + linked-idea pill + status
-          / category / eligible pills, in the same voice as the Idea
-          detail and Calculations heroes. */}
+          / category / eligible pills, edge-to-edge across the page-pad
+          like the Calculations hero. Inner content stays capped at 800px. */}
       <section className="plan-hero">
+       <div className="plan-hero-inner">
         <div className="plan-hero-toolbar">
           <button onClick={() => onNavigate('projects')} className="plan-hero-back">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -345,7 +345,10 @@ export default function PlanDetailPage({ plan, onNavigate }) {
         )}
         <div className="plan-hero-pills">
           <Badge status={status} />
-          {category && <span className="plan-hero-category">{category}</span>}
+          {category && (() => {
+            const cat = getCategoryStyle(category);
+            return <span className="plan-hero-category" style={{ color: cat.color, background: cat.bg }}>{category}</span>;
+          })()}
           {plan.eligibleForCalc && (
             <span title="This project appears in the Calculations page dropdown" className="plan-hero-eligible">
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
@@ -353,9 +356,10 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             </span>
           )}
         </div>
+       </div>
       </section>
 
-      <div>
+      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
         {/* ── VIEW MODE ── */}
         {!isEditing && (
@@ -632,7 +636,6 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
         {/* ── DISCUSSION — always visible ── */}
         <DiscussionThread collectionName="planDiscussions" docId={plan.id} />
-      </div>
       </div>
     </div>
     {confirmDel && (

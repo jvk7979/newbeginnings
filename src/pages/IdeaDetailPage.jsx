@@ -276,13 +276,14 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   return (
     <>
     <div ref={pagePadRef} className="page-pad idea-detail-redesign" style={{ background: C.bg0 }}>
-      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
-      {/* ── EDITORIAL HERO BAND ─────────────────────────────────────────
-          Sage-cream gradient with toolbar (back button left, Edit/Delete
-          right) + eyebrow + Playfair title + status/category pills, in
-          the same voice as the Calculations and Dashboard hero bands. */}
+      {/* ── EDITORIAL HERO BAND (full-bleed) ────────────────────────────
+          Sage-cream gradient + Playfair title + status/category pills,
+          edge-to-edge across the page-pad like the Calculations hero.
+          Inner content stays capped at 800px so the text matches the
+          rest of the page's reading width. */}
       <section className="idea-hero">
+       <div className="idea-hero-inner">
         <div className="idea-hero-toolbar">
           <button onClick={() => onNavigate('ideas')} className="idea-hero-back">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -314,7 +315,10 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
             <span className="idea-hero-category" style={{ color: cat.color, background: cat.bg }}>{idea.category}</span>
           )}
         </div>
+       </div>
       </section>
+
+      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
       {/* KPI tiles — Cost / Payback / Sections / Linked Projects */}
       {!isEditing && kpis.length > 0 && (
