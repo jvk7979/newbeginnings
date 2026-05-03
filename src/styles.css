@@ -1671,8 +1671,14 @@ textarea:focus-visible,
   min-width: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  /* Whole page scrolls as one — hero + dashboard scroll up out of view
+     when the user works in the assumptions / output panels below them.
+     Previously the page was a fixed-viewport "app shell" where the
+     panels had their own internal scroll; users found that confusing. */
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: var(--c-bg0);
 }
 .calc-topbar {
@@ -1680,29 +1686,23 @@ textarea:focus-visible,
 }
 .calc-panels {
   display: flex;
-  flex: 1 1 60vh;          /* claim at least 60% of viewport height */
-  min-height: 60vh;        /* hard floor — hero/dashboard can't squeeze panels below this */
-  overflow: hidden;
+  /* No more internal-scroll lock — panels grow to fit their content
+     and scroll with the page. */
 }
-.calc-page-redesign .calc-hero { flex: 0 0 auto; }
-.calc-page-redesign .calc-metric-dashboard { flex: 0 0 auto; }
 .calc-left {
   width: 65%;
   min-width: 320px;
   max-width: 960px;
-  overflow-y: auto;
   flex-shrink: 0;
 }
 .calc-right {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   min-width: 0;
 }
 .calc-right-body {
   flex: 1;
-  overflow-y: auto;
   padding: 20px;
 }
 
