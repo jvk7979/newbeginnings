@@ -709,6 +709,189 @@ textarea:focus-visible,
   }
 }
 
+/* ── Idea detail editorial hero band ─────────────────────────────────
+   Sage-cream gradient + Playfair title + status/category pills, in the
+   same voice as the Calculations and Dashboard hero bands. */
+.idea-detail-redesign .idea-hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--c-accent-bg) 0%, var(--c-bg1) 60%, var(--c-bg0) 100%);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 16px 22px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(60,40,10,0.06);
+}
+.idea-detail-redesign .idea-hero-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.idea-detail-redesign .idea-hero-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg2);
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 5px 12px;
+  transition: background 120ms;
+}
+.idea-detail-redesign .idea-hero-back:hover {
+  background: var(--c-bg2);
+  color: var(--c-fg1);
+}
+.idea-detail-redesign .idea-hero-actions {
+  display: flex;
+  gap: 8px;
+}
+.idea-detail-redesign .idea-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 120ms, color 120ms;
+}
+.idea-detail-redesign .idea-hero-btn-secondary {
+  background: var(--c-bg1);
+  color: var(--c-accent);
+  border-color: rgba(116,140,98,0.4);
+}
+.idea-detail-redesign .idea-hero-btn-secondary:hover {
+  background: rgba(116,140,98,0.12);
+}
+.idea-detail-redesign .idea-hero-btn-danger {
+  background: transparent;
+  color: var(--c-danger);
+  border-color: rgba(192,57,43,0.4);
+}
+.idea-detail-redesign .idea-hero-btn-danger:hover {
+  background: rgba(192,57,43,0.08);
+}
+.idea-detail-redesign .idea-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: 6px;
+}
+.idea-detail-redesign .idea-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(24px, 3.6vw, 36px);
+  font-weight: 700;
+  color: var(--c-fg1);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.idea-detail-redesign .idea-hero-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.idea-detail-redesign .idea-hero-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.idea-detail-redesign .idea-hero-status .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.idea-detail-redesign .idea-hero-category {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+/* KPI tile grid — small icon-led tiles for idea metadata */
+.idea-detail-redesign .idea-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.idea-detail-redesign .idea-kpi-card {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.idea-detail-redesign .idea-kpi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: rgba(116,140,98,0.14);
+  color: var(--c-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.idea-detail-redesign .idea-kpi-content {
+  flex: 1;
+  min-width: 0;
+}
+.idea-detail-redesign .idea-kpi-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+}
+.idea-detail-redesign .idea-kpi-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-fg1);
+  margin-top: 2px;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .idea-detail-redesign .idea-hero {
+    padding: 14px 16px 18px;
+    border-radius: 10px;
+  }
+  .idea-detail-redesign .idea-hero-toolbar { margin-bottom: 12px; }
+  .idea-detail-redesign .idea-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .idea-detail-redesign .idea-kpi-value { font-size: 15px; }
+}
+
 /* ── Dashboard editorial intro band ────────────────────────────────────
    Sits right under the hero photo. Mirrors the Calculations hero's
    sage-cream gradient, eyebrow + Playfair title + italic tagline + meta

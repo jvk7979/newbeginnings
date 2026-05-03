@@ -243,51 +243,99 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
 
   const badge = STATUS_BADGE[idea.status] || STATUS_BADGE.draft;
   const cat = getCategoryStyle(idea.category);
+  const sectionsDone = sections.filter(s => s.done).length;
+
+  // KPI tiles — only render those whose data actually exists, and only
+  // render the row if at least one tile has data. Skips noise on bare ideas.
+  const fmtINR = (n) => {
+    if (!n || !isFinite(n)) return '—';
+    if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
+    if (n >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
+    if (n >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
+    return `₹${n.toFixed(0)}`;
+  };
+  const kpis = [
+    idea.estimatedCapex ? {
+      key: 'capex', label: 'Project Cost Est.', value: fmtINR(idea.estimatedCapex),
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+    } : null,
+    idea.estimatedPayback ? {
+      key: 'payback', label: 'Est. Payback', value: `${idea.estimatedPayback} yr${idea.estimatedPayback === 1 ? '' : 's'}`,
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    } : null,
+    sections.length > 0 ? {
+      key: 'sections', label: 'Sections', value: `${sectionsDone} / ${sections.length}`,
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+    } : null,
+    linkedProjects.length > 0 ? {
+      key: 'projects', label: 'Linked Projects', value: linkedProjects.length,
+      icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+    } : null,
+  ].filter(Boolean);
 
   return (
     <>
-    <div ref={pagePadRef} className="page-pad" style={{ background: C.bg0 }}>
+    <div ref={pagePadRef} className="page-pad idea-detail-redesign" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <button onClick={() => onNavigate('ideas')}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: 0 }}>
-          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          All Ideas
-        </button>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {!isEditing && (
-            <button onClick={() => setIsEditing(true)}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 14px' }}>
-              Edit
-            </button>
-          )}
-          {!isViewer && (
-            <button onClick={handleDelete}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, cursor: 'pointer', padding: '5px 12px' }}>
-              Delete
-            </button>
+      {/* ── EDITORIAL HERO BAND ─────────────────────────────────────────
+          Sage-cream gradient with toolbar (back button left, Edit/Delete
+          right) + eyebrow + Playfair title + status/category pills, in
+          the same voice as the Calculations and Dashboard hero bands. */}
+      <section className="idea-hero">
+        <div className="idea-hero-toolbar">
+          <button onClick={() => onNavigate('ideas')} className="idea-hero-back">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            All Ideas
+          </button>
+          <div className="idea-hero-actions">
+            {!isEditing && (
+              <button onClick={() => setIsEditing(true)} className="idea-hero-btn idea-hero-btn-secondary">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+            )}
+            {!isViewer && (
+              <button onClick={handleDelete} className="idea-hero-btn idea-hero-btn-danger">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Delete
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="idea-hero-eyebrow">Idea · Captured {idea.date}</div>
+        <h1 className="idea-hero-title">{idea.title}</h1>
+        <div className="idea-hero-pills">
+          <span className="idea-hero-status" style={{ background: badge.bg, color: badge.color }}>
+            <span className="dot" style={{ background: badge.color }} />
+            {badge.label}
+          </span>
+          {idea.category && (
+            <span className="idea-hero-category" style={{ color: cat.color, background: cat.bg }}>{idea.category}</span>
           )}
         </div>
-      </div>
+      </section>
+
+      {/* KPI tiles — Cost / Payback / Sections / Linked Projects */}
+      {!isEditing && kpis.length > 0 && (
+        <div className="idea-kpi-grid">
+          {kpis.map(k => (
+            <div key={k.key} className="idea-kpi-card">
+              <div className="idea-kpi-icon">{k.icon}</div>
+              <div className="idea-kpi-content">
+                <div className="idea-kpi-label">{k.label}</div>
+                <div className="idea-kpi-value">{k.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
         {/* ── VIEW MODE ── */}
         {!isEditing && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 28 }}>
-            <div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Idea</div>
-              <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(20px,3vw,28px)', fontWeight: 700, color: C.fg1, margin: '0 0 10px 0', lineHeight: 1.25 }}>{idea.title}</h1>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: badge.bg, color: badge.color }}>{badge.label}</span>
-                {idea.category && (
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: cat.color, background: cat.bg, padding: '2px 8px', borderRadius: 4 }}>{idea.category}</span>
-                )}
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginLeft: 'auto' }}>Captured {idea.date}</span>
-              </div>
-            </div>
 
             {sections.length > 0 && (
               <div style={{ marginBottom: 4 }}>
