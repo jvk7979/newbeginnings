@@ -392,80 +392,72 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
             ))}
 
             {idea.desc && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px' }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Description</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{idea.desc}</div>
-              </div>
+              <section className="idea-section">
+                <div className="idea-section-eyebrow">Description</div>
+                <div className="idea-section-prose">{idea.desc}</div>
+              </section>
             )}
 
             {idea.notes && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px' }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Notes & Next Steps</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{idea.notes}</div>
-              </div>
+              <section className="idea-section">
+                <div className="idea-section-eyebrow">Notes & Next Steps</div>
+                <div className="idea-section-prose">{idea.notes}</div>
+              </section>
             )}
 
             {Array.isArray(idea.sources) && idea.sources.filter(s => (s || '').trim()).length > 0 && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px' }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Sources</div>
+              <section className="idea-section">
+                <div className="idea-section-eyebrow">Sources</div>
                 <SourcesView sources={idea.sources} />
-              </div>
+              </section>
             )}
 
             {attachedFile && (
-              <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Attached Document</div>
+              <section className="idea-section">
+                <div className="idea-section-eyebrow">Attached Document</div>
                 <AttachedFileViewer file={attachedFile} editing={false} />
-              </div>
+              </section>
             )}
 
             {/* Linked Projects — projects that point to this idea via linkedIdeaId */}
             {linkedProjects.length > 0 && (
-              <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    Linked Projects · {linkedProjects.length}
-                  </div>
+              <section className="idea-section">
+                <div className="idea-section-eyebrow">
+                  <span>Linked Projects</span>
+                  <span className="idea-section-count">{linkedProjects.length}</span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div className="idea-linked-list">
                   {linkedProjects.map(p => (
                     <button key={p.id} onClick={() => onNavigate('project-detail', p)}
                       aria-label={`Open project: ${p.title}`}
-                      style={{ display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', width: '100%', background: C.bg0, border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.accent}`, borderRadius: 6, padding: '10px 14px', cursor: 'pointer', transition: 'background 120ms' }}
-                      onMouseEnter={e => e.currentTarget.style.background = C.bg2}
-                      onMouseLeave={e => e.currentTarget.style.background = C.bg0}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 600, color: C.fg1, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {p.title}
-                        </div>
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
+                      className="idea-linked-row">
+                      <div className="idea-linked-content">
+                        <div className="idea-linked-title">{p.title}</div>
+                        <div className="idea-linked-meta">
                           {p.status && <span style={{ textTransform: 'capitalize' }}>{String(p.status).replace('-', ' ')}</span>}
                           {p.updated && <span>· Updated {p.updated}</span>}
                         </div>
                       </div>
-                      <span aria-hidden="true" style={{ color: C.accent, fontSize: 18, flexShrink: 0 }}>→</span>
+                      <span aria-hidden="true" className="idea-linked-arrow">→</span>
                     </button>
                   ))}
                 </div>
-              </div>
+              </section>
             )}
 
             {/* AI Analysis in view mode */}
-            <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: analysis ? 14 : 0 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3 }}>AI Analysis</div>
-                <button onClick={handleAnalyze} disabled={analyzing}
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: analyzing ? C.fg3 : '#fff', background: analyzing ? C.bg2 : C.accent, border: 'none', borderRadius: 5, cursor: analyzing ? 'not-allowed' : 'pointer', padding: '6px 14px', transition: 'all 150ms' }}>
+            <section className="idea-section idea-section-ai">
+              <div className="idea-section-eyebrow">
+                <span>AI Analysis</span>
+                <button onClick={handleAnalyze} disabled={analyzing} className="idea-analyze-btn">
                   <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                   {analyzing ? 'Analyzing…' : 'Analyze with AI'}
                 </button>
               </div>
               {analysis && (
-                <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8, padding: '16px 18px', whiteSpace: 'pre-wrap', fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.7, marginTop: 14 }}>
-                  {analysis}
-                </div>
+                <div className="idea-analysis-output">{analysis}</div>
               )}
-            </div>
+            </section>
           </div>
         )}
 
