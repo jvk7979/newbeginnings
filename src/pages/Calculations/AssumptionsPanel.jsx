@@ -99,7 +99,7 @@ export default function AssumptionsPanel({
           </div>
         ))}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-          <button onClick={() => addRow('revenueRows', { name: '', unit: '', price: 0, qty: 0 })}
+          <button onClick={() => addRow('revenueRows', { name: '', unit: '', price: 0, qty: 0, enabled: true })}
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add product</button>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.revenue)}/yr at {input.capacityPct}%</span>
         </div>
@@ -149,7 +149,7 @@ export default function AssumptionsPanel({
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-              <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0 })}
+              <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0, enabled: true })}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.variableCosts)}/yr</span>
             </div>
@@ -167,7 +167,7 @@ export default function AssumptionsPanel({
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-              <button onClick={() => addRow('fixedRows', { name: '', amount: 0 })}
+              <button onClick={() => addRow('fixedRows', { name: '', amount: 0, enabled: true })}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.fixedCosts)}/yr</span>
             </div>

@@ -100,9 +100,12 @@ export function runCalc(input) {
   // Steady-state capacity for the top-level KPIs (Annual Revenue card,
   // Revenue Composition donut, Working Capital). Per-year ramp is applied
   // only inside the projection loop.
-  const fullRevenue       = revenueRows.reduce((s, r) => s + num(r.price) * num(r.qty), 0);
-  const fullVariableCosts = varRows.reduce((s, r) => s + num(r.price) * num(r.qty), 0);
-  const fixedCosts        = fixedRows.reduce((s, r) => s + num(r.amount), 0);
+  // `enabled` is opt-out — rows without the field are treated as enabled
+  // (backward-compat with projects saved before the toggle existed).
+  const isOn              = (r) => r.enabled !== false;
+  const fullRevenue       = revenueRows.reduce((s, r) => isOn(r) ? s + num(r.price) * num(r.qty) : s, 0);
+  const fullVariableCosts = varRows.reduce((s, r) => isOn(r) ? s + num(r.price) * num(r.qty) : s, 0);
+  const fixedCosts        = fixedRows.reduce((s, r) => isOn(r) ? s + num(r.amount) : s, 0);
 
   const revenue       = fullRevenue * capCeilFrac;
   const variableCosts = fullVariableCosts * capCeilFrac;
@@ -171,7 +174,7 @@ export function runCalc(input) {
 
   const revenueByProduct = revenueRows.map((row, i) => ({
     name: row.name || `Product ${i + 1}`,
-    value: num(row.price) * num(row.qty) * capCeilFrac,
+    value: isOn(row) ? num(row.price) * num(row.qty) * capCeilFrac : 0,
     color: PRODUCT_COLORS[i % PRODUCT_COLORS.length],
   })).filter(s => s.value > 0);
 
@@ -241,9 +244,9 @@ export const DEFAULT_CALC_INPUT = {
   pmegpPct: 25,
   citusEnabled: false,
   apmsmeEnabled: false,
-  revenueRows: [{ id: 1, name: '', unit: '', price: 0, qty: 0 }],
+  revenueRows: [{ id: 1, name: '', unit: '', price: 0, qty: 0, enabled: true }],
   varRows: [],
-  fixedRows: [{ id: 1, name: '', amount: 0 }],
+  fixedRows: [{ id: 1, name: '', amount: 0, enabled: true }],
   receivableDays: 30,
   payableDays: 15,
   inventoryDays: 20,

@@ -31,7 +31,7 @@ const readSavedLeftWidth = () => {
 // flat tabs. Quick Estimate = SummaryTab (verdict callout). Deep Dive =
 // statement-style P&L + Capex/Returns + 5-yr chart (with table toggle).
 // What-If Lab = sensitivity tornado. Scenarios = side-by-side compare.
-const QuickEstimateTab = lazy(() => import('./tabs/SummaryTab'));
+const QuickEstimateTab = lazy(() => import('./tabs/QuickEstimate'));
 const DeepDiveTab      = lazy(() => import('./tabs/DeepDiveTab'));
 const WhatIfLabTab     = lazy(() => import('./tabs/SensitivityTab'));
 const ScenariosTab     = lazy(() => import('./tabs/CompareTab'));
@@ -211,7 +211,7 @@ export default function CalculationsPage({ onNavigate }) {
 
           <div className="calc-right-body">
             <Suspense fallback={<TabFallback />}>
-              {rightTab === 'quick'     && <QuickEstimateTab insight={insight} />}
+              {rightTab === 'quick'     && <QuickEstimateTab input={input} calc={calc} insight={insight} setI={setI} setRow={setRow} sliderMin={sliderMin} sliderMax={sliderMax} />}
               {rightTab === 'deep'      && <DeepDiveTab calc={calc} input={input} dr={dr} tn={tn} irrColor={irrColor} npvColor={npvColor} paybackColor={paybackColor} dscrColor={dscrColor} />}
               {rightTab === 'whatif'    && <WhatIfLabTab input={input} calc={calc} />}
               {rightTab === 'scenarios' && <ScenariosTab eligible={eligible} selectedProject={selectedProject} calc={calc} compareWithId={compareWithId} setCompareWithId={setCompareWithId} />}

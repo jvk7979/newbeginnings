@@ -2949,3 +2949,342 @@ textarea:focus-visible,
   .calc-deepdive-grid { grid-template-columns: 1fr; }
 }
 
+
+
+/* ── Phase-2 Quick Estimate workspace ──────────────────────────────────
+   Verdict strip + plant config (toggleable product cards) + inline
+   capacity slider + Money Flow stacked bar + KPI tiles, with a Capex
+   summary + Try-a-Preset stack on the right. */
+
+.calc-quick {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Verdict strip — compact single-row callout */
+.calc-quick-verdict {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  background: rgb(192 57 43 / 0.05);
+  border: 1px solid rgb(192 57 43 / 0.18);
+  border-left: 3px solid #c0392b;
+  color: var(--c-fg2);
+  line-height: 1.5;
+}
+.calc-quick-verdict[data-positive="true"] {
+  background: rgb(var(--c-accent-rgb) / 0.06);
+  border-color: rgb(var(--c-accent-rgb) / 0.20);
+  border-left-color: var(--c-accent);
+}
+.calc-quick-verdict svg {
+  flex-shrink: 0;
+  color: #c0392b;
+}
+.calc-quick-verdict[data-positive="true"] svg {
+  color: var(--c-accent);
+}
+.calc-quick-verdict strong {
+  font-weight: 700;
+  color: #c0392b;
+}
+.calc-quick-verdict[data-positive="true"] strong {
+  color: var(--c-accent);
+}
+
+/* Two-column grid — flips to single column on mobile */
+.calc-quick-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.calc-quick-left,
+.calc-quick-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.calc-quick-card {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.calc-quick-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.calc-quick-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+}
+.calc-quick-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+}
+.calc-quick-empty {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg3);
+  font-style: italic;
+}
+
+/* Toggleable product cards */
+.calc-quick-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.calc-quick-product {
+  background: var(--c-bg2);
+  border: 1.5px solid var(--c-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: opacity 120ms, border-color 120ms, background 120ms;
+}
+.calc-quick-product[data-on="true"] {
+  border-color: rgb(var(--c-accent-rgb) / 0.5);
+  background: rgb(var(--c-accent-rgb) / 0.04);
+}
+.calc-quick-product[data-on="false"] {
+  opacity: 0.55;
+}
+.calc-quick-product-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.calc-quick-product-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.calc-quick-product-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calc-quick-product-toggle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  color: var(--c-fg3);
+  cursor: pointer;
+  transition: all 120ms;
+}
+.calc-quick-product[data-on="true"] .calc-quick-product-toggle {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+}
+.calc-quick-product-meta {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  margin-bottom: 8px;
+}
+.calc-quick-product-revenue {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 8px;
+  border-top: 1px solid var(--c-border);
+}
+.calc-quick-product-revenue strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-quick-product-revenue span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: var(--c-fg3);
+}
+
+/* Inline capacity slider */
+.calc-quick-capacity-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.calc-quick-capacity-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--c-accent);
+  line-height: 1;
+  min-width: 76px;
+}
+.calc-quick-capacity-value small {
+  font-size: 18px;
+}
+
+/* Money Flow stacked bar */
+.calc-quick-moneyflow-bar {
+  display: flex;
+  height: 18px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--c-bg2);
+  margin-bottom: 10px;
+}
+.calc-quick-moneyflow-bar > div {
+  height: 100%;
+}
+.calc-quick-moneyflow-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg2);
+}
+.calc-quick-moneyflow-legend strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--c-fg1);
+  margin: 0 2px;
+}
+.calc-quick-moneyflow-legend .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* KPI tiles */
+.calc-quick-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+.calc-quick-kpi-tile {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.calc-quick-kpi-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 4px;
+}
+.calc-quick-kpi-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Capex summary on the right */
+.calc-quick-capex {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.calc-quick-capex-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+}
+.calc-quick-capex-row strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--c-fg1);
+}
+.calc-quick-capex-row.total {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--c-border);
+}
+.calc-quick-capex-row.total span,
+.calc-quick-capex-row.total strong {
+  color: var(--c-fg1);
+  font-weight: 700;
+}
+.calc-quick-capex-row.sub {
+  font-size: 12px;
+  color: var(--c-fg3);
+}
+.calc-quick-capex-row.sub strong {
+  color: var(--c-fg2);
+  font-weight: 500;
+}
+
+/* Try a Preset */
+.calc-quick-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.calc-quick-preset {
+  text-align: left;
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: all 120ms;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.calc-quick-preset:hover {
+  border-color: rgb(var(--c-accent-rgb) / 0.5);
+  background: rgb(var(--c-accent-rgb) / 0.04);
+}
+.calc-quick-preset strong {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-quick-preset span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  line-height: 1.4;
+}
+
+/* Mobile: stack the two-column Quick Estimate grid */
+@media (max-width: 768px) {
+  .calc-quick-grid { grid-template-columns: 1fr; }
+}
