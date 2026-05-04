@@ -220,7 +220,7 @@ export default function CalculationsPage({ onNavigate }) {
             <Suspense fallback={<TabFallback />}>
               {rightTab === 'quick'     && <QuickEstimateTab input={input} calc={calc} insight={insight} setI={setI} setRow={setRow} sliderMin={sliderMin} sliderMax={sliderMax} />}
               {rightTab === 'deep'      && <DeepDiveTab calc={calc} input={input} dr={dr} tn={tn} irrColor={irrColor} npvColor={npvColor} paybackColor={paybackColor} dscrColor={dscrColor} setI={setI} setRow={setRow} addRow={addRow} delRow={delRow} />}
-              {rightTab === 'whatif'    && <WhatIfLabTab input={input} calc={calc} />}
+              {rightTab === 'whatif'    && <WhatIfLabTab input={input} calc={calc} setI={setI} />}
               {rightTab === 'scenarios' && <ScenariosTab projectId={selectedProject?.id} currentInput={input} currentCalc={calc} loadScenario={loadScenario} />}
             </Suspense>
           </div>

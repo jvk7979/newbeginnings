@@ -3948,3 +3948,190 @@ textarea:focus-visible,
     background: var(--c-fg3);
   }
 }
+
+/* ── What-If Lab — sub-tab orchestrator + Live Drivers ───────────────── */
+
+.calc-whatif-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.calc-whatif-subtabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--c-border);
+}
+.calc-whatif-subtab {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-fg3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 14px 9px;
+  cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+  margin-bottom: -1px;
+}
+.calc-whatif-subtab:hover { color: var(--c-fg2); }
+.calc-whatif-subtab[data-active="true"] {
+  color: var(--c-accent);
+  border-bottom-color: var(--c-accent);
+  font-weight: 700;
+}
+
+/* Live Drivers ── single-slider sandbox */
+.calc-livedrivers {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.calc-livedrivers-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.calc-livedrivers-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-livedrivers-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  margin-top: 2px;
+  line-height: 1.5;
+  max-width: 460px;
+}
+.calc-livedrivers-picker {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  outline: none;
+}
+.calc-livedrivers-picker:focus { border-color: var(--c-accent); }
+
+/* Big slider + value */
+.calc-livedrivers-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.calc-livedrivers-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--c-accent);
+  line-height: 1;
+  min-width: 100px;
+}
+.calc-livedrivers-value small {
+  font-size: 18px;
+  font-weight: 600;
+  margin-left: 2px;
+}
+.calc-livedrivers-range {
+  flex: 1;
+  accent-color: var(--c-accent);
+  cursor: pointer;
+  height: 6px;
+}
+.calc-livedrivers-bounds {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  padding: 0 4px;
+}
+.calc-livedrivers-bounds strong {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--c-fg2);
+  font-weight: 600;
+}
+
+/* Live KPI strip */
+.calc-livedrivers-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.calc-livedrivers-kpi {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.calc-livedrivers-kpi-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 4px;
+}
+.calc-livedrivers-kpi-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-fg1);
+  margin-bottom: 4px;
+}
+.calc-livedrivers-kpi-delta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-fg3);
+}
+.calc-livedrivers-kpi-delta[data-pos="true"] { color: #16a34a; }
+.calc-livedrivers-kpi-delta[data-neg="true"] { color: #dc2626; }
+
+/* Apply / Reset */
+.calc-livedrivers-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.calc-livedrivers-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: filter 120ms, background 120ms;
+  border: 1px solid;
+}
+.calc-livedrivers-btn.primary {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+}
+.calc-livedrivers-btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.calc-livedrivers-btn.secondary {
+  background: transparent;
+  color: var(--c-fg2);
+  border-color: var(--c-border);
+}
+.calc-livedrivers-btn.secondary:hover:not(:disabled) {
+  background: var(--c-bg2);
+}
+.calc-livedrivers-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
