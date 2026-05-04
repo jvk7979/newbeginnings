@@ -75,6 +75,12 @@ export function runCalc(input) {
     // `capex` scalar is ignored. When empty / all zero, we fall back to
     // `capex` so projects saved before this field existed work unchanged.
     capexRows = [],
+    // Annual escalation applied inside the year loop. Y1 stays at the
+    // base; Y2 = base × (1+pct), Y3 = base × (1+pct)^2, etc. Defaults
+    // are zero so projects saved before this field existed run unchanged
+    // (flat-real-terms behaviour).
+    revenueInflationPct = 0,
+    costInflationPct    = 0,
   } = input || {};
 
   const citus  = citusEnabled ? 0.25 : 0;
@@ -139,15 +145,25 @@ export function runCalc(input) {
   const subventionPct  = num(interestSubventionPct) / 100;
   const subventionYrs  = Math.max(0, num(interestSubventionYears));
 
+  const revInflFrac  = num(revenueInflationPct) / 100;
+  const costInflFrac = num(costInflationPct)    / 100;
+
   const rows = [];
   let wdvBook = capexN;
   let cumNCF  = -equity;
   for (let t = 1; t <= lifetimeN; t++) {
     // Per-year capacity climbs linearly from Y1 toward the ceiling.
     const capYr     = Math.min(capCeilFrac, capY1Frac + (t - 1) * capRampFrac);
-    const revYr     = fullRevenue * capYr;
-    const varYr     = fullVariableCosts * capYr;
-    const ebitdaYr  = revYr - varYr - fixedCosts;
+    // Inflation factors — Y1 stays at the base (exponent 0), Y2+ scale
+    // by (1+rate)^(t-1). Revenue and costs use independent rates so a
+    // project that raises prices 5%/yr while costs climb 7%/yr correctly
+    // sees its margin compress over time.
+    const revInflFactor  = Math.pow(1 + revInflFrac,  t - 1);
+    const costInflFactor = Math.pow(1 + costInflFrac, t - 1);
+    const revYr     = fullRevenue       * capYr * revInflFactor;
+    const varYr     = fullVariableCosts * capYr * costInflFactor;
+    const fixedYr   = fixedCosts                * costInflFactor;
+    const ebitdaYr  = revYr - varYr - fixedYr;
 
     const depreciation = wdvBook * 0.15;
     wdvBook = Math.max(0, wdvBook - depreciation);
@@ -168,7 +184,7 @@ export function runCalc(input) {
     const ncf         = pat + depreciation - principal + subvention;
     cumNCF += ncf;
     const dscr = (principal + interest) > 0 ? ebitdaYr / (principal + interest) : null;
-    rows.push({ t, capacityPct: capYr * 100, revenue: revYr, variableCosts: varYr, fixedCosts, ebitda: ebitdaYr, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
+    rows.push({ t, capacityPct: capYr * 100, revenue: revYr, variableCosts: varYr, fixedCosts: fixedYr, ebitda: ebitdaYr, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
   }
 
   const totalSubvention = rows.reduce((s, r) => s + r.subvention, 0);
@@ -282,6 +298,8 @@ export const DEFAULT_CALC_INPUT = {
   varRows: [],
   fixedRows: [{ id: 1, name: '', amount: 0, enabled: true }],
   capexRows: [],
+  revenueInflationPct: 0,
+  costInflationPct: 0,
   receivableDays: 30,
   payableDays: 15,
   inventoryDays: 20,

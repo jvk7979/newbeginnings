@@ -250,6 +250,20 @@ export default function AssumptionsPanel({
           </div>
         </div>
         <Hint>Government rebate on interest (AP MSME Policy: up to 3% for 5y). Adds to NCF; does not reduce DSCR's debt-service denominator.</Hint>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+          <div>
+            <div className="calc-field-label">Revenue Inflation %/yr</div>
+            <Stepper value={input.revenueInflationPct ?? 0} onChange={v => setI({ revenueInflationPct: Math.max(-10, Math.min(20, v)) })} min={-10} max={20} step={0.5} ariaLabel="revenue inflation" />
+            <ChipRow values={[0, 3, 5, 8]} current={input.revenueInflationPct ?? 0} onPick={v => setI({ revenueInflationPct: v })} suffix="%" />
+          </div>
+          <div>
+            <div className="calc-field-label">Cost Inflation %/yr</div>
+            <Stepper value={input.costInflationPct ?? 0} onChange={v => setI({ costInflationPct: Math.max(-10, Math.min(20, v)) })} min={-10} max={20} step={0.5} ariaLabel="cost inflation" />
+            <ChipRow values={[0, 4, 6, 8]} current={input.costInflationPct ?? 0} onPick={v => setI({ costInflationPct: v })} suffix="%" />
+          </div>
+        </div>
+        <Hint>Y1 stays at base; Y2+ scale by (1+rate)^(t−1). Independent rates so a project that raises prices 5%/yr while costs climb 7%/yr correctly sees its margin compress over time.</Hint>
       </Section>
 
       {/* Subsidy Stack — accent-highlighted card. Individual checkboxes
