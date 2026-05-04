@@ -88,15 +88,15 @@ export default function CalculationsPage({ onNavigate }) {
     const { irr, payback } = calc;
     const dr = Number(input.discountRate) || 0;
     const tn = Number(input.tenure) || 1;
-    const cp = Number(input.capacityPct) || 0;
+    const cp = Number(input.capacityCeilingPct ?? input.capacityPct) || 0;
     if (irr === null && payback === null)
       return { verdict: 'Add data', text: 'Enter revenue and cost rows to see projections.', positive: false };
     if (irr !== null && irr > dr * 1.5 && payback !== null && payback < tn * 0.6)
-      return { verdict: `Strong returns at ${cp}% capacity`, text: `Payback in ${payback} yr${payback !== 1 ? 's' : ''} with IRR of ${irr.toFixed(0)}% — comfortably exceeds cost of capital.`, positive: true };
+      return { verdict: `Strong returns at ${cp}% ceiling`, text: `Payback in ${payback} yr${payback !== 1 ? 's' : ''} with IRR of ${irr.toFixed(0)}% — comfortably exceeds cost of capital.`, positive: true };
     if (irr !== null && irr > dr && payback !== null && payback <= tn)
-      return { verdict: `Viable at ${cp}% capacity`, text: `Payback in ${payback} yr${payback !== 1 ? 's' : ''} with IRR of ${irr.toFixed(1)}% — meets the ${dr}% hurdle rate.`, positive: true };
-    return { verdict: `Below break-even at ${cp}% capacity`, text: `IRR of ${irr !== null ? irr.toFixed(1) + '%' : '—'} does not meet the ${dr}% hurdle rate. Review pricing or cost structure.`, positive: false };
-  }, [calc, input.discountRate, input.tenure, input.capacityPct]);
+      return { verdict: `Viable at ${cp}% ceiling`, text: `Payback in ${payback} yr${payback !== 1 ? 's' : ''} with IRR of ${irr.toFixed(1)}% — meets the ${dr}% hurdle rate.`, positive: true };
+    return { verdict: `Below break-even at ${cp}% ceiling`, text: `IRR of ${irr !== null ? irr.toFixed(1) + '%' : '—'} does not meet the ${dr}% hurdle rate. Review pricing or cost structure.`, positive: false };
+  }, [calc, input.discountRate, input.tenure, input.capacityCeilingPct, input.capacityPct]);
 
   // Color helpers — gate on actual signal so an empty/zero project doesn't
   // flash all-red. The thresholds only kick in once meaningful values exist.

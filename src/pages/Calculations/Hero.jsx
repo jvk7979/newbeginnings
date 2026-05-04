@@ -52,13 +52,13 @@ export default function Hero({
         </div>
 
         <div className="calc-hero-dial">
-          <CapacityRing pct={input.capacityPct} color={C.accent} track={alpha(C.accent, 22)} />
+          <CapacityRing pct={input.capacityCeilingPct ?? input.capacityPct} color={C.accent} track={alpha(C.accent, 22)} />
           <div className="calc-hero-dial-chips">
             {[40, 60, 80, 100].map(v => (
-              <button key={v} onClick={() => setI({ capacityPct: v })}
-                aria-pressed={input.capacityPct === v}
+              <button key={v} onClick={() => setI({ capacityCeilingPct: v, capacityPct: v })}
+                aria-pressed={(input.capacityCeilingPct ?? input.capacityPct) === v}
                 className="calc-hero-dial-chip"
-                data-active={input.capacityPct === v ? 'true' : 'false'}>
+                data-active={(input.capacityCeilingPct ?? input.capacityPct) === v ? 'true' : 'false'}>
                 {v}%
               </button>
             ))}

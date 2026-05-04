@@ -8,7 +8,7 @@ export default function PLTab({ calc, input, dr, tn, ebitdaColor, irrColor, npvC
     { label: 'Effective CAPEX', value: fmtINR(calc.effectiveCapex), sub: 'after subsidies', color: C.fg1 },
     { label: 'Equity Required', value: fmtINR(calc.equity), sub: `${100 - input.debtPct}% of capex`, color: C.fg1 },
     { label: 'Loan Amount',     value: fmtINR(calc.loan), sub: `${input.debtPct}% debt`, color: C.fg1 },
-    { label: 'Annual Revenue',  value: fmtINR(calc.revenue), sub: `at ${input.capacityPct}% capacity`, color: C.fg1 },
+    { label: 'Annual Revenue',  value: fmtINR(calc.revenue), sub: `at ${input.capacityCeilingPct ?? input.capacityPct}% ceiling`, color: C.fg1 },
     { label: 'EBITDA',          value: fmtINR(calc.ebitda), sub: `${calc.ebitdaMargin.toFixed(1)}% margin`, color: ebitdaColor },
     { label: 'IRR',             value: calc.irr !== null ? `${calc.irr.toFixed(1)}%` : '—', sub: `vs ${dr}% hurdle`, color: irrColor },
     { label: 'NPV',             value: fmtINR(calc.npv), sub: `at ${dr}% discount`, color: npvColor },

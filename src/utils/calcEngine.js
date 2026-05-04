@@ -62,6 +62,14 @@ export function runCalc(input) {
     payableDays = 15,
     inventoryDays = 20,
     capacityPct = 100,
+    // Per-year capacity ramp. Y1 starts at `capacityY1Pct`, climbs by
+    // `capacityRampPct` points each year, capped at `capacityCeilingPct`.
+    // Auto-shim: projects saved before the ramp existed only stored
+    // `capacityPct` — treat that as the ceiling AND the Y1 value (ramp 0)
+    // so behaviour is identical until the user edits the new fields.
+    capacityCeilingPct = capacityPct,
+    capacityY1Pct      = capacityPct,
+    capacityRampPct    = 0,
   } = input || {};
 
   const citus  = citusEnabled ? 0.25 : 0;
@@ -84,14 +92,20 @@ export function runCalc(input) {
   const equity          = effectiveCapex * ((100 - debt) / 100);
   const tenureN  = Math.max(1, num(tenure));
   const annualPrincipal = loan / tenureN;
-  const cap             = num(capacityPct) / 100;
 
+  const capCeilFrac = Math.max(0, Math.min(100, num(capacityCeilingPct))) / 100;
+  const capY1Frac   = Math.max(0, Math.min(100, num(capacityY1Pct)))      / 100;
+  const capRampFrac = num(capacityRampPct) / 100;
+
+  // Steady-state capacity for the top-level KPIs (Annual Revenue card,
+  // Revenue Composition donut, Working Capital). Per-year ramp is applied
+  // only inside the projection loop.
   const fullRevenue       = revenueRows.reduce((s, r) => s + num(r.price) * num(r.qty), 0);
   const fullVariableCosts = varRows.reduce((s, r) => s + num(r.price) * num(r.qty), 0);
   const fixedCosts        = fixedRows.reduce((s, r) => s + num(r.amount), 0);
 
-  const revenue       = fullRevenue * cap;
-  const variableCosts = fullVariableCosts * cap;
+  const revenue       = fullRevenue * capCeilFrac;
+  const variableCosts = fullVariableCosts * capCeilFrac;
   const ebitda        = revenue - variableCosts - fixedCosts;
   const ebitdaMargin  = revenue > 0 ? (ebitda / revenue) * 100 : 0;
 
@@ -109,6 +123,12 @@ export function runCalc(input) {
   let wdvBook = capexN;
   let cumNCF  = -equity;
   for (let t = 1; t <= lifetimeN; t++) {
+    // Per-year capacity climbs linearly from Y1 toward the ceiling.
+    const capYr     = Math.min(capCeilFrac, capY1Frac + (t - 1) * capRampFrac);
+    const revYr     = fullRevenue * capYr;
+    const varYr     = fullVariableCosts * capYr;
+    const ebitdaYr  = revYr - varYr - fixedCosts;
+
     const depreciation = wdvBook * 0.15;
     wdvBook = Math.max(0, wdvBook - depreciation);
     const loanBalance = Math.max(0, loan - (t - 1) * annualPrincipal);
@@ -121,14 +141,14 @@ export function runCalc(input) {
     const subvention  = (t <= subventionYrs && loanBalance > 0)
       ? loanBalance * subventionPct
       : 0;
-    const ebit        = ebitda - depreciation;
+    const ebit        = ebitdaYr - depreciation;
     const ebt         = ebit - interest;
     const tax         = Math.max(0, ebt * (num(taxRate) / 100));
     const pat         = ebt - tax;
     const ncf         = pat + depreciation - principal + subvention;
     cumNCF += ncf;
-    const dscr = (principal + interest) > 0 ? ebitda / (principal + interest) : null;
-    rows.push({ t, revenue, variableCosts, fixedCosts, ebitda, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
+    const dscr = (principal + interest) > 0 ? ebitdaYr / (principal + interest) : null;
+    rows.push({ t, capacityPct: capYr * 100, revenue: revYr, variableCosts: varYr, fixedCosts, ebitda: ebitdaYr, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
   }
 
   const totalSubvention = rows.reduce((s, r) => s + r.subvention, 0);
@@ -151,7 +171,7 @@ export function runCalc(input) {
 
   const revenueByProduct = revenueRows.map((row, i) => ({
     name: row.name || `Product ${i + 1}`,
-    value: num(row.price) * num(row.qty) * cap,
+    value: num(row.price) * num(row.qty) * capCeilFrac,
     color: PRODUCT_COLORS[i % PRODUCT_COLORS.length],
   })).filter(s => s.value > 0);
 
@@ -170,9 +190,13 @@ export function runSensitivity(input, pct = 20) {
   const base = runCalc(input).irr;
   if (base === null) return [];
 
+  // Auto-shim: when sensitivity flexes capacity, prefer the new ceiling
+  // field; fall back to the legacy capacityPct for projects saved before
+  // the ramp existed.
+  const baseCeiling = num(input.capacityCeilingPct ?? input.capacityPct);
   const flex = (mult) => ({
     capex:        runCalc({ ...input, capex:        num(input.capex)        * mult }).irr,
-    capacityPct:  runCalc({ ...input, capacityPct:  Math.min(100, num(input.capacityPct) * mult) }).irr,
+    capacityPct:  runCalc({ ...input, capacityCeilingPct: Math.min(100, baseCeiling * mult), capacityPct: Math.min(100, baseCeiling * mult) }).irr,
     interestRate: runCalc({ ...input, interestRate: num(input.interestRate) * mult }).irr,
     revenueRows:  runCalc({ ...input, revenueRows: input.revenueRows.map(r => ({ ...r, price: num(r.price) * mult })) }).irr,
     varRows:      runCalc({ ...input, varRows:     input.varRows.map(r => ({ ...r, price: num(r.price) * mult })) }).irr,
@@ -184,7 +208,7 @@ export function runSensitivity(input, pct = 20) {
 
   const labels = {
     capex:        'CAPEX',
-    capacityPct:  'Capacity Utilisation',
+    capacityPct:  'Capacity Ceiling',
     interestRate: 'Interest Rate',
     revenueRows:  'Sale Price',
     varRows:      'Variable Cost',
@@ -223,7 +247,10 @@ export const DEFAULT_CALC_INPUT = {
   receivableDays: 30,
   payableDays: 15,
   inventoryDays: 20,
-  capacityPct: 100,
+  capacityPct: 80,           // legacy steady-state; kept in sync with ceiling
+  capacityCeilingPct: 80,    // long-run target capacity
+  capacityY1Pct: 50,         // realistic Year-1 utilisation (setup year)
+  capacityRampPct: 10,       // points added per year until the ceiling
 };
 
 export const PRODUCT_COLORS_EXPORT = PRODUCT_COLORS;

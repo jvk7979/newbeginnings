@@ -19,15 +19,19 @@ export default function AssumptionsPanel({
         <span className="calc-assumptions-hint">Click any group to expand or collapse</span>
       </div>
 
-      {/* Capacity Utilisation */}
+      {/* Capacity Utilisation — Y1 + ramp + ceiling, instead of a flat scalar.
+          Realistic projections start low (setup year), climb each year, and
+          plateau at the long-run ceiling. The hero CapacityRing shows the
+          ceiling; the projection table reveals the per-year ramp. */}
       <Section id="capacity" label="Capacity Utilisation"
-        summary={`${input.capacityPct}%`}
+        summary={`Y1 ${input.capacityY1Pct ?? 50}% → ${input.capacityCeilingPct ?? input.capacityPct}%`}
         open={openSections.includes('capacity')} onToggle={toggleSection}>
-        <Hint>What % of your maximum planned output you expect to achieve. Most projects run at 60–80% in Year 1.</Hint>
+        <Hint>Year 1 is typically 40–60% (setup, market development). Most projects climb 5–15 points per year until they hit the long-run ceiling.</Hint>
+
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2 }}>Capacity</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2 }}>Ceiling</span>
           <div>
-            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{input.capacityPct}</span>
+            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{input.capacityCeilingPct ?? input.capacityPct}</span>
             <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: C.accent }}>%</span>
           </div>
         </div>
@@ -38,22 +42,35 @@ export default function AssumptionsPanel({
               <div style={{ width: 1, height: 8, background: C.fg3 }} />
             </div>
           )}
-          <input type="range" min={sliderMin} max={sliderMax} step={5} value={input.capacityPct}
-            onChange={e => setI({ capacityPct: Number(e.target.value) })}
+          <input type="range" min={sliderMin} max={sliderMax} step={5} value={input.capacityCeilingPct ?? input.capacityPct}
+            onChange={e => setI({ capacityCeilingPct: Number(e.target.value), capacityPct: Number(e.target.value) })}
             style={{ width: '100%', accentColor: C.accent, cursor: 'pointer' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3 }}>10%</span>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3 }}>100%</span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 4, justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 4, justifyContent: 'space-between', marginBottom: 14 }}>
           {[40, 60, 80, 100].map(v => (
-            <button key={v} onClick={() => setI({ capacityPct: v })}
-              aria-pressed={input.capacityPct === v}
-              style={{ flex: 1, fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: input.capacityPct === v ? 700 : 500, padding: '4px 0', borderRadius: 4, background: input.capacityPct === v ? C.accentBg : 'transparent', border: `1px solid ${input.capacityPct === v ? alpha(C.accent, 55) : C.border}`, color: input.capacityPct === v ? C.accent : C.fg2, cursor: 'pointer' }}>
+            <button key={v} onClick={() => setI({ capacityCeilingPct: v, capacityPct: v })}
+              aria-pressed={(input.capacityCeilingPct ?? input.capacityPct) === v}
+              style={{ flex: 1, fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: (input.capacityCeilingPct ?? input.capacityPct) === v ? 700 : 500, padding: '4px 0', borderRadius: 4, background: (input.capacityCeilingPct ?? input.capacityPct) === v ? C.accentBg : 'transparent', border: `1px solid ${(input.capacityCeilingPct ?? input.capacityPct) === v ? alpha(C.accent, 55) : C.border}`, color: (input.capacityCeilingPct ?? input.capacityPct) === v ? C.accent : C.fg2, cursor: 'pointer' }}>
               {v}%
             </button>
           ))}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div>
+            <div className="calc-field-label">Year 1 %</div>
+            <Stepper value={input.capacityY1Pct ?? 50} onChange={v => setI({ capacityY1Pct: Math.max(0, Math.min(100, v)) })} min={0} max={100} step={5} ariaLabel="year 1 capacity" />
+            <ChipRow values={[40, 50, 60, 70]} current={input.capacityY1Pct ?? 50} onPick={v => setI({ capacityY1Pct: v })} suffix="%" />
+          </div>
+          <div>
+            <div className="calc-field-label">Ramp / yr</div>
+            <Stepper value={input.capacityRampPct ?? 10} onChange={v => setI({ capacityRampPct: Math.max(0, Math.min(50, v)) })} min={0} max={50} step={1} ariaLabel="capacity ramp" />
+            <ChipRow values={[0, 5, 10, 15]} current={input.capacityRampPct ?? 10} onPick={v => setI({ capacityRampPct: v })} suffix="pp" />
+          </div>
         </div>
       </Section>
 
