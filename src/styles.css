@@ -2224,10 +2224,12 @@ textarea:focus-visible,
 .calc-page-redesign .calc-pill-tabs::-webkit-scrollbar { display: none; }
 .calc-page-redesign .calc-pill {
   font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 999px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 7px 16px;
+  border-radius: 14px;
   background: transparent;
   color: var(--c-fg2);
   border: 1px solid var(--c-border);
@@ -2235,6 +2237,18 @@ textarea:focus-visible,
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 120ms;
+  text-align: left;
+  line-height: 1.2;
+}
+.calc-page-redesign .calc-pill .calc-pill-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.calc-page-redesign .calc-pill .calc-pill-sub {
+  font-size: 10px;
+  color: var(--c-fg3);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 .calc-page-redesign .calc-pill:hover {
   background: var(--c-bg2);
@@ -2243,7 +2257,9 @@ textarea:focus-visible,
   background: var(--c-accent);
   color: #fff;
   border-color: var(--c-accent);
-  font-weight: 600;
+}
+.calc-page-redesign .calc-pill[data-active="true"] .calc-pill-sub {
+  color: rgb(255 255 255 / 0.78);
 }
 
 /* ── Assumptions left rail — editorial typographic groups ────────────── */
@@ -2667,3 +2683,269 @@ textarea:focus-visible,
   --c-info-bg: #0A1A2B;
   --c-accent-bg: color-mix(in srgb, var(--c-accent) 15%, #111111);
 }
+
+/* ── Phase-1 Calculations workspace redesign ──────────────────────────
+   Two-line pills handled above. Below: Deep Dive sub-tabs, statement-
+   style P&L table, Capex breakdown stacked bar + Returns Summary grid,
+   and the redesigned Projection chart container. */
+
+.calc-deepdive-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--c-border);
+}
+.calc-deepdive-tab {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-fg3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 14px 9px;
+  cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+  margin-bottom: -1px;
+}
+.calc-deepdive-tab:hover {
+  color: var(--c-fg2);
+}
+.calc-deepdive-tab[data-active="true"] {
+  color: var(--c-accent);
+  border-bottom-color: var(--c-accent);
+  font-weight: 700;
+}
+
+.calc-deepdive-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+.calc-deepdive-card {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.calc-deepdive-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 12px;
+}
+
+/* P&L Statement table */
+.calc-statement {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.calc-statement-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 12px;
+}
+.calc-statement-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.calc-statement-table th {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--c-border);
+}
+.calc-statement-table td {
+  padding: 7px 10px;
+  font-size: 13px;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-border) 60%, transparent);
+}
+.calc-statement-table tr.calc-statement-subtotal td {
+  border-top: 1px solid var(--c-border);
+  background: rgb(var(--c-accent-rgb) / 0.04);
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* Capex breakdown — stacked bar + legend */
+.calc-capex-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--c-bg2);
+  margin-bottom: 8px;
+}
+.calc-capex-bar-fill {
+  height: 100%;
+}
+.calc-capex-bar-effective { background: var(--c-accent); }
+.calc-capex-bar-subsidy   { background: rgb(var(--c-accent-rgb) / 0.4); }
+.calc-capex-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg2);
+  margin-bottom: 14px;
+}
+.calc-capex-legend .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.calc-capex-dot-effective { background: var(--c-accent); }
+.calc-capex-dot-subsidy   { background: rgb(var(--c-accent-rgb) / 0.4); }
+.calc-capex-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.calc-capex-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+}
+.calc-capex-row strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--c-fg1);
+}
+.calc-capex-row-total {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--c-border);
+  font-weight: 700;
+}
+.calc-capex-row-total span,
+.calc-capex-row-total strong { color: var(--c-fg1); font-weight: 700; }
+
+/* Returns Summary tile grid */
+.calc-returns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+.calc-returns-tile {
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.calc-returns-tile-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 4px;
+}
+.calc-returns-tile-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.calc-returns-tile-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: var(--c-fg3);
+}
+
+/* Projection redesign — chart on top, footer KPIs, table behind toggle */
+.calc-projection-redesign {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.calc-projection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.calc-projection-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-projection-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+.calc-projection-toggle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-accent);
+  background: transparent;
+  border: 1px solid rgb(var(--c-accent-rgb) / 0.4);
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 120ms;
+}
+.calc-projection-toggle:hover {
+  background: rgb(var(--c-accent-rgb) / 0.08);
+}
+.calc-projection-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--c-border);
+}
+.calc-projection-footer-tile {
+  background: var(--c-bg2);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.calc-projection-footer-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 2px;
+}
+.calc-projection-footer-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Mobile: stack the two-column Capex/Returns grid */
+@media (max-width: 768px) {
+  .calc-deepdive-grid { grid-template-columns: 1fr; }
+}
+

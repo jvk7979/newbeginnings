@@ -26,13 +26,15 @@ const readSavedLeftWidth = () => {
   return LEFT_WIDTH_DEFAULT;
 };
 
-// Per-tab lazy loading — non-active tabs don't ship in the initial chunk,
-// and the user only pays for what they actually open.
-const SummaryTab     = lazy(() => import('./tabs/SummaryTab'));
-const PLTab          = lazy(() => import('./tabs/PLTab'));
-const ProjectionTab  = lazy(() => import('./tabs/ProjectionTab'));
-const SensitivityTab = lazy(() => import('./tabs/SensitivityTab'));
-const CompareTab     = lazy(() => import('./tabs/CompareTab'));
+// Per-tab lazy loading — non-active workspaces don't ship in the initial
+// chunk. Phase-1 redesign: 4 task-oriented workspaces replace the old 5
+// flat tabs. Quick Estimate = SummaryTab (verdict callout). Deep Dive =
+// statement-style P&L + Capex/Returns + 5-yr chart (with table toggle).
+// What-If Lab = sensitivity tornado. Scenarios = side-by-side compare.
+const QuickEstimateTab = lazy(() => import('./tabs/SummaryTab'));
+const DeepDiveTab      = lazy(() => import('./tabs/DeepDiveTab'));
+const WhatIfLabTab     = lazy(() => import('./tabs/SensitivityTab'));
+const ScenariosTab     = lazy(() => import('./tabs/CompareTab'));
 
 const TabFallback = () => <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, padding: '12px 0' }}>Loading…</div>;
 
@@ -44,7 +46,7 @@ export default function CalculationsPage({ onNavigate }) {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [input, setInput] = useState(DEFAULT_CALC_INPUT);
   const [openSections, setOpenSections] = useState(['capacity', 'products', 'costs', 'financing', 'subsidies', 'wc']);
-  const [rightTab, setRightTab] = useState('summary');
+  const [rightTab, setRightTab] = useState('quick');
   const [compareWithId, setCompareWithId] = useState(null);
   const [leftWidth, setLeftWidth] = useState(readSavedLeftWidth);
 
@@ -193,27 +195,26 @@ export default function CalculationsPage({ onNavigate }) {
         <div className="calc-right">
           <div className="calc-pill-tabs">
             {[
-              ['summary',     'Summary'],
-              ['pl',          'P&L & Capex'],
-              ['projection',  `${input.lifetime}-Yr Projection`],
-              ['sensitivity', 'Sensitivity'],
-              ['compare',     'Compare'],
-            ].map(([id, lbl]) => (
+              ['quick',     'Quick Estimate', 'Verdict at a glance'],
+              ['deep',      'Deep Dive',      'P&L · Capex · Projection'],
+              ['whatif',    'What-If Lab',    'Sensitivity tornado'],
+              ['scenarios', 'Scenarios',      'Compare projects'],
+            ].map(([id, lbl, sub]) => (
               <button key={id} onClick={() => setRightTab(id)}
                 className="calc-pill"
                 data-active={rightTab === id ? 'true' : 'false'}>
-                {lbl}
+                <span className="calc-pill-label">{lbl}</span>
+                <span className="calc-pill-sub">{sub}</span>
               </button>
             ))}
           </div>
 
           <div className="calc-right-body">
             <Suspense fallback={<TabFallback />}>
-              {rightTab === 'summary'     && <SummaryTab insight={insight} />}
-              {rightTab === 'pl'          && <PLTab calc={calc} input={input} dr={dr} tn={tn} ebitdaColor={ebitdaColor} irrColor={irrColor} npvColor={npvColor} paybackColor={paybackColor} dscrColor={dscrColor} />}
-              {rightTab === 'projection'  && <ProjectionTab calc={calc} />}
-              {rightTab === 'sensitivity' && <SensitivityTab input={input} calc={calc} />}
-              {rightTab === 'compare'     && <CompareTab eligible={eligible} selectedProject={selectedProject} calc={calc} compareWithId={compareWithId} setCompareWithId={setCompareWithId} />}
+              {rightTab === 'quick'     && <QuickEstimateTab insight={insight} />}
+              {rightTab === 'deep'      && <DeepDiveTab calc={calc} input={input} dr={dr} tn={tn} irrColor={irrColor} npvColor={npvColor} paybackColor={paybackColor} dscrColor={dscrColor} />}
+              {rightTab === 'whatif'    && <WhatIfLabTab input={input} calc={calc} />}
+              {rightTab === 'scenarios' && <ScenariosTab eligible={eligible} selectedProject={selectedProject} calc={calc} compareWithId={compareWithId} setCompareWithId={setCompareWithId} />}
             </Suspense>
           </div>
         </div>
