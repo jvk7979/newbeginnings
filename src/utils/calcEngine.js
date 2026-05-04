@@ -109,8 +109,19 @@ export function runCalc(input) {
   // `enabled` is opt-out — rows without the field are treated as enabled
   // (backward-compat with projects saved before the toggle existed).
   const isOn              = (r) => r.enabled !== false;
+  // Per-product cost allocation: a var row can be tagged with a
+  // `productId` pointing at a revenueRow.id. When that product is
+  // disabled (toggled OFF in Quick Estimate), its linked variable costs
+  // drop out too. Var rows without a `productId` are "global" and stay
+  // counted as long as they're enabled.
+  const disabledProductIds = new Set(
+    revenueRows.filter(r => r.enabled === false).map(r => r.id)
+  );
+  const isVarLinkedToDisabled = (r) =>
+    r.productId != null && disabledProductIds.has(r.productId);
   const fullRevenue       = revenueRows.reduce((s, r) => isOn(r) ? s + num(r.price) * num(r.qty) : s, 0);
-  const fullVariableCosts = varRows.reduce((s, r) => isOn(r) ? s + num(r.price) * num(r.qty) : s, 0);
+  const fullVariableCosts = varRows.reduce((s, r) =>
+    (isOn(r) && !isVarLinkedToDisabled(r)) ? s + num(r.price) * num(r.qty) : s, 0);
   const fixedCosts        = fixedRows.reduce((s, r) => isOn(r) ? s + num(r.amount) : s, 0);
 
   const revenue       = fullRevenue * capCeilFrac;

@@ -136,20 +136,39 @@ export default function AssumptionsPanel({
         </div>
         {costTab === 'variable' ? (
           <>
-            <Hint>Variable costs scale with output — raw materials, packaging, fuel, contract labour.</Hint>
+            <Hint>Variable costs scale with output. Link a row to a product so it auto-drops when that product is toggled off in Quick Estimate; leave it global to count regardless.</Hint>
             {input.varRows.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 8 }}>No variable costs yet.</div>}
-            {input.varRows.map((row, i) => (
-              <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
-                {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Qty/yr', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
-                <input value={row.name} placeholder="Material" onChange={e => setRow('varRows', row.id, 'name', e.target.value)} style={IS} />
-                <input value={row.unit} placeholder="kg" onChange={e => setRow('varRows', row.id, 'unit', e.target.value)} style={IS} />
-                <input type="number" value={row.price} min={0} onChange={e => setRow('varRows', row.id, 'price', e.target.value)} style={IS} />
-                <input type="number" value={row.qty} min={0} onChange={e => setRow('varRows', row.id, 'qty', e.target.value)} style={IS} />
-                <button onClick={() => delRow('varRows', row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
-              </div>
-            ))}
+            {input.varRows.map((row, i) => {
+              // Build the dropdown options once per row render — cheap; the
+              // list is small. Each option's value is the productId
+              // (revenueRow.id) as a string; "" maps back to null (global).
+              const productOptions = input.revenueRows.map((p, pi) => ({
+                id: p.id,
+                label: p.name || `Product ${pi + 1}`,
+              }));
+              return (
+                <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.5fr 0.5fr 0.5fr 0.9fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+                  {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Qty/yr', 'Linked', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
+                  <input value={row.name} placeholder="Material" onChange={e => setRow('varRows', row.id, 'name', e.target.value)} style={IS} />
+                  <input value={row.unit} placeholder="kg" onChange={e => setRow('varRows', row.id, 'unit', e.target.value)} style={IS} />
+                  <input type="number" value={row.price} min={0} onChange={e => setRow('varRows', row.id, 'price', e.target.value)} style={IS} />
+                  <input type="number" value={row.qty} min={0} onChange={e => setRow('varRows', row.id, 'qty', e.target.value)} style={IS} />
+                  <select
+                    value={row.productId ?? ''}
+                    onChange={e => setRow('varRows', row.id, 'productId', e.target.value === '' ? null : Number(e.target.value))}
+                    style={{ ...IS, fontSize: 11, padding: '5px 4px', cursor: 'pointer' }}
+                    aria-label="Linked product">
+                    <option value="">— global —</option>
+                    {productOptions.map(p => (
+                      <option key={p.id} value={p.id}>{p.label}</option>
+                    ))}
+                  </select>
+                  <button onClick={() => delRow('varRows', row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+                </div>
+              );
+            })}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-              <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0, enabled: true })}
+              <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0, enabled: true, productId: null })}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.variableCosts)}/yr</span>
             </div>

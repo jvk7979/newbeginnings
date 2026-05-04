@@ -73,11 +73,15 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
 
   // Per-product card data — values reflect steady-state ceiling capacity
   // (matches the donut on the dashboard above). Disabled rows zero out.
+  // `linkedVarCount` reflects how many variable-cost rows are tagged
+  // with this product's id — toggling the product OFF drops those costs
+  // from the calc too, so users get a heads-up before they click.
   const productCards = input.revenueRows.map((r, i) => {
     const enabled = r.enabled !== false;
     const value = enabled ? Number(r.price || 0) * Number(r.qty || 0) * (ceiling / 100) : 0;
     const pct = calc.revenue > 0 ? (value / calc.revenue) * 100 : 0;
-    return { ...r, enabled, value, pct, color: PRODUCT_COLORS[i % PRODUCT_COLORS.length], rowIndex: i };
+    const linkedVarCount = (input.varRows || []).filter(v => v.productId === r.id).length;
+    return { ...r, enabled, value, pct, linkedVarCount, color: PRODUCT_COLORS[i % PRODUCT_COLORS.length], rowIndex: i };
   });
 
   // Money Flow segments — Variable as one bucket, then each named fixedRow
@@ -185,6 +189,7 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
                     </div>
                     <div className="calc-quick-product-meta">
                       ₹{Number(p.price || 0)}{p.unit ? `/${p.unit}` : ''} · {Number(p.qty || 0)}{p.unit ? ` ${p.unit}` : ''}/yr
+                      {p.linkedVarCount > 0 && <> · <em style={{ fontStyle: 'normal', color: C.accent }}>{p.linkedVarCount} linked cost{p.linkedVarCount > 1 ? 's' : ''}</em></>}
                     </div>
                     <div className="calc-quick-product-revenue">
                       <strong>{fmtINR(p.value)}</strong>
