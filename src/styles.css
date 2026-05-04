@@ -3544,10 +3544,10 @@ textarea:focus-visible,
   display: flex;
   align-items: center;
   height: 22px;
-  position: relative;
   background: var(--c-bg2);
   border-radius: 4px;
-  overflow: visible; /* allow the out-of-bar label to render */
+  overflow: hidden; /* clip label + bar so neither bleeds into adjacent columns */
+  min-width: 0;
 }
 .calc-whatif-half.left {
   justify-content: flex-end;
@@ -3584,17 +3584,18 @@ textarea:focus-visible,
 }
 /* Out-of-bar label — when the bar is too narrow to fit text inside, show
    the ₹ value alongside it in the bar's colour. */
+/* Out-of-bar label — rendered as a flex sibling of the bar inside the
+   half so it never bleeds into the adjacent row-label or ±% columns.
+   The half's overflow:hidden clips it to the half cell. */
 .calc-whatif-bar-label-out {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  flex-shrink: 0;
 }
-.calc-whatif-bar-label-out.left  { right: 100%; padding-right: 6px; }
-.calc-whatif-bar-label-out.right { left: 100%;  padding-left: 6px; }
+.calc-whatif-bar-label-out.left  { padding-right: 6px; }
+.calc-whatif-bar-label-out.right { padding-left: 6px; }
 
 .calc-whatif-pct {
   font-family: 'JetBrains Mono', monospace;
@@ -3910,4 +3911,32 @@ textarea:focus-visible,
   background: rgb(var(--c-accent-rgb) / 0.10);
   color: var(--c-accent);
   font-weight: 700;
+}
+
+/* ── Web + iPad: Assumptions rail sticks at the top while the Output
+   pane content scrolls underneath. Mobile (≤ 768px) keeps the natural
+   page-flow scroll because the panels stack vertically. */
+@media (min-width: 769px) {
+  .calc-page-redesign .calc-panels {
+    align-items: flex-start;
+  }
+  .calc-page-redesign .calc-left {
+    position: sticky;
+    top: 12px;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    /* Slim scrollbar so the rail looks neat when overflowing */
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+  }
+  .calc-page-redesign .calc-left::-webkit-scrollbar {
+    width: 6px;
+  }
+  .calc-page-redesign .calc-left::-webkit-scrollbar-thumb {
+    background: var(--c-border);
+    border-radius: 3px;
+  }
+  .calc-page-redesign .calc-left::-webkit-scrollbar-thumb:hover {
+    background: var(--c-fg3);
+  }
 }

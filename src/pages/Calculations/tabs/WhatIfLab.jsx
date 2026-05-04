@@ -105,8 +105,18 @@ export default function WhatIfLab({ input, calc }) {
                 <span>{r.label}</span>
               </div>
 
-              {/* Left half (low / -20%) */}
+              {/* Left half (low / -20%) — flex children sit at the inner
+                  edge (centre axis). Order: [out-of-bar label, bar]. The
+                  label only renders when the bar is too narrow to fit
+                  the value inside; otherwise the value renders inside
+                  the bar. Either way label + bar stay clipped to the
+                  half cell so they can't bleed into adjacent columns. */}
               <div className="calc-whatif-half left">
+                {lowWidth <= 22 && Math.abs(dLow) > 0 && (
+                  <span className="calc-whatif-bar-label-out left" style={{ color: lowColor }}>
+                    {lowSign}{fmtINR(Math.abs(dLow))}
+                  </span>
+                )}
                 <div className="calc-whatif-bar"
                      style={{ width: `${lowWidth}%`, background: lowColor }}>
                   {lowWidth > 22 && (
@@ -115,14 +125,10 @@ export default function WhatIfLab({ input, calc }) {
                     </span>
                   )}
                 </div>
-                {lowWidth <= 22 && Math.abs(dLow) > 0 && (
-                  <span className="calc-whatif-bar-label-out left" style={{ color: lowColor }}>
-                    {lowSign}{fmtINR(Math.abs(dLow))}
-                  </span>
-                )}
               </div>
 
-              {/* Right half (high / +20%) */}
+              {/* Right half (high / +20%) — same idea, mirrored.
+                  Order: [bar, out-of-bar label]. */}
               <div className="calc-whatif-half right">
                 <div className="calc-whatif-bar"
                      style={{ width: `${highWidth}%`, background: highColor }}>
