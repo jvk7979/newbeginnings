@@ -3149,39 +3149,48 @@ textarea:focus-visible,
   font-size: 18px;
 }
 
-/* Money Flow stacked bar */
+/* Money Flow — tall stacked bar with category labels overlaid inside
+   each segment. Each segment shows its share of revenue (or of total
+   cost outlay when EBITDA is negative). Trailing PROFIT (sage) or LOSS
+   (light pink) slice closes the bar so the user always sees whether
+   the project is producing or burning. */
 .calc-quick-moneyflow-bar {
   display: flex;
-  height: 18px;
-  border-radius: 999px;
+  height: 56px;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--c-bg2);
-  margin-bottom: 10px;
 }
-.calc-quick-moneyflow-bar > div {
+.calc-quick-moneyflow-seg {
   height: 100%;
-}
-.calc-quick-moneyflow-legend {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 6px;
   font-family: 'DM Sans', sans-serif;
+  text-align: center;
+  min-width: 0;
+  overflow: hidden;
+}
+.calc-quick-moneyflow-name {
   font-size: 11px;
-  color: var(--c-fg2);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
 }
-.calc-quick-moneyflow-legend strong {
-  font-family: 'JetBrains Mono', monospace;
+.calc-quick-moneyflow-pct {
+  font-size: 11px;
   font-weight: 600;
-  color: var(--c-fg1);
-  margin: 0 2px;
+  opacity: 0.95;
 }
-.calc-quick-moneyflow-legend .dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  margin-right: 4px;
-  vertical-align: middle;
+.calc-quick-moneyflow-seg[data-trailing="loss"] .calc-quick-moneyflow-name {
+  text-shadow: none;
 }
 
 /* KPI tiles */

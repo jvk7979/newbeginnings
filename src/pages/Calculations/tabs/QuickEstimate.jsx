@@ -82,11 +82,21 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
 
   // Money Flow segments — Variable as one bucket, then each named fixedRow
   // (skip empty / disabled rows). Disabled vars are excluded too.
+  // Each segment carries its bar width % (proportional to value vs the
+  // chosen denominator) AND its revenue % (the share of revenue the
+  // category consumes — the label users actually want to read).
   const totalCosts = calc.variableCosts + calc.fixedCosts;
-  const moneyFlowSegments = totalCosts > 0
+  const isLoss     = calc.ebitda < 0;
+  // Bar denominator: when EBITDA is positive the bar represents revenue
+  // (cost segments leave room for a green PROFIT slice on the right);
+  // when negative the bar represents total outlay (revenue + |loss|) so
+  // the LOSS sliver fits at the end without distorting widths.
+  const denominator = isLoss ? totalCosts : Math.max(calc.revenue, totalCosts);
+
+  const baseSegments = totalCosts > 0
     ? [
         ...(calc.variableCosts > 0
-          ? [{ key: 'variable', name: 'Variable Costs', value: calc.variableCosts, color: COST_COLORS[0] }]
+          ? [{ key: 'variable', name: 'Variable', value: calc.variableCosts, color: COST_COLORS[0] }]
           : []),
         ...input.fixedRows
           .filter(r => r.enabled !== false && Number(r.amount) > 0)
@@ -98,6 +108,34 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
           })),
       ]
     : [];
+
+  const moneyFlowSegments = baseSegments.map(seg => ({
+    ...seg,
+    barPct: denominator > 0 ? (seg.value / denominator) * 100 : 0,
+    revPct: calc.revenue > 0 ? (seg.value / calc.revenue) * 100 : 0,
+  }));
+
+  // Trailing slice — PROFIT if EBITDA positive, LOSS if negative. Hidden
+  // when there's no revenue yet (everything else is empty too).
+  const trailing = (calc.revenue > 0 && totalCosts > 0)
+    ? (isLoss
+        ? {
+            key: 'loss',
+            name: 'LOSS',
+            barPct: denominator > 0 ? (Math.abs(calc.ebitda) / denominator) * 100 : 0,
+            revPct: (Math.abs(calc.ebitda) / calc.revenue) * 100,
+            background: '#fde0e0',
+            textColor: '#c0392b',
+          }
+        : {
+            key: 'profit',
+            name: 'PROFIT',
+            barPct: denominator > 0 ? (calc.ebitda / denominator) * 100 : 0,
+            revPct: (calc.ebitda / calc.revenue) * 100,
+            background: '#2a7d3c',
+            textColor: '#fff',
+          })
+    : null;
 
   const grossCapex   = Number(input.capex) || 0;
   const subsidySaved = Math.max(0, grossCapex - calc.effectiveCapex);
@@ -182,28 +220,43 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
             </div>
           </div>
 
-          {/* Money Flow */}
+          {/* Money Flow — tall stacked bar with category labels overlaid
+              inside each segment, plus a trailing PROFIT (sage) or LOSS
+              (pink) slice. No external legend; the bar IS the legend. */}
           {moneyFlowSegments.length > 0 && (
             <div className="calc-quick-card">
               <div className="calc-quick-card-head">
                 <span className="calc-quick-eyebrow">Money Flow</span>
-                <span className="calc-quick-hint">Where every rupee of operating cost goes</span>
+                <span className="calc-quick-hint">Each segment is its share of revenue</span>
               </div>
               <div className="calc-quick-moneyflow-bar" role="img" aria-label="Cost composition">
                 {moneyFlowSegments.map(seg => (
                   <div
                     key={seg.key}
-                    style={{ width: `${(seg.value / totalCosts) * 100}%`, background: seg.color }}
-                    title={`${seg.name}: ${fmtINR(seg.value)}`} />
+                    className="calc-quick-moneyflow-seg"
+                    style={{ width: `${seg.barPct}%`, background: seg.color, color: '#fff' }}
+                    title={`${seg.name}: ${fmtINR(seg.value)} · ${seg.revPct.toFixed(0)}% of revenue`}>
+                    {seg.barPct >= 9 && (
+                      <>
+                        <span className="calc-quick-moneyflow-name">{seg.name.toUpperCase()}</span>
+                        <span className="calc-quick-moneyflow-pct">{seg.revPct.toFixed(0)}%</span>
+                      </>
+                    )}
+                  </div>
                 ))}
-              </div>
-              <div className="calc-quick-moneyflow-legend">
-                {moneyFlowSegments.map(seg => (
-                  <span key={seg.key}>
-                    <span className="dot" style={{ background: seg.color }} />
-                    {seg.name} <strong>{fmtINR(seg.value)}</strong> · {((seg.value / totalCosts) * 100).toFixed(0)}%
-                  </span>
-                ))}
+                {trailing && trailing.barPct > 0 && (
+                  <div
+                    key={trailing.key}
+                    className="calc-quick-moneyflow-seg"
+                    data-trailing={trailing.key}
+                    style={{ width: `${trailing.barPct}%`, background: trailing.background, color: trailing.textColor }}
+                    title={`${trailing.name}: ${fmtINR(Math.abs(calc.ebitda))} · ${trailing.revPct.toFixed(0)}% of revenue`}>
+                    <span className="calc-quick-moneyflow-name">{trailing.name}</span>
+                    {trailing.barPct >= 9 && (
+                      <span className="calc-quick-moneyflow-pct">{trailing.revPct.toFixed(0)}%</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
