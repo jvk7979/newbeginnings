@@ -9,11 +9,12 @@ export default function AssumptionsPanel({
   input, calc, setI, setRow, addRow, delRow,
   openSections, toggleSection,
   bePct, beLeft, sliderMin, sliderMax,
+  style,
 }) {
   const [costTab, setCostTab] = useState('fixed');
 
   return (
-    <div className="calc-left calc-assumptions">
+    <div className="calc-left calc-assumptions" style={style}>
       <div className="calc-assumptions-title">
         <span className="calc-assumptions-eyebrow">Assumptions</span>
         <span className="calc-assumptions-hint">Click any group to expand or collapse</span>

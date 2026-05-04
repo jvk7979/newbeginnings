@@ -9,6 +9,22 @@ import { EmptyNoEligible, EmptyNoSelection } from './EmptyStates';
 import Hero from './Hero';
 import MetricDashboard from './MetricDashboard';
 import AssumptionsPanel from './AssumptionsPanel';
+import Splitter from '../../components/calc/Splitter';
+
+// Persisted Assumptions-panel width as a percentage of the .calc-panels
+// container. localStorage key keeps the choice across page reloads.
+const LEFT_WIDTH_KEY = 'calc-left-width';
+const LEFT_WIDTH_DEFAULT = 65;
+const LEFT_WIDTH_MIN = 30;
+const LEFT_WIDTH_MAX = 80;
+const readSavedLeftWidth = () => {
+  try {
+    const raw = localStorage.getItem(LEFT_WIDTH_KEY);
+    const n = Number(raw);
+    if (Number.isFinite(n) && n >= LEFT_WIDTH_MIN && n <= LEFT_WIDTH_MAX) return n;
+  } catch {}
+  return LEFT_WIDTH_DEFAULT;
+};
 
 // Per-tab lazy loading — non-active tabs don't ship in the initial chunk,
 // and the user only pays for what they actually open.
@@ -30,6 +46,12 @@ export default function CalculationsPage({ onNavigate }) {
   const [openSections, setOpenSections] = useState(['capacity', 'products', 'costs', 'financing', 'subsidies', 'wc']);
   const [rightTab, setRightTab] = useState('summary');
   const [compareWithId, setCompareWithId] = useState(null);
+  const [leftWidth, setLeftWidth] = useState(readSavedLeftWidth);
+
+  const handleResize = useCallback((pct) => {
+    setLeftWidth(pct);
+    try { localStorage.setItem(LEFT_WIDTH_KEY, String(pct)); } catch {}
+  }, []);
 
   // Auto-load the project's saved calc when selection changes; or on first
   // mount, auto-pick the only eligible project if there's just one.
@@ -162,7 +184,10 @@ export default function CalculationsPage({ onNavigate }) {
           beLeft={beLeft}
           sliderMin={sliderMin}
           sliderMax={sliderMax}
+          style={{ width: `${leftWidth}%` }}
         />
+
+        <Splitter currentWidth={leftWidth} onResize={handleResize} min={LEFT_WIDTH_MIN} max={LEFT_WIDTH_MAX} />
 
         {/* RIGHT PANEL: Output tabs */}
         <div className="calc-right">

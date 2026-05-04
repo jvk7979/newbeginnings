@@ -1690,9 +1690,13 @@ textarea:focus-visible,
      and scroll with the page. */
 }
 .calc-left {
+  /* Default width is overridden by an inline `width: X%` style driven by
+     the Splitter handle (persisted to localStorage in pages/Calculations
+     /index.jsx). The 65% here is a sensible fallback if the inline style
+     is absent for any reason. */
   width: 65%;
   min-width: 320px;
-  max-width: 960px;
+  max-width: 80%;
   flex-shrink: 0;
 }
 .calc-right {
@@ -1700,6 +1704,43 @@ textarea:focus-visible,
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+/* Vertical resize handle between the Assumptions (.calc-left) and the
+   Output (.calc-right) panels. Thin baseline, accent tint on hover/focus,
+   keyboard-arrow nudgeable. Hidden on mobile (panels stack vertically). */
+.calc-splitter {
+  flex: 0 0 6px;
+  align-self: stretch;
+  position: relative;
+  cursor: col-resize;
+  background: transparent;
+  border-left: 1px solid var(--c-border);
+  touch-action: none;
+  user-select: none;
+}
+.calc-splitter:hover,
+.calc-splitter:focus-visible {
+  background: rgb(var(--c-accent-rgb) / 0.08);
+  border-left-color: rgb(var(--c-accent-rgb) / 0.5);
+  outline: none;
+}
+.calc-splitter-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 32px;
+  border-radius: 2px;
+  background: var(--c-fg3);
+  opacity: 0.4;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+.calc-splitter:hover .calc-splitter-grip,
+.calc-splitter:focus-visible .calc-splitter-grip {
+  opacity: 1;
+  background: var(--c-accent);
 }
 .calc-right-body {
   flex: 1;
@@ -2551,9 +2592,12 @@ textarea:focus-visible,
   .calc-page-redesign .calc-pill-tabs { padding: 10px 14px; }
 }
 
-/* Tablet (769–1024px): keep 60% but cap width */
+/* Tablet (769–1024px): the Splitter still works; we just tighten the
+   max-width so the rail can't eat the whole iPad viewport. The inline
+   width set by the Splitter takes effect via specificity (inline beats
+   stylesheet) so users can still drag inside this range. */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .calc-left { width: 60%; max-width: 600px; }
+  .calc-left { max-width: 70%; }
 }
 
 /* Mobile / small tablet (≤ 768px): stack panels vertically, whole page scrolls */
@@ -2570,7 +2614,7 @@ textarea:focus-visible,
     min-height: 0;
   }
   .calc-left {
-    width: 100%;
+    width: 100% !important; /* override the inline width from the Splitter */
     max-width: none;
     min-width: 0;
     overflow-y: visible;
@@ -2578,6 +2622,7 @@ textarea:focus-visible,
     border-right: none !important;
     border-bottom: 1px solid var(--c-border);
   }
+  .calc-splitter { display: none; }
   .calc-right {
     overflow: visible;
     min-height: 480px;
