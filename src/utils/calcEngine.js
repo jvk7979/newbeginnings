@@ -48,6 +48,7 @@ export function runCalc(input) {
     debtPct = 60,
     interestRate = 12,
     tenure = 7,
+    taxRate = 25,
     pmegpEnabled = false,
     pmegpPct = 25,
     citusEnabled = false,
@@ -100,7 +101,7 @@ export function runCalc(input) {
     const interest    = loanBalance * (interestN / 100);
     const ebit        = ebitda - depreciation;
     const ebt         = ebit - interest;
-    const tax         = Math.max(0, ebt * 0.30);
+    const tax         = Math.max(0, ebt * (num(taxRate) / 100));
     const pat         = ebt - tax;
     const ncf         = pat + depreciation - principal;
     cumNCF += ncf;
@@ -185,6 +186,7 @@ export const DEFAULT_CALC_INPUT = {
   debtPct: 60,
   interestRate: 12,
   tenure: 7,
+  taxRate: 25,
   pmegpEnabled: false,
   pmegpPct: 25,
   citusEnabled: false,

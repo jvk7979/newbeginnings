@@ -177,6 +177,13 @@ export default function AssumptionsPanel({
           </div>
         </div>
 
+        <div style={{ marginBottom: 12 }}>
+          <div className="calc-field-label">Tax %</div>
+          <Stepper value={input.taxRate ?? 25} onChange={v => setI({ taxRate: Math.max(0, Math.min(50, v)) })} min={0} max={50} step={0.5} ariaLabel="tax rate" />
+          <ChipRow values={[17, 25, 30]} current={input.taxRate ?? 25} onPick={v => setI({ taxRate: v })} suffix="%" />
+          <Hint>17% = new mfg co (Sec 115BAB) · 25% = existing co (Sec 115BAA) · 30% = old regime / partnership slab.</Hint>
+        </div>
+
         <div className="calc-field-label">Debt <strong style={{ color: C.fg1 }}>{input.debtPct}%</strong> · Equity {100 - input.debtPct}%</div>
         <input type="range" min={0} max={100} step={5} value={input.debtPct} onChange={e => setI({ debtPct: Number(e.target.value) })} style={{ width: '100%', accentColor: C.accent, marginBottom: 12 }} />
 
