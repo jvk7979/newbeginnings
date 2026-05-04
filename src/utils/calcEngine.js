@@ -279,6 +279,70 @@ export function runSensitivity(input, pct = 20) {
   return { base, rows };
 }
 
+/** Goal Seek — bisection solver. Given an `input`, a `lever` (a function
+ *  that patches the input with a candidate value), a `metric` extractor
+ *  that pulls the target metric out of a runCalc result, and a `target`
+ *  value, search the lever's [min, max] range for the value that makes
+ *  metric(runCalc(...)) equal to target (within tol). Returns
+ *  { found, value, achieved, iterations, monotonic } — `found` is false
+ *  when the target lies outside what the lever can reach in [min, max].
+ *
+ *  Bisection is robust + bounded — converges in ~30 steps for any
+ *  monotonic metric. We don't assume the metric is monotonic globally,
+ *  but the supported lever × metric pairs (capex / capacity / interest
+ *  / sale price / variable cost vs IRR / NPV / EBITDA / Payback) all are
+ *  monotonic in practice.
+ */
+export function solveFor({ input, lever, metric, target, min, max, tol = 1e-3, maxIter = 40 }) {
+  const evalAt = (v) => {
+    const result = runCalc({ ...input, ...lever(v) });
+    return metric(result);
+  };
+
+  let lo = min;
+  let hi = max;
+  const f = (v) => {
+    const m = evalAt(v);
+    return (m === null || !isFinite(m)) ? null : m - target;
+  };
+
+  let fLo = f(lo);
+  let fHi = f(hi);
+  if (fLo === null || fHi === null) {
+    return { found: false, reason: 'metric undefined at search boundary' };
+  }
+  // Same-sign at both endpoints means target is outside reachable range
+  if (fLo * fHi > 0) {
+    const closest = Math.abs(fLo) < Math.abs(fHi) ? lo : hi;
+    return {
+      found: false,
+      reason: 'target unreachable in lever range',
+      closestValue: closest,
+      closestMetric: evalAt(closest),
+      boundaryLow:  evalAt(lo),
+      boundaryHigh: evalAt(hi),
+    };
+  }
+
+  let iter = 0;
+  while (iter < maxIter && (hi - lo) > tol) {
+    const mid = (lo + hi) / 2;
+    const fMid = f(mid);
+    if (fMid === null) break;
+    if (Math.abs(fMid) < tol) {
+      return { found: true, value: mid, achieved: evalAt(mid), iterations: iter };
+    }
+    if (fLo * fMid <= 0) {
+      hi = mid; fHi = fMid;
+    } else {
+      lo = mid; fLo = fMid;
+    }
+    iter++;
+  }
+  const value = (lo + hi) / 2;
+  return { found: true, value, achieved: evalAt(value), iterations: iter };
+}
+
 /** Default empty input — used when a project has no saved calc yet. */
 export const DEFAULT_CALC_INPUT = {
   capex: 0,

@@ -4135,3 +4135,205 @@ textarea:focus-visible,
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* ── Goal Seek — solver-backed reverse calculator ──────────────────────── */
+
+.calc-goalseek {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.calc-goalseek-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-goalseek-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  margin-top: 2px;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+/* Inline form — read like a sentence */
+.calc-goalseek-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.calc-goalseek-prefix {
+  font-weight: 500;
+  color: var(--c-fg2);
+}
+.calc-goalseek-select {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+  outline: none;
+}
+.calc-goalseek-select:focus { border-color: var(--c-accent); }
+.calc-goalseek-target-input {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 5px 9px;
+  width: 80px;
+  outline: none;
+}
+.calc-goalseek-target-input:focus { border-color: var(--c-accent); }
+.calc-goalseek-unit {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  font-weight: 600;
+}
+.calc-goalseek-solve {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--c-accent);
+  border: 1px solid var(--c-accent);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: filter 120ms;
+}
+.calc-goalseek-solve:hover { filter: brightness(1.08); }
+
+/* Context row */
+.calc-goalseek-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+}
+.calc-goalseek-context em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--c-fg2);
+}
+.calc-goalseek-context strong {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--c-fg1);
+  font-weight: 600;
+}
+
+/* Result card */
+.calc-goalseek-result {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+}
+.calc-goalseek-result[data-state="unreachable"] {
+  border-left-color: #d97706;
+  background: rgb(217 119 6 / 0.04);
+}
+.calc-goalseek-result-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-accent);
+  margin-bottom: 10px;
+}
+.calc-goalseek-result-head[data-warn="true"] {
+  color: #d97706;
+}
+.calc-goalseek-result-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgb(var(--c-accent-rgb) / 0.15);
+}
+.calc-goalseek-result[data-state="unreachable"] .calc-goalseek-result-icon {
+  background: rgb(217 119 6 / 0.12);
+}
+.calc-goalseek-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+  padding: 4px 0;
+}
+.calc-goalseek-result-row.sub {
+  font-size: 12px;
+  color: var(--c-fg3);
+}
+.calc-goalseek-result-row strong {
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-goalseek-result-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--c-accent);
+}
+.calc-goalseek-result-actions {
+  margin-top: 10px;
+  text-align: right;
+}
+.calc-goalseek-apply {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--c-accent);
+  border: 1px solid var(--c-accent);
+  border-radius: 6px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: filter 120ms;
+}
+.calc-goalseek-apply:hover { filter: brightness(1.08); }
+
+/* Hint footer */
+.calc-goalseek-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  line-height: 1.5;
+}
+.calc-goalseek-hint svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--c-fg3);
+}
