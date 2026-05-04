@@ -2629,20 +2629,28 @@ textarea:focus-visible,
     overflow: visible;
     min-height: 0;
   }
+  /* Mobile-only flip: Output (verdict + KPIs + projection) reads first,
+     Assumptions (the editor) reads after. Pattern matches summary-card →
+     details flow on banking / wallet apps — the user lands on the answer
+     before the inputs. Web/iPad layout untouched (DOM order is still
+     Assumptions then Output, but flex `order` reverses them on mobile). */
+  .calc-right {
+    order: -1;
+    overflow: visible;
+    min-height: 480px;
+    border-bottom: 1px solid var(--c-border);
+  }
   .calc-left {
+    order: 0;
     width: 100% !important; /* override the inline width from the Splitter */
     max-width: none;
     min-width: 0;
     overflow-y: visible;
     flex-shrink: 0;
     border-right: none !important;
-    border-bottom: 1px solid var(--c-border);
+    border-bottom: none !important;
   }
   .calc-splitter { display: none; }
-  .calc-right {
-    overflow: visible;
-    min-height: 480px;
-  }
   .calc-right-body {
     overflow: visible;
     padding: 14px;
