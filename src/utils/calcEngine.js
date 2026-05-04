@@ -193,46 +193,63 @@ export function runCalc(input) {
   };
 }
 
-/** Sensitivity table: how much does IRR change when each input flexes
-    +/- pct? Used by the Sensitivity tab. Returns [{ key, label, low, base, high, deltaLow, deltaHigh }] sorted by absolute impact. */
+/** Sensitivity: how much does each metric move when each driver flexes
+    ±pct? Returns one row per driver with base/low/high snapshots and
+    deltas for IRR (percentage points), Y1 EBITDA (₹) and Y1 PAT (₹).
+    No sorting — the caller picks a metric and sorts by impact in that
+    metric. */
 export function runSensitivity(input, pct = 20) {
-  const base = runCalc(input).irr;
-  if (base === null) return [];
+  const baseRun = runCalc(input);
+  const baseY1  = baseRun.rows[0] || { ebitda: 0, pat: 0 };
+  const base    = { irr: baseRun.irr, ebitda: baseY1.ebitda, pat: baseY1.pat };
 
-  // Auto-shim: when sensitivity flexes capacity, prefer the new ceiling
-  // field; fall back to the legacy capacityPct for projects saved before
-  // the ramp existed.
+  // Bail when there's no signal at all — nothing to flex.
+  if (base.irr === null && base.ebitda === 0 && base.pat === 0 && baseRun.revenue === 0) {
+    return { base, rows: [] };
+  }
+
   const baseCeiling = num(input.capacityCeilingPct ?? input.capacityPct);
-  const flex = (mult) => ({
-    capex:        runCalc({ ...input, capex:        num(input.capex)        * mult }).irr,
-    capacityPct:  runCalc({ ...input, capacityCeilingPct: Math.min(100, baseCeiling * mult), capacityPct: Math.min(100, baseCeiling * mult) }).irr,
-    interestRate: runCalc({ ...input, interestRate: num(input.interestRate) * mult }).irr,
-    revenueRows:  runCalc({ ...input, revenueRows: input.revenueRows.map(r => ({ ...r, price: num(r.price) * mult })) }).irr,
-    varRows:      runCalc({ ...input, varRows:     input.varRows.map(r => ({ ...r, price: num(r.price) * mult })) }).irr,
-    fixedRows:    runCalc({ ...input, fixedRows:   input.fixedRows.map(r => ({ ...r, amount: num(r.amount) * mult })) }).irr,
-  });
+  const drivers = [
+    { key: 'capex',        label: 'CAPEX',            patch: (m) => ({ capex: num(input.capex) * m }) },
+    { key: 'capacityPct',  label: 'Capacity Ceiling', patch: (m) => ({
+        capacityCeilingPct: Math.min(100, baseCeiling * m),
+        capacityPct:        Math.min(100, baseCeiling * m),
+      }) },
+    { key: 'interestRate', label: 'Interest Rate',    patch: (m) => ({ interestRate: num(input.interestRate) * m }) },
+    { key: 'revenueRows',  label: 'Sale Price',       patch: (m) => ({ revenueRows: input.revenueRows.map(r => ({ ...r, price: num(r.price) * m })) }) },
+    { key: 'varRows',      label: 'Variable Cost',    patch: (m) => ({ varRows:     input.varRows.map(r => ({ ...r, price: num(r.price) * m })) }) },
+    { key: 'fixedRows',    label: 'Fixed Cost',       patch: (m) => ({ fixedRows:   input.fixedRows.map(r => ({ ...r, amount: num(r.amount) * m })) }) },
+  ];
 
-  const low  = flex(1 - pct / 100);
-  const high = flex(1 + pct / 100);
+  const lowMult  = 1 - pct / 100;
+  const highMult = 1 + pct / 100;
 
-  const labels = {
-    capex:        'CAPEX',
-    capacityPct:  'Capacity Ceiling',
-    interestRate: 'Interest Rate',
-    revenueRows:  'Sale Price',
-    varRows:      'Variable Cost',
-    fixedRows:    'Fixed Cost',
+  const snapshot = (run) => {
+    const y1 = run.rows[0] || { ebitda: 0, pat: 0 };
+    return { irr: run.irr, ebitda: y1.ebitda, pat: y1.pat };
   };
 
-  return Object.keys(labels).map(key => ({
-    key,
-    label: labels[key],
-    base,
-    low:  low[key],
-    high: high[key],
-    deltaLow:  low[key]  !== null ? low[key]  - base : 0,
-    deltaHigh: high[key] !== null ? high[key] - base : 0,
-  })).sort((a, b) => Math.max(Math.abs(b.deltaLow), Math.abs(b.deltaHigh)) - Math.max(Math.abs(a.deltaLow), Math.abs(a.deltaHigh)));
+  const rows = drivers.map(d => {
+    const lowRun  = runCalc({ ...input, ...d.patch(lowMult)  });
+    const highRun = runCalc({ ...input, ...d.patch(highMult) });
+    const low  = snapshot(lowRun);
+    const high = snapshot(highRun);
+    return {
+      key: d.key,
+      label: d.label,
+      base,
+      low,
+      high,
+      deltaIrrLow:     low.irr  !== null ? low.irr  - base.irr  : 0,
+      deltaIrrHigh:    high.irr !== null ? high.irr - base.irr  : 0,
+      deltaEbitdaLow:  low.ebitda  - base.ebitda,
+      deltaEbitdaHigh: high.ebitda - base.ebitda,
+      deltaPatLow:     low.pat    - base.pat,
+      deltaPatHigh:    high.pat   - base.pat,
+    };
+  });
+
+  return { base, rows };
 }
 
 /** Default empty input — used when a project has no saved calc yet. */

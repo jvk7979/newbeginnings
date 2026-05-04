@@ -33,7 +33,7 @@ const readSavedLeftWidth = () => {
 // What-If Lab = sensitivity tornado. Scenarios = side-by-side compare.
 const QuickEstimateTab = lazy(() => import('./tabs/QuickEstimate'));
 const DeepDiveTab      = lazy(() => import('./tabs/DeepDiveTab'));
-const WhatIfLabTab     = lazy(() => import('./tabs/SensitivityTab'));
+const WhatIfLabTab     = lazy(() => import('./tabs/WhatIfLab'));
 const ScenariosTab     = lazy(() => import('./tabs/CompareTab'));
 
 const TabFallback = () => <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, padding: '12px 0' }}>Loading…</div>;

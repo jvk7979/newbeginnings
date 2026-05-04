@@ -3441,3 +3441,218 @@ textarea:focus-visible,
     display: none;
   }
 }
+
+/* ── Phase-3 What-If Lab Tornado ────────────────────────────────────────
+   Twin-axis tornado with EBITDA/PAT toggle. Each row has a left bar (−20%
+   flex) and a right bar (+20% flex), centred on the axis between them,
+   with the impact value rendered in ₹ inside the bar (or alongside it
+   when the bar is too narrow). A ±% swing summary lives on the far right
+   showing the swing as a fraction of the base metric. */
+
+.calc-whatif {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.calc-whatif-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--c-border);
+}
+.calc-whatif-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-whatif-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+.calc-whatif-toggle {
+  display: inline-flex;
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  padding: 2px;
+}
+.calc-whatif-toggle-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-fg2);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all 120ms;
+}
+.calc-whatif-toggle-btn[data-active="true"] {
+  background: var(--c-accent);
+  color: #fff;
+}
+
+/* Tornado rows — 5-column grid: label (140px) | left half (1fr) | right
+   half (1fr) | ±% (60px). Each "half" cell holds a bar that grows from
+   the centre outward. Left half flex-end aligns to the right (so its
+   right edge sits on the axis); right half flex-start aligns to the
+   left. */
+.calc-whatif-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.calc-whatif-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) minmax(0, 1fr) 56px;
+  align-items: center;
+  gap: 6px;
+}
+.calc-whatif-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calc-whatif-top-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  background: var(--c-accent);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.calc-whatif-half {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  position: relative;
+  background: var(--c-bg2);
+  border-radius: 4px;
+  overflow: visible; /* allow the out-of-bar label to render */
+}
+.calc-whatif-half.left {
+  justify-content: flex-end;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 1px solid var(--c-border);
+}
+.calc-whatif-half.right {
+  justify-content: flex-start;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.calc-whatif-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  min-width: 0;
+}
+.calc-whatif-half.left .calc-whatif-bar {
+  border-radius: 4px 0 0 4px;
+}
+.calc-whatif-half.right .calc-whatif-bar {
+  border-radius: 0 4px 4px 0;
+}
+.calc-whatif-bar-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
+}
+/* Out-of-bar label — when the bar is too narrow to fit text inside, show
+   the ₹ value alongside it in the bar's colour. */
+.calc-whatif-bar-label-out {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.calc-whatif-bar-label-out.left  { right: 100%; padding-right: 6px; }
+.calc-whatif-bar-label-out.right { left: 100%;  padding-left: 6px; }
+
+.calc-whatif-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-fg2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Center-axis hint row beneath the tornado */
+.calc-whatif-axis {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) minmax(0, 1fr) 56px;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+}
+.calc-whatif-axis > span:nth-child(1) {
+  text-align: right;
+  grid-column: 2;
+}
+.calc-whatif-axis > span:nth-child(2) {
+  text-align: left;
+  grid-column: 3;
+}
+
+/* Insight footer */
+.calc-whatif-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: rgb(var(--c-accent-rgb) / 0.06);
+  border: 1px solid rgb(var(--c-accent-rgb) / 0.20);
+  border-left: 3px solid var(--c-accent);
+  border-radius: 0 8px 8px 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+  line-height: 1.5;
+}
+.calc-whatif-insight svg {
+  color: var(--c-accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .calc-whatif-row,
+  .calc-whatif-axis {
+    grid-template-columns: 100px minmax(0, 1fr) minmax(0, 1fr) 48px;
+  }
+  .calc-whatif-bar-label,
+  .calc-whatif-bar-label-out { font-size: 10px; }
+}
