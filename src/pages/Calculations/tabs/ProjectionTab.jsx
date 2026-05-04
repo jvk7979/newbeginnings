@@ -4,7 +4,7 @@ import { fmtINR } from '../../../components/calc/primitives';
 // Year-by-year P&L + cash-flow table. Row tinting: alternate bg + sage tint
 // on the break-even year (first year cumulative NCF ≥ 0).
 export default function ProjectionTab({ calc }) {
-  const headers = ['Yr', 'Revenue', 'Var', 'Fixed', 'EBITDA', 'Depr.', 'Interest', 'EBT', 'Tax', 'PAT', 'Principal', 'NCF', 'Cum NCF', 'DSCR', 'Loan Bal.'];
+  const headers = ['Yr', 'Revenue', 'Var', 'Fixed', 'EBITDA', 'Depr.', 'Interest', 'Subv.', 'EBT', 'Tax', 'PAT', 'Principal', 'NCF', 'Cum NCF', 'DSCR', 'Loan Bal.'];
   return (
     <div style={{ overflowX: 'auto', border: `1px solid ${C.border}`, borderRadius: 10 }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
@@ -28,6 +28,7 @@ export default function ProjectionTab({ calc }) {
                 <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg1, fontWeight: 600 }}>{fmtINR(row.ebitda)}</td>
                 <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.depreciation)}</td>
                 <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.interest)}</td>
+                <td style={{ padding: '6px 9px', textAlign: 'right', color: row.subvention > 0 ? '#2a7d3c' : C.fg3 }}>{row.subvention > 0 ? fmtINR(row.subvention) : '—'}</td>
                 <td style={{ padding: '6px 9px', textAlign: 'right', color: row.ebt < 0 ? '#c0392b' : C.fg1 }}>{fmtINR(row.ebt)}</td>
                 <td style={{ padding: '6px 9px', textAlign: 'right', color: C.fg3 }}>{fmtINR(row.tax)}</td>
                 <td style={{ padding: '6px 9px', textAlign: 'right', color: row.pat < 0 ? '#c0392b' : C.fg1 }}>{fmtINR(row.pat)}</td>

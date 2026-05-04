@@ -16,6 +16,7 @@ export default function PLTab({ calc, input, dr, tn, ebitdaColor, irrColor, npvC
     { label: 'Y1 DSCR',         value: calc.dscrY1 !== null ? calc.dscrY1.toFixed(2) : '—', sub: '≥ 1.25 comfortable', color: dscrColor },
     { label: 'Break-even Rev',  value: calc.breakEvenRev !== null ? fmtINR(calc.breakEvenRev) + '/yr' : '—', sub: 'cover fixed costs', color: C.fg1 },
     { label: 'Working Capital', value: fmtINR(calc.workingCapital), sub: `${input.receivableDays}R + ${input.inventoryDays}I − ${input.payableDays}P d`, color: C.fg1 },
+    ...(calc.totalSubvention > 0 ? [{ label: 'Total Subvention', value: fmtINR(calc.totalSubvention), sub: `${input.interestSubventionPct}% over ${input.interestSubventionYears} yrs`, color: '#2a7d3c' }] : []),
   ];
 
   return (

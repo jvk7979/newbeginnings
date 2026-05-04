@@ -199,6 +199,20 @@ export default function AssumptionsPanel({
             <ChipRow values={[5, 7, 10, 15]} current={input.tenure} onPick={v => setI({ tenure: v })} suffix="y" />
           </div>
         </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+          <div>
+            <div className="calc-field-label">Interest Subvention %</div>
+            <Stepper value={input.interestSubventionPct ?? 0} onChange={v => setI({ interestSubventionPct: Math.max(0, Math.min(15, v)) })} min={0} max={15} step={0.5} ariaLabel="interest subvention" />
+            <ChipRow values={[0, 2, 3, 5]} current={input.interestSubventionPct ?? 0} onPick={v => setI({ interestSubventionPct: v })} suffix="%" />
+          </div>
+          <div>
+            <div className="calc-field-label">Subvention Years</div>
+            <Stepper value={input.interestSubventionYears ?? 5} onChange={v => setI({ interestSubventionYears: Math.max(0, Math.min(20, v)) })} min={0} max={20} ariaLabel="subvention years" />
+            <ChipRow values={[3, 5, 7]} current={input.interestSubventionYears ?? 5} onPick={v => setI({ interestSubventionYears: v })} suffix="y" />
+          </div>
+        </div>
+        <Hint>Government rebate on interest (AP MSME Policy: up to 3% for 5y). Adds to NCF; does not reduce DSCR's debt-service denominator.</Hint>
       </Section>
 
       {/* Subsidy Stack — accent-highlighted card. Individual checkboxes

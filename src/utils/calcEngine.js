@@ -49,6 +49,8 @@ export function runCalc(input) {
     interestRate = 12,
     tenure = 7,
     taxRate = 25,
+    interestSubventionPct = 0,
+    interestSubventionYears = 5,
     pmegpEnabled = false,
     pmegpPct = 25,
     citusEnabled = false,
@@ -100,6 +102,9 @@ export function runCalc(input) {
   const lifetimeN = Math.max(1, num(lifetime));
   const interestN = num(interestRate);
 
+  const subventionPct  = num(interestSubventionPct) / 100;
+  const subventionYrs  = Math.max(0, num(interestSubventionYears));
+
   const rows = [];
   let wdvBook = capexN;
   let cumNCF  = -equity;
@@ -109,15 +114,24 @@ export function runCalc(input) {
     const loanBalance = Math.max(0, loan - (t - 1) * annualPrincipal);
     const principal   = t <= tenureN ? annualPrincipal : 0;
     const interest    = loanBalance * (interestN / 100);
+    // Government subvention is cash received separately, not an interest
+    // reduction — the bank still charges full interest. So it leaves DSCR
+    // (numerator EBITDA, denominator gross debt service) untouched and
+    // shows up as an additive line in the cash-flow stream.
+    const subvention  = (t <= subventionYrs && loanBalance > 0)
+      ? loanBalance * subventionPct
+      : 0;
     const ebit        = ebitda - depreciation;
     const ebt         = ebit - interest;
     const tax         = Math.max(0, ebt * (num(taxRate) / 100));
     const pat         = ebt - tax;
-    const ncf         = pat + depreciation - principal;
+    const ncf         = pat + depreciation - principal + subvention;
     cumNCF += ncf;
     const dscr = (principal + interest) > 0 ? ebitda / (principal + interest) : null;
-    rows.push({ t, revenue, variableCosts, fixedCosts, ebitda, depreciation, interest, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
+    rows.push({ t, revenue, variableCosts, fixedCosts, ebitda, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
   }
+
+  const totalSubvention = rows.reduce((s, r) => s + r.subvention, 0);
 
   const cashFlows = [-equity, ...rows.map(r => r.ncf)];
   const irr = equity > 0 ? calcIRR(cashFlows) : null;
@@ -146,7 +160,7 @@ export function runCalc(input) {
   return {
     effectiveCapex, equity, loan, revenue, variableCosts, fixedCosts, ebitda, ebitdaMargin,
     rows, irr, npv, payback, breakEvenRev, breakEvenCapacity, workingCapital,
-    revenueByProduct, dscrY1,
+    revenueByProduct, dscrY1, totalSubvention,
   };
 }
 
@@ -197,6 +211,8 @@ export const DEFAULT_CALC_INPUT = {
   interestRate: 12,
   tenure: 7,
   taxRate: 25,
+  interestSubventionPct: 0,
+  interestSubventionYears: 5,
   pmegpEnabled: false,
   pmegpPct: 25,
   citusEnabled: false,
