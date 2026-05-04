@@ -226,9 +226,9 @@ export default function AssumptionsPanel({
             </div>
           );
         })()}
-        <Hint>Tick what you're eligible for — they stack multiplicatively.</Hint>
+        <Hint>PMEGP applies first to the first ₹50 L only; CITUS and AP MSME then stack on what's left.</Hint>
         {[
-          { id: 'pmegp', label: 'PMEGP', enabled: input.pmegpEnabled, setEnabled: (v) => setI({ pmegpEnabled: v }), pct: input.pmegpPct, setPct: (v) => setI({ pmegpPct: v }), editable: true },
+          { id: 'pmegp', label: 'PMEGP (max ₹50 L cost)', enabled: input.pmegpEnabled, setEnabled: (v) => setI({ pmegpEnabled: v }), pct: input.pmegpPct, setPct: (v) => setI({ pmegpPct: v }), editable: true },
           { id: 'citus', label: 'CITUS (25%)', enabled: input.citusEnabled, setEnabled: (v) => setI({ citusEnabled: v }), editable: false },
           { id: 'apmsme', label: 'AP MSME 4.0 (20%)', enabled: input.apmsmeEnabled, setEnabled: (v) => setI({ apmsmeEnabled: v }), editable: false },
         ].map(sub => (

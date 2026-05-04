@@ -62,11 +62,21 @@ export function runCalc(input) {
     capacityPct = 100,
   } = input || {};
 
-  const pmegp  = pmegpEnabled ? num(pmegpPct) / 100 : 0;
   const citus  = citusEnabled ? 0.25 : 0;
   const apmsme = apmsmeEnabled ? 0.20 : 0;
   const capexN = num(capex);
-  const effectiveCapex  = capexN * (1 - pmegp) * (1 - citus) * (1 - apmsme);
+
+  // PMEGP urban manufacturing only subsidises the first ₹50 L of project
+  // cost. Anything above the cap is the promoter's full responsibility, so
+  // a ₹2 Cr project with PMEGP at 25% gets ₹12.5 L off (not ₹50 L). Apply
+  // PMEGP first as a flat ₹ deduction; CITUS and APMSME then stack
+  // multiplicatively on what's left.
+  const PMEGP_CAP = 5000000; // ₹50 L
+  const pmegpPctFrac = pmegpEnabled ? num(pmegpPct) / 100 : 0;
+  const pmegpEligibleCapex = Math.min(capexN, PMEGP_CAP);
+  const pmegpSubsidy = pmegpEligibleCapex * pmegpPctFrac;
+  const afterPmegp  = capexN - pmegpSubsidy;
+  const effectiveCapex  = afterPmegp * (1 - citus) * (1 - apmsme);
   const debt   = num(debtPct);
   const loan            = effectiveCapex * (debt / 100);
   const equity          = effectiveCapex * ((100 - debt) / 100);
