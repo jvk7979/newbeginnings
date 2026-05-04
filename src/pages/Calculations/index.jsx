@@ -34,7 +34,7 @@ const readSavedLeftWidth = () => {
 const QuickEstimateTab = lazy(() => import('./tabs/QuickEstimate'));
 const DeepDiveTab      = lazy(() => import('./tabs/DeepDiveTab'));
 const WhatIfLabTab     = lazy(() => import('./tabs/WhatIfLab'));
-const ScenariosTab     = lazy(() => import('./tabs/CompareTab'));
+const ScenariosTab     = lazy(() => import('./tabs/Scenarios'));
 
 const TabFallback = () => <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, padding: '12px 0' }}>Loading…</div>;
 
@@ -79,6 +79,13 @@ export default function CalculationsPage({ onNavigate }) {
   const setRow = (field, id, k, v) => setInput(prev => ({ ...prev, [field]: prev[field].map(r => r.id === id ? { ...r, [k]: v } : r) }));
   const addRow = (field, blank) => setInput(prev => ({ ...prev, [field]: [...prev[field], { id: Date.now(), ...blank }] }));
   const delRow = (field, id) => setInput(prev => ({ ...prev, [field]: prev[field].filter(r => r.id !== id) }));
+
+  // Replace the entire input with a saved scenario's snapshot. Layered
+  // over DEFAULT_CALC_INPUT so a snapshot saved before a new field
+  // existed still renders cleanly. Used by the Scenarios tab.
+  const loadScenario = useCallback((nextInput) => {
+    setInput({ ...DEFAULT_CALC_INPUT, ...nextInput });
+  }, []);
 
   const toggleSection = (id) => setOpenSections(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
 
@@ -214,7 +221,7 @@ export default function CalculationsPage({ onNavigate }) {
               {rightTab === 'quick'     && <QuickEstimateTab input={input} calc={calc} insight={insight} setI={setI} setRow={setRow} sliderMin={sliderMin} sliderMax={sliderMax} />}
               {rightTab === 'deep'      && <DeepDiveTab calc={calc} input={input} dr={dr} tn={tn} irrColor={irrColor} npvColor={npvColor} paybackColor={paybackColor} dscrColor={dscrColor} setI={setI} setRow={setRow} addRow={addRow} delRow={delRow} />}
               {rightTab === 'whatif'    && <WhatIfLabTab input={input} calc={calc} />}
-              {rightTab === 'scenarios' && <ScenariosTab eligible={eligible} selectedProject={selectedProject} calc={calc} compareWithId={compareWithId} setCompareWithId={setCompareWithId} />}
+              {rightTab === 'scenarios' && <ScenariosTab projectId={selectedProject?.id} currentInput={input} currentCalc={calc} loadScenario={loadScenario} />}
             </Suspense>
           </div>
         </div>
