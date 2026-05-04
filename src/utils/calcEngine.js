@@ -70,11 +70,17 @@ export function runCalc(input) {
     capacityCeilingPct = capacityPct,
     capacityY1Pct      = capacityPct,
     capacityRampPct    = 0,
+    // Optional category-by-category breakdown of CAPEX. When any enabled
+    // row has a non-zero amount, the SUM is authoritative and the legacy
+    // `capex` scalar is ignored. When empty / all zero, we fall back to
+    // `capex` so projects saved before this field existed work unchanged.
+    capexRows = [],
   } = input || {};
 
   const citus  = citusEnabled ? 0.25 : 0;
   const apmsme = apmsmeEnabled ? 0.20 : 0;
-  const capexN = num(capex);
+  const capexFromRows = capexRows.reduce((s, r) => r.enabled === false ? s : s + num(r.amount), 0);
+  const capexN = capexFromRows > 0 ? capexFromRows : num(capex);
 
   // PMEGP urban manufacturing only subsidises the first ₹50 L of project
   // cost. Anything above the cap is the promoter's full responsibility, so
@@ -247,6 +253,7 @@ export const DEFAULT_CALC_INPUT = {
   revenueRows: [{ id: 1, name: '', unit: '', price: 0, qty: 0, enabled: true }],
   varRows: [],
   fixedRows: [{ id: 1, name: '', amount: 0, enabled: true }],
+  capexRows: [],
   receivableDays: 30,
   payableDays: 15,
   inventoryDays: 20,

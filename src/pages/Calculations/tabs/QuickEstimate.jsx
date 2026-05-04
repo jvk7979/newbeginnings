@@ -2,20 +2,19 @@ import { C } from '../../../tokens';
 import { fmtINR } from '../../../components/calc/primitives';
 import { PRODUCT_COLORS_EXPORT as PRODUCT_COLORS } from '../../../utils/calcEngine';
 
-// Cost-segment palette for the Money Flow stacked bar. Hues spread
-// evenly around the colour wheel (red → orange → yellow → green → blue
-// → violet → slate) at uniform saturation so adjacent segments stay
-// visually distinct even at 5–10% widths. Variable always uses the
-// first colour; each user-named fixedRow cycles through the rest.
-// Independent from PRODUCT_COLORS so revenue and cost segments don't
-// collide.
+// Cost-segment palette for the Money Flow stacked bar. Adjacent slots
+// are 100°+ apart on the hue wheel — primary triad (red/green/blue)
+// interleaved with secondary triad (orange/violet/yellow) — so two
+// neighbouring segments always have a strong colour-wheel separation
+// even at small widths. Independent from PRODUCT_COLORS so revenue and
+// cost segments don't collide.
 const COST_COLORS = [
   '#dc2626', // red-600
-  '#ea580c', // orange-600
-  '#ca8a04', // yellow-600
   '#16a34a', // green-600
   '#0ea5e9', // sky-500
+  '#ea580c', // orange-600
   '#7c3aed', // violet-600
+  '#eab308', // yellow-500
   '#0f172a', // slate-900
 ];
 

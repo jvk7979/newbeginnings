@@ -3288,3 +3288,147 @@ textarea:focus-visible,
 @media (max-width: 768px) {
   .calc-quick-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Capex Breakdown card — multi-segment bar + editable rows ────────── */
+
+.calc-capex-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.calc-capex-seed-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-accent);
+  background: transparent;
+  border: 1px solid rgb(var(--c-accent-rgb) / 0.4);
+  border-radius: 999px;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: all 120ms;
+  white-space: nowrap;
+}
+.calc-capex-seed-btn:hover {
+  background: rgb(var(--c-accent-rgb) / 0.08);
+}
+.calc-capex-empty {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg3);
+  font-style: italic;
+  padding: 4px 0 12px;
+}
+
+/* Multi-segment stacked bar with overlay percentages */
+.calc-capex-bar-multi {
+  display: flex;
+  height: 22px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--c-bg2);
+  margin-bottom: 12px;
+}
+.calc-capex-bar-multi-seg {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 0;
+}
+.calc-capex-bar-multi-pct {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+/* Editable per-row list */
+.calc-capex-rowlist {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+.calc-capex-rowlist-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1.4fr) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+}
+.calc-capex-rowlist-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.calc-capex-rowlist-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg1);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 6px;
+  outline: none;
+  min-width: 0;
+}
+.calc-capex-rowlist-name:hover,
+.calc-capex-rowlist-name:focus {
+  border-color: var(--c-border);
+  background: var(--c-bg2);
+}
+.calc-capex-rowlist-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--c-fg1);
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 4px;
+  padding: 4px 6px;
+  outline: none;
+  min-width: 0;
+  text-align: right;
+}
+.calc-capex-rowlist-amount:focus {
+  border-color: var(--c-accent);
+}
+.calc-capex-rowlist-fmt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--c-fg2);
+  font-weight: 600;
+  white-space: nowrap;
+  text-align: right;
+  min-width: 64px;
+}
+.calc-capex-rowlist-del {
+  background: none;
+  border: none;
+  color: var(--c-fg3);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  transition: color 120ms;
+}
+.calc-capex-rowlist-del:hover {
+  color: #c0392b;
+}
+
+/* Mobile: simplify the row grid (drop the dual amount column) */
+@media (max-width: 768px) {
+  .calc-capex-rowlist-row {
+    grid-template-columns: 10px minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  }
+  .calc-capex-rowlist-fmt {
+    display: none;
+  }
+}

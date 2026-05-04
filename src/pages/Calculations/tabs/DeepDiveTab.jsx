@@ -34,7 +34,7 @@ export default function DeepDiveTab(props) {
 
       <div className="calc-deepdive-body" role="tabpanel">
         {sub === 'pl'         && <PLStatement   calc={props.calc} input={props.input} />}
-        {sub === 'capex'      && <CapexReturns  calc={props.calc} input={props.input} dr={props.dr} tn={props.tn} irrColor={props.irrColor} npvColor={props.npvColor} paybackColor={props.paybackColor} dscrColor={props.dscrColor} />}
+        {sub === 'capex'      && <CapexReturns  calc={props.calc} input={props.input} dr={props.dr} tn={props.tn} irrColor={props.irrColor} npvColor={props.npvColor} paybackColor={props.paybackColor} dscrColor={props.dscrColor} setI={props.setI} setRow={props.setRow} addRow={props.addRow} delRow={props.delRow} />}
         {sub === 'projection' && <Projection    calc={props.calc} />}
       </div>
     </div>
