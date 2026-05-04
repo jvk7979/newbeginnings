@@ -184,6 +184,7 @@ export default function AssumptionsPanel({
           <div>
             <div className="calc-field-label">Interest %</div>
             <Stepper value={input.interestRate} onChange={v => setI({ interestRate: Math.max(0, v) })} min={0} max={30} step={0.5} ariaLabel="interest rate" />
+            <Hint>MSME term-loan rate. AP state subvention can effectively bring this to ~9%.</Hint>
           </div>
           <div>
             <div className="calc-field-label">Tenure (yrs)</div>
