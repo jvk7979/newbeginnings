@@ -2,11 +2,22 @@ import { C } from '../../../tokens';
 import { fmtINR } from '../../../components/calc/primitives';
 import { PRODUCT_COLORS_EXPORT as PRODUCT_COLORS } from '../../../utils/calcEngine';
 
-// Cost-segment palette for the Money Flow stacked bar. Variable always
-// uses the first colour; each user-named fixedRow cycles through the
-// rest. Keeping it independent from PRODUCT_COLORS so revenue and cost
-// segments don't visually collide.
-const COST_COLORS = ['#c0392b', '#d35400', '#2980b9', '#8e44ad', '#16a085', '#7f8c8d'];
+// Cost-segment palette for the Money Flow stacked bar. Hues spread
+// evenly around the colour wheel (red → orange → yellow → green → blue
+// → violet → slate) at uniform saturation so adjacent segments stay
+// visually distinct even at 5–10% widths. Variable always uses the
+// first colour; each user-named fixedRow cycles through the rest.
+// Independent from PRODUCT_COLORS so revenue and cost segments don't
+// collide.
+const COST_COLORS = [
+  '#dc2626', // red-600
+  '#ea580c', // orange-600
+  '#ca8a04', // yellow-600
+  '#16a34a', // green-600
+  '#0ea5e9', // sky-500
+  '#7c3aed', // violet-600
+  '#0f172a', // slate-900
+];
 
 // Three preset patches users can apply with one click. Each `apply()`
 // returns a partial input object that gets merged via setI(). Conservative
