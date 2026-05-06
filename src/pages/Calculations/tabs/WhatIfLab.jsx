@@ -1,12 +1,14 @@
 import { useState, lazy, Suspense } from 'react';
 import { C } from '../../../tokens';
 
-// Sub-tab orchestrator for the What-If Lab workspace. Three views:
+// Sub-tab orchestrator for the What-If Lab workspace. Four views:
 //   Tornado     — sensitivity analysis (default landing)
 //   Live Drivers — single-slider sandbox with live KPI deltas
-//   Goal Seek   — solve a target metric for a chosen lever
+//   Heatmap     — 2D sensitivity grid (X axis × Y axis × metric)
+//   Goal Seek   — solve one or more target constraints for a chosen lever
 const Tornado     = lazy(() => import('./whatif/Tornado'));
 const LiveDrivers = lazy(() => import('./whatif/LiveDrivers'));
+const Heatmap     = lazy(() => import('./whatif/Heatmap'));
 const GoalSeek    = lazy(() => import('./whatif/GoalSeek'));
 
 const Fallback = () => (
@@ -21,6 +23,7 @@ export default function WhatIfLab(props) {
   const tabs = [
     ['tornado',  'Sensitivity Tornado'],
     ['drivers',  'Live Drivers'],
+    ['heatmap',  'Heatmap'],
     ['goalseek', 'Goal Seek'],
   ];
 
@@ -45,6 +48,7 @@ export default function WhatIfLab(props) {
         <Suspense fallback={<Fallback />}>
           {sub === 'tornado'  && <Tornado     input={props.input} calc={props.calc} />}
           {sub === 'drivers'  && <LiveDrivers input={props.input} calc={props.calc} setI={props.setI} />}
+          {sub === 'heatmap'  && <Heatmap     input={props.input} calc={props.calc} />}
           {sub === 'goalseek' && <GoalSeek    input={props.input} calc={props.calc} setI={props.setI} />}
         </Suspense>
       </div>

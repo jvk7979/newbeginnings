@@ -4710,3 +4710,194 @@ textarea:focus-visible,
   font-weight: 600;
   margin-left: auto;
 }
+
+/* ── Sensitivity Heatmap ─────────────────────────────────────────────── */
+
+.calc-heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.calc-heatmap-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.calc-heatmap-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-heatmap-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  margin-top: 2px;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.calc-heatmap-pickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.calc-heatmap-pickers label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+}
+.calc-heatmap-pickers select {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+  outline: none;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.calc-heatmap-pickers select:focus { border-color: var(--c-accent); }
+
+/* Heatmap table */
+.calc-heatmap-table-wrap {
+  overflow-x: auto;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.calc-heatmap-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.calc-heatmap-table th,
+.calc-heatmap-table td {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  padding: 0;
+}
+.calc-heatmap-corner {
+  background: transparent;
+  text-align: left;
+  padding: 4px 8px 8px !important;
+  vertical-align: bottom;
+}
+.calc-heatmap-corner span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+}
+.calc-heatmap-corner small {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--c-fg3);
+  margin-top: 2px;
+}
+.calc-heatmap-x-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--c-fg2);
+  text-align: center;
+  padding: 4px 6px 8px !important;
+  white-space: nowrap;
+}
+.calc-heatmap-y-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--c-fg2);
+  text-align: right;
+  padding: 4px 8px !important;
+  white-space: nowrap;
+}
+.calc-heatmap-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  padding: 14px 4px !important;
+  min-width: 64px;
+  border: 1px solid rgb(255 255 255 / 0.15);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  cursor: default;
+  transition: transform 80ms;
+}
+.calc-heatmap-cell:hover {
+  transform: scale(1.04);
+}
+.calc-heatmap-cell[data-saved="true"] {
+  outline: 3px solid var(--c-accent);
+  outline-offset: -3px;
+  box-shadow: 0 0 0 2px var(--c-bg1) inset;
+}
+
+.calc-heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  flex-wrap: wrap;
+}
+.calc-heatmap-legend-bar {
+  flex: 1;
+  max-width: 200px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #dc2626 0%, #eab308 50%, #16a34a 100%);
+  border: 1px solid var(--c-border);
+}
+.calc-heatmap-legend-saved-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--c-fg2);
+}
+.calc-heatmap-legend-saved-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--c-bg2);
+  outline: 3px solid var(--c-accent);
+  outline-offset: -3px;
+}
+
+.calc-heatmap-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  line-height: 1.5;
+}
+.calc-heatmap-hint svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
