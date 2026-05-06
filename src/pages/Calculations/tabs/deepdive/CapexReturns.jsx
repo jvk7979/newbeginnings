@@ -1,5 +1,6 @@
 import { C } from '../../../../tokens';
 import { fmtINR, IS } from '../../../../components/calc/primitives';
+import GlossaryTerm from '../../../../components/calc/GlossaryTerm';
 
 // Capex Breakdown palette — same interleave-by-hue rule as Money Flow on
 // Quick Estimate, so neighbouring segments always have wide colour-wheel
@@ -192,17 +193,19 @@ export default function CapexReturns({
         <div className="calc-deepdive-eyebrow">Returns Summary</div>
         <div className="calc-returns-grid">
           {[
-            { label: 'IRR (project)',    value: calc.irr !== null ? `${calc.irr.toFixed(1)}%` : '—', sub: `vs ${dr}% hurdle`,            color: irrColor },
-            { label: 'NPV',              value: fmtINR(calc.npv),                                    sub: `at ${dr}% discount`,          color: npvColor },
-            { label: 'Payback',          value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '> life', sub: `${tn}-yr loan`, color: paybackColor },
-            { label: 'Y1 DSCR',          value: calc.dscrY1 !== null ? calc.dscrY1.toFixed(2) : '—', sub: '≥ 1.25 comfortable',          color: dscrColor },
-            { label: 'Break-even Rev',   value: calc.breakEvenRev !== null ? fmtINR(calc.breakEvenRev) + '/yr' : '—', sub: 'cover fixed costs', color: C.fg1 },
+            { label: 'IRR (project)',    term: 'IRR',                value: calc.irr !== null ? `${calc.irr.toFixed(1)}%` : '—', sub: `vs ${dr}% hurdle`,            color: irrColor },
+            { label: 'NPV',              term: 'NPV',                value: fmtINR(calc.npv),                                    sub: `at ${dr}% discount`,          color: npvColor },
+            { label: 'Payback',          term: 'Payback',            value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '> life', sub: `${tn}-yr loan`, color: paybackColor },
+            { label: 'Y1 DSCR',          term: 'DSCR',               value: calc.dscrY1 !== null ? calc.dscrY1.toFixed(2) : '—', sub: '≥ 1.25 comfortable',          color: dscrColor },
+            { label: 'Break-even Rev',   term: 'Break-even Revenue', value: calc.breakEvenRev !== null ? fmtINR(calc.breakEvenRev) + '/yr' : '—', sub: 'cover fixed costs', color: C.fg1 },
             ...(calc.totalSubvention > 0
-              ? [{ label: 'Total Subvention', value: fmtINR(calc.totalSubvention), sub: `${input.interestSubventionPct}% × ${input.interestSubventionYears} yrs`, color: '#2a7d3c' }]
+              ? [{ label: 'Total Subvention', term: 'Total Subvention', value: fmtINR(calc.totalSubvention), sub: `${input.interestSubventionPct}% × ${input.interestSubventionYears} yrs`, color: '#2a7d3c' }]
               : []),
           ].map(card => (
             <div key={card.label} className="calc-returns-tile">
-              <div className="calc-returns-tile-label">{card.label}</div>
+              <div className="calc-returns-tile-label">
+                {card.term ? <GlossaryTerm term={card.term}>{card.label}</GlossaryTerm> : card.label}
+              </div>
               <div className="calc-returns-tile-value" style={{ color: card.color }}>{card.value}</div>
               <div className="calc-returns-tile-sub">{card.sub}</div>
             </div>
