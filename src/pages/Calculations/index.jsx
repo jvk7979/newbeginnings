@@ -158,6 +158,7 @@ export default function CalculationsPage({ onNavigate }) {
         onSelectProject={setSelectedProjectId}
         insight={insight}
         input={input}
+        calc={calc}
         setI={setI}
         autosaveStatus={autosaveStatus}
         lastSavedAt={lastSavedAt}

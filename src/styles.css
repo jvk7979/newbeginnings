@@ -4901,3 +4901,22 @@ textarea:focus-visible,
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+/* ── DPR Export button — busy spinner ────────────────────────────────── */
+
+.calc-dpr-spinner {
+  animation: calc-dpr-spin 900ms linear infinite;
+  transform-origin: 12px 12px;
+  flex-shrink: 0;
+}
+@keyframes calc-dpr-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.calc-dpr-error {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: #c0392b;
+  margin-left: 6px;
+  font-weight: 500;
+}

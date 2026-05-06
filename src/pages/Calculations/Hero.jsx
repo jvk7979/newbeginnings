@@ -1,13 +1,14 @@
 import { C, alpha } from '../../tokens';
 import AutosaveStatus from '../../components/AutosaveStatus';
 import CapacityRing from '../../components/calc/CapacityRing';
+import DPRExportButton from '../../components/calc/DPRExportButton';
 
 // Editorial hero band: toolbar (eyebrow + project picker + autosave/reset/save)
 // at the top, then a magazine-spread layout with title + verdict on the left
 // and the capacity ring on the right.
 export default function Hero({
   selectedProject, selectedProjectId, eligible, onSelectProject,
-  insight, input, setI,
+  insight, input, calc, setI,
   autosaveStatus, lastSavedAt, retryAutosave, flushNow, isDirty,
   onReset,
 }) {
@@ -26,6 +27,7 @@ export default function Hero({
           <span className="calc-hero-autosave">
             <AutosaveStatus status={autosaveStatus} lastSavedAt={lastSavedAt} retry={retryAutosave} />
           </span>
+          <DPRExportButton input={input} calc={calc} project={selectedProject} />
           <button onClick={onReset} className="calc-hero-btn calc-hero-btn-secondary"
             title="Reset every field to the default values">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
