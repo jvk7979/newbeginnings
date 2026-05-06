@@ -4521,3 +4521,82 @@ textarea:focus-visible,
     font-size: 11px;
   }
 }
+
+/* ── Loan Schedule sub-tab ────────────────────────────────────────────── */
+
+.calc-loan {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.calc-loan-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.calc-loan-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-fg1);
+}
+.calc-loan-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  margin-top: 2px;
+  line-height: 1.5;
+  max-width: 720px;
+}
+.calc-loan-chart-card {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+}
+.calc-loan-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.calc-loan-kpi {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.calc-loan-kpi-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 4px;
+}
+.calc-loan-kpi-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.calc-loan-kpi-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: var(--c-fg3);
+}
+.calc-loan-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--c-fg3);
+  line-height: 1.5;
+}
+.calc-loan-hint svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--c-fg3);
+}
