@@ -1,31 +1,30 @@
 import { useState, useMemo } from 'react';
 import { C } from '../../../../tokens';
-import { solveFor } from '../../../../utils/calcEngine';
+import { solveForMulti } from '../../../../utils/calcEngine';
 import { fmtINR } from '../../../../components/calc/primitives';
 
-// Goal Seek — solver-backed reverse calculator.
-//
-// User picks a target metric ("I want IRR ≥ 18%"), a lever to adjust
-// ("by changing CAPEX"), and clicks Solve. The bisection-backed
-// solveFor() in calcEngine searches the lever's bounded range for the
-// value that hits the target. Result lands in a card with the
-// achieved-vs-target sanity check and an Apply button that writes the
-// solved value into the rail via setI.
+// Goal Seek — multi-target solver. Pick 1+ constraints (e.g.,
+// "IRR ≥ 18% AND DSCR ≥ 1.25"), pick a single lever to adjust, click
+// Solve. Engine grid-scans the lever's range, finds the value that
+// satisfies all constraints simultaneously (and picks the one closest
+// to the user's current saved value when there are many). When no
+// value satisfies, the result card shows which constraint binds and
+// what the closest-achievable values are.
 
 const TARGETS = [
-  { key: 'irr',     label: 'IRR',      unit: '%', metric: (r) => r.irr },
-  { key: 'npv',     label: 'NPV',      unit: '₹', metric: (r) => r.npv },
-  { key: 'ebitda',  label: 'EBITDA Y1',unit: '₹', metric: (r) => r.rows[0]?.ebitda ?? 0 },
-  { key: 'payback', label: 'Payback',  unit: 'yr',metric: (r) => r.payback ?? 99 },
-  { key: 'dscrY1',  label: 'Y1 DSCR',  unit: '',  metric: (r) => r.dscrY1 ?? 0 },
+  { key: 'irr',     label: 'IRR',       unit: '%',  metric: (r) => r.irr },
+  { key: 'npv',     label: 'NPV',       unit: '₹',  metric: (r) => r.npv },
+  { key: 'ebitda',  label: 'EBITDA Y1', unit: '₹',  metric: (r) => r.rows[0]?.ebitda ?? 0 },
+  { key: 'payback', label: 'Payback',   unit: 'yr', metric: (r) => r.payback ?? 99 },
+  { key: 'dscrY1',  label: 'Y1 DSCR',   unit: '',   metric: (r) => r.dscrY1 ?? 0 },
 ];
 
 const LEVERS = [
   {
     key: 'capex', label: 'Total CAPEX', unit: '₹',
-    min: 100000, max: 500000000, // 1 L to 50 Cr
+    min: 100000, max: 500000000,
     read: (i) => Number(i.capex || 0),
-    patch: (v) => ({ capex: v, capexRows: [] }), // override capexRows so the legacy capex dominates the solve
+    patch: (v) => ({ capex: v, capexRows: [] }),
   },
   {
     key: 'capacityCeilingPct', label: 'Capacity Ceiling', unit: '%',
@@ -49,7 +48,7 @@ const LEVERS = [
     key: 'salePriceMult', label: 'Sale-Price Multiplier', unit: '× current',
     min: 0.5, max: 2.5,
     read: () => 1,
-    patch: (v) => null, // resolved below — needs access to input
+    patch: (v) => null,
   },
   {
     key: 'varCostMult', label: 'Variable-Cost Multiplier', unit: '× current',
@@ -59,7 +58,6 @@ const LEVERS = [
   },
 ];
 
-// Format a lever value for display
 function fmtLever(lever, value) {
   if (lever.unit === '₹') return fmtINR(value);
   if (lever.unit === '× current') return `${value.toFixed(2)}× current`;
@@ -74,17 +72,21 @@ function fmtMetric(target, value) {
   return value.toFixed(2);
 }
 
+// Default initial constraint when a fresh row is added.
+const newConstraint = () => ({ id: Date.now() + Math.random(), targetKey: 'irr', dir: 'gte', value: 18 });
+
+const MAX_CONSTRAINTS = 4;
+
 export default function GoalSeek({ input, calc, setI }) {
-  const [targetKey, setTargetKey] = useState('irr');
-  const [leverKey,  setLeverKey]  = useState('capex');
-  const [targetValue, setTargetValue] = useState(18);
+  // Constraints array — start with one (matches single-target Phase-1
+  // behaviour); user can add up to 4.
+  const [constraints, setConstraints] = useState([newConstraint()]);
+  const [leverKey,    setLeverKey]    = useState('capex');
   const [result, setResult] = useState(null);
 
-  const target = TARGETS.find(t => t.key === targetKey) || TARGETS[0];
-  const lever  = LEVERS.find(l => l.key === leverKey)   || LEVERS[0];
+  const lever = LEVERS.find(l => l.key === leverKey) || LEVERS[0];
 
-  // Build a real `patch` function for the multiplier levers (they need
-  // closure access to `input` to scale every row consistently).
+  // Resolve real patch fn for the multiplier levers (need closure over input).
   const leverPatch = useMemo(() => {
     if (lever.key === 'salePriceMult') {
       return (v) => ({
@@ -99,19 +101,41 @@ export default function GoalSeek({ input, calc, setI }) {
     return lever.patch;
   }, [lever, input]);
 
-  // Current (saved) achieved value of the chosen metric, for context.
-  const currentAchieved = target.metric({ ...calc, rows: calc.rows });
+  const updateConstraint = (id, patch) => {
+    setConstraints(cs => cs.map(c => c.id === id ? { ...c, ...patch } : c));
+    setResult(null);
+  };
+  const addConstraint = () => {
+    if (constraints.length >= MAX_CONSTRAINTS) return;
+    setConstraints(cs => [...cs, newConstraint()]);
+    setResult(null);
+  };
+  const delConstraint = (id) => {
+    if (constraints.length <= 1) return;
+    setConstraints(cs => cs.filter(c => c.id !== id));
+    setResult(null);
+  };
 
   const handleSolve = () => {
-    const r = solveFor({
+    const targets = constraints.map(c => {
+      const t = TARGETS.find(x => x.key === c.targetKey) || TARGETS[0];
+      return {
+        label: t.label,
+        target: Number(c.value),
+        dir: c.dir,
+        metric: t.metric,
+        unit: t.unit,
+      };
+    });
+    const r = solveForMulti({
       input,
       lever: leverPatch,
-      metric: target.metric,
-      target: Number(targetValue),
+      originalValue: lever.read(input),
+      targets,
       min: lever.min,
       max: lever.max,
     });
-    setResult({ ...r, leverKey: lever.key, targetKey: target.key, targetValue: Number(targetValue) });
+    setResult(r);
   };
 
   const handleApply = () => {
@@ -124,27 +148,56 @@ export default function GoalSeek({ input, calc, setI }) {
       <div className="calc-goalseek-head">
         <div>
           <div className="calc-goalseek-title">Goal Seek</div>
-          <div className="calc-goalseek-sub">Pick a target, pick a lever, solve. Bisection finds the lever value that hits the target — apply with one click.</div>
+          <div className="calc-goalseek-sub">Set one or more targets, pick a lever, solve. Bisection-style grid search finds the lever value that satisfies all constraints together — closest to your current value.</div>
         </div>
       </div>
 
-      {/* Inline question form: "I want [target] ≥ [value] [unit] by changing [lever]" */}
-      <div className="calc-goalseek-form">
-        <span className="calc-goalseek-prefix">I want</span>
-        <select
-          value={targetKey}
-          onChange={e => { setTargetKey(e.target.value); setResult(null); }}
-          className="calc-goalseek-select">
-          {TARGETS.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
-        </select>
-        <span className="calc-goalseek-prefix">≥</span>
-        <input
-          type="number"
-          value={targetValue}
-          onChange={e => { setTargetValue(e.target.value); setResult(null); }}
-          className="calc-goalseek-target-input"
-          step="0.5" />
-        <span className="calc-goalseek-unit">{target.unit}</span>
+      {/* Constraint stack */}
+      <div className="calc-goalseek-constraints">
+        {constraints.map((c, i) => {
+          const t = TARGETS.find(x => x.key === c.targetKey) || TARGETS[0];
+          return (
+            <div key={c.id} className="calc-goalseek-constraint">
+              <span className="calc-goalseek-prefix">{i === 0 ? 'I want' : 'AND'}</span>
+              <select
+                value={c.targetKey}
+                onChange={e => updateConstraint(c.id, { targetKey: e.target.value })}
+                className="calc-goalseek-select">
+                {TARGETS.map(opt => <option key={opt.key} value={opt.key}>{opt.label}</option>)}
+              </select>
+              <select
+                value={c.dir}
+                onChange={e => updateConstraint(c.id, { dir: e.target.value })}
+                className="calc-goalseek-select calc-goalseek-dir">
+                <option value="gte">≥</option>
+                <option value="lte">≤</option>
+              </select>
+              <input
+                type="number"
+                value={c.value}
+                onChange={e => updateConstraint(c.id, { value: e.target.value })}
+                className="calc-goalseek-target-input"
+                step="0.5" />
+              <span className="calc-goalseek-unit">{t.unit}</span>
+              {constraints.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => delConstraint(c.id)}
+                  className="calc-goalseek-del"
+                  aria-label="Remove constraint">×</button>
+              )}
+            </div>
+          );
+        })}
+        {constraints.length < MAX_CONSTRAINTS && (
+          <button type="button" onClick={addConstraint} className="calc-goalseek-add">
+            + AND another constraint
+          </button>
+        )}
+      </div>
+
+      {/* Lever + Solve */}
+      <div className="calc-goalseek-lever-row">
         <span className="calc-goalseek-prefix">by changing</span>
         <select
           value={leverKey}
@@ -156,8 +209,6 @@ export default function GoalSeek({ input, calc, setI }) {
       </div>
 
       <div className="calc-goalseek-context">
-        <span><em>Current</em> {target.label}: <strong>{fmtMetric(target, currentAchieved)}</strong></span>
-        <span>·</span>
         <span><em>Lever range</em>: {fmtLever(lever, lever.min)} to {fmtLever(lever, lever.max)}</span>
         {leverKey !== 'salePriceMult' && leverKey !== 'varCostMult' && (
           <>
@@ -176,19 +227,24 @@ export default function GoalSeek({ input, calc, setI }) {
                 <span className="calc-goalseek-result-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
                 </span>
-                Solution found
+                {constraints.length === 1 ? 'Solution found' : 'All constraints met'}
               </div>
               <div className="calc-goalseek-result-row">
                 <span>Set <strong>{lever.label}</strong> to:</span>
                 <span className="calc-goalseek-result-value">{fmtLever(lever, result.value)}</span>
               </div>
-              <div className="calc-goalseek-result-row sub">
-                <span>{target.label} achieves:</span>
-                <span>{fmtMetric(target, result.achieved)} (target {result.targetValue}{target.unit})</span>
-              </div>
-              <div className="calc-goalseek-result-row sub">
-                <span>Iterations:</span>
-                <span>{result.iterations}</span>
+              {/* Per-constraint sat snapshot */}
+              <div className="calc-goalseek-perTarget">
+                {result.perTarget.map((p, i) => {
+                  const t = TARGETS.find(x => x.label === p.label) || TARGETS[0];
+                  return (
+                    <div key={i} className="calc-goalseek-perTarget-row" data-ok={p.ok ? 'true' : 'false'}>
+                      <span className="calc-goalseek-perTarget-icon">{p.ok ? '✓' : '✗'}</span>
+                      <span>{p.label} {p.dir === 'gte' ? '≥' : '≤'} {p.target}{t.unit}</span>
+                      <span className="calc-goalseek-perTarget-actual">→ {fmtMetric(t, p.value)}</span>
+                    </div>
+                  );
+                })}
               </div>
               <div className="calc-goalseek-result-actions">
                 <button type="button" onClick={handleApply} className="calc-goalseek-apply">
@@ -202,25 +258,30 @@ export default function GoalSeek({ input, calc, setI }) {
                 <span className="calc-goalseek-result-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 </span>
-                Target not reachable
+                Constraints can't be satisfied together
               </div>
-              <div className="calc-goalseek-result-row">
-                <span>{result.reason}</span>
-              </div>
-              {isFinite(result.boundaryLow) && (
-                <div className="calc-goalseek-result-row sub">
-                  <span>Best at lever min ({fmtLever(lever, lever.min)}):</span>
-                  <span>{fmtMetric(target, result.boundaryLow)}</span>
-                </div>
-              )}
-              {isFinite(result.boundaryHigh) && (
-                <div className="calc-goalseek-result-row sub">
-                  <span>Best at lever max ({fmtLever(lever, lever.max)}):</span>
-                  <span>{fmtMetric(target, result.boundaryHigh)}</span>
-                </div>
+              {result.closest && (
+                <>
+                  <div className="calc-goalseek-result-row">
+                    <span>Closest reachable lever value:</span>
+                    <span className="calc-goalseek-result-value">{fmtLever(lever, result.closest.value)}</span>
+                  </div>
+                  <div className="calc-goalseek-perTarget">
+                    {result.closest.perTarget.map((p, i) => {
+                      const t = TARGETS.find(x => x.label === p.label) || TARGETS[0];
+                      return (
+                        <div key={i} className="calc-goalseek-perTarget-row" data-ok={p.ok ? 'true' : 'false'}>
+                          <span className="calc-goalseek-perTarget-icon">{p.ok ? '✓' : '✗'}</span>
+                          <span>{p.label} {p.dir === 'gte' ? '≥' : '≤'} {p.target}{t.unit}</span>
+                          <span className="calc-goalseek-perTarget-actual">→ {fmtMetric(t, p.value)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
               <div className="calc-goalseek-result-row sub">
-                <span>Try a different lever, or a less ambitious target.</span>
+                <span>Try a different lever or relax the constraints that failed (✗).</span>
               </div>
             </>
           )}
@@ -233,7 +294,7 @@ export default function GoalSeek({ input, calc, setI }) {
           <line x1="12" y1="8" x2="12" y2="12"/>
           <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
         </svg>
-        <span>The "Sale-Price Multiplier" and "Variable-Cost Multiplier" levers scale every row by the same factor. Apply rewrites the prices in your products / variable-costs lists.</span>
+        <span>Multi-target search uses a 200-point grid scan over the lever range. The "Sale-Price Multiplier" and "Variable-Cost Multiplier" levers scale every row by the same factor — Apply rewrites the prices in your products / variable-costs lists.</span>
       </div>
     </div>
   );

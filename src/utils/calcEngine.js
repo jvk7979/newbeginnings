@@ -343,6 +343,86 @@ export function solveFor({ input, lever, metric, target, min, max, tol = 1e-3, m
   return { found: true, value, achieved: evalAt(value), iterations: iter };
 }
 
+/** Goal Seek (multi-target). Same lever-search idea as solveFor() but
+ *  with an array of constraints: targets = [{ metric, target, dir }]
+ *  where dir is 'gte' (≥) or 'lte' (≤). Uses a grid scan over the
+ *  lever's [min, max] range — robust for non-monotonic combinations
+ *  where pure bisection wouldn't work. Picks the satisfying value
+ *  closest to the user's current saved lever (smallest perturbation).
+ *
+ *  Returns:
+ *    { found: true, value, achieved, perTarget: [{ ok, value, metric }] }
+ *  on success, or:
+ *    { found: false, closest: { value, achieved, perTarget, score } }
+ *  on failure where `score` is the normalised violation of the closest
+ *  point — the per-target snapshot tells the user which constraint
+ *  is binding.
+ */
+export function solveForMulti({ input, lever, originalValue, targets, min, max, samples = 200 }) {
+  const evalAt = (v) => runCalc({ ...input, ...lever(v) });
+
+  const checkTarget = (result, t) => {
+    const val = t.metric(result);
+    if (val === null || !isFinite(val)) return { ok: false, value: val };
+    const ok = t.dir === 'gte' ? val >= t.target : val <= t.target;
+    return { ok, value: val };
+  };
+
+  const evaluatePoint = (v) => {
+    const result = evalAt(v);
+    const perTarget = targets.map(t => ({
+      ...checkTarget(result, t),
+      target: t.target,
+      dir: t.dir,
+      label: t.label,
+    }));
+    const allOK = perTarget.every(p => p.ok);
+    // Violation score for ranking failures — sum of normalised slack
+    // shortfalls across the unmet targets.
+    const score = perTarget.reduce((s, p) => {
+      if (p.ok) return s;
+      if (p.value === null || !isFinite(p.value)) return s + 1e6;
+      const slack = p.dir === 'gte' ? (p.value - p.target) : (p.target - p.value);
+      return s + Math.abs(slack) / Math.max(1, Math.abs(p.target));
+    }, 0);
+    return { value: v, achieved: result, perTarget, allOK, score };
+  };
+
+  const step = samples > 0 ? (max - min) / samples : 0;
+  const satisfying = [];
+  let bestFailure = null;
+
+  for (let i = 0; i <= samples; i++) {
+    const v = min + i * step;
+    const point = evaluatePoint(v);
+    if (point.allOK) {
+      satisfying.push(point);
+    } else if (bestFailure === null || point.score < bestFailure.score) {
+      bestFailure = point;
+    }
+  }
+
+  if (satisfying.length > 0) {
+    // Pick the satisfying value closest to the user's current saved lever
+    const ref = (originalValue !== undefined && originalValue !== null) ? originalValue : (min + max) / 2;
+    let best = satisfying[0];
+    for (const s of satisfying) {
+      if (Math.abs(s.value - ref) < Math.abs(best.value - ref)) best = s;
+    }
+    return {
+      found: true,
+      value: best.value,
+      achieved: best.achieved,
+      perTarget: best.perTarget,
+    };
+  }
+
+  return {
+    found: false,
+    closest: bestFailure,
+  };
+}
+
 /** Default empty input — used when a project has no saved calc yet. */
 export const DEFAULT_CALC_INPUT = {
   capex: 0,

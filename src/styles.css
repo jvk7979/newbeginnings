@@ -4600,3 +4600,113 @@ textarea:focus-visible,
   margin-top: 2px;
   color: var(--c-fg3);
 }
+
+/* ── Goal Seek: multi-constraint additions ───────────────────────────── */
+
+.calc-goalseek-constraints {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.calc-goalseek-constraint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+}
+.calc-goalseek-dir {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 44px;
+}
+.calc-goalseek-del {
+  background: none;
+  border: none;
+  color: var(--c-fg3);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+  cursor: pointer;
+  margin-left: auto;
+  border-radius: 4px;
+  transition: color 120ms, background 120ms;
+}
+.calc-goalseek-del:hover {
+  color: #c0392b;
+  background: rgb(192 57 43 / 0.06);
+}
+.calc-goalseek-add {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-accent);
+  background: transparent;
+  border: 1px dashed rgb(var(--c-accent-rgb) / 0.4);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-top: 4px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 120ms;
+}
+.calc-goalseek-add:hover {
+  background: rgb(var(--c-accent-rgb) / 0.06);
+  border-color: var(--c-accent);
+}
+
+/* Lever row — sits below the constraint stack */
+.calc-goalseek-lever-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+/* Per-target snapshot inside the result card */
+.calc-goalseek-perTarget {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--c-border);
+}
+.calc-goalseek-perTarget-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg2);
+}
+.calc-goalseek-perTarget-icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.calc-goalseek-perTarget-row[data-ok="true"]  .calc-goalseek-perTarget-icon { color: #16a34a; }
+.calc-goalseek-perTarget-row[data-ok="false"] .calc-goalseek-perTarget-icon { color: #dc2626; }
+.calc-goalseek-perTarget-actual {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--c-fg1);
+  font-weight: 600;
+  margin-left: auto;
+}
