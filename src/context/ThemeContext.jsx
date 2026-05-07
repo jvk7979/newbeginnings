@@ -1,31 +1,23 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
+// Three-palette theme set (locked in 2026-05). Sprout is the default —
+// a fresh leaf-green on cream-mint near-white, applied across the
+// entire app. Forest is a deeper banking-green for users who want a
+// more conservative tone. Amber Haze keeps a warm-cream heritage
+// option for users who prefer that over the green family.
+//
+// Twelve other palettes (sage, saffron, meadow, regalia, espresso,
+// mahogany, clay, monogram, transformative-teal, quant, sapphire)
+// were retired here. Existing users with any retired theme id saved
+// in localStorage will fail validation in setTheme() below and fall
+// through to sprout on next visit — a graceful break.
 export const THEMES = [
-  // ── Modern palettes (added 2026-05) — saturated single accent on
-  // near-white. Designed for the financial workspace; surface first
-  // in the picker so they're discoverable.
-  { id: 'quant',    label: 'Quant',      mode: 'light', swatch: ['#FFFFFF', '#2563EB', '#F8FAFC'] },
-  { id: 'forest',   label: 'Forest',     mode: 'light', swatch: ['#FAFAF7', '#15803D', '#FFFFFF'] },
-  { id: 'sapphire', label: 'Sapphire',   mode: 'light', swatch: ['#FAFAF8', '#1E3A8A', '#FFFFFF'] },
-  // ── Editorial / earthy palettes (heritage; the previous default set).
-  // The id 'forest' previously belonged to the Saffron palette below;
-  // it was renamed to 'saffron' (matching its label) when the new
-  // green Forest palette claimed the slot. Existing users with
-  // 'forest' saved in localStorage will resolve to the new green
-  // Forest palette — a graceful break.
-  { id: 'sage',     label: 'Botanical',  mode: 'light', swatch: ['#F4F0E8', '#5A7244', '#FDFCFA'] },
-  { id: 'saffron',  label: 'Saffron',    mode: 'light', swatch: ['#FDFAF6', '#C2600A', '#FAF3E8'] },
-  { id: 'meadow',   label: 'Meadow',     mode: 'light', swatch: ['#F0E7DA', '#4E6813', '#FAFAF7'] },
-  { id: 'amber',    label: 'Amber Haze', mode: 'light', swatch: ['#FDF8EE', '#B45309', '#FFFFFF'] },
-  { id: 'regalia',  label: 'Regalia',    mode: 'light', swatch: ['#FBF8F0', '#B8860B', '#FFFFFF'] },
-  { id: 'espresso', label: 'Espresso',   mode: 'light', swatch: ['#FFF9E8', '#4A2C0F', '#FFFFFF'] },
-  { id: 'mahogany', label: 'Mahogany',   mode: 'light', swatch: ['#FAF5F0', '#6E2A1E', '#FFFFFF'] },
-  { id: 'clay',     label: 'Clay',       mode: 'light', swatch: ['#FBF1EC', '#B8553B', '#FFFFFF'] },
-  { id: 'monogram', label: 'Monogram',   mode: 'light', swatch: ['#FFFFFF', '#74070E', '#FAFAFA'] },
-  { id: 'teal',     label: 'Transformative Teal', mode: 'light', swatch: ['#F0FAF8', '#00897B', '#FFFFFF'] },
+  { id: 'sprout', label: 'Sprout',     mode: 'light', swatch: ['#FAFEF7', '#00B25E', '#FFFFFF'] },
+  { id: 'forest', label: 'Forest',     mode: 'light', swatch: ['#FAFAF7', '#15803D', '#FFFFFF'] },
+  { id: 'amber',  label: 'Amber Haze', mode: 'light', swatch: ['#FDF8EE', '#B45309', '#FFFFFF'] },
 ];
 
-const DEFAULT_THEME = 'sage';
+const DEFAULT_THEME = 'sprout';
 const STORAGE_KEY   = 'nb_theme';
 const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 

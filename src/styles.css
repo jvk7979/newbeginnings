@@ -1,39 +1,52 @@
 /* ─────────────────────────────────────────────────────────────────────────
  * Theme tokens (CSS variables). Switching themes is a matter of setting
  * `document.documentElement.dataset.theme = '<name>'`.
+ *
+ * Three palettes ship as of 2026-05:
+ *   sprout — DEFAULT — fresh leaf-green on cream-mint near-white
+ *   forest — deeper banking-green for a conservative read
+ *   amber  — warm cream + deep amber for a heritage tone
+ *
+ * Twelve other palettes (sage, saffron, meadow, regalia, espresso,
+ * mahogany, clay, monogram, transformative-teal, quant, sapphire) were
+ * retired here. Every component reads from these CSS variables, so
+ * deleting unused blocks is purely housekeeping — no functional impact.
+ * Existing localStorage values for retired themes will fail validation
+ * in ThemeContext.setTheme() and fall through to the new default
+ * (sprout) on next visit.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* ─────────── MODERN PALETTES — saturated single accent on near-white,
-   added 2026-05. Banker-readable, technical, high-contrast. Designed for
-   the financial workspace (KPI tiles, charts, DPR exports) where the
-   editorial cream-paper palettes felt dated. ─────────── */
-
-/* Quant — fintech blue · Stripe / Plaid feel · clean, technical */
-:root[data-theme="quant"] {
-  --c-bg0: #FFFFFF;
-  --c-bg1: #F8FAFC;
-  --c-bg2: #F1F5F9;
-  --c-bg3: #E2E8F0;
-  --c-fg1: #0F172A;
-  --c-fg2: #475569;
-  --c-fg3: #94A3B8;
-  --c-accent: #2563EB;
-  --c-accent-light: #3B82F6;
-  --c-accent-dim: #1D4ED8;
-  --c-accent-bg: #EFF6FF;
-  --c-accent-rgb: 37 99 235;
-  --c-accent-dim-rgb: 29 78 216;
-  --c-border: #E2E8F0;
-  --c-border-light: #CBD5E1;
+/* Sprout — fresh leaf-green on cream-mint near-white · DEFAULT
+   Vibrant accent (#00B25E) — friendly, optimistic, market-fresh.
+   Applied to `:root` so any document without an explicit data-theme
+   attribute (i.e. fresh visit, cleared localStorage, server-render)
+   lands on Sprout immediately. */
+:root,
+:root[data-theme="sprout"] {
+  --c-bg0: #FAFEF7;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #EFF8E8;
+  --c-bg3: #D6EFC0;
+  --c-fg1: #051907;
+  --c-fg2: #2D4029;
+  --c-fg3: #6E8466;
+  --c-accent: #00B25E;
+  --c-accent-light: #2DD485;
+  --c-accent-dim: #008C49;
+  --c-accent-bg: #DEF7E8;
+  --c-accent-rgb: 0 178 94;
+  --c-accent-dim-rgb: 0 140 73;
+  --c-border: #DEEDD2;
+  --c-border-light: #BFDAA8;
   --c-success: #16A34A;
   --c-success-bg: #F0FDF4;
-  --c-warning: #D97706;
+  --c-warning: #F59E0B;
   --c-warning-bg: #FFFBEB;
   --c-danger: #DC2626;
   --c-danger-bg: #FEF2F2;
   --c-danger-rgb: 220 38 38;
-  --c-info: #2563EB;
-  --c-info-bg: #EFF6FF;
+  --c-info: #00B25E;
+  --c-info-bg: #DEF7E8;
 }
 
 /* Forest — banking green · saturated emerald · conservative + readable */
@@ -62,299 +75,6 @@
   --c-danger-rgb: 185 28 28;
   --c-info: #1E40AF;
   --c-info-bg: #EFF6FF;
-}
-
-/* Sapphire — banking gravitas · deep navy · WSJ / Goldman feel */
-:root[data-theme="sapphire"] {
-  --c-bg0: #FAFAF8;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F4F4F0;
-  --c-bg3: #E0E0DA;
-  --c-fg1: #0C1442;
-  --c-fg2: #334155;
-  --c-fg3: #8B95AA;
-  --c-accent: #1E3A8A;
-  --c-accent-light: #2563EB;
-  --c-accent-dim: #172554;
-  --c-accent-bg: #EFF4FB;
-  --c-accent-rgb: 30 58 138;
-  --c-accent-dim-rgb: 23 37 84;
-  --c-border: #E5E7EB;
-  --c-border-light: #C8CDD8;
-  --c-success: #15803D;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #1E3A8A;
-  --c-info-bg: #EFF4FB;
-}
-
-/* Botanical — sage #5A7244 · warm cream #F4F0E8 · cards near-white — DEFAULT */
-:root,
-:root[data-theme="sage"] {
-  --c-bg0: #F4F0E8;
-  --c-bg1: #FDFCFA;
-  --c-bg2: #EDE6D8;
-  --c-bg3: #D4C6B9;
-  --c-fg1: #1A1714;
-  --c-fg2: #473E35;
-  --c-fg3: #857060;
-  --c-accent: #5A7244;
-  --c-accent-light: #7A9260;
-  --c-accent-dim: #426030;
-  --c-accent-bg: #EBF2E4;
-  --c-accent-rgb: 90 114 68;
-  --c-accent-dim-rgb: 66 96 48;
-  --c-border: #DDD4C4;
-  --c-border-light: #C8BCA8;
-  --c-success: #4D7A4A;
-  --c-success-bg: #EDF4EC;
-  --c-warning: #8A6000;
-  --c-warning-bg: #FFF8E6;
-  --c-danger: #C0271D;
-  --c-danger-bg: #FEF2F1;
-  --c-danger-rgb: 191 39 29;
-  --c-info: #426030;
-  --c-info-bg: #EBF2E4;
-}
-
-/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1
-   (was data-theme="forest" until 2026-05; renamed to free up "forest" for
-   the new banking-green palette below.) */
-:root[data-theme="saffron"] {
-  --c-bg0: #FDFAF6;
-  --c-bg1: #FAF3E8;
-  --c-bg2: #F2E3C6;
-  --c-bg3: #E8CEAA;
-  --c-fg1: #1A0D00;
-  --c-fg2: #5C3800;
-  /* fg3 was #A06020 → ~3.85:1 vs #FAF3E8, failing WCAG AA for normal
-     text. Darkened to #8A4F0C which preserves the saffron/amber hue
-     family but clears 4.6:1 — used for every "Updated …", "Captured …",
-     "5m ago" timestamp, char-count helper, and uppercase section
-     label, so the contrast lift is felt across every page. */
-  --c-fg3: #8A4F0C;
-  --c-accent: #C2600A;
-  --c-accent-light: #E07520;
-  --c-accent-dim: #A04E05;
-  --c-accent-bg: #FFF8ED;
-  --c-accent-rgb: 194 96 10;
-  --c-accent-dim-rgb: 160 78 5;
-  --c-border: #E8D4B4;
-  --c-border-light: #D4B880;
-  --c-success: #15803D;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #C2600A;
-  --c-warning-bg: #FFF8ED;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #0070F3;
-  --c-info-bg: #EFF6FF;
-}
-
-/* Mahogany — Looka Trend 3: Red, Mahogany & Blue · cream paper · #6E2A1E */
-:root[data-theme="mahogany"] {
-  --c-bg0: #FAF5F0;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F0E5DD;
-  --c-bg3: #DCC8B8;
-  --c-fg1: #1A0E0A;
-  --c-fg2: #4A2A1F;
-  /* Was #8A6650 → ~4.55:1 vs #FFFFFF, technically WCAG AA but with no
-     headroom for any future palette nudge. #75503D clears ~5.7:1. */
-  --c-fg3: #75503D;
-  --c-accent: #6E2A1E;
-  --c-accent-light: #8B3A2A;
-  --c-accent-dim: #4F1B12;
-  --c-accent-bg: #FCEDE5;
-  --c-accent-rgb: 110 42 30;
-  --c-accent-dim-rgb: 79 27 18;
-  --c-border: #ECDDD0;
-  --c-border-light: #D5BFA8;
-  --c-success: #2E7D32;
-  --c-success-bg: #E8F5E9;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFF8ED;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #1E3A5F;
-  --c-info-bg: #E3EDF7;
-}
-
-/* Espresso — Looka Trend 5: Espresso & Sunshine · sunshine cream · #4A2C0F */
-:root[data-theme="espresso"] {
-  --c-bg0: #FFF9E8;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #FCEFC2;
-  --c-bg3: #F0DD90;
-  --c-fg1: #1A0E00;
-  --c-fg2: #4A2C0F;
-  /* Was #8A6A40 → ~4.50:1 vs #FFFFFF, right at the WCAG AA line.
-     #715433 clears ~5.6:1, room for future tweaks without re-failing. */
-  --c-fg3: #715433;
-  --c-accent: #4A2C0F;
-  --c-accent-light: #6B3F1A;
-  --c-accent-dim: #2E1A05;
-  --c-accent-bg: #F5EBD8;
-  --c-accent-rgb: 74 44 15;
-  --c-accent-dim-rgb: 46 26 5;
-  --c-border: #F0E2A5;
-  --c-border-light: #DEC982;
-  --c-success: #2E7D32;
-  --c-success-bg: #E8F5E9;
-  --c-warning: #C9A100;
-  --c-warning-bg: #FFF9E8;
-  --c-danger: #C62828;
-  --c-danger-bg: #FFEBEE;
-  --c-danger-rgb: 198 40 40;
-  --c-info: #4A2C0F;
-  --c-info-bg: #F5EBD8;
-}
-
-/* Clay — Looka Trend 9: Clay & Blush · soft blush · terracotta #B8553B */
-:root[data-theme="clay"] {
-  --c-bg0: #FBF1EC;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F5DDD2;
-  --c-bg3: #E8C0AE;
-  --c-fg1: #1F0F08;
-  --c-fg2: #4A281E;
-  --c-fg3: #8A5E4E;
-  --c-accent: #B8553B;
-  --c-accent-light: #D67550;
-  --c-accent-dim: #8A3F2A;
-  --c-accent-bg: #FBE7DD;
-  --c-accent-rgb: 184 85 59;
-  --c-accent-dim-rgb: 138 63 42;
-  --c-border: #F0DBCE;
-  --c-border-light: #DDB89E;
-  --c-success: #2E7D32;
-  --c-success-bg: #E8F5E9;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFF8ED;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #1976D2;
-  --c-info-bg: #E3F2FD;
-}
-
-/* Meadow — Trend 6: Green White and Yellow · uses image colours
-   Alpine Oat #F0E7DA · Dill Green #4E6813 · Butter Yellow #FFEDA8 */
-:root[data-theme="meadow"] {
-  --c-bg0: #F0E7DA;
-  --c-bg1: #FAFAF7;
-  --c-bg2: #E8DEC8;
-  --c-bg3: #D4C5A8;
-  --c-fg1: #1A1F0A;
-  --c-fg2: #3D4516;
-  --c-fg3: #767A57;
-  --c-accent: #4E6813;
-  --c-accent-light: #6B8A22;
-  --c-accent-dim: #36490A;
-  --c-accent-bg: #EBF0DE;
-  --c-accent-rgb: 78 104 19;
-  --c-accent-dim-rgb: 54 73 10;
-  --c-border: #DCD0B8;
-  --c-border-light: #C2B498;
-  --c-success: #4E6813;
-  --c-success-bg: #EBF0DE;
-  --c-warning: #8A6D00;
-  --c-warning-bg: #FFEDA8;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #4E6813;
-  --c-info-bg: #EBF0DE;
-}
-
-/* Monogram — Trend 7: Red Black and White · Cherry Red #74070E from image */
-:root[data-theme="monogram"] {
-  --c-bg0: #FFFFFF;
-  --c-bg1: #FAFAFA;
-  --c-bg2: #F0F0F0;
-  --c-bg3: #E0E0E0;
-  --c-fg1: #000000;
-  --c-fg2: #333333;
-  --c-fg3: #707070;
-  --c-accent: #74070E;
-  --c-accent-light: #A50D17;
-  --c-accent-dim: #5A0508;
-  --c-accent-bg: #FBE9EB;
-  --c-accent-rgb: 116 7 14;
-  --c-accent-dim-rgb: 90 5 8;
-  --c-border: #E5E5E5;
-  --c-border-light: #C0C0C0;
-  --c-success: #2E7D32;
-  --c-success-bg: #E8F5E9;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #74070E;
-  --c-danger-bg: #FBE9EB;
-  --c-danger-rgb: 116 7 14;
-  --c-info: #1976D2;
-  --c-info-bg: #E3F2FD;
-}
-
-/* Regalia — Trend 4 (light reinterpretation): warm ivory base · gold #B8860B */
-:root[data-theme="regalia"] {
-  --c-bg0: #FBF8F0;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F2EAD3;
-  --c-bg3: #E5D5A8;
-  --c-fg1: #1A1500;
-  --c-fg2: #4A3D00;
-  --c-fg3: #8A7635;
-  --c-accent: #B8860B;
-  --c-accent-light: #D4AF37;
-  --c-accent-dim: #8A6500;
-  --c-accent-bg: #FFF8E0;
-  --c-accent-rgb: 184 134 11;
-  --c-accent-dim-rgb: 138 101 0;
-  --c-border: #E8DCB0;
-  --c-border-light: #D0BE85;
-  --c-success: #15803D;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #B8860B;
-  --c-warning-bg: #FFF8E0;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #1976D2;
-  --c-info-bg: #E3F2FD;
-}
-
-/* Transformative Teal — pale aqua base · deep teal accent #00897B */
-:root[data-theme="teal"] {
-  --c-bg0: #F0FAF8;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #D4F0EB;
-  --c-bg3: #A8E0D6;
-  --c-fg1: #001F1A;
-  --c-fg2: #00524A;
-  --c-fg3: #4A8A82;
-  --c-accent: #00897B;
-  --c-accent-light: #26A69A;
-  --c-accent-dim: #00695C;
-  --c-accent-bg: #E0F2F1;
-  --c-accent-rgb: 0 137 123;
-  --c-accent-dim-rgb: 0 105 92;
-  --c-border: #C8E8E2;
-  --c-border-light: #95CCC2;
-  --c-success: #00897B;
-  --c-success-bg: #E0F2F1;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #00897B;
-  --c-info-bg: #E0F2F1;
 }
 
 /* Amber Haze — soft warm cream base · deep amber accent #B45309 */
