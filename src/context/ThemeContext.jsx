@@ -1,23 +1,21 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-// Three-palette theme set (locked in 2026-05). Sprout is the default —
-// a fresh leaf-green on cream-mint near-white, applied across the
-// entire app. Forest is a deeper banking-green for users who want a
-// more conservative tone. Amber Haze keeps a warm-cream heritage
-// option for users who prefer that over the green family.
+// Three-palette theme set (locked in 2026-05). Heritage is the default —
+// coconut-cream + deep coconut green + river blue + gold + dark warm-
+// brown text, designed for the agriculture / food-processing / regional-
+// investment audience the app serves. Forest is a deeper banking-green
+// alternative; Amber Haze keeps a warm-cream amber option.
 //
-// Twelve other palettes (sage, saffron, meadow, regalia, espresso,
-// mahogany, clay, monogram, transformative-teal, quant, sapphire)
-// were retired here. Existing users with any retired theme id saved
-// in localStorage will fail validation in setTheme() below and fall
-// through to sprout on next visit — a graceful break.
+// Note: the previous default 'sprout' was renamed to 'heritage' on
+// 2026-05; users with 'sprout' in localStorage will fail validation in
+// setTheme() and fall through to the new heritage default — graceful.
 export const THEMES = [
-  { id: 'sprout', label: 'Sprout',     mode: 'light', swatch: ['#FAFEF7', '#00B25E', '#FFFFFF'] },
-  { id: 'forest', label: 'Forest',     mode: 'light', swatch: ['#FAFAF7', '#15803D', '#FFFFFF'] },
-  { id: 'amber',  label: 'Amber Haze', mode: 'light', swatch: ['#FDF8EE', '#B45309', '#FFFFFF'] },
+  { id: 'heritage', label: 'Heritage',   mode: 'light', swatch: ['#F6F1E7', '#2F6B4F', '#FDFAF2'] },
+  { id: 'forest',   label: 'Forest',     mode: 'light', swatch: ['#FAFAF7', '#15803D', '#FFFFFF'] },
+  { id: 'amber',    label: 'Amber Haze', mode: 'light', swatch: ['#FDF8EE', '#B45309', '#FFFFFF'] },
 ];
 
-const DEFAULT_THEME = 'sprout';
+const DEFAULT_THEME = 'heritage';
 const STORAGE_KEY   = 'nb_theme';
 const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 

@@ -3,50 +3,64 @@
  * `document.documentElement.dataset.theme = '<name>'`.
  *
  * Three palettes ship as of 2026-05:
- *   sprout — DEFAULT — fresh leaf-green on cream-mint near-white
- *   forest — deeper banking-green for a conservative read
- *   amber  — warm cream + deep amber for a heritage tone
+ *   heritage — DEFAULT — coconut cream + deep coconut green + gold + river blue
+ *   forest   — deeper banking-green for a conservative read
+ *   amber    — warm cream + deep amber for a heritage tone
  *
  * Twelve other palettes (sage, saffron, meadow, regalia, espresso,
- * mahogany, clay, monogram, transformative-teal, quant, sapphire) were
- * retired here. Every component reads from these CSS variables, so
- * deleting unused blocks is purely housekeeping — no functional impact.
- * Existing localStorage values for retired themes will fail validation
- * in ThemeContext.setTheme() and fall through to the new default
- * (sprout) on next visit.
+ * mahogany, clay, monogram, transformative-teal, quant, sapphire,
+ * sprout) were retired here. Every component reads from these CSS
+ * variables, so deleting unused blocks is purely housekeeping — no
+ * functional impact. Existing localStorage values for retired themes
+ * will fail validation in ThemeContext.setTheme() and fall through to
+ * the new default (heritage) on next visit.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* Sprout — fresh leaf-green on cream-mint near-white · DEFAULT
-   Vibrant accent (#00B25E) — friendly, optimistic, market-fresh.
-   Applied to `:root` so any document without an explicit data-theme
-   attribute (i.e. fresh visit, cleared localStorage, server-render)
-   lands on Sprout immediately. */
+/* Heritage — coconut cream + deep coconut green + river blue + gold
+   The brand palette: warm cream backdrop, sage-green accent, river-blue
+   for secondary cues, muted gold for highlights, dark warm-brown text.
+   Premium, rooted, culturally rich — designed for the agriculture /
+   food-processing / regional-investment audience the app serves.
+   Applied to `:root` so a fresh visit (cleared localStorage, server-
+   render, default state) lands on Heritage immediately. */
 :root,
-:root[data-theme="sprout"] {
-  --c-bg0: #FAFEF7;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #EFF8E8;
-  --c-bg3: #D6EFC0;
-  --c-fg1: #051907;
-  --c-fg2: #2D4029;
-  --c-fg3: #6E8466;
-  --c-accent: #00B25E;
-  --c-accent-light: #2DD485;
-  --c-accent-dim: #008C49;
-  --c-accent-bg: #DEF7E8;
-  --c-accent-rgb: 0 178 94;
-  --c-accent-dim-rgb: 0 140 73;
-  --c-border: #DEEDD2;
-  --c-border-light: #BFDAA8;
-  --c-success: #16A34A;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #F59E0B;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #00B25E;
-  --c-info-bg: #DEF7E8;
+:root[data-theme="heritage"] {
+  --c-bg0: #F6F1E7;          /* coconut cream — page bg */
+  --c-bg1: #FDFAF2;          /* card surface — slightly warmer than pure white */
+  --c-bg2: #EDE5D2;          /* deeper warm cream — secondary surfaces */
+  --c-bg3: #DDD0B5;          /* deepest warm cream — borders/dividers */
+  --c-fg1: #2D2A26;          /* dark warm-brown text */
+  --c-fg2: #5C5648;          /* muted body text */
+  --c-fg3: #8E8470;          /* tertiary / labels */
+  --c-accent: #2F6B4F;       /* deep coconut green — primary accent */
+  --c-accent-light: #4A8F70;
+  --c-accent-dim: #205139;
+  --c-accent-bg: #E6EEE6;    /* sage tint for callout backgrounds */
+  --c-accent-rgb: 47 107 79;
+  --c-accent-dim-rgb: 32 81 57;
+  --c-border: #E5DDC9;
+  --c-border-light: #D4C8AE;
+  --c-success: #2F6B4F;
+  --c-success-bg: #E6EEE6;
+  --c-warning: #B88A3B;      /* gold */
+  --c-warning-bg: #F8F0DD;
+  --c-danger: #B33A2F;       /* terracotta-red — fits the heritage palette */
+  --c-danger-bg: #FBEAE6;
+  --c-danger-rgb: 179 58 47;
+  --c-info: #7FA9B8;         /* river blue */
+  --c-info-bg: #E5EEF1;
+
+  /* Brand-specific extras (used by the dashboard hero, KPI tiles,
+     section dividers, decorative flourishes). Keep them prefixed
+     with --c-h- so it's obvious they're heritage-specific. */
+  --c-h-gold:        #B88A3B;
+  --c-h-gold-light:  #D5A85A;
+  --c-h-gold-bg:     #F8F0DD;
+  --c-h-river:       #7FA9B8;
+  --c-h-river-light: #A6C1CC;
+  --c-h-river-bg:    #E5EEF1;
+  --c-h-terracotta:  #C97435; /* warm icon-circle fills on KPI tiles */
+  --c-h-terracotta-bg: #F8E8D8;
 }
 
 /* Forest — banking green · saturated emerald · conservative + readable */
@@ -4730,4 +4744,427 @@ textarea:focus-visible,
   color: #c0392b;
   margin-left: 6px;
   font-weight: 500;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Heritage Dashboard (.dh-* classes)
+ *
+ * Editorial-magazine layout anchored on the Godavari river hero photo.
+ * The page reads as a publication: full-bleed cover image, terracotta-
+ * iconed KPI strip on warm cream, three-column body of card stacks,
+ * closing tagline in calligraphic Pinyon Script with palm-leaf
+ * flourishes. All colour comes from heritage CSS tokens so the same
+ * markup re-themes when the user picks Forest or Amber Haze.
+ * ───────────────────────────────────────────────────────────────────── */
+
+.dh-page {
+  min-height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+.dh-hero {
+  position: relative;
+  width: 100%;
+  height: clamp(360px, 48vh, 520px);
+  overflow: hidden;
+  background: #2d2a26;
+}
+.dh-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  display: block;
+}
+.dh-hero-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(45, 42, 38, 0.10) 0%,
+    rgba(45, 42, 38, 0.20) 40%,
+    rgba(45, 42, 38, 0.65) 100%
+  );
+}
+.dh-hero-content {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 36px clamp(20px, 5vw, 56px) 84px;
+  color: #fdfaf2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .dh-hero-content { padding-bottom: 56px; }
+}
+.dh-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-h-gold-light);
+  margin-bottom: 4px;
+}
+.dh-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  color: #fdfaf2;
+}
+.dh-hero-tagline {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-weight: 500;
+  color: rgba(253, 250, 242, 0.92);
+  margin: 2px 0 14px;
+  letter-spacing: 0.01em;
+}
+.dh-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: rgba(253, 250, 242, 0.86);
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.dh-hero-meta strong {
+  font-weight: 700;
+  color: #fdfaf2;
+}
+.dh-hero-meta-sep {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(253, 250, 242, 0.45);
+  display: inline-block;
+}
+.dh-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.dh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 140ms, color 140ms, border 140ms;
+  white-space: nowrap;
+}
+.dh-btn-primary { background: var(--c-accent); color: #fff; }
+.dh-btn-primary:hover { background: var(--c-accent-dim); }
+.dh-btn-secondary {
+  background: rgba(253, 250, 242, 0.94);
+  color: var(--c-fg1);
+  border-color: rgba(253, 250, 242, 0.94);
+}
+.dh-btn-secondary:hover { background: var(--c-h-gold-bg); border-color: var(--c-h-gold-bg); }
+
+/* ── Container ────────────────────────────────────────────────────── */
+.dh-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 56px);
+}
+
+/* ── KPI strip ────────────────────────────────────────────────────── */
+.dh-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  margin: -56px auto 36px;
+  position: relative;
+  z-index: 2;
+  background: var(--c-bg1);
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--c-border);
+  box-shadow: 0 18px 38px rgba(45, 42, 38, 0.14), 0 2px 6px rgba(45, 42, 38, 0.06);
+}
+@media (max-width: 1024px) {
+  .dh-kpi-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .dh-kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: -28px; }
+}
+.dh-kpi-tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  transition: background 140ms;
+}
+.dh-kpi-tile:hover { background: var(--c-bg2); }
+.dh-kpi-icon {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--c-h-terracotta-bg);
+  color: var(--c-h-terracotta);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(201, 116, 53, 0.18);
+}
+.dh-kpi-body { flex: 1; min-width: 0; }
+.dh-kpi-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-fg1);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dh-kpi-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-top: 3px;
+}
+.dh-kpi-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: var(--c-fg3);
+  font-style: italic;
+  margin-top: 1px;
+  opacity: 0.8;
+}
+
+/* ── Section headers ──────────────────────────────────────────────── */
+.dh-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--c-border);
+  position: relative;
+}
+.dh-section-head::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 48px; height: 2px;
+  background: var(--c-h-gold);
+}
+.dh-section-kicker {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-h-gold);
+  display: block;
+  margin-bottom: 4px;
+}
+.dh-section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-fg1);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.dh-section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0 4px 0;
+}
+.dh-section-link:hover { opacity: 0.78; }
+
+/* ── Three-column section ─────────────────────────────────────────── */
+.dh-three-col {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin-bottom: 48px;
+}
+@media (max-width: 960px) {
+  .dh-three-col { grid-template-columns: 1fr; gap: 28px; }
+}
+
+/* ── Card rows ────────────────────────────────────────────────────── */
+.dh-stack { display: flex; flex-direction: column; gap: 10px; }
+.dh-card-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border 140ms, box-shadow 140ms, transform 140ms;
+}
+.dh-card-row:hover {
+  border-color: var(--c-h-gold);
+  box-shadow: 0 4px 12px rgba(45, 42, 38, 0.06);
+  transform: translateY(-1px);
+}
+.dh-card-row-leaf {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.18);
+}
+.dh-card-row-leaf-river {
+  background: var(--c-h-river-bg);
+  color: var(--c-h-river);
+  border-color: rgba(127, 169, 184, 0.22);
+}
+.dh-card-row-leaf-gold {
+  background: var(--c-h-gold-bg);
+  color: var(--c-h-gold);
+  border-color: rgba(184, 138, 59, 0.22);
+}
+.dh-card-row-body { flex: 1; min-width: 0; }
+.dh-card-row-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.dh-card-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--c-fg3);
+  flex-wrap: wrap;
+}
+.dh-card-row-meta .dh-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--c-fg2);
+  font-size: 11px;
+}
+.dh-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.dh-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ── Empty tile ───────────────────────────────────────────────────── */
+.dh-empty {
+  background: var(--c-bg1);
+  border: 1px dashed var(--c-border-light);
+  border-radius: 10px;
+  padding: 32px 18px;
+  text-align: center;
+}
+.dh-empty-copy {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--c-fg3);
+  margin-bottom: 14px;
+}
+.dh-empty-btn { padding: 8px 16px; font-size: 13px; }
+
+/* ── Closing banner with palm-leaf flourishes ─────────────────────── */
+.dh-closing {
+  position: relative;
+  text-align: center;
+  padding: 56px 24px 48px;
+  margin: 24px 0 0;
+  background: linear-gradient(180deg, var(--c-bg1) 0%, var(--c-bg2) 100%);
+  border-radius: 14px;
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+}
+.dh-closing-leaf {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--c-h-gold);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.dh-closing-leaf-left  { left: clamp(12px, 4vw, 48px); }
+.dh-closing-leaf-right { right: clamp(12px, 4vw, 48px); transform: translateY(-50%) scaleX(-1); }
+@media (max-width: 640px) {
+  .dh-closing-leaf { display: none; }
+}
+.dh-closing-script {
+  font-family: 'Pinyon Script', 'Playfair Display', Georgia, serif;
+  font-size: clamp(28px, 4.4vw, 44px);
+  font-weight: 400;
+  color: var(--c-accent);
+  line-height: 1.15;
+  margin: 0;
+}
+.dh-closing-script-2 { color: var(--c-h-gold); margin-top: 4px; }
+.dh-closing-rule {
+  width: 60px; height: 2px;
+  margin: 22px auto 14px;
+  background: var(--c-h-gold);
+  opacity: 0.6;
+}
+.dh-closing-credit {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin: 0;
 }

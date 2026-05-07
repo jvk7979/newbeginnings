@@ -1,99 +1,119 @@
-import { useMemo, useState } from 'react';
-import { C, alpha } from '../tokens';
-import { useIdeas, usePlans } from '../context/AppContext';
-import heroImg from '../assets/hero_latest.png';
+import { useMemo } from 'react';
+import { C } from '../tokens';
+import { useIdeas, usePlans, useFiles } from '../context/AppContext';
+import { runCalc, DEFAULT_CALC_INPUT } from '../utils/calcEngine';
+import heroImg from '../assets/hero_godavari.png';
 
-const ICON_IDEA = <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>;
-const ICON_PLAN = <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
+// Heritage Dashboard. Designed around the Godavari hero photo as the
+// magazine cover — coconut cream surfaces, deep coconut green accents,
+// terracotta KPI icons, gold dividers, calligraphic Pinyon Script
+// flourishes for the brand voice. The hero, KPI strip, and three-
+// column body re-use the editorial structure the rest of the app
+// has settled on.
+//
+// KPI metrics (Revenue / EBITDA / NPV / Payback) are aggregated by
+// running the calc engine across every project where eligibleForCalc
+// is true. Projects without saved calc input fall back to engine
+// defaults so the tile shows ₹0 instead of dashes — keeps the strip
+// looking complete on a near-empty workspace.
 
-// Upload Document is the only quick-action that doesn't appear in the
-// editorial intro band toolbar. + New Idea / + New Project moved up
-// into the band so we don't double up on CTAs.
-const QUICK_ACTIONS = [
-  {
-    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
-    label: 'Upload Document', dest: 'documents', primary: false,
-  },
-];
+const STATUS_COLORS = {
+  draft:         '#1E40AF',
+  validating:    '#854D0E',
+  active:        '#065F46',
+  archived:      '#4B5563',
+};
 
 const IDEA_STATUS_LABELS = { draft: 'Draft', validating: 'Validating', active: 'Active', archived: 'Archived' };
 const PLAN_STATUS_LABELS = { draft: 'Draft', active: 'Active', archived: 'Archived' };
-const STATUS_COLORS = {
-  draft:         '#1E40AF',
-  new:           '#1E40AF',
-  validating:    '#854D0E',
-  researching:   '#854D0E',
-  active:        '#065F46',
-  'in-review':   '#5B21B6',
-  planning:      '#5B21B6',
-  completed:     '#155E75',
-  'in-progress': '#9A3412',
-  progress:      '#9A3412',
-  archived:      '#4B5563',
-  stalled:       '#991B1B',
-  paused:        '#991B1B',
-};
 
 function fmtINR(n) {
   if (!n || !isFinite(n)) return '—';
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
-  if (n >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
-  if (n >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
-  return `₹${n.toFixed(0)}`;
+  if (Math.abs(n) >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
+  if (Math.abs(n) >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
+  if (Math.abs(n) >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
+  return `₹${Math.round(n)}`;
 }
 
-function SectionHeader({ label, actionLabel, onAction }) {
+function fmtYears(y) {
+  if (y === null || y === undefined || !isFinite(y)) return '—';
+  return `${y.toFixed(1)} yrs`;
+}
+
+function loadCalcInput(plan) {
+  const saved = plan?.calc;
+  return saved && typeof saved === 'object'
+    ? { ...DEFAULT_CALC_INPUT, ...saved }
+    : DEFAULT_CALC_INPUT;
+}
+
+const ICON_LIGHTBULB = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/>
+  </svg>
+);
+const ICON_PROJECT = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+  </svg>
+);
+const ICON_SPARKLE = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>
+  </svg>
+);
+const ICON_RUPEE = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <path d="M6 4h12M6 9h12M14 4c0 4-3 7-7 7l9 9"/>
+  </svg>
+);
+const ICON_GROWTH = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/>
+  </svg>
+);
+const ICON_NPV = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10h4.5a1.5 1.5 0 0 1 0 3H9h6"/>
+  </svg>
+);
+const ICON_CLOCK = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>
+  </svg>
+);
+const ICON_DOC = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
+  </svg>
+);
+
+function KpiTile({ icon, label, value, hint }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
-      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: C.fg3, whiteSpace: 'nowrap' }}>
-        {label}
-      </span>
-      <div style={{ flex: 1, height: 1, background: C.border }} />
-      {actionLabel && (
-        <button onClick={onAction}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-          {actionLabel}
-          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-      )}
+    <div className="dh-kpi-tile">
+      <div className="dh-kpi-icon">{icon}</div>
+      <div className="dh-kpi-body">
+        <div className="dh-kpi-value">{value}</div>
+        <div className="dh-kpi-label">{label}</div>
+        {hint && <div className="dh-kpi-hint">{hint}</div>}
+      </div>
     </div>
   );
 }
 
-function StatBreakdown({ kind, items }) {
-  const groups = useMemo(() => {
-    const labelMap = kind === 'ideas' ? IDEA_STATUS_LABELS : kind === 'projects' ? PLAN_STATUS_LABELS : null;
-    if (!labelMap) {
-      const byType = {};
-      items.forEach(f => {
-        const ext = f.fileName?.split('.').pop()?.toUpperCase() || 'File';
-        byType[ext] = (byType[ext] || 0) + 1;
-      });
-      return Object.entries(byType).map(([label, count]) => ({ label, count, color: C.accent }));
-    }
-    return Object.entries(labelMap).map(([status, label]) => ({
-      label,
-      count: items.filter(i => i.status === status).length,
-      color: STATUS_COLORS[status] || C.fg3,
-    })).filter(g => g.count > 0);
-  }, [kind, items]);
-
-  if (groups.length === 0) return null;
-  const total = items.length;
-
+function SectionHeader({ kicker, title, actionLabel, onAction }) {
   return (
-    <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
-      {groups.map(g => (
-        <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ height: 6, borderRadius: 3, background: g.color, width: `${Math.max(8, (g.count / total) * 100)}%`, transition: 'width 300ms ease' }} />
-          </div>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: g.color, fontWeight: 700, minWidth: 18, textAlign: 'right' }}>{g.count}</span>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, minWidth: 72 }}>{g.label}</span>
-        </div>
-      ))}
+    <div className="dh-section-head">
+      <div>
+        {kicker && <span className="dh-section-kicker">{kicker}</span>}
+        <h2 className="dh-section-title">{title}</h2>
+      </div>
+      {actionLabel && (
+        <button onClick={onAction} className="dh-section-link">
+          {actionLabel}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="12" height="12" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      )}
     </div>
   );
 }
@@ -101,219 +121,253 @@ function StatBreakdown({ kind, items }) {
 export default function Dashboard({ onNavigate }) {
   const { ideas } = useIdeas();
   const { plans } = usePlans();
-  const [expandedStat, setExpandedStat] = useState(null);
+  const { files } = useFiles();
 
-  const recentIdeas = useMemo(() => ideas.slice(0, 5), [ideas]);
-  const recentProjects = useMemo(() => plans.slice(0, 3), [plans]);
+  const eligible = useMemo(() => plans.filter(p => p.eligibleForCalc), [plans]);
 
-  const stats = [
-    { key: 'ideas',     label: 'Ideas',     count: ideas.length, dest: 'ideas',     icon: ICON_IDEA, items: ideas },
-    { key: 'projects',  label: 'Projects',  count: plans.length, dest: 'projects',  icon: ICON_PLAN, items: plans },
-  ];
+  // Aggregate calc metrics across every eligible project. The engine is
+  // pure and fast (~milliseconds for ten years), so running it inline
+  // for the dashboard KPI strip is cheaper than pre-computing on save
+  // and keeps the tile values consistent with whatever the Calculations
+  // page would show right now.
+  const portfolio = useMemo(() => {
+    if (eligible.length === 0) {
+      return { revenue: 0, ebitda: 0, npv: 0, payback: null, count: 0 };
+    }
+    let revenue = 0, ebitda = 0, npv = 0;
+    const paybacks = [];
+    for (const p of eligible) {
+      const out = runCalc(loadCalcInput(p));
+      revenue += out.revenue || 0;
+      ebitda  += out.ebitda  || 0;
+      npv     += out.npv     || 0;
+      if (out.payback !== null && isFinite(out.payback)) paybacks.push(out.payback);
+    }
+    const avgPayback = paybacks.length
+      ? paybacks.reduce((a, b) => a + b, 0) / paybacks.length
+      : null;
+    return { revenue, ebitda, npv, payback: avgPayback, count: eligible.length };
+  }, [eligible]);
 
-  const handleStatClick = (s) => {
-    if (s.count === 0) { onNavigate(s.dest); return; }
-    setExpandedStat(prev => prev === s.key ? null : s.key);
-  };
+  const featuredIdeas   = useMemo(() => ideas.slice(0, 3), [ideas]);
+  const activeProjects  = useMemo(() => plans.filter(p => p.status === 'active' || !p.status).slice(0, 3), [plans]);
+  const recentDocuments = useMemo(() => files.slice(0, 4), [files]);
 
-  // Editorial date string for the hero eyebrow ("Today · May 3").
   const today = new Date();
-  const todayStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-  const eligibleCount = plans.filter(p => p.eligibleForCalc).length;
+  const todayStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="page-pad dashboard-redesign" style={{ background: C.bg0 }}>
+    <div className="dh-page" style={{ background: C.bg0 }}>
 
-      {/* Hero photo — brand visual anchor, kept as the magazine cover */}
-      <div className="hero-bleed" style={{ position: 'relative', background: '#2e2015' }}>
-        <img src={heroImg} alt="The New Beginnings" style={{ width: '100%', display: 'block' }} />
-      </div>
-
-      {/* ── Editorial intro band — matches the Calculations hero's voice
-          (eyebrow + Playfair title + italic tagline + meta strip) so the
-          dashboard reads as the same publication. ──────────────────── */}
-      <section className="dashboard-editorial">
-        <div className="dashboard-editorial-toolbar">
-          <span className="dashboard-editorial-eyebrow">Today · {todayStr}</span>
-          <div className="dashboard-editorial-actions">
-            <button onClick={() => onNavigate('new-idea')} className="dashboard-editorial-btn dashboard-editorial-btn-primary">
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      {/* ── Hero — full-bleed Godavari with editorial overlay ────────── */}
+      <section className="dh-hero">
+        <img src={heroImg} alt="Godavari river at dusk" className="dh-hero-img" />
+        <div className="dh-hero-veil" aria-hidden="true" />
+        <div className="dh-hero-content">
+          <span className="dh-hero-eyebrow">{todayStr}</span>
+          <h1 className="dh-hero-title">Welcome back.</h1>
+          <p className="dh-hero-tagline">Build with purpose. Grow with roots.</p>
+          <div className="dh-hero-meta">
+            <span><strong>{ideas.length}</strong> ideas</span>
+            <span className="dh-hero-meta-sep" />
+            <span><strong>{plans.length}</strong> projects</span>
+            {portfolio.count > 0 && <>
+              <span className="dh-hero-meta-sep" />
+              <span><strong>{portfolio.count}</strong> in calculation</span>
+            </>}
+          </div>
+          <div className="dh-hero-actions">
+            <button onClick={() => onNavigate('new-idea')} className="dh-btn dh-btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               New Idea
             </button>
-            <button onClick={() => onNavigate('new-project')} className="dashboard-editorial-btn dashboard-editorial-btn-secondary">
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <button onClick={() => onNavigate('new-project')} className="dh-btn dh-btn-secondary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               New Project
             </button>
           </div>
         </div>
-        <h1 className="dashboard-editorial-title">Welcome back.</h1>
-        <p className="dashboard-editorial-tagline">A fresh start. Endless possibilities.</p>
-        <div className="dashboard-editorial-meta">
-          <span><strong>{ideas.length}</strong> idea{ideas.length !== 1 ? 's' : ''}</span>
-          <span className="sep" />
-          <span><strong>{plans.length}</strong> project{plans.length !== 1 ? 's' : ''}</span>
-          {eligibleCount > 0 && <>
-            <span className="sep" />
-            <span><strong>{eligibleCount}</strong> ready to calculate</span>
-          </>}
-        </div>
       </section>
 
-      {/* Stats — click to expand breakdown, double-click or click again to navigate */}
-      <div className="stat-grid" style={{ marginBottom: 32 }}>
-        {stats.map(s => (
-          <div key={s.key} style={{ background: C.bg1, border: `1px solid ${expandedStat === s.key ? C.accent : C.border}`, borderRadius: 12, boxShadow: expandedStat === s.key ? `0 0 0 2px ${alpha(C.accent, 22)}` : '0 1px 4px rgba(0,0,0,0.05)', transition: 'border 150ms, box-shadow 150ms', overflow: 'hidden' }}>
-            <button onClick={() => handleStatClick(s)} className="stat-card"
-              style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px 14px 16px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-              <span className="stat-icon" style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
-                {s.icon}
-              </span>
-              <div style={{ flex: 1 }}>
-                <div className="stat-count" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, lineHeight: 1 }}>{s.count}</div>
-                <div className="stat-label" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 3, fontWeight: 500 }}>{s.label}</div>
-              </div>
-              <div className="stat-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="12" height="12" style={{ transform: expandedStat === s.key ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }}><polyline points="6 9 12 15 18 9"/></svg>
-                <button onClick={e => { e.stopPropagation(); onNavigate(s.dest); }}
-                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600, whiteSpace: 'nowrap' }}>
-                  View all →
-                </button>
-              </div>
-            </button>
-            {expandedStat === s.key && (
-              <div style={{ padding: '0 20px 14px 16px' }}>
-                <StatBreakdown kind={s.key} items={s.items} />
+      <div className="dh-container">
+
+        {/* ── KPI strip ────────────────────────────────────────────── */}
+        <div className="dh-kpi-strip">
+          <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"      value={ideas.length} />
+          <KpiTile icon={ICON_PROJECT}   label="Active Projects"  value={plans.length} />
+          <KpiTile icon={ICON_SPARKLE}   label="In Calculation"   value={portfolio.count} />
+          <KpiTile icon={ICON_RUPEE}     label="Est. Revenue / yr" value={fmtINR(portfolio.revenue)} hint="across portfolio" />
+          <KpiTile icon={ICON_GROWTH}    label="EBITDA / yr"      value={fmtINR(portfolio.ebitda)} hint="across portfolio" />
+          <KpiTile icon={ICON_NPV}       label="NPV"              value={fmtINR(portfolio.npv)} hint="net present value" />
+          <KpiTile icon={ICON_CLOCK}     label="Avg Payback"      value={fmtYears(portfolio.payback)} hint="across portfolio" />
+        </div>
+
+        {/* ── Three-column section: Featured / Active / Documents ─── */}
+        <div className="dh-three-col">
+
+          {/* Featured Ideas */}
+          <div>
+            <SectionHeader
+              kicker="Pipeline"
+              title="Featured Ideas"
+              actionLabel={ideas.length > 0 ? 'View all' : null}
+              onAction={() => onNavigate('ideas')}
+            />
+            {featuredIdeas.length === 0 ? (
+              <EmptyTile
+                copy="No ideas captured yet."
+                btn="+ New Idea"
+                onClick={() => onNavigate('new-idea')}
+              />
+            ) : (
+              <div className="dh-stack">
+                {featuredIdeas.map(idea => {
+                  const sc = STATUS_COLORS[idea.status] || C.fg3;
+                  return (
+                    <button key={idea.id} onClick={() => onNavigate('idea-detail', idea)} className="dh-card-row">
+                      <div className="dh-card-row-leaf" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M11 19c-7 0-7-9-7-9s5 0 7 4c2-4 7-4 7-4s0 9-7 9z"/><path d="M11 19v-7"/></svg>
+                      </div>
+                      <div className="dh-card-row-body">
+                        <div className="dh-card-row-title">{idea.title}</div>
+                        <div className="dh-card-row-meta">
+                          <span style={{ color: sc, fontWeight: 600 }}>
+                            <span className="dh-dot" style={{ background: sc }} />
+                            {IDEA_STATUS_LABELS[idea.status] || idea.status || 'Draft'}
+                          </span>
+                          {idea.estimatedCapex > 0 && <span className="dh-mono">{fmtINR(idea.estimatedCapex)}</span>}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
-        ))}
-      </div>
 
-      {/* Quick Actions */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 36, flexWrap: 'wrap' }}>
-        {QUICK_ACTIONS.map(q => (
-          <button key={q.label} onClick={() => onNavigate(q.dest)}
-            className="card-rich"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: q.primary ? 600 : 500,
-              color: q.primary ? '#fff' : C.fg2,
-              background: q.primary ? C.accent : C.bg1,
-              border: `1px solid ${q.primary ? 'transparent' : C.border}`,
-              borderRadius: 8, padding: '9px 16px', cursor: 'pointer',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = q.primary ? C.accentDim : C.bg2; }}
-            onMouseLeave={e => { e.currentTarget.style.background = q.primary ? C.accent : C.bg1; }}>
-            <span style={{ color: q.primary ? 'rgba(255,255,255,0.85)' : C.accent, display: 'flex' }}>{q.icon}</span>
-            {q.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Ideas Pipeline */}
-      <div style={{ marginBottom: 40 }}>
-        <SectionHeader
-          label="Ideas Pipeline"
-          actionLabel={ideas.length > 0 ? 'View all Ideas' : null}
-          onAction={() => onNavigate('ideas')}
-        />
-        {recentIdeas.length === 0 ? (
-          <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 10, padding: '36px 24px', textAlign: 'center' }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, marginBottom: 16 }}>
-              No ideas yet — capture your first venture idea.
-            </div>
-            <button onClick={() => onNavigate('new-idea')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '9px 20px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-              onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-              onMouseLeave={e => e.currentTarget.style.background = C.accent}>
-              + New Idea
-            </button>
-          </div>
-        ) : (
-          <div className="ideas-pipeline-scroll" style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 460 }}>
-              <thead>
-                <tr style={{ background: C.bg2, borderBottom: `1px solid ${C.border}` }}>
-                  {['IDEA', 'STAGE', 'COST EST.', 'PAYBACK'].map(h => (
-                    <th key={h} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', color: C.fg3, padding: '14px 14px 10px', textAlign: h === 'IDEA' ? 'left' : 'right', whiteSpace: 'nowrap' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentIdeas.map((idea, i) => {
-                  const sc = STATUS_COLORS[idea.status] || C.fg3;
+          {/* Active Projects */}
+          <div>
+            <SectionHeader
+              kicker="In motion"
+              title="Active Projects"
+              actionLabel={plans.length > 0 ? 'View all' : null}
+              onAction={() => onNavigate('projects')}
+            />
+            {activeProjects.length === 0 ? (
+              <EmptyTile
+                copy="No active projects."
+                btn="+ New Project"
+                onClick={() => onNavigate('new-project')}
+              />
+            ) : (
+              <div className="dh-stack">
+                {activeProjects.map(p => {
+                  const sc = STATUS_COLORS[p.status] || C.fg3;
                   return (
-                    <tr key={idea.id}
-                      style={{ borderBottom: i < recentIdeas.length - 1 ? `1px solid ${C.border}` : 'none', cursor: 'pointer', transition: 'background 120ms' }}
-                      onClick={() => onNavigate('idea-detail', idea)}
-                      onMouseEnter={e => e.currentTarget.style.background = C.bg2}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      <td style={{ padding: '10px 14px', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg1, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {idea.title}
-                      </td>
-                      <td style={{ padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: sc }}>
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc, flexShrink: 0 }} />
-                          {IDEA_STATUS_LABELS[idea.status] || idea.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 14px', textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600, color: C.fg1, whiteSpace: 'nowrap' }}>
-                        {fmtINR(idea.estimatedCapex)}
-                      </td>
-                      <td style={{ padding: '10px 14px', textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg2, whiteSpace: 'nowrap' }}>
-                        {idea.estimatedPayback ? `${idea.estimatedPayback}y` : '—'}
-                      </td>
-                    </tr>
+                    <button key={p.id} onClick={() => onNavigate('project-detail', p)} className="dh-card-row">
+                      <div className="dh-card-row-leaf dh-card-row-leaf-river" aria-hidden="true">
+                        {ICON_PROJECT}
+                      </div>
+                      <div className="dh-card-row-body">
+                        <div className="dh-card-row-title">{p.title}</div>
+                        <div className="dh-card-row-meta">
+                          <span style={{ color: sc, fontWeight: 600 }}>
+                            <span className="dh-dot" style={{ background: sc }} />
+                            {PLAN_STATUS_LABELS[p.status] || p.status || 'Active'}
+                          </span>
+                          {p.eligibleForCalc && (
+                            <span className="dh-tag">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="10" height="10" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+                              Calc-ready
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
                   );
                 })}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Recent Projects */}
-      {plans.length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <SectionHeader
-            label="Recent Projects"
-            actionLabel="View all Projects"
-            onAction={() => onNavigate('projects')}
-          />
-          <div className="grid-3">
-            {recentProjects.map(p => {
-              const sc = STATUS_COLORS[p.status] || C.fg3;
-              return (
-                <div key={p.id} role="button" tabIndex={0} className="card-rich"
-                  style={{ background: C.bg1, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.accent}`, borderRadius: 10, padding: '16px 18px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
-                  onClick={() => onNavigate('project-detail', p)}
-                  onKeyDown={e => e.key === 'Enter' && onNavigate('project-detail', p)}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 33)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>
-                      {ICON_PLAN}
-                    </span>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: sc }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc, flexShrink: 0 }} />
-                      {PLAN_STATUS_LABELS[p.status] || p.status}
-                    </span>
-                    {p.eligibleForCalc && (
-                      <span title="Eligible for Calculations"
-                        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: 4, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}` }}>
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="11" height="11"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{p.title}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: `1px solid ${C.border}`, marginTop: 'auto' }}>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3 }}>Updated {p.updated}</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, fontWeight: 600 }}>Open →</span>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Documents */}
+          <div>
+            <SectionHeader
+              kicker="Library"
+              title="Recent Documents"
+              actionLabel={files.length > 0 ? 'View all' : null}
+              onAction={() => onNavigate('documents')}
+            />
+            {recentDocuments.length === 0 ? (
+              <EmptyTile
+                copy="No documents uploaded."
+                btn="Upload Document"
+                onClick={() => onNavigate('documents')}
+              />
+            ) : (
+              <div className="dh-stack">
+                {recentDocuments.map(f => (
+                  <button key={f.id} onClick={() => onNavigate('document-detail', f)} className="dh-card-row">
+                    <div className="dh-card-row-leaf dh-card-row-leaf-gold" aria-hidden="true">
+                      {ICON_DOC}
+                    </div>
+                    <div className="dh-card-row-body">
+                      <div className="dh-card-row-title">{f.fileName || f.title || 'Untitled'}</div>
+                      <div className="dh-card-row-meta">
+                        <span className="dh-mono">{f.fileName?.split('.').pop()?.toUpperCase() || 'FILE'}</span>
+                        {f.uploadedAt && <span style={{ color: C.fg3 }}>{new Date(f.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      )}
+
+        {/* ── Closing tagline banner with palm-leaf flourishes ─────── */}
+        <section className="dh-closing">
+          <div className="dh-closing-leaf dh-closing-leaf-left" aria-hidden="true">
+            <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="80" height="80">
+              <path d="M40 70 C 40 40, 40 20, 40 10"/>
+              <path d="M40 60 C 25 55, 18 48, 10 42"/>
+              <path d="M40 50 C 25 45, 18 38, 10 32"/>
+              <path d="M40 40 C 28 35, 20 28, 14 22"/>
+              <path d="M40 30 C 30 25, 24 18, 20 12"/>
+              <path d="M40 60 C 55 55, 62 48, 70 42"/>
+              <path d="M40 50 C 55 45, 62 38, 70 32"/>
+              <path d="M40 40 C 52 35, 60 28, 66 22"/>
+              <path d="M40 30 C 50 25, 56 18, 60 12"/>
+            </svg>
+          </div>
+          <div className="dh-closing-leaf dh-closing-leaf-right" aria-hidden="true">
+            <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="80" height="80">
+              <path d="M40 70 C 40 40, 40 20, 40 10"/>
+              <path d="M40 60 C 25 55, 18 48, 10 42"/>
+              <path d="M40 50 C 25 45, 18 38, 10 32"/>
+              <path d="M40 40 C 28 35, 20 28, 14 22"/>
+              <path d="M40 30 C 30 25, 24 18, 20 12"/>
+              <path d="M40 60 C 55 55, 62 48, 70 42"/>
+              <path d="M40 50 C 55 45, 62 38, 70 32"/>
+              <path d="M40 40 C 52 35, 60 28, 66 22"/>
+              <path d="M40 30 C 50 25, 56 18, 60 12"/>
+            </svg>
+          </div>
+          <p className="dh-closing-script">A river nurtures every tree on its banks.</p>
+          <p className="dh-closing-script dh-closing-script-2">A plan nurtures every dream you build.</p>
+          <div className="dh-closing-rule" aria-hidden="true" />
+          <p className="dh-closing-credit">— The New Beginnings · Rajahmundry Ventures</p>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function EmptyTile({ copy, btn, onClick }) {
+  return (
+    <div className="dh-empty">
+      <div className="dh-empty-copy">{copy}</div>
+      <button onClick={onClick} className="dh-btn dh-btn-primary dh-empty-btn">{btn}</button>
     </div>
   );
 }

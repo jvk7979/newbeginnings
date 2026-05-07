@@ -25,8 +25,10 @@ const FileDetailPage  = lazy(() => import('./pages/FileDetailPage'));
 const AboutPage       = lazy(() => import('./pages/AboutPage'));
 const AccessPage      = lazy(() => import('./pages/AccessPage'));
 const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
+const ScenariosPage    = lazy(() => import('./pages/ScenariosPage'));
+const SettingsPage     = lazy(() => import('./pages/SettingsPage'));
 
-const LINKABLE = ['dashboard', 'ideas', 'projects', 'documents', 'about', 'access', 'calculations'];
+const LINKABLE = ['dashboard', 'ideas', 'projects', 'documents', 'about', 'access', 'calculations', 'scenarios', 'settings'];
 const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'document-detail'];
 
 const parseHash = () => {
@@ -244,6 +246,8 @@ export default function App() {
       case 'about':          return <AboutPage onNavigate={navigate} />;
       case 'access':         return <AccessPage onNavigate={navigate} />;
       case 'calculations':   return <CalculationsPage onNavigate={navigate} />;
+      case 'scenarios':      return <ScenariosPage onNavigate={navigate} />;
+      case 'settings':       return <SettingsPage />;
       default:               return <Dashboard onNavigate={navigate} />;
     }
   };
