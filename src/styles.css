@@ -3,6 +3,95 @@
  * `document.documentElement.dataset.theme = '<name>'`.
  * ───────────────────────────────────────────────────────────────────────── */
 
+/* ─────────── MODERN PALETTES — saturated single accent on near-white,
+   added 2026-05. Banker-readable, technical, high-contrast. Designed for
+   the financial workspace (KPI tiles, charts, DPR exports) where the
+   editorial cream-paper palettes felt dated. ─────────── */
+
+/* Quant — fintech blue · Stripe / Plaid feel · clean, technical */
+:root[data-theme="quant"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #F8FAFC;
+  --c-bg2: #F1F5F9;
+  --c-bg3: #E2E8F0;
+  --c-fg1: #0F172A;
+  --c-fg2: #475569;
+  --c-fg3: #94A3B8;
+  --c-accent: #2563EB;
+  --c-accent-light: #3B82F6;
+  --c-accent-dim: #1D4ED8;
+  --c-accent-bg: #EFF6FF;
+  --c-accent-rgb: 37 99 235;
+  --c-accent-dim-rgb: 29 78 216;
+  --c-border: #E2E8F0;
+  --c-border-light: #CBD5E1;
+  --c-success: #16A34A;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #D97706;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #2563EB;
+  --c-info-bg: #EFF6FF;
+}
+
+/* Forest — banking green · saturated emerald · conservative + readable */
+:root[data-theme="forest"] {
+  --c-bg0: #FAFAF7;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F0F1EC;
+  --c-bg3: #DDDFD6;
+  --c-fg1: #0A1F0E;
+  --c-fg2: #3F4F40;
+  --c-fg3: #6F8074;
+  --c-accent: #15803D;
+  --c-accent-light: #22C55E;
+  --c-accent-dim: #166534;
+  --c-accent-bg: #F0FDF4;
+  --c-accent-rgb: 21 128 61;
+  --c-accent-dim-rgb: 22 101 52;
+  --c-border: #E5E7E0;
+  --c-border-light: #C8CDC0;
+  --c-success: #16A34A;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1E40AF;
+  --c-info-bg: #EFF6FF;
+}
+
+/* Sapphire — banking gravitas · deep navy · WSJ / Goldman feel */
+:root[data-theme="sapphire"] {
+  --c-bg0: #FAFAF8;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #F4F4F0;
+  --c-bg3: #E0E0DA;
+  --c-fg1: #0C1442;
+  --c-fg2: #334155;
+  --c-fg3: #8B95AA;
+  --c-accent: #1E3A8A;
+  --c-accent-light: #2563EB;
+  --c-accent-dim: #172554;
+  --c-accent-bg: #EFF4FB;
+  --c-accent-rgb: 30 58 138;
+  --c-accent-dim-rgb: 23 37 84;
+  --c-border: #E5E7EB;
+  --c-border-light: #C8CDD8;
+  --c-success: #15803D;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #B45309;
+  --c-warning-bg: #FFFBEB;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #1E3A8A;
+  --c-info-bg: #EFF4FB;
+}
+
 /* Botanical — sage #5A7244 · warm cream #F4F0E8 · cards near-white — DEFAULT */
 :root,
 :root[data-theme="sage"] {
@@ -32,8 +121,10 @@
   --c-info-bg: #EBF2E4;
 }
 
-/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1 */
-:root[data-theme="forest"] {
+/* Saffron — warm oat Cloud Dancer base · amber terra #C2600A · WCAG 5.0:1
+   (was data-theme="forest" until 2026-05; renamed to free up "forest" for
+   the new banking-green palette below.) */
+:root[data-theme="saffron"] {
   --c-bg0: #FDFAF6;
   --c-bg1: #FAF3E8;
   --c-bg2: #F2E3C6;

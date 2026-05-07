@@ -1,8 +1,20 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 export const THEMES = [
+  // ── Modern palettes (added 2026-05) — saturated single accent on
+  // near-white. Designed for the financial workspace; surface first
+  // in the picker so they're discoverable.
+  { id: 'quant',    label: 'Quant',      mode: 'light', swatch: ['#FFFFFF', '#2563EB', '#F8FAFC'] },
+  { id: 'forest',   label: 'Forest',     mode: 'light', swatch: ['#FAFAF7', '#15803D', '#FFFFFF'] },
+  { id: 'sapphire', label: 'Sapphire',   mode: 'light', swatch: ['#FAFAF8', '#1E3A8A', '#FFFFFF'] },
+  // ── Editorial / earthy palettes (heritage; the previous default set).
+  // The id 'forest' previously belonged to the Saffron palette below;
+  // it was renamed to 'saffron' (matching its label) when the new
+  // green Forest palette claimed the slot. Existing users with
+  // 'forest' saved in localStorage will resolve to the new green
+  // Forest palette — a graceful break.
   { id: 'sage',     label: 'Botanical',  mode: 'light', swatch: ['#F4F0E8', '#5A7244', '#FDFCFA'] },
-  { id: 'forest',   label: 'Saffron',    mode: 'light', swatch: ['#FDFAF6', '#C2600A', '#FAF3E8'] },
+  { id: 'saffron',  label: 'Saffron',    mode: 'light', swatch: ['#FDFAF6', '#C2600A', '#FAF3E8'] },
   { id: 'meadow',   label: 'Meadow',     mode: 'light', swatch: ['#F0E7DA', '#4E6813', '#FAFAF7'] },
   { id: 'amber',    label: 'Amber Haze', mode: 'light', swatch: ['#FDF8EE', '#B45309', '#FFFFFF'] },
   { id: 'regalia',  label: 'Regalia',    mode: 'light', swatch: ['#FBF8F0', '#B8860B', '#FFFFFF'] },
