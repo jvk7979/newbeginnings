@@ -4782,13 +4782,44 @@ textarea:focus-visible,
   object-position: center 40%;
   display: block;
 }
-/* Mobile: shorter hero, image focal point shifted up so the river +
-   palms sit in frame instead of the sky-heavy top. Hero content
-   (title + buttons) is the priority on a small screen — the photo
-   reads as a header band, not a full magazine cover. */
+/* Mobile: the hero photo is panoramic (1916x821 ~ 2.33:1), so any
+   object-fit: cover at a portrait phone width crops most of the
+   river out. Restructure so the photo stays in its natural aspect
+   ratio at the top, full-bleed but uncropped, and the content
+   (eyebrow, title, tagline, meta, CTA buttons) stacks BELOW the
+   image on the coconut-cream background. */
 @media (max-width: 640px) {
-  .dh-hero { height: 320px; }
-  .dh-hero-img { object-position: center 55%; }
+  .dh-hero {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    background: var(--c-bg0);
+  }
+  .dh-hero-img {
+    position: static;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1916 / 821;
+    object-fit: contain;
+    object-position: center;
+  }
+  .dh-hero-veil { display: none; }
+  .dh-hero-content {
+    position: static;
+    padding: 18px 18px 24px;
+    color: var(--c-fg1);
+  }
+  .dh-hero-eyebrow { color: var(--c-h-gold); }
+  .dh-hero-title   { color: var(--c-fg1); font-size: 32px; }
+  .dh-hero-tagline { color: var(--c-fg2); }
+  .dh-hero-meta    { color: var(--c-fg2); }
+  .dh-hero-meta strong { color: var(--c-fg1); }
+  .dh-hero-meta-sep    { background: var(--c-fg3); }
+  .dh-btn-secondary {
+    background: var(--c-bg1);
+    color: var(--c-fg1);
+    border-color: var(--c-border);
+  }
 }
 .dh-hero-veil {
   position: absolute;
@@ -4814,8 +4845,7 @@ textarea:focus-visible,
   box-sizing: border-box;
 }
 @media (max-width: 640px) {
-  .dh-hero-content { padding: 20px 18px 22px; gap: 4px; }
-  .dh-hero-tagline { margin-bottom: 8px; }
+  .dh-hero-tagline { margin-bottom: 8px; font-size: 16px; }
   .dh-hero-meta    { margin-bottom: 12px; gap: 10px; font-size: 12px; }
   .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
 }
@@ -5085,10 +5115,18 @@ textarea:focus-visible,
   font-size: 14px;
   font-weight: 600;
   color: var(--c-fg1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.35;
   margin-bottom: 4px;
+  /* Long filenames (e.g. "Coconut Processing Plant Feasibility_ ...")
+     would otherwise be clipped on mobile by white-space: nowrap. Wrap
+     to a maximum of two lines with an ellipsis on overflow so the
+     card height stays bounded. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .dh-card-row-meta {
   display: flex;
@@ -5180,11 +5218,15 @@ textarea:focus-visible,
 }
 .dh-closing-script {
   font-family: 'Pinyon Script', 'Playfair Display', Georgia, serif;
-  font-size: clamp(28px, 4.4vw, 44px);
+  font-size: clamp(22px, 4.4vw, 44px);
   font-weight: 400;
   color: var(--c-accent);
-  line-height: 1.15;
+  line-height: 1.25;
   margin: 0;
+  word-break: break-word;
+}
+@media (max-width: 640px) {
+  .dh-closing-script { font-size: 22px; }
 }
 .dh-closing-script-2 { color: var(--c-h-gold); margin-top: 4px; }
 .dh-closing-rule {
