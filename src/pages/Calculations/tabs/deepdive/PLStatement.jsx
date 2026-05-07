@@ -19,9 +19,10 @@ export default function PLStatement({ calc, input }) {
 
   // Each entry: [label, detail, amount, options]
   // options: { bold, subtotal (hairline above), positive, negative, indent }
+  const y1CapacityPct = (y1.capacityPct ?? 0).toFixed(0);
   const lines = [
-    { label: 'Revenue',          term: null,                  detail: 'Σ price × qty × Y1 capacity',          amount: y1.revenue,          positive: true },
-    { label: 'Variable Costs',   term: 'Variable Costs',      detail: 'Σ raw material × qty × Y1 capacity',   amount: -y1.variableCosts,   indent: true,  negative: true },
+    { label: 'Revenue',          term: null,                  detail: `Σ price × qty × ${y1CapacityPct}% capacity`,          amount: y1.revenue,          positive: true },
+    { label: 'Variable Costs',   term: 'Variable Costs',      detail: `Σ raw material × qty × ${y1CapacityPct}% capacity`,   amount: -y1.variableCosts,   indent: true,  negative: true },
     { label: 'Gross Profit',     term: 'Gross Profit',        detail: `${grossMargin.toFixed(1)}% gross margin`, amount: grossProfit,       subtotal: true, bold: true },
 
     // Engine excludes disabled fixed rows from EBITDA — keep these

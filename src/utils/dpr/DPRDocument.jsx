@@ -537,8 +537,12 @@ function MeansOfFinance({ finance }) {
 }
 
 function PLStatementSection({ plStatement }) {
+  // wrap is left ON (default): the line list grows with the user's
+  // fixedRows count, so projects with many fixed-cost categories can
+  // legitimately exceed a single page. Letting the section wrap means
+  // it'll spill onto the next page cleanly instead of clipping.
   return (
-    <View style={styles.section} wrap={false}>
+    <View style={styles.section}>
       <Text style={styles.sectionEyebrow}>SECTION 4</Text>
       <Text style={styles.sectionTitle}>Year-1 P&amp;L Statement</Text>
       <Text style={styles.sectionLead}>
@@ -636,8 +640,11 @@ function ProjectionSection({ projection }) {
 function LoanScheduleSection({ loanSchedule, loanTotals }) {
   if (!loanSchedule || loanSchedule.length === 0) return null;
   const showSubvention = loanTotals.totalSubvention > 0;
+  // wrap is left ON (default): tenure can be up to 20 years, which
+  // doesn't fit on a single page once the section header + totals row
+  // are accounted for. Wrapping lets the table flow across pages.
   return (
-    <View style={styles.section} wrap={false}>
+    <View style={styles.section}>
       <Text style={styles.sectionEyebrow}>SECTION 6</Text>
       <Text style={styles.sectionTitle}>Loan Amortisation Schedule</Text>
       <Text style={styles.sectionLead}>

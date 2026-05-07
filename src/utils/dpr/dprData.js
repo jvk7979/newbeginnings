@@ -164,7 +164,7 @@ export function buildDPRData({ input, calc, project }) {
   const taxRate = Number(input.taxRate || 25);
   const plStatement = [
     { label: 'Revenue',           amount: y1.revenue || 0,              detail: `Σ price × qty × ${(y1.capacityPct ?? 0).toFixed(0)}% capacity` },
-    { label: 'Less: Variable Costs', amount: -(y1.variableCosts || 0),  detail: 'Σ raw material × qty × Y1 capacity', indent: true },
+    { label: 'Less: Variable Costs', amount: -(y1.variableCosts || 0),  detail: `Σ raw material × qty × ${(y1.capacityPct ?? 0).toFixed(0)}% capacity`, indent: true },
     { label: 'Gross Profit',      amount: grossProfit,                  detail: `${y1.revenue ? ((grossProfit / y1.revenue) * 100).toFixed(1) : 0}% gross margin`, subtotal: true },
     ...fixedCosts.map(f => ({ label: `Less: ${f.name}`, amount: -f.annualValue, detail: 'Annual fixed cost', indent: true })),
     { label: 'EBITDA',            amount: y1.ebitda || 0,               detail: `${y1.revenue ? ((y1.ebitda / y1.revenue) * 100).toFixed(1) : 0}% EBITDA margin`, subtotal: true },
