@@ -4766,61 +4766,28 @@ textarea:focus-visible,
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────── */
+/* The Godavari photo is panoramic (1916x821, ~2.33:1). Rather than
+   crop it with object-fit: cover behind a gradient veil — which
+   washed out the image on every viewport — display the photo at its
+   native aspect ratio at the top, full-bleed but uncropped, and
+   stack the editorial content (eyebrow, title, tagline, meta,
+   CTA buttons) BELOW it on the coconut-cream background. */
 .dh-hero {
   position: relative;
   width: 100%;
-  height: clamp(360px, 48vh, 520px);
-  overflow: hidden;
-  background: #2d2a26;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-bg0);
 }
 .dh-hero-img {
-  position: absolute;
-  inset: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 40%;
+  height: auto;
+  aspect-ratio: 1916 / 821;
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
-/* Mobile: the hero photo is panoramic (1916x821 ~ 2.33:1), so any
-   object-fit: cover at a portrait phone width crops most of the
-   river out. Restructure so the photo stays in its natural aspect
-   ratio at the top, full-bleed but uncropped, and the content
-   (eyebrow, title, tagline, meta, CTA buttons) stacks BELOW the
-   image on the coconut-cream background. */
-@media (max-width: 640px) {
-  .dh-hero {
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    background: var(--c-bg0);
-  }
-  .dh-hero-img {
-    position: static;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1916 / 821;
-    object-fit: contain;
-    object-position: center;
-  }
-  .dh-hero-veil { display: none; }
-  .dh-hero-content {
-    position: static;
-    padding: 18px 18px 24px;
-    color: var(--c-fg1);
-  }
-  .dh-hero-eyebrow { color: var(--c-h-gold); }
-  .dh-hero-title   { color: var(--c-fg1); font-size: 32px; }
-  .dh-hero-tagline { color: var(--c-fg2); }
-  .dh-hero-meta    { color: var(--c-fg2); }
-  .dh-hero-meta strong { color: var(--c-fg1); }
-  .dh-hero-meta-sep    { background: var(--c-fg3); }
-  .dh-btn-secondary {
-    background: var(--c-bg1);
-    color: var(--c-fg1);
-    border-color: var(--c-border);
-  }
-}
+.dh-hero-veil { display: none; }
 .dh-hero-veil {
   position: absolute;
   inset: 0;
@@ -4832,10 +4799,8 @@ textarea:focus-visible,
   );
 }
 .dh-hero-content {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 36px clamp(20px, 5vw, 56px);
-  color: #fdfaf2;
+  position: static;
+  padding: 28px clamp(20px, 5vw, 56px) 32px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -4843,11 +4808,14 @@ textarea:focus-visible,
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  color: var(--c-fg1);
 }
 @media (max-width: 640px) {
+  .dh-hero-content { padding: 18px 18px 24px; gap: 4px; }
   .dh-hero-tagline { margin-bottom: 8px; font-size: 16px; }
   .dh-hero-meta    { margin-bottom: 12px; gap: 10px; font-size: 12px; }
   .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
+  .dh-hero-title   { font-size: 32px; }
 }
 .dh-hero-eyebrow {
   font-family: 'DM Sans', sans-serif;
@@ -4855,7 +4823,7 @@ textarea:focus-visible,
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--c-h-gold-light);
+  color: var(--c-h-gold);
   margin-bottom: 4px;
 }
 .dh-hero-title {
@@ -4865,14 +4833,14 @@ textarea:focus-visible,
   letter-spacing: -0.02em;
   line-height: 1.05;
   margin: 0;
-  color: #fdfaf2;
+  color: var(--c-fg1);
 }
 .dh-hero-tagline {
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: clamp(18px, 2.4vw, 24px);
   font-weight: 500;
-  color: rgba(253, 250, 242, 0.92);
+  color: var(--c-fg2);
   margin: 2px 0 14px;
   letter-spacing: 0.01em;
 }
@@ -4882,17 +4850,17 @@ textarea:focus-visible,
   gap: 14px;
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
-  color: rgba(253, 250, 242, 0.86);
+  color: var(--c-fg2);
   flex-wrap: wrap;
   margin-bottom: 18px;
 }
 .dh-hero-meta strong {
   font-weight: 700;
-  color: #fdfaf2;
+  color: var(--c-fg1);
 }
 .dh-hero-meta-sep {
   width: 4px; height: 4px; border-radius: 50%;
-  background: rgba(253, 250, 242, 0.45);
+  background: var(--c-fg3);
   display: inline-block;
 }
 .dh-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -4915,11 +4883,11 @@ textarea:focus-visible,
 .dh-btn-primary { background: var(--c-accent); color: #fff; }
 .dh-btn-primary:hover { background: var(--c-accent-dim); }
 .dh-btn-secondary {
-  background: rgba(253, 250, 242, 0.94);
+  background: var(--c-bg1);
   color: var(--c-fg1);
-  border-color: rgba(253, 250, 242, 0.94);
+  border-color: var(--c-border);
 }
-.dh-btn-secondary:hover { background: var(--c-h-gold-bg); border-color: var(--c-h-gold-bg); }
+.dh-btn-secondary:hover { background: var(--c-h-gold-bg); border-color: var(--c-h-gold); }
 
 /* ── Container ────────────────────────────────────────────────────── */
 .dh-container {
