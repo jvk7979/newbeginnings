@@ -100,33 +100,35 @@ export default function Dashboard({ onNavigate }) {
   return (
     <div className="dh-page" style={{ background: C.bg0 }}>
 
-      {/* ── Hero — full-bleed Godavari with editorial overlay ────────── */}
+      {/* ── Hero — editorial split: content left, photo right.
+            Stacks on mobile (photo on top, content below). ──────────── */}
       <section className="dh-hero">
-        <img src={heroImg} alt="Godavari river at dusk" className="dh-hero-img" />
-        <div className="dh-hero-veil" aria-hidden="true" />
-        <div className="dh-hero-content">
-          <span className="dh-hero-eyebrow">{todayStr}</span>
-          <h1 className="dh-hero-title">Welcome back.</h1>
-          <p className="dh-hero-tagline">Build with purpose. Grow with roots.</p>
-          <div className="dh-hero-meta">
-            <span><strong>{ideas.length}</strong> ideas</span>
-            <span className="dh-hero-meta-sep" />
-            <span><strong>{plans.length}</strong> projects</span>
-            {eligibleCount > 0 && <>
+        <div className="dh-hero-inner">
+          <div className="dh-hero-content">
+            <span className="dh-hero-eyebrow">{todayStr}</span>
+            <h1 className="dh-hero-title">Welcome back.</h1>
+            <p className="dh-hero-tagline">Build with purpose. Grow with roots.</p>
+            <div className="dh-hero-meta">
+              <span><strong>{ideas.length}</strong> ideas</span>
               <span className="dh-hero-meta-sep" />
-              <span><strong>{eligibleCount}</strong> in calculation</span>
-            </>}
+              <span><strong>{plans.length}</strong> projects</span>
+              {eligibleCount > 0 && <>
+                <span className="dh-hero-meta-sep" />
+                <span><strong>{eligibleCount}</strong> in calculation</span>
+              </>}
+            </div>
+            <div className="dh-hero-actions">
+              <button onClick={() => onNavigate('new-idea')} className="dh-btn dh-btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Idea
+              </button>
+              <button onClick={() => onNavigate('new-project')} className="dh-btn dh-btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Project
+              </button>
+            </div>
           </div>
-          <div className="dh-hero-actions">
-            <button onClick={() => onNavigate('new-idea')} className="dh-btn dh-btn-primary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              New Idea
-            </button>
-            <button onClick={() => onNavigate('new-project')} className="dh-btn dh-btn-secondary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              New Project
-            </button>
-          </div>
+          <img src={heroImg} alt="Godavari river at dusk" className="dh-hero-img" />
         </div>
       </section>
 

@@ -4766,30 +4766,53 @@ textarea:focus-visible,
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────── */
-/* The Godavari photo is panoramic (1916x821, ~2.33:1). Rather than
-   crop it with object-fit: cover behind a gradient veil — which
-   washed out the image on every viewport — display the photo at its
-   native aspect ratio at the top, full-bleed but uncropped, and
-   stack the editorial content (eyebrow, title, tagline, meta,
-   CTA buttons) BELOW it on the coconut-cream background. */
+/* Editorial split: content on the left, panoramic Godavari photo on
+   the right, both vertically centred inside a shared 1200px content
+   container. On mobile the grid collapses to one column with the
+   photo on top and content below — same coconut-cream background,
+   same dark heritage-token text. The photo always shows in its
+   native 1916x821 aspect ratio (object-fit: contain) so it never
+   gets cropped. */
 .dh-hero {
-  position: relative;
   width: 100%;
-  display: flex;
-  flex-direction: column;
   background: var(--c-bg0);
+  padding: 36px 0 28px;
 }
+.dh-hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 56px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-areas: "content image";
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+  box-sizing: border-box;
+}
+.dh-hero-content { grid-area: content; }
 .dh-hero-img {
+  grid-area: image;
   display: block;
   width: 100%;
-  max-width: 960px;       /* cap on big screens so the photo doesn't dominate */
   height: auto;
   aspect-ratio: 1916 / 821;
   object-fit: contain;
   object-position: center;
-  margin: 0 auto;         /* centred with cream gutters either side on wide viewports */
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(45, 42, 38, 0.10);
 }
 .dh-hero-veil { display: none; }
+@media (max-width: 768px) {
+  .dh-hero { padding: 0 0 22px; }
+  .dh-hero-inner {
+    grid-template-columns: 1fr;
+    grid-template-areas: "image" "content";
+    gap: 18px;
+    padding: 0;
+  }
+  .dh-hero-img { border-radius: 0; box-shadow: none; }
+  .dh-hero-content { padding: 0 18px; }
+}
 .dh-hero-veil {
   position: absolute;
   inset: 0;
@@ -4801,19 +4824,14 @@ textarea:focus-visible,
   );
 }
 .dh-hero-content {
-  position: static;
-  padding: 28px clamp(20px, 5vw, 56px) 32px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 1200px;
-  margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
   color: var(--c-fg1);
 }
 @media (max-width: 640px) {
-  .dh-hero-content { padding: 18px 18px 24px; gap: 4px; }
   .dh-hero-tagline { margin-bottom: 8px; font-size: 16px; }
   .dh-hero-meta    { margin-bottom: 12px; gap: 10px; font-size: 12px; }
   .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
