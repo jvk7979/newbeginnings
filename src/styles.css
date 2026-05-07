@@ -4780,12 +4780,14 @@ textarea:focus-visible,
   background: var(--c-bg0);
 }
 .dh-hero-img {
+  display: block;
   width: 100%;
+  max-width: 960px;       /* cap on big screens so the photo doesn't dominate */
   height: auto;
   aspect-ratio: 1916 / 821;
   object-fit: contain;
   object-position: center;
-  display: block;
+  margin: 0 auto;         /* centred with cream gutters either side on wide viewports */
 }
 .dh-hero-veil { display: none; }
 .dh-hero-veil {
