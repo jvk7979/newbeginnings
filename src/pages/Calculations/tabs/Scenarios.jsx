@@ -68,29 +68,48 @@ export default function Scenarios({ projectId, currentInput, currentCalc, loadSc
     });
   };
 
+  // Memoise per-scenario calc results once per scenarios array. The
+  // KPI strip on each card AND the compare set both consume these
+  // results — without the memo, every keystroke in the snapshot-name
+  // input would re-run runCalc once per saved scenario (10 scenarios
+  // × every typed char = 10 redundant runCalcs per keystroke).
+  const scenarioCalcs = useMemo(() =>
+    scenarios.map(s => ({
+      ...s,
+      calc: runCalc({ ...DEFAULT_CALC_INPUT, ...s.input }),
+    })),
+  [scenarios]);
+
   // Build the compare set: always include "Current" first; selected
   // saved snapshots after. Compare panel only renders when ≥ 2 columns.
   const compareSet = useMemo(() => {
     const list = [
       { id: 'current', name: 'Current', calc: currentCalc },
-      ...scenarios.filter(s => selected.has(s.id)).map(s => ({
+      ...scenarioCalcs.filter(s => selected.has(s.id)).map(s => ({
         id: s.id,
         name: s.name,
-        calc: runCalc({ ...DEFAULT_CALC_INPUT, ...s.input }),
+        calc: s.calc,
       })),
     ];
     return list.length >= 2 ? list : null;
-  }, [scenarios, selected, currentCalc]);
+  }, [scenarioCalcs, selected, currentCalc]);
 
   // Per-metric winner index (so the compare table can highlight the best
-  // value in each row).
+  // value in each row). When all scenarios tie (e.g., all have null
+  // IRR → all scores === −Infinity), no winner is highlighted instead
+  // of falsely highlighting the first column.
   const winners = useMemo(() => {
     if (!compareSet) return {};
     const map = {};
     COMPARE_METRICS.forEach(m => {
       const scores = compareSet.map(c => m.score(c.calc));
+      const allSame = scores.every(s => s === scores[0]);
+      if (allSame || !isFinite(scores[0])) {
+        map[m.key] = -1;
+        return;
+      }
       const bestScore = m.higherWins ? Math.max(...scores) : Math.min(...scores);
-      map[m.key] = scores.map((s, i) => s === bestScore ? i : -1).find(i => i !== -1);
+      map[m.key] = scores.findIndex(s => s === bestScore);
     });
     return map;
   }, [compareSet]);
@@ -127,8 +146,8 @@ export default function Scenarios({ projectId, currentInput, currentCalc, loadSc
         </div>
       ) : (
         <div className="calc-scenarios-list">
-          {scenarios.map(s => {
-            const sCalc = runCalc({ ...DEFAULT_CALC_INPUT, ...s.input });
+          {scenarioCalcs.map(s => {
+            const sCalc = s.calc;
             const irrText = sCalc.irr !== null ? `${sCalc.irr.toFixed(1)}%` : '—';
             const paybackText = sCalc.payback !== null ? `${sCalc.payback}y` : '—';
             return (
