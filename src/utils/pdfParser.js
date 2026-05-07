@@ -1,5 +1,8 @@
-// Evaluated at build time — Vite copies the worker asset
-export const PDF_WORKER_SRC = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).href;
+// Evaluated at build time — Vite copies the worker asset.
+// pdfjs-dist 4.x renamed the worker bundle from .min.js (CJS) to
+// .min.mjs (ES module). Bumped from 3.11.174 to ^4.7.76 to patch
+// CVE-2024-4367 (arbitrary JS execution via crafted PDF font).
+export const PDF_WORKER_SRC = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href;
 
 function isTableRow(line) {
   return /^\|.+\|/.test(line);
