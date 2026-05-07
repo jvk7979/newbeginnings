@@ -7,9 +7,9 @@ import heroImg from '../assets/hero_godavari.png';
 // Heritage Dashboard. Designed around the Godavari hero photo as the
 // magazine cover — coconut cream surfaces, deep coconut green accents,
 // terracotta KPI icons, gold dividers, calligraphic Pinyon Script
-// flourishes for the brand voice. The hero, KPI strip, and three-
-// column body re-use the editorial structure the rest of the app
-// has settled on.
+// flourishes for the brand voice. Hero shows full-bleed with no overlay
+// strip; the KPI strip sits BELOW the hero so the photo is fully
+// visible, then the three-column body and closing tagline banner.
 //
 // KPI metrics (Revenue / EBITDA / NPV / Payback) are aggregated by
 // running the calc engine across every project where eligibleForCalc
@@ -124,6 +124,7 @@ export default function Dashboard({ onNavigate }) {
   const { files } = useFiles();
 
   const eligible = useMemo(() => plans.filter(p => p.eligibleForCalc), [plans]);
+  const eligibleCount = eligible.length;
 
   // Aggregate calc metrics across every eligible project. The engine is
   // pure and fast (~milliseconds for ten years), so running it inline
@@ -171,9 +172,9 @@ export default function Dashboard({ onNavigate }) {
             <span><strong>{ideas.length}</strong> ideas</span>
             <span className="dh-hero-meta-sep" />
             <span><strong>{plans.length}</strong> projects</span>
-            {portfolio.count > 0 && <>
+            {eligibleCount > 0 && <>
               <span className="dh-hero-meta-sep" />
-              <span><strong>{portfolio.count}</strong> in calculation</span>
+              <span><strong>{eligibleCount}</strong> in calculation</span>
             </>}
           </div>
           <div className="dh-hero-actions">
@@ -189,17 +190,17 @@ export default function Dashboard({ onNavigate }) {
         </div>
       </section>
 
-      <div className="dh-container">
+      <div className="dh-container dh-container-pad">
 
-        {/* ── KPI strip ────────────────────────────────────────────── */}
+        {/* ── KPI strip — sits BELOW the hero so the photo is fully visible. */}
         <div className="dh-kpi-strip">
-          <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"      value={ideas.length} />
-          <KpiTile icon={ICON_PROJECT}   label="Active Projects"  value={plans.length} />
-          <KpiTile icon={ICON_SPARKLE}   label="In Calculation"   value={portfolio.count} />
+          <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"       value={ideas.length} />
+          <KpiTile icon={ICON_PROJECT}   label="Active Projects"   value={plans.length} />
+          <KpiTile icon={ICON_SPARKLE}   label="In Calculation"    value={portfolio.count} />
           <KpiTile icon={ICON_RUPEE}     label="Est. Revenue / yr" value={fmtINR(portfolio.revenue)} hint="across portfolio" />
-          <KpiTile icon={ICON_GROWTH}    label="EBITDA / yr"      value={fmtINR(portfolio.ebitda)} hint="across portfolio" />
-          <KpiTile icon={ICON_NPV}       label="NPV"              value={fmtINR(portfolio.npv)} hint="net present value" />
-          <KpiTile icon={ICON_CLOCK}     label="Avg Payback"      value={fmtYears(portfolio.payback)} hint="across portfolio" />
+          <KpiTile icon={ICON_GROWTH}    label="EBITDA / yr"       value={fmtINR(portfolio.ebitda)} hint="across portfolio" />
+          <KpiTile icon={ICON_NPV}       label="NPV"               value={fmtINR(portfolio.npv)} hint="net present value" />
+          <KpiTile icon={ICON_CLOCK}     label="Avg Payback"       value={fmtYears(portfolio.payback)} hint="across portfolio" />
         </div>
 
         {/* ── Three-column section: Featured / Active / Documents ─── */}
@@ -353,6 +354,7 @@ export default function Dashboard({ onNavigate }) {
               <path d="M40 30 C 50 25, 56 18, 60 12"/>
             </svg>
           </div>
+          <p className="dh-closing-intro">A fresh start. Endless possibilities.</p>
           <p className="dh-closing-script">A river nurtures every tree on its banks.</p>
           <p className="dh-closing-script dh-closing-script-2">A plan nurtures every dream you build.</p>
           <div className="dh-closing-rule" aria-hidden="true" />
