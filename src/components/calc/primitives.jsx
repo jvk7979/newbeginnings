@@ -26,6 +26,23 @@ export function fmtINR(n) {
   return `${sign}₹${abs.toFixed(0)}`;
 }
 
+// Compact chart-axis formatter — strips the ₹ prefix and trims decimals
+// so labels fit above bars without colliding. Used by the bar / waterfall
+// / amortisation charts where the axis context implies "this is rupees".
+// Examples:
+//   1,40,00,000 → "1.4Cr"
+//      76,30,000 → "76L"
+//        2,500   → "3K"
+export function fmtShort(n) {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  const sign = n < 0 ? '-' : '';
+  const abs = Math.abs(n);
+  if (abs >= 10000000) return `${sign}${(abs / 10000000).toFixed(1)}Cr`;
+  if (abs >= 100000)   return `${sign}${Math.round(abs / 100000)}L`;
+  if (abs >= 1000)     return `${sign}${Math.round(abs / 1000)}K`;
+  return `${sign}${Math.round(abs)}`;
+}
+
 // Editorial assumption group — hairline-separated typographic block instead
 // of the previous heavy bordered card. Header shows label + summary chip +
 // chevron; body uses CSS grid-rows transition for animated collapse.

@@ -1,20 +1,5 @@
 import { C } from '../../tokens';
-
-// Chart-local short formatter — strips the ₹ prefix and trims decimals so
-// labels fit above each bar without colliding. The big fmtINR is reserved
-// for tiles + footers where the axis context isn't there. Examples:
-//   1,40,00,000 → "1.4Cr"
-//      76,30,000 → "76L"
-//        2,500   → "3K"
-function fmtShort(n) {
-  if (n === null || n === undefined || !isFinite(n)) return '—';
-  const sign = n < 0 ? '-' : '';
-  const abs = Math.abs(n);
-  if (abs >= 10000000) return `${sign}${(abs / 10000000).toFixed(1)}Cr`;
-  if (abs >= 100000)   return `${sign}${Math.round(abs / 100000)}L`;
-  if (abs >= 1000)     return `${sign}${Math.round(abs / 1000)}K`;
-  return `${sign}${Math.round(abs)}`;
-}
+import { fmtShort } from './primitives';
 
 // Twin-bar chart: Revenue (accent) + EBITDA (green if positive, red if
 // negative) for each year. Pure SVG, no chart library. Defaults to the
