@@ -24,7 +24,12 @@ export default function PLStatement({ calc, input }) {
     { label: 'Variable Costs',   term: 'Variable Costs',      detail: 'Σ raw material × qty × Y1 capacity',   amount: -y1.variableCosts,   indent: true,  negative: true },
     { label: 'Gross Profit',     term: 'Gross Profit',        detail: `${grossMargin.toFixed(1)}% gross margin`, amount: grossProfit,       subtotal: true, bold: true },
 
-    ...input.fixedRows.filter(r => Number(r.amount) > 0).map(r => ({
+    // Engine excludes disabled fixed rows from EBITDA — keep these
+    // line items in lockstep so the statement reconciles to the EBITDA
+    // total below. Without this filter, a disabled row would render
+    // as a deduction in the table while the EBITDA value below would
+    // (correctly) ignore it, breaking the chain.
+    ...input.fixedRows.filter(r => r.enabled !== false && Number(r.amount) > 0).map(r => ({
       label: r.name || 'Fixed Cost',
       term: 'Fixed Costs',
       detail: 'Annual fixed expense',
