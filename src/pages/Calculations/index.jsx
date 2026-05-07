@@ -75,10 +75,15 @@ export default function CalculationsPage({ onNavigate }) {
     setInput(next);
   }, [selectedProject?.id]);
 
-  const setI = (patch) => setInput(prev => ({ ...prev, ...patch }));
-  const setRow = (field, id, k, v) => setInput(prev => ({ ...prev, [field]: prev[field].map(r => r.id === id ? { ...r, [k]: v } : r) }));
-  const addRow = (field, blank) => setInput(prev => ({ ...prev, [field]: [...prev[field], { id: Date.now(), ...blank }] }));
-  const delRow = (field, id) => setInput(prev => ({ ...prev, [field]: prev[field].filter(r => r.id !== id) }));
+  // Stable setter identities. Without useCallback these would be new
+  // function refs every render, cascading re-renders into all 9
+  // sub-tabs that consume them and breaking any future React.memo
+  // boundaries downstream. setInput from useState is itself stable,
+  // so the dep arrays are empty.
+  const setI   = useCallback((patch)               => setInput(prev => ({ ...prev, ...patch })),                                                                                          []);
+  const setRow = useCallback((field, id, k, v)     => setInput(prev => ({ ...prev, [field]: prev[field].map(r => r.id === id ? { ...r, [k]: v } : r) })),                                 []);
+  const addRow = useCallback((field, blank)        => setInput(prev => ({ ...prev, [field]: [...prev[field], { id: Date.now(), ...blank }] })),                                           []);
+  const delRow = useCallback((field, id)           => setInput(prev => ({ ...prev, [field]: prev[field].filter(r => r.id !== id) })),                                                     []);
 
   // Replace the entire input with a saved scenario's snapshot. Layered
   // over DEFAULT_CALC_INPUT so a snapshot saved before a new field
