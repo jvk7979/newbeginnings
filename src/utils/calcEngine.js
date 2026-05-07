@@ -102,12 +102,20 @@ export function runCalc(input) {
   const debt   = num(debtPct);
   const loan            = effectiveCapex * (debt / 100);
   const equity          = effectiveCapex * ((100 - debt) / 100);
-  const tenureN  = Math.max(1, num(tenure));
+  // Hard upper bounds on the year-loop drivers — protects against a
+  // crafted localStorage scenario or a corrupted snapshot setting
+  // lifetime/tenure to a huge value, which would freeze the tab when
+  // Heatmap (49×runCalc) or Goal Seek (200×runCalc) re-runs the engine
+  // many times. UI already clamps these in the rail, but Scenarios
+  // load passes raw input through.
+  const tenureN  = Math.max(1, Math.min(50, num(tenure)));
   const annualPrincipal = loan / tenureN;
 
   const capCeilFrac = Math.max(0, Math.min(100, num(capacityCeilingPct))) / 100;
   const capY1Frac   = Math.max(0, Math.min(100, num(capacityY1Pct)))      / 100;
-  const capRampFrac = num(capacityRampPct) / 100;
+  // Ramp must be non-negative — engine docs say "ramp UP", and a
+  // negative would invert the formula (capacity decreases over time).
+  const capRampFrac = Math.max(0, num(capacityRampPct)) / 100;
 
   // Steady-state capacity for the top-level KPIs (Annual Revenue card,
   // Revenue Composition donut, Working Capital). Per-year ramp is applied
@@ -139,7 +147,8 @@ export function runCalc(input) {
     ? (fixedCosts / (fullRevenue - fullVariableCosts)) * 100
     : null;
 
-  const lifetimeN = Math.max(1, num(lifetime));
+  // Capped at 50 — see tenureN clamp above for rationale.
+  const lifetimeN = Math.max(1, Math.min(50, num(lifetime)));
   const interestN = num(interestRate);
 
   const subventionPct  = num(interestSubventionPct) / 100;
