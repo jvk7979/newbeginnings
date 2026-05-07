@@ -93,27 +93,32 @@ export default function Heatmap({ input, calc }) {
   const yAxis = AXES.find(a => a.key === yKey) || AXES[1];
   const metric = METRICS.find(m => m.key === metricKey) || METRICS[0];
 
-  // Resolve patch fns for multiplier axes (need closure over input)
-  const resolvePatch = (axis) => {
-    if (axis.key === 'salePriceMult') {
-      return (v) => ({
-        revenueRows: input.revenueRows.map(r => ({ ...r, price: Number(r.price || 0) * v })),
-      });
-    }
-    if (axis.key === 'varCostMult') {
-      return (v) => ({
-        varRows: input.varRows.map(r => ({ ...r, price: Number(r.price || 0) * v })),
-      });
-    }
-    return axis.patch;
-  };
-
-  const xPatch = resolvePatch(xAxis);
-  const yPatch = resolvePatch(yAxis);
-
-  // Build the grid + scores + min/max for normalisation. useMemo so we
-  // only re-run runCalc when an axis or the input changes.
+  // Build the grid + scores + min/max for normalisation. resolvePatch
+  // and the per-axis patch closures are constructed INSIDE the useMemo
+  // so they don't churn the cache. Previously xPatch/yPatch were
+  // declared at component scope and listed in the deps array — but
+  // they were new function references every render, so the useMemo
+  // never hit its cache and re-ran all 49 runCalc calls on every
+  // unrelated parent re-render (e.g., user typing in a field elsewhere
+  // on the page). Deps are now just the values that actually drive
+  // the grid: input, the two axes, and the metric.
   const { rows, gridMin, gridMax, savedX, savedY } = useMemo(() => {
+    const resolvePatch = (axis) => {
+      if (axis.key === 'salePriceMult') {
+        return (v) => ({
+          revenueRows: input.revenueRows.map(r => ({ ...r, price: Number(r.price || 0) * v })),
+        });
+      }
+      if (axis.key === 'varCostMult') {
+        return (v) => ({
+          varRows: input.varRows.map(r => ({ ...r, price: Number(r.price || 0) * v })),
+        });
+      }
+      return axis.patch;
+    };
+    const xPatch = resolvePatch(xAxis);
+    const yPatch = resolvePatch(yAxis);
+
     const xSteps = xAxis.steps;
     const ySteps = yAxis.steps;
     const xValues = Array.from({ length: xSteps }, (_, i) =>
@@ -145,7 +150,7 @@ export default function Heatmap({ input, calc }) {
       savedX: xAxis.read(input),
       savedY: yAxis.read(input),
     };
-  }, [input, xAxis, yAxis, metric, xPatch, yPatch]);
+  }, [input, xAxis, yAxis, metric]);
 
   const range = gridMax - gridMin || 1;
   const normalise = (s) => {
@@ -164,7 +169,10 @@ export default function Heatmap({ input, calc }) {
     const xi = Math.max(0, Math.min(xSteps - 1, Math.round((savedX - xAxis.min) / xStep)));
     const yi = Math.max(0, Math.min(ySteps - 1, Math.round((savedY - yAxis.min) / yStep)));
     return { xi, yi };
-  }, [savedX, savedY, xAxis, yAxis]);
+    // Deps are primitives (xKey/yKey drive xAxis identity already; we
+    // include them so future refactors that decouple AXES.find from
+    // these keys won't silently stale the cache).
+  }, [savedX, savedY, xKey, yKey, xAxis, yAxis]);
 
   return (
     <div className="calc-heatmap">
