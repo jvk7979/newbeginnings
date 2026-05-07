@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { C } from '../tokens';
 import { useIdeas, usePlans, useFiles } from '../context/AppContext';
-import { runCalc, DEFAULT_CALC_INPUT } from '../utils/calcEngine';
 import heroImg from '../assets/hero_godavari.png';
 
 // Heritage Dashboard. Designed around the Godavari hero photo as the
@@ -11,11 +10,10 @@ import heroImg from '../assets/hero_godavari.png';
 // strip; the KPI strip sits BELOW the hero so the photo is fully
 // visible, then the three-column body and closing tagline banner.
 //
-// KPI metrics (Revenue / EBITDA / NPV / Payback) are aggregated by
-// running the calc engine across every project where eligibleForCalc
-// is true. Projects without saved calc input fall back to engine
-// defaults so the tile shows ₹0 instead of dashes — keeps the strip
-// looking complete on a near-empty workspace.
+// KPI strip is now count-only (Total Ideas / Active Projects / In
+// Calculation) — the financial tiles (Revenue / EBITDA / NPV / Avg
+// Payback) were removed because they truncated awkwardly in narrow
+// columns and duplicated what the Calculations page already shows.
 
 const STATUS_COLORS = {
   draft:         '#1E40AF',
@@ -35,18 +33,6 @@ function fmtINR(n) {
   return `₹${Math.round(n)}`;
 }
 
-function fmtYears(y) {
-  if (y === null || y === undefined || !isFinite(y)) return '—';
-  return `${y.toFixed(1)} yrs`;
-}
-
-function loadCalcInput(plan) {
-  const saved = plan?.calc;
-  return saved && typeof saved === 'object'
-    ? { ...DEFAULT_CALC_INPUT, ...saved }
-    : DEFAULT_CALC_INPUT;
-}
-
 const ICON_LIGHTBULB = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
     <path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/>
@@ -60,26 +46,6 @@ const ICON_PROJECT = (
 const ICON_SPARKLE = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
     <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>
-  </svg>
-);
-const ICON_RUPEE = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
-    <path d="M6 4h12M6 9h12M14 4c0 4-3 7-7 7l9 9"/>
-  </svg>
-);
-const ICON_GROWTH = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
-    <polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/>
-  </svg>
-);
-const ICON_NPV = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
-    <circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10h4.5a1.5 1.5 0 0 1 0 3H9h6"/>
-  </svg>
-);
-const ICON_CLOCK = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
-    <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>
   </svg>
 );
 const ICON_DOC = (
@@ -123,33 +89,7 @@ export default function Dashboard({ onNavigate }) {
   const { plans } = usePlans();
   const { files } = useFiles();
 
-  const eligible = useMemo(() => plans.filter(p => p.eligibleForCalc), [plans]);
-  const eligibleCount = eligible.length;
-
-  // Aggregate calc metrics across every eligible project. The engine is
-  // pure and fast (~milliseconds for ten years), so running it inline
-  // for the dashboard KPI strip is cheaper than pre-computing on save
-  // and keeps the tile values consistent with whatever the Calculations
-  // page would show right now.
-  const portfolio = useMemo(() => {
-    if (eligible.length === 0) {
-      return { revenue: 0, ebitda: 0, npv: 0, payback: null, count: 0 };
-    }
-    let revenue = 0, ebitda = 0, npv = 0;
-    const paybacks = [];
-    for (const p of eligible) {
-      const out = runCalc(loadCalcInput(p));
-      revenue += out.revenue || 0;
-      ebitda  += out.ebitda  || 0;
-      npv     += out.npv     || 0;
-      if (out.payback !== null && isFinite(out.payback)) paybacks.push(out.payback);
-    }
-    const avgPayback = paybacks.length
-      ? paybacks.reduce((a, b) => a + b, 0) / paybacks.length
-      : null;
-    return { revenue, ebitda, npv, payback: avgPayback, count: eligible.length };
-  }, [eligible]);
-
+  const eligibleCount   = useMemo(() => plans.filter(p => p.eligibleForCalc).length, [plans]);
   const featuredIdeas   = useMemo(() => ideas.slice(0, 3), [ideas]);
   const activeProjects  = useMemo(() => plans.filter(p => p.status === 'active' || !p.status).slice(0, 3), [plans]);
   const recentDocuments = useMemo(() => files.slice(0, 4), [files]);
@@ -194,13 +134,9 @@ export default function Dashboard({ onNavigate }) {
 
         {/* ── KPI strip — sits BELOW the hero so the photo is fully visible. */}
         <div className="dh-kpi-strip">
-          <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"       value={ideas.length} />
-          <KpiTile icon={ICON_PROJECT}   label="Active Projects"   value={plans.length} />
-          <KpiTile icon={ICON_SPARKLE}   label="In Calculation"    value={portfolio.count} />
-          <KpiTile icon={ICON_RUPEE}     label="Est. Revenue / yr" value={fmtINR(portfolio.revenue)} hint="across portfolio" />
-          <KpiTile icon={ICON_GROWTH}    label="EBITDA / yr"       value={fmtINR(portfolio.ebitda)} hint="across portfolio" />
-          <KpiTile icon={ICON_NPV}       label="NPV"               value={fmtINR(portfolio.npv)} hint="net present value" />
-          <KpiTile icon={ICON_CLOCK}     label="Avg Payback"       value={fmtYears(portfolio.payback)} hint="across portfolio" />
+          <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"     value={ideas.length} />
+          <KpiTile icon={ICON_PROJECT}   label="Active Projects" value={plans.length} />
+          <KpiTile icon={ICON_SPARKLE}   label="In Calculation"  value={eligibleCount} />
         </div>
 
         {/* ── Three-column section: Featured / Active / Documents ─── */}

@@ -4760,6 +4760,7 @@ textarea:focus-visible,
 .dh-page {
   min-height: 100%;
   width: 100%;
+  overflow-x: hidden;       /* mobile: kill any stray horizontal scroll */
   overflow-y: auto;
   padding-bottom: 40px;
 }
@@ -4780,6 +4781,14 @@ textarea:focus-visible,
   object-fit: cover;
   object-position: center 40%;
   display: block;
+}
+/* Mobile: shorter hero, image focal point shifted up so the river +
+   palms sit in frame instead of the sky-heavy top. Hero content
+   (title + buttons) is the priority on a small screen — the photo
+   reads as a header band, not a full magazine cover. */
+@media (max-width: 640px) {
+  .dh-hero { height: 320px; }
+  .dh-hero-img { object-position: center 55%; }
 }
 .dh-hero-veil {
   position: absolute;
@@ -4802,6 +4811,13 @@ textarea:focus-visible,
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 640px) {
+  .dh-hero-content { padding: 20px 18px 22px; gap: 4px; }
+  .dh-hero-tagline { margin-bottom: 8px; }
+  .dh-hero-meta    { margin-bottom: 12px; gap: 10px; font-size: 12px; }
+  .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
 }
 .dh-hero-eyebrow {
   font-family: 'DM Sans', sans-serif;
@@ -4879,16 +4895,21 @@ textarea:focus-visible,
 .dh-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 clamp(20px, 5vw, 56px);
+  padding: 0 clamp(16px, 5vw, 56px);
+  box-sizing: border-box;
 }
 .dh-container-pad { padding-top: 36px; }
+@media (max-width: 640px) {
+  .dh-container-pad { padding-top: 22px; }
+}
 
 /* ── KPI strip — BELOW the hero so the photo is fully visible.
-   No negative margin / no overlap. Values are allowed to wrap so
-   "₹2.27 Cr" doesn't get truncated on the narrower 7-tile grid. */
+   Three count tiles only (Total Ideas / Active Projects / In
+   Calculation). Three columns on every viewport, with comfortable
+   gap on desktop and tight gap on mobile. */
 .dh-kpi-strip {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin: 0 auto 36px;
   background: var(--c-bg1);
@@ -4897,11 +4918,8 @@ textarea:focus-visible,
   border: 1px solid var(--c-border);
   box-shadow: 0 4px 14px rgba(45, 42, 38, 0.06);
 }
-@media (max-width: 1024px) {
-  .dh-kpi-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
 @media (max-width: 640px) {
-  .dh-kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dh-kpi-strip { gap: 6px; padding: 12px 10px; margin-bottom: 24px; }
 }
 .dh-kpi-tile {
   display: flex;
@@ -4949,6 +4967,13 @@ textarea:focus-visible,
   font-style: italic;
   margin-top: 1px;
   opacity: 0.8;
+}
+@media (max-width: 640px) {
+  .dh-kpi-tile  { gap: 8px; padding: 6px 4px; flex-direction: column; align-items: center; text-align: center; }
+  .dh-kpi-icon  { width: 32px; height: 32px; }
+  .dh-kpi-icon svg { width: 15px; height: 15px; }
+  .dh-kpi-value { font-size: 22px; font-weight: 700; }
+  .dh-kpi-label { font-size: 9.5px; letter-spacing: 0.04em; margin-top: 2px; }
 }
 
 /* ── Section headers ──────────────────────────────────────────────── */
@@ -5126,6 +5151,9 @@ textarea:focus-visible,
   border-radius: 14px;
   border: 1px solid var(--c-border);
   overflow: hidden;
+}
+@media (max-width: 640px) {
+  .dh-closing { padding: 36px 16px 32px; }
 }
 .dh-closing-leaf {
   position: absolute;
