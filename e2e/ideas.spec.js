@@ -36,8 +36,12 @@ test('"All" chip remains active after click', async ({ page }) => {
 });
 
 test('empty state renders when no ideas exist', async ({ page }) => {
-  // In e2e mode there is no Firestore data, so empty state shows
-  await expect(page.locator('text=No ideas').first()).toBeVisible();
+  // In e2e mode there is no Firestore data, so the themed empty state shows.
+  // Asserts both the shared .empty-state container and the new copy that
+  // landed in the post-theme polish pass.
+  await expect(page.locator('.empty-state').first()).toBeVisible();
+  await expect(page.locator('.empty-state-title').filter({ hasText: /Your first venture/i })).toBeVisible();
+  await expect(page.locator('.empty-state .themed-cta').filter({ hasText: /Capture an idea/i })).toBeVisible();
 });
 
 test('New Idea page — form renders with required fields', async ({ page }) => {
