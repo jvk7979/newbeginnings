@@ -161,6 +161,46 @@
   --c-accent-4-bg: #FEF9C3;
 }
 
+/* Citrus — vibrant + energetic · orange-primary sibling of Prism. Same
+   atmospheric structure (white base, radial corner glows, gradient KPI
+   tile, gradient CTA, gradient italic hero, photo wash) but shifted warm:
+   hot orange primary, orange → yellow gradient signature, lime green
+   and sunny yellow as secondary accents. Use this when you want Prism's
+   confident gradient-driven feel without the cool indigo+cyan palette. */
+:root[data-theme="citrus"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #FFFBF5;
+  --c-bg2: #FEF3E0;
+  --c-bg3: #FCE5BB;
+  --c-fg1: #2A1A0A;
+  --c-fg2: #5A4530;
+  --c-fg3: #8E7A60;
+  --c-accent: #F97316;
+  --c-accent-light: #FB923C;
+  --c-accent-dim: #C2410C;
+  --c-accent-bg: #FFEDD5;
+  --c-accent-rgb: 249 115 22;
+  --c-accent-dim-rgb: 194 65 12;
+  --c-border: #FCEACE;
+  --c-border-light: #F0D9A8;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #D97706;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0284C7;
+  --c-info-bg: #E0F2FE;
+  /* Secondary palette — lime green / sunny yellow / cyan kicker. */
+  --c-accent-2:    #84CC16;  /* lime green — fits the citrus identity */
+  --c-accent-2-bg: #ECFCCB;
+  --c-accent-3:    #FACC15;  /* sunny yellow — gradient pair with primary */
+  --c-accent-3-bg: #FEF9C3;
+  --c-accent-4:    #06B6D4;  /* cyan kicker — cool counterpoint for tags */
+  --c-accent-4-bg: #CFFAFE;
+}
+
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
  * RGB channels so they stay readable on whatever background the theme uses. */
 :root,
@@ -5568,6 +5608,109 @@ textarea:focus-visible,
 }
 :root[data-theme="prism"] .dh-btn-outline:hover {
   background: rgba(99, 91, 255, 0.06);
+  border-color: var(--c-accent-dim);
+  color: var(--c-accent-dim);
+}
+
+/* ── Citrus ───────────────────────────────────────────────────────────────
+ * Sibling of Prism — same atmospheric structure (white base, radial corner
+ * glows, gradient KPI tile, gradient CTA, photo wash, gradient italic hero)
+ * but shifted warm: hot orange primary, orange → yellow gradient signature,
+ * lime green secondary. The body radial glows are orange (top-right) and
+ * yellow (bottom-left); the photo picks up an orange→yellow tint; the
+ * centre KPI tile and the CTA both get the orange→yellow gradient. */
+:root[data-theme="citrus"] body {
+  background:
+    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(249, 115, 22, 0.18) 0%, rgba(249, 115, 22, 0) 60%),
+    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(250, 204, 21, 0.16) 0%, rgba(250, 204, 21, 0) 60%),
+    #FFFFFF;
+  background-attachment: fixed;
+}
+:root[data-theme="citrus"] .dh-page {
+  background: transparent;
+}
+:root[data-theme="citrus"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.22) 0%, rgba(250, 204, 21, 0.20) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="citrus"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #F97316 0%, #FACC15 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="citrus"] .dh-kpi-tile {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+:root[data-theme="citrus"] .dh-kpi-tile:hover {
+  background: var(--c-bg2);
+}
+/* Tile 1 = orange (primary); tile 2 = orange → yellow gradient with white
+   text; tile 3 = lime green so the strip reads three distinct colours. */
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+}
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #F97316 0%, #FACC15 100%);
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.30);
+}
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #C2410C 0%, #F97316 50%, #FACC15 100%);
+  box-shadow: 0 8px 22px rgba(249, 115, 22, 0.42);
+}
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+}
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint {
+  color: #FFFFFF;
+}
+:root[data-theme="citrus"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-2-bg);
+  color: var(--c-accent-2);
+}
+/* Card-row leaves: route the Heritage-only river/gold classes through
+   Citrus's lime + yellow secondaries. */
+:root[data-theme="citrus"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg);
+  color: var(--c-accent-2);
+  border-color: rgba(132, 204, 22, 0.22);
+}
+:root[data-theme="citrus"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg);
+  color: var(--c-accent-3);
+  border-color: rgba(250, 204, 21, 0.22);
+}
+:root[data-theme="citrus"] .dh-btn-primary {
+  background: linear-gradient(135deg, #F97316 0%, #C2410C 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="citrus"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #C2410C 0%, #F97316 100%);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+:root[data-theme="citrus"] .dh-btn-outline {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+:root[data-theme="citrus"] .dh-btn-outline:hover {
+  background: rgba(249, 115, 22, 0.06);
   border-color: var(--c-accent-dim);
   color: var(--c-accent-dim);
 }

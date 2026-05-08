@@ -1,14 +1,19 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-// Three-palette theme set (locked in 2026-05-08, rev 2). Heritage is the
+// Four-palette theme set (locked in 2026-05-08, rev 3). Heritage is the
 // default — coconut-cream + deep coconut green + river blue + gold +
-// dark warm-brown text, paired with the Godavari hero photo. Aura and
-// Prism replace last revision's five alternates; both keep the editorial
-// typography (Cormorant Garamond / Playfair Display / DM Sans / JetBrains
-// Mono) but each brings a distinct atmospheric layer:
-//   • aura  — soft pastel gradient backdrop, glass-blur KPI tiles, lavender pill CTA
-//   • prism — white page with indigo+cyan radial corner glows, gradient KPI
-//             tile, gradient CTA, gradient italic in the hero headline
+// dark warm-brown text, paired with the Godavari hero photo. Three
+// alternates each keep the editorial typography (Cormorant Garamond /
+// Playfair Display / DM Sans / JetBrains Mono) but bring a distinct
+// atmospheric layer:
+//   • aura   — soft pastel gradient backdrop, glass-blur KPI tiles,
+//              lavender pill CTA. Calm, multi-tonal pastel palette.
+//   • prism  — white page with indigo+cyan radial corner glows, gradient
+//              KPI tile, gradient CTA, gradient italic in the hero
+//              headline. Confident, saturated, cool register.
+//   • citrus — sibling of prism with the same atmospheric structure but
+//              shifted warm: orange primary, orange→yellow gradient
+//              signature, lime green secondary. Energetic, sunset feel.
 // All atmospheric overrides live in styles.css under "Theme atmospheric
 // overrides"; this file is just the palette + picker registration.
 //
@@ -28,6 +33,7 @@ export const THEMES = [
   { id: 'heritage', label: 'Heritage', mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#2F6B4F'] },
   { id: 'aura',     label: 'Aura',     mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7C7AED'] },
   { id: 'prism',    label: 'Prism',    mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
+  { id: 'citrus',   label: 'Citrus',   mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
 ];
 
 const DEFAULT_THEME = 'heritage';

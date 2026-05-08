@@ -43,11 +43,15 @@ const DARK_MODE_OPTIONS = [
 
 // Static preview palette — each card renders in its OWN theme's colours
 // regardless of which theme is currently active. Source of truth is
-// src/styles.css. The `atmosphere` field captures the per-theme treatment
-// (gradient backdrop, glass tiles, corner glows, gradient CTA). The
-// `accents` triplet [primary, secondary-green, secondary-orange] is what
-// the dashboard's KPI tile icons + card-row leaves rotate through, so
-// the picker preview shows the actual chromatic range of the theme.
+// src/styles.css. The `atmosphere` field gates the picker render path:
+//   editorial — flat bg, solid CTA pill (Heritage)
+//   soft      — pastel gradient bg, glass-blur chips, pill CTA (Aura)
+//   vibrant   — radial corner glows, gradient italic, gradient CTA. The
+//               actual gradient colours are taken from the per-theme
+//               `gradient` field so the same code-path serves both Prism
+//               (indigo→cyan) and Citrus (orange→yellow).
+// `accents` is the [primary, secondary-green, secondary-orange-or-yellow]
+// triplet the dashboard rotates through (KPI icons, card-row leaves).
 const THEME_PREVIEW = {
   heritage: {
     bg0: '#F6F1E7', bg1: '#FDFAF2', bg2: '#EDE5D2', bg3: '#DDD0B5',
@@ -68,7 +72,24 @@ const THEME_PREVIEW = {
     fg1: '#0A2540', accent: '#635BFF', border: '#EDEFF2',
     accents: ['#635BFF', '#10B981', '#F97316'], // indigo / emerald / hot orange
     atmosphere: 'vibrant',
+    gradient: {
+      from: '#635BFF', to: '#06B6D4',           // hero italic + KPI gradient
+      ctaFrom: '#635BFF', ctaTo: '#4F46E5',     // CTA gradient
+      glowRgb: '99,91,255', glowRgb2: '6,182,212', // body radial-glow channels
+    },
     desc: 'Indigo + emerald + hot orange. Corner glows, gradient KPI tile, gradient CTA. Confident, saturated.',
+  },
+  citrus: {
+    bg0: '#FFFFFF', bg1: '#FFFBF5', bg2: '#FEF3E0', bg3: '#FCE5BB',
+    fg1: '#2A1A0A', accent: '#F97316', border: '#FCEACE',
+    accents: ['#F97316', '#84CC16', '#FACC15'], // orange / lime / yellow
+    atmosphere: 'vibrant',
+    gradient: {
+      from: '#F97316', to: '#FACC15',
+      ctaFrom: '#F97316', ctaTo: '#C2410C',
+      glowRgb: '249,115,22', glowRgb2: '250,204,21',
+    },
+    desc: 'Hot orange + lime + sunny yellow. Same gradient signature as Prism, shifted warm. Energetic, sunset feel.',
   },
 };
 
@@ -137,24 +158,25 @@ export default function SettingsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             {themes.map(t => {
               const p = THEME_PREVIEW[t.id] || THEME_PREVIEW.heritage;
-              const isActive = theme === t.id;
-              const isAura   = p.atmosphere === 'soft';
-              const isPrism  = p.atmosphere === 'vibrant';
+              const isActive  = theme === t.id;
+              const isAura    = p.atmosphere === 'soft';
+              const isVibrant = p.atmosphere === 'vibrant';
+              const g = p.gradient || {};
 
               const cardBackground = isAura
                 ? 'linear-gradient(135deg, #F4F6FB 0%, #EBE9FB 50%, #F8E9F0 100%)'
-                : isPrism
-                  ? 'radial-gradient(ellipse 200px 200px at 100% 0%, rgba(99,91,255,0.18) 0%, rgba(99,91,255,0) 60%), radial-gradient(ellipse 180px 180px at 0% 100%, rgba(6,182,212,0.14) 0%, rgba(6,182,212,0) 60%), #FFFFFF'
+                : isVibrant
+                  ? `radial-gradient(ellipse 200px 200px at 100% 0%, rgba(${g.glowRgb},0.18) 0%, rgba(${g.glowRgb},0) 60%), radial-gradient(ellipse 180px 180px at 0% 100%, rgba(${g.glowRgb2},0.14) 0%, rgba(${g.glowRgb2},0) 60%), #FFFFFF`
                   : p.bg0;
 
-              const ctaBackground = isPrism
-                ? 'linear-gradient(135deg, #635BFF 0%, #4F46E5 100%)'
+              const ctaBackground = isVibrant
+                ? `linear-gradient(135deg, ${g.ctaFrom} 0%, ${g.ctaTo} 100%)`
                 : p.accent;
 
               const ctaShadow = isAura
                 ? '0 4px 14px rgba(124, 122, 237, 0.40)'
-                : isPrism
-                  ? '0 4px 14px rgba(99, 91, 255, 0.40)'
+                : isVibrant
+                  ? `0 4px 14px rgba(${g.glowRgb}, 0.40)`
                   : 'none';
 
               return (
@@ -187,8 +209,8 @@ export default function SettingsPage() {
                     color: p.fg1,
                     lineHeight: 1,
                     marginBottom: 4,
-                    ...(isPrism ? {
-                      background: 'linear-gradient(90deg, #635BFF 0%, #06B6D4 100%)',
+                    ...(isVibrant ? {
+                      background: `linear-gradient(90deg, ${g.from} 0%, ${g.to} 100%)`,
                       WebkitBackgroundClip: 'text',
                       backgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -220,7 +242,7 @@ export default function SettingsPage() {
                           width: 18, height: 18,
                           background: c,
                           borderRadius: '50%',
-                          border: `2px solid ${isPrism ? '#FFFFFF' : isAura ? 'rgba(255,255,255,0.85)' : p.bg1}`,
+                          border: `2px solid ${isVibrant ? '#FFFFFF' : isAura ? 'rgba(255,255,255,0.85)' : p.bg1}`,
                           boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
                         }} />
                       ))}
@@ -229,7 +251,7 @@ export default function SettingsPage() {
                       background: ctaBackground,
                       color: '#FFFFFF',
                       padding: '5px 12px',
-                      borderRadius: isAura ? 999 : isPrism ? 8 : 999,
+                      borderRadius: isAura ? 999 : isVibrant ? 8 : 999,
                       fontSize: 11,
                       fontFamily: "'DM Sans', sans-serif",
                       fontWeight: 500,
@@ -252,8 +274,8 @@ export default function SettingsPage() {
                       justifyContent: 'center',
                       boxShadow: isAura
                         ? '0 4px 10px rgba(124,122,237,0.40)'
-                        : isPrism
-                          ? '0 4px 10px rgba(99,91,255,0.40)'
+                        : isVibrant
+                          ? `0 4px 10px rgba(${g.glowRgb},0.40)`
                           : 'none',
                     }}>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
