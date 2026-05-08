@@ -96,7 +96,21 @@ export default function Dashboard({ onNavigate }) {
   const activeProjects  = useMemo(() => plans.filter(p => p.status === 'active' || !p.status).slice(0, 3), [plans]);
   const recentDocuments = useMemo(() => files.slice(0, 4), [files]);
 
-  const firstName = user?.displayName?.split(' ')[0] || 'there';
+  // First-name resolution for the hero greeting:
+  //   1. Use the first token of displayName when set (e.g. "Venkat Krishna" -> "Venkat").
+  //   2. Otherwise fall back to the local part of the email, with the first
+  //      letter upper-cased (e.g. "venkat@new..." -> "Venkat"). The email
+  //      can contain dots / underscores / digits — keep just the leading
+  //      alpha run so we don't render "Venkat.k1" in the headline.
+  //   3. As a last resort, drop the comma-and-name entirely.
+  const firstName = (() => {
+    const displayFirst = user?.displayName?.trim().split(/\s+/)[0];
+    if (displayFirst) return displayFirst;
+    const local = user?.email?.split('@')[0] || '';
+    const alpha = local.match(/^[A-Za-z]+/)?.[0];
+    if (alpha) return alpha.charAt(0).toUpperCase() + alpha.slice(1).toLowerCase();
+    return null;
+  })();
 
   return (
     <div className="dh-page" style={{ background: C.bg0 }}>
@@ -108,7 +122,7 @@ export default function Dashboard({ onNavigate }) {
         <img src={heroImg} alt="Godavari river at dusk" className="dh-hero-img" />
         <div className="dh-hero-content">
           <span className="dh-hero-welcome">
-            Welcome back, {firstName}
+            {firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
             <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true" style={{ marginLeft: 6, color: 'var(--c-h-gold)' }}>
               <path d="M12 2c-2.5 4-6 6-9 6 0 5 4 9 9 12 5-3 9-7 9-12-3 0-6.5-2-9-6z"/>
             </svg>
