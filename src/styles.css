@@ -5599,6 +5599,140 @@ html { scroll-behavior: smooth; }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+ * SideNav theme identity (#2)
+ *
+ * Active nav items pick up theme-specific chrome: a gradient pill in the
+ * vibrant family (Prism / Citrus / Lemon), a glass-blur surface in Aura,
+ * and the existing accent-bg fill in Heritage (the default). Inline JSX
+ * styles use Heritage's accent values, so we use !important here to win
+ * the cascade for non-Heritage themes. Icons + active-bar inherit the
+ * new colour automatically when the parent button text colour changes,
+ * because their svg strokes already use currentColor.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* Aura — frosted glass active item with a soft lavender shadow. */
+:root[data-theme="aura"] .sidenav-item[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.62) !important;
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  box-shadow: 0 4px 14px rgba(124, 122, 237, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Vibrant family — gradient-pill active item with white text + white icon. */
+:root[data-theme="prism"] .sidenav-item[aria-current="page"] {
+  background: linear-gradient(135deg, #635BFF 0%, #06B6D4 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(99, 91, 255, 0.30) !important;
+}
+:root[data-theme="citrus"] .sidenav-item[aria-current="page"] {
+  background: linear-gradient(135deg, #F97316 0%, #FACC15 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.30) !important;
+}
+:root[data-theme="lemon"] .sidenav-item[aria-current="page"] {
+  background: linear-gradient(135deg, #84CC16 0%, #FACC15 100%) !important;
+  color: #1A2A0A !important;
+  box-shadow: 0 4px 14px rgba(132, 204, 22, 0.30) !important;
+}
+/* Vibrants: icon + active-bar follow the new text colour (white for
+   prism / citrus, charcoal for lemon's bright gradient). */
+:root[data-theme="prism"]  .sidenav-item[aria-current="page"] .sidenav-item-icon,
+:root[data-theme="citrus"] .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
+:root[data-theme="lemon"]  .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #1A2A0A !important; }
+:root[data-theme="prism"]  .sidenav-item[aria-current="page"] .sidenav-item-bar,
+:root[data-theme="citrus"] .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
+:root[data-theme="lemon"]  .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #1A2A0A !important; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Page hero atmospheric layer (#1)
+ *
+ * Every page-pad with a `.page-hero-atmo` modifier class gets a soft
+ * accent halo behind the page title, so switching themes transforms
+ * pages beyond just the Dashboard. Auto-themes via --c-accent-rgb so
+ * Heritage glows green, Aura lavender, Prism indigo, Citrus orange,
+ * Lemon lime — no per-theme overrides needed.
+ *
+ * The halo lives on a ::before pseudo-element pinned to the top of the
+ * page-pad. Pointer-events:none so it never interferes with clicks.
+ * Uses background-attachment fixed so it doesn't scroll with the page.
+ * ───────────────────────────────────────────────────────────────────────── */
+.page-pad.page-hero-atmo {
+  position: relative;
+}
+.page-pad.page-hero-atmo::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 240px;
+  background:
+    radial-gradient(ellipse 600px 240px at 30% 0%, rgba(var(--c-accent-rgb) / 0.10), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.page-pad.page-hero-atmo > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Themed primary CTA (.themed-cta)
+ *
+ * Drop-in replacement for the inline-styled "+ New" / "Save" buttons
+ * across pages. In the vibrant family it picks up the theme's gradient;
+ * in Aura it's a pill with a coloured glow; in Heritage it's the existing
+ * solid accent. Theme detection is automatic via --c-accent-rgb / theme
+ * selectors. Components apply this className alongside (or instead of)
+ * their existing inline styles — !important wins where the inline
+ * background still tries to assert a colour.
+ * ───────────────────────────────────────────────────────────────────────── */
+.themed-cta {
+  background: var(--c-accent);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  box-shadow: 0 2px 8px rgba(var(--c-accent-rgb) / 0.20);
+}
+.themed-cta:hover:not(:disabled) {
+  background: var(--c-accent-dim);
+  box-shadow: 0 6px 18px rgba(var(--c-accent-rgb) / 0.35);
+  transform: translateY(-1px);
+}
+.themed-cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb) / 0.25), 0 4px 14px rgba(var(--c-accent-rgb) / 0.25);
+}
+.themed-cta:active:not(:disabled) { transform: translateY(0); }
+.themed-cta:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+:root[data-theme="aura"] .themed-cta {
+  border-radius: 999px;
+}
+:root[data-theme="prism"] .themed-cta {
+  background: linear-gradient(135deg, #635BFF 0%, #4F46E5 100%);
+}
+:root[data-theme="prism"] .themed-cta:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4F46E5 0%, #635BFF 100%);
+}
+:root[data-theme="citrus"] .themed-cta {
+  background: linear-gradient(135deg, #F97316 0%, #C2410C 100%);
+}
+:root[data-theme="citrus"] .themed-cta:hover:not(:disabled) {
+  background: linear-gradient(135deg, #C2410C 0%, #F97316 100%);
+}
+:root[data-theme="lemon"] .themed-cta {
+  background: linear-gradient(135deg, #84CC16 0%, #4D7C0F 100%);
+}
+:root[data-theme="lemon"] .themed-cta:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4D7C0F 0%, #84CC16 100%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
  * Theme atmospheric overrides (Aura + Prism)
  *
  * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /

@@ -67,7 +67,7 @@ export default function IdeasPage({ onNavigate }) {
   };
 
   return (
-    <div className="page-pad" style={{ background: C.bg0 }}>
+    <div className="page-pad page-hero-atmo" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 10, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>

@@ -70,7 +70,7 @@ const REGIONS = [
 
 export default function AboutPage({ onNavigate }) {
   return (
-    <div className="page-pad" style={{ background: C.bg0 }}>
+    <div className="page-pad page-hero-atmo" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
 
       {/* Hero */}

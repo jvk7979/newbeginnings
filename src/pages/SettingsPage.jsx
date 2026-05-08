@@ -125,7 +125,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="page-pad" style={{ background: C.bg0, minHeight: '100%' }}>
+    <div className="page-pad page-hero-atmo" style={{ background: C.bg0, minHeight: '100%' }}>
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
 
         {/* Page header */}

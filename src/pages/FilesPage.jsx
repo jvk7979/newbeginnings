@@ -190,7 +190,7 @@ export default function FilesPage({ onNavigate }) {
   };
 
   return (
-    <div className="page-pad" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
+    <div className="page-pad page-hero-atmo" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
         <div>

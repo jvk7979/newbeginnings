@@ -98,6 +98,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
           const active = activeTab === item.id;
           return (
             <button key={item.id} onClick={() => onNavigate(item.id)}
+              className="sidenav-item"
               aria-current={active ? 'page' : undefined}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%',
@@ -111,9 +112,9 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
               }}
               onMouseEnter={e => { if (!active) { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; } }}
               onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; } }}>
-              <span style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>{item.icon}</span>
+              <span className="sidenav-item-icon" style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>{item.icon}</span>
               <span style={{ flex: 1 }}>{item.label}</span>
-              {active && <span style={{ width: 3, height: 14, background: C.accent, borderRadius: 2, flexShrink: 0 }} />}
+              {active && <span className="sidenav-item-bar" style={{ width: 3, height: 14, background: C.accent, borderRadius: 2, flexShrink: 0 }} />}
             </button>
           );
         })}
@@ -121,6 +122,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
           const active = activeTab === 'access';
           return (
             <button onClick={() => onNavigate('access')}
+              className="sidenav-item"
               aria-current={active ? 'page' : undefined}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%',
@@ -134,11 +136,11 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
               }}
               onMouseEnter={e => { if (!active) { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; } }}
               onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; } }}>
-              <span style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>
+              <span className="sidenav-item-icon" style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>
                 <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </span>
               <span style={{ flex: 1 }}>Access</span>
-              {active && <span style={{ width: 3, height: 14, background: C.accent, borderRadius: 2, flexShrink: 0 }} />}
+              {active && <span className="sidenav-item-bar" style={{ width: 3, height: 14, background: C.accent, borderRadius: 2, flexShrink: 0 }} />}
             </button>
           );
         })()}

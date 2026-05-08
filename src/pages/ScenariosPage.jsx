@@ -56,7 +56,7 @@ export default function ScenariosPage({ onNavigate }) {
   if (!selectedProject)      return <EmptyNoSelection eligible={eligible} onPick={(id) => setSelectedProjectId(Number(id))} />;
 
   return (
-    <div className="page-pad" style={{ background: C.bg0, minHeight: '100%' }}>
+    <div className="page-pad page-hero-atmo" style={{ background: C.bg0, minHeight: '100%' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
         {/* Page header */}
