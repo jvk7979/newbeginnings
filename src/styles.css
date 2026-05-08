@@ -77,7 +77,13 @@
 /* Aura — soft + airy · pale lavender → peach gradient backdrop · glass-blur
    tiles · lavender-indigo accent. Atmosphere from Arc browser / pastel-OS
    territory, but the editorial typography (Cormorant / Playfair / DM Sans)
-   stays intact so the brand voice carries across the theme switch. */
+   stays intact so the brand voice carries across the theme switch.
+
+   Aura also exposes three secondary accent colours — mint, peach, butter —
+   used by the dashboard to colour the KPI tile icons and card-row leaves
+   so the page reads with more chromatic range than the lavender accent
+   alone could carry. All four secondaries are pastel-tuned so they sit
+   naturally on Aura's cool gradient backdrop. */
 :root[data-theme="aura"] {
   --c-bg0: #F4F6FB;
   --c-bg1: #FFFFFF;
@@ -103,11 +109,24 @@
   --c-danger-rgb: 244 114 182;
   --c-info: #38BDF8;
   --c-info-bg: #E0F2FE;
+  /* Secondary palette — pastel mint / peach / butter. */
+  --c-accent-2:    #34D399;  /* mint green */
+  --c-accent-2-bg: #D1FAE5;
+  --c-accent-3:    #FB923C;  /* peach orange */
+  --c-accent-3-bg: #FED7AA;
+  --c-accent-4:    #FACC15;  /* honey yellow */
+  --c-accent-4-bg: #FEF3C7;
 }
 
 /* Prism — vibrant + energetic · white base with indigo + cyan radial glows ·
    gradient KPI tile + gradient CTA · Stripe / Figma vocabulary. Accent runs
-   indigo-purple (#635BFF) → cyan (#06B6D4) on the gradient surfaces. */
+   indigo-purple (#635BFF) → cyan (#06B6D4) on the gradient surfaces.
+
+   Prism also exposes three saturated secondary accents — emerald, hot
+   orange, sunny yellow — for KPI tile icons and card-row leaves so the
+   dashboard reads as a confident multi-colour palette rather than a
+   mono-indigo wall. The secondaries are tuned to match the saturation
+   level of the primary indigo so the page feels coherent. */
 :root[data-theme="prism"] {
   --c-bg0: #FFFFFF;
   --c-bg1: #F8F9FB;
@@ -133,6 +152,13 @@
   --c-danger-rgb: 239 68 68;
   --c-info: #06B6D4;
   --c-info-bg: #CFFAFE;
+  /* Secondary palette — saturated emerald / hot orange / sunny yellow. */
+  --c-accent-2:    #10B981;  /* emerald green */
+  --c-accent-2-bg: #DCFCE7;
+  --c-accent-3:    #F97316;  /* hot orange */
+  --c-accent-3-bg: #FFEDD5;
+  --c-accent-4:    #FACC15;  /* sunny yellow */
+  --c-accent-4-bg: #FEF9C3;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
@@ -5386,9 +5412,34 @@ textarea:focus-visible,
   background: rgba(255, 255, 255, 0.78);
   box-shadow: 0 8px 22px rgba(124, 122, 237, 0.16);
 }
-:root[data-theme="aura"] .dh-kpi-icon {
-  background: rgba(124, 122, 237, 0.14);
+/* KPI tile icons rotate through the secondary palette so the strip reads
+   as three distinct categories (Total Ideas / Active Projects / In
+   Calculation), rather than a wall of lavender. */
+:root[data-theme="aura"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg);
   color: var(--c-accent);
+}
+:root[data-theme="aura"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: var(--c-accent-2-bg);
+  color: var(--c-accent-2);
+}
+:root[data-theme="aura"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-3-bg);
+  color: var(--c-accent-3);
+}
+/* Card-row leaves: the .dh-card-row-leaf-river and .dh-card-row-leaf-gold
+   classes default to Heritage-only --c-h-river / --c-h-gold variables —
+   override them to Aura's secondary palette so the three category leaves
+   (Featured / Active Projects / Documents) keep their distinct identity. */
+:root[data-theme="aura"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg);
+  color: var(--c-accent-2);
+  border-color: rgba(52, 211, 153, 0.22);
+}
+:root[data-theme="aura"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg);
+  color: var(--c-accent-3);
+  border-color: rgba(251, 146, 60, 0.22);
 }
 :root[data-theme="aura"] .dh-btn-primary {
   border-radius: 999px;
@@ -5467,9 +5518,33 @@ textarea:focus-visible,
   background: linear-gradient(135deg, #4F46E5 0%, #635BFF 100%);
   box-shadow: 0 8px 22px rgba(99, 91, 255, 0.40);
 }
+/* Tile 1 keeps the indigo primary; tile 2 already has the indigo→cyan
+   gradient surface (its icon stays white-on-gradient, defined below);
+   tile 3 picks up Prism's hot orange so the strip reads as three distinct
+   colours rather than three indigo tiles in a row. */
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+}
 :root[data-theme="prism"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
   background: rgba(255, 255, 255, 0.18);
   color: #FFFFFF;
+}
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-3-bg);
+  color: var(--c-accent-3);
+}
+/* Card-row leaves: same Heritage-var fallback fix as Aura — route the
+   river/gold classes through Prism's secondary emerald + hot-orange. */
+:root[data-theme="prism"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg);
+  color: var(--c-accent-2);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+:root[data-theme="prism"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg);
+  color: var(--c-accent-3);
+  border-color: rgba(249, 115, 22, 0.22);
 }
 :root[data-theme="prism"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
 :root[data-theme="prism"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,

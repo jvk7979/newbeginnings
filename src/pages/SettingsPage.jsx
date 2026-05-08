@@ -44,26 +44,31 @@ const DARK_MODE_OPTIONS = [
 // Static preview palette — each card renders in its OWN theme's colours
 // regardless of which theme is currently active. Source of truth is
 // src/styles.css. The `atmosphere` field captures the per-theme treatment
-// (gradient backdrop, glass tiles, corner glows, gradient CTA) so the
-// picker preview shows what the user actually gets after switching.
+// (gradient backdrop, glass tiles, corner glows, gradient CTA). The
+// `accents` triplet [primary, secondary-green, secondary-orange] is what
+// the dashboard's KPI tile icons + card-row leaves rotate through, so
+// the picker preview shows the actual chromatic range of the theme.
 const THEME_PREVIEW = {
   heritage: {
     bg0: '#F6F1E7', bg1: '#FDFAF2', bg2: '#EDE5D2', bg3: '#DDD0B5',
     fg1: '#2D2A26', accent: '#2F6B4F', border: '#E5DDC9',
+    accents: ['#2F6B4F', '#7FA9B8', '#B88A3B'], // green / river blue / gold
     atmosphere: 'editorial',
-    desc: 'Coconut cream + deep green + Godavari hero photo. The leather-notebook default.',
+    desc: 'Cream + green + river blue + gold. Leather-notebook editorial mood with the Godavari hero photo.',
   },
   aura: {
     bg0: '#F4F6FB', bg1: '#FFFFFF', bg2: '#EBE9FB', bg3: '#DBD8F2',
     fg1: '#1F2937', accent: '#7C7AED', border: '#E5E7EB',
+    accents: ['#7C7AED', '#34D399', '#FB923C'], // lavender / mint / peach
     atmosphere: 'soft',
-    desc: 'Lavender → peach gradient backdrop, glass-blur tiles, lavender pill CTA. Calm, breathable.',
+    desc: 'Lavender + mint + peach pastel. Gradient backdrop, glass-blur tiles, lavender pill CTA. Calm, multi-tonal.',
   },
   prism: {
     bg0: '#FFFFFF', bg1: '#F8F9FB', bg2: '#F1F3F8', bg3: '#E5E9F0',
     fg1: '#0A2540', accent: '#635BFF', border: '#EDEFF2',
+    accents: ['#635BFF', '#10B981', '#F97316'], // indigo / emerald / hot orange
     atmosphere: 'vibrant',
-    desc: 'White page with indigo + cyan corner glows, gradient KPI tile, gradient CTA. Confident, kinetic.',
+    desc: 'Indigo + emerald + hot orange. Corner glows, gradient KPI tile, gradient CTA. Confident, saturated.',
   },
 };
 
@@ -206,16 +211,17 @@ export default function SettingsPage() {
                     marginBottom: 14,
                   }}>{p.desc}</div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      {[p.bg1, p.bg2, p.bg3].map((c, i) => (
+                    {/* Three filled dots showing the theme's icon-rotation palette
+                        (primary / secondary green / secondary orange) — what the
+                        dashboard KPI icons and card-row leaves actually use. */}
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {p.accents.map((c, i) => (
                         <span key={i} aria-hidden style={{
-                          width: 16, height: 16,
-                          background: isAura ? `${c}` : c,
-                          backdropFilter: isAura ? 'blur(4px)' : 'none',
-                          WebkitBackdropFilter: isAura ? 'blur(4px)' : 'none',
-                          border: `1px solid ${p.border}`,
-                          borderRadius: 5,
-                          boxShadow: isAura ? '0 1px 3px rgba(124,122,237,0.18)' : 'none',
+                          width: 18, height: 18,
+                          background: c,
+                          borderRadius: '50%',
+                          border: `2px solid ${isPrism ? '#FFFFFF' : isAura ? 'rgba(255,255,255,0.85)' : p.bg1}`,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
                         }} />
                       ))}
                     </div>
