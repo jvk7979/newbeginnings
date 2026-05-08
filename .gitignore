@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .claude/
+.superpowers/
 # Playwright outputs (keep e2e/ source, ignore test artifacts)
 playwright-report/
 test-results/
