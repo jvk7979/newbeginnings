@@ -1,28 +1,33 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-// Six-palette theme set (locked in 2026-05-08). Heritage is the default —
-// coconut-cream + deep coconut green + river blue + gold + dark warm-brown
-// text. The other five sit alongside as alternates, each picked to fill a
-// distinct mood the original three didn't cover (warm ledger, work-mode,
-// monochrome, academic blue, classics red). All six are light themes;
-// dark mode is a separate scheme overlay that works with any of them.
+// Three-palette theme set (locked in 2026-05-08, rev 2). Heritage is the
+// default — coconut-cream + deep coconut green + river blue + gold +
+// dark warm-brown text, paired with the Godavari hero photo. Aura and
+// Prism replace last revision's five alternates; both keep the editorial
+// typography (Cormorant Garamond / Playfair Display / DM Sans / JetBrains
+// Mono) but each brings a distinct atmospheric layer:
+//   • aura  — soft pastel gradient backdrop, glass-blur KPI tiles, lavender pill CTA
+//   • prism — white page with indigo+cyan radial corner glows, gradient KPI
+//             tile, gradient CTA, gradient italic in the hero headline
+// All atmospheric overrides live in styles.css under "Theme atmospheric
+// overrides"; this file is just the palette + picker registration.
 //
 // Each entry's `swatch` is [bg0, bg1, accent] — used by any consumer that
 // wants a quick three-dot preview. The Settings picker renders fuller
-// previews from CSS vars directly; it does not depend on this array's
-// shape beyond {id, label}.
+// previews; it doesn't depend on this array beyond {id, label}.
 //
 // Legacy migration (handled in the useState initialiser below):
-//   sprout → heritage  (2026-05 rename, retained for older clients)
-//   forest → field     (2026-05-08 rename — palette unchanged, new id)
-//   amber  → heritage  (2026-05-08 retirement — closest in mood)
+//   sprout            → heritage  (2026-05 rename — pre-rev-1 default)
+//   forest            → heritage  (rev-1 retirement — closest in mood now)
+//   amber             → heritage  (rev-1 retirement)
+//   field             → heritage  (rev-2 retirement — clean light gone)
+//   linen             → heritage  (rev-2 retirement — monochrome gone)
+//   oxford / burgundy → heritage  (rev-2 retirement — blue / red gone)
+//   vellum            → heritage  (rev-2 retirement — warm ledger gone)
 export const THEMES = [
   { id: 'heritage', label: 'Heritage', mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#2F6B4F'] },
-  { id: 'vellum',   label: 'Vellum',   mode: 'light', swatch: ['#F2EBDA', '#FAF4E5', '#6B3F2A'] },
-  { id: 'field',    label: 'Field',    mode: 'light', swatch: ['#FAFAF7', '#FFFFFF', '#15803D'] },
-  { id: 'linen',    label: 'Linen',    mode: 'light', swatch: ['#FBFAF6', '#FFFFFF', '#1F1F1F'] },
-  { id: 'oxford',   label: 'Oxford',   mode: 'light', swatch: ['#F4F2EA', '#FBF9F1', '#1A2238'] },
-  { id: 'burgundy', label: 'Burgundy', mode: 'light', swatch: ['#F5EFE6', '#FCF7EE', '#7A2C25'] },
+  { id: 'aura',     label: 'Aura',     mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7C7AED'] },
+  { id: 'prism',    label: 'Prism',    mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
 ];
 
 const DEFAULT_THEME = 'heritage';
@@ -31,11 +36,16 @@ const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 
 // Silent one-time normalisation of retired theme ids stored from earlier
 // versions. Anything not in this map and not in THEMES falls through to
-// DEFAULT_THEME, same as before.
+// DEFAULT_THEME on next load.
 const LEGACY_THEME_MAP = {
-  sprout: 'heritage',
-  forest: 'field',
-  amber:  'heritage',
+  sprout:   'heritage',
+  forest:   'heritage',
+  amber:    'heritage',
+  field:    'heritage',
+  vellum:   'heritage',
+  linen:    'heritage',
+  oxford:   'heritage',
+  burgundy: 'heritage',
 };
 
 const ThemeContext = createContext(null);

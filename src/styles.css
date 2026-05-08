@@ -2,22 +2,29 @@
  * Theme tokens (CSS variables). Switching themes is a matter of setting
  * `document.documentElement.dataset.theme = '<name>'`.
  *
- * Six palettes ship as of 2026-05-08:
- *   heritage — DEFAULT — coconut cream + deep coconut green + gold + river blue
- *   vellum   — 1920s ledger / walnut ink on aged paper
- *   field    — clean near-white + saturated emerald (formerly 'forest')
- *   linen    — monochrome editorial — strips colour, lets typography carry
- *   oxford   — academic dust jacket — ivory paper + Oxford navy + brass trim
- *   burgundy — Penguin Classics shelf — cream + oxblood spine + gold lettering
+ * Three palettes ship as of 2026-05-08 (rev 2):
+ *   heritage — DEFAULT — coconut cream + deep coconut green + gold + river blue.
+ *              Editorial / leather-notebook mood; Godavari hero photo.
+ *   aura     — soft + airy — pale lavender→peach gradient backdrop, glass-blur
+ *              KPI tiles, lavender accent. Calm, breathable, slightly futuristic.
+ *   prism    — vibrant + energetic — pure white with indigo→cyan radial corner
+ *              glows, gradient KPI tile, gradient CTA. Confident, kinetic.
  *
- * Earlier palettes that were retired in this directory (sage, saffron,
- * meadow, regalia, espresso, mahogany, clay, monogram, transformative-
- * teal, quant, sapphire, sprout, amber, forest) were removed as pure
- * housekeeping — every component reads from these CSS variables, so
- * deleting unused blocks has no functional impact. ThemeContext silently
- * normalises the recent legacy ids on load: `forest` → `field`, `amber` →
- * `heritage`, `sprout` → `heritage`. Anything else falls through to the
- * default.
+ * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /
+ * JetBrains Mono) is the brand voice — held constant across all three themes.
+ * Themes vary only the palette and the atmospheric layer (page background,
+ * KPI surfaces, CTA treatment), so navigating between pages stays coherent.
+ *
+ * Per-theme atmospheric overrides live at the END of this file (search for
+ * "Theme atmospheric overrides"). Component CSS uses var(--c-*) tokens so
+ * deeper styling tracks each theme's accent automatically.
+ *
+ * Earlier palettes retired in this directory (vellum, field, linen, oxford,
+ * burgundy from rev 1; forest, amber, sprout from previous revs; plus a long
+ * tail of deprecated names) are removed as pure housekeeping — every component
+ * reads from these CSS variables, so deleted blocks have no functional impact.
+ * ThemeContext silently normalises legacy ids on load — see LEGACY_THEME_MAP
+ * there. Anything not mapped falls through to the heritage default.
  * ───────────────────────────────────────────────────────────────────────── */
 
 /* Heritage — coconut cream + deep coconut green + river blue + gold
@@ -67,145 +74,65 @@
   --c-h-terracotta-bg: #F8E8D8;
 }
 
-/* Vellum — 1920s ledger · walnut ink on aged paper · Cormorant italic sings here */
-:root[data-theme="vellum"] {
-  --c-bg0: #F2EBDA;
-  --c-bg1: #FAF4E5;
-  --c-bg2: #E5DBC2;
-  --c-bg3: #D4C49E;
-  --c-fg1: #2A1F14;
-  --c-fg2: #5A4A30;
-  --c-fg3: #8B7A52;
-  --c-accent: #6B3F2A;
-  --c-accent-light: #8A5538;
-  --c-accent-dim: #4F2D1C;
-  --c-accent-bg: #EFE2CC;
-  --c-accent-rgb: 107 63 42;
-  --c-accent-dim-rgb: 79 45 28;
-  --c-border: #E0D6BC;
-  --c-border-light: #C9BB94;
-  --c-success: #5C7B3C;
-  --c-success-bg: #EAEEDC;
-  --c-warning: #B07820;
-  --c-warning-bg: #F5E8C5;
-  --c-danger: #A4422A;
-  --c-danger-bg: #F5E0D5;
-  --c-danger-rgb: 164 66 42;
-  --c-info: #5A7A8E;
-  --c-info-bg: #E0E8EE;
+/* Aura — soft + airy · pale lavender → peach gradient backdrop · glass-blur
+   tiles · lavender-indigo accent. Atmosphere from Arc browser / pastel-OS
+   territory, but the editorial typography (Cormorant / Playfair / DM Sans)
+   stays intact so the brand voice carries across the theme switch. */
+:root[data-theme="aura"] {
+  --c-bg0: #F4F6FB;
+  --c-bg1: #FFFFFF;
+  --c-bg2: #EBE9FB;
+  --c-bg3: #DBD8F2;
+  --c-fg1: #1F2937;
+  --c-fg2: #4B5563;
+  --c-fg3: #9CA3AF;
+  --c-accent: #7C7AED;
+  --c-accent-light: #9D9CF3;
+  --c-accent-dim: #5E5BCC;
+  --c-accent-bg: #EFEEFC;
+  --c-accent-rgb: 124 122 237;
+  --c-accent-dim-rgb: 94 91 204;
+  --c-border: #E5E7EB;
+  --c-border-light: #D1D5DB;
+  --c-success: #10B981;
+  --c-success-bg: #ECFDF5;
+  --c-warning: #F59E0B;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #F472B6;
+  --c-danger-bg: #FCE7F3;
+  --c-danger-rgb: 244 114 182;
+  --c-info: #38BDF8;
+  --c-info-bg: #E0F2FE;
 }
 
-/* Field — clean near-white · saturated emerald · the work-mode sibling to Heritage
-   (formerly 'forest' — palette unchanged, renamed for clarity) */
-:root[data-theme="field"] {
-  --c-bg0: #FAFAF7;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F0F1EC;
-  --c-bg3: #DDDFD6;
-  --c-fg1: #0A1F0E;
-  --c-fg2: #3F4F40;
-  --c-fg3: #6F8074;
-  --c-accent: #15803D;
-  --c-accent-light: #22C55E;
-  --c-accent-dim: #166534;
-  --c-accent-bg: #F0FDF4;
-  --c-accent-rgb: 21 128 61;
-  --c-accent-dim-rgb: 22 101 52;
-  --c-border: #E5E7E0;
-  --c-border-light: #C8CDC0;
+/* Prism — vibrant + energetic · white base with indigo + cyan radial glows ·
+   gradient KPI tile + gradient CTA · Stripe / Figma vocabulary. Accent runs
+   indigo-purple (#635BFF) → cyan (#06B6D4) on the gradient surfaces. */
+:root[data-theme="prism"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #F8F9FB;
+  --c-bg2: #F1F3F8;
+  --c-bg3: #E5E9F0;
+  --c-fg1: #0A2540;
+  --c-fg2: #425466;
+  --c-fg3: #8898AA;
+  --c-accent: #635BFF;
+  --c-accent-light: #8B85FF;
+  --c-accent-dim: #4F46E5;
+  --c-accent-bg: #EFEEFF;
+  --c-accent-rgb: 99 91 255;
+  --c-accent-dim-rgb: 79 70 229;
+  --c-border: #EDEFF2;
+  --c-border-light: #D8DEE8;
   --c-success: #16A34A;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #B45309;
-  --c-warning-bg: #FFFBEB;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #1E40AF;
-  --c-info-bg: #EFF6FF;
-}
-
-/* Linen — monochrome editorial · Are.na / The Browser · typography carries it all */
-:root[data-theme="linen"] {
-  --c-bg0: #FBFAF6;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #F2F1ED;
-  --c-bg3: #E2E0DA;
-  --c-fg1: #0E0E0E;
-  --c-fg2: #4A4A4A;
-  --c-fg3: #8A8A8A;
-  --c-accent: #1F1F1F;
-  --c-accent-light: #3A3A3A;
-  --c-accent-dim: #0E0E0E;
-  --c-accent-bg: #F0EFEB;
-  --c-accent-rgb: 31 31 31;
-  --c-accent-dim-rgb: 14 14 14;
-  --c-border: #E0DED7;
-  --c-border-light: #C9C7BE;
-  --c-success: #2D6E3D;
-  --c-success-bg: #EBF1ED;
-  --c-warning: #8B6914;
-  --c-warning-bg: #F4EEDC;
-  --c-danger: #8B2424;
-  --c-danger-bg: #F2E5E5;
-  --c-danger-rgb: 139 36 36;
-  --c-info: #1F4D7A;
-  --c-info-bg: #E5ECF3;
-}
-
-/* Oxford — academic dust jacket · ivory paper + Oxford navy + brass trim */
-:root[data-theme="oxford"] {
-  --c-bg0: #F4F2EA;
-  --c-bg1: #FBF9F1;
-  --c-bg2: #E8E5D5;
-  --c-bg3: #D5D2BE;
-  --c-fg1: #1A2238;
-  --c-fg2: #3F4960;
-  --c-fg3: #6F7A92;
-  --c-accent: #1A2238;
-  --c-accent-light: #2D3A5C;
-  --c-accent-dim: #0F162A;
-  --c-accent-bg: #E8EBF3;
-  --c-accent-rgb: 26 34 56;
-  --c-accent-dim-rgb: 15 22 42;
-  --c-border: #E0DCCB;
-  --c-border-light: #C8C3A8;
-  --c-success: #2B6E4F;
-  --c-success-bg: #E5EFE9;
-  --c-warning: #A8782A;
-  --c-warning-bg: #F2E9CD;
-  --c-danger: #8E342B;
-  --c-danger-bg: #F2DFD9;
-  --c-danger-rgb: 142 52 43;
-  --c-info: #1A4571;
-  --c-info-bg: #DCE6F1;
-}
-
-/* Burgundy — Penguin Classics shelf · cream + oxblood spine + gold lettering */
-:root[data-theme="burgundy"] {
-  --c-bg0: #F5EFE6;
-  --c-bg1: #FCF7EE;
-  --c-bg2: #E9DFCE;
-  --c-bg3: #D6C8AC;
-  --c-fg1: #2A1414;
-  --c-fg2: #5A2E2E;
-  --c-fg3: #8B5A5A;
-  --c-accent: #7A2C25;
-  --c-accent-light: #9C3D34;
-  --c-accent-dim: #561C18;
-  --c-accent-bg: #F2E3DD;
-  --c-accent-rgb: 122 44 37;
-  --c-accent-dim-rgb: 86 28 24;
-  --c-border: #DECDB6;
-  --c-border-light: #C7B292;
-  --c-success: #4A6B30;
-  --c-success-bg: #E8EEDC;
-  --c-warning: #A8782A;
-  --c-warning-bg: #F2E9CD;
-  --c-danger: #B23522;
-  --c-danger-bg: #F5DDD6;
-  --c-danger-rgb: 178 53 34;
-  --c-info: #3A6280;
-  --c-info-bg: #DCE6EE;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #F59E0B;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #EF4444;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 239 68 68;
+  --c-info: #06B6D4;
+  --c-info-bg: #CFFAFE;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
@@ -5398,4 +5325,208 @@ textarea:focus-visible,
   text-transform: uppercase;
   color: var(--c-fg3);
   margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Theme atmospheric overrides (Aura + Prism)
+ *
+ * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /
+ * JetBrains Mono) stays the same across all themes — only the page
+ * backdrop, KPI tile surface treatment, hero photo behaviour, and primary
+ * CTA chrome change. Heritage uses the default styling (the Godavari hero
+ * photo + warm cream surfaces); Aura and Prism replace the photo with
+ * their own atmospheric layer and re-style the KPI / CTA chrome.
+ *
+ * All overrides are scoped to :root[data-theme="<id>"] so toggling themes
+ * is a single attribute change on <html>. Nothing in this section reaches
+ * inside a Heritage-themed page.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Aura ─────────────────────────────────────────────────────────────────
+ * Soft pastel gradient on the page itself; KPI tiles become glassy
+ * translucent surfaces with a subtle blur. Primary CTA becomes a pill with
+ * a coloured glow shadow. Hero photo is hidden — the gradient backdrop
+ * does the work. */
+:root[data-theme="aura"] body {
+  background:
+    linear-gradient(135deg, #F4F6FB 0%, #EBE9FB 50%, #F8E9F0 100%);
+  background-attachment: fixed;
+}
+:root[data-theme="aura"] .dh-page {
+  background: transparent;
+}
+:root[data-theme="aura"] .dh-hero {
+  background: transparent;
+  min-height: 460px;
+}
+:root[data-theme="aura"] .dh-hero-img {
+  display: none;
+}
+:root[data-theme="aura"] .dh-hero-content {
+  position: relative;
+  top: 0;
+  left: 0;
+  padding: clamp(40px, 6vw, 64px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 40px);
+  max-width: min(720px, 100%);
+}
+:root[data-theme="aura"] .dh-hero-title,
+:root[data-theme="aura"] .dh-hero-welcome,
+:root[data-theme="aura"] .dh-hero-tagline {
+  color: var(--c-fg1);
+}
+:root[data-theme="aura"] .dh-hero-title-italic {
+  color: var(--c-accent);
+}
+:root[data-theme="aura"] .dh-kpi-tile {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 14px rgba(124, 122, 237, 0.10);
+}
+:root[data-theme="aura"] .dh-kpi-tile:hover {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 8px 22px rgba(124, 122, 237, 0.16);
+}
+:root[data-theme="aura"] .dh-kpi-icon {
+  background: rgba(124, 122, 237, 0.14);
+  color: var(--c-accent);
+}
+:root[data-theme="aura"] .dh-btn-primary {
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(124, 122, 237, 0.35);
+  transition: box-shadow 160ms, transform 160ms;
+}
+:root[data-theme="aura"] .dh-btn-primary:hover {
+  background: var(--c-accent);
+  box-shadow: 0 6px 20px rgba(124, 122, 237, 0.50);
+  transform: translateY(-1px);
+}
+:root[data-theme="aura"] .dh-btn-outline {
+  border-radius: 999px;
+}
+:root[data-theme="aura"] .dh-card-row,
+:root[data-theme="aura"] .dh-empty {
+  background: rgba(255, 255, 255, 0.70);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+/* ── Prism ────────────────────────────────────────────────────────────────
+ * Pure white page, with two large radial glows pinned to opposite corners
+ * (indigo top-right, cyan bottom-left). Hero italic headline gets a
+ * gradient text fill; the centre KPI tile becomes a gradient surface; the
+ * primary CTA is a gradient button with a coloured glow shadow. */
+:root[data-theme="prism"] body {
+  background:
+    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(99, 91, 255, 0.16) 0%, rgba(99, 91, 255, 0) 60%),
+    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(6, 182, 212, 0.12) 0%, rgba(6, 182, 212, 0) 60%),
+    #FFFFFF;
+  background-attachment: fixed;
+}
+:root[data-theme="prism"] .dh-page {
+  background: transparent;
+}
+:root[data-theme="prism"] .dh-hero {
+  background: transparent;
+  min-height: 460px;
+  position: relative;
+  overflow: hidden;
+}
+:root[data-theme="prism"] .dh-hero-img {
+  display: none;
+}
+:root[data-theme="prism"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  top: -140px;
+  right: -120px;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle at center, rgba(99, 91, 255, 0.20) 0%, rgba(99, 91, 255, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="prism"] .dh-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -120px;
+  left: -80px;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle at center, rgba(6, 182, 212, 0.16) 0%, rgba(6, 182, 212, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="prism"] .dh-hero-content {
+  position: relative;
+  top: 0;
+  left: 0;
+  padding: clamp(40px, 6vw, 64px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 40px);
+  max-width: min(720px, 100%);
+  z-index: 2;
+}
+:root[data-theme="prism"] .dh-hero-title,
+:root[data-theme="prism"] .dh-hero-welcome,
+:root[data-theme="prism"] .dh-hero-tagline {
+  color: var(--c-fg1);
+}
+:root[data-theme="prism"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #635BFF 0%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="prism"] .dh-kpi-tile {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+:root[data-theme="prism"] .dh-kpi-tile:hover {
+  background: var(--c-bg2);
+}
+/* Centre KPI tile picks up the gradient — the "in motion" stat. */
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #635BFF 0%, #06B6D4 100%);
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(99, 91, 255, 0.28);
+}
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #4F46E5 0%, #635BFF 100%);
+  box-shadow: 0 8px 22px rgba(99, 91, 255, 0.40);
+}
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+}
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="prism"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint {
+  color: #FFFFFF;
+}
+:root[data-theme="prism"] .dh-btn-primary {
+  background: linear-gradient(135deg, #635BFF 0%, #4F46E5 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(99, 91, 255, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="prism"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #4F46E5 0%, #635BFF 100%);
+  box-shadow: 0 6px 18px rgba(99, 91, 255, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+:root[data-theme="prism"] .dh-btn-outline {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+:root[data-theme="prism"] .dh-btn-outline:hover {
+  background: rgba(99, 91, 255, 0.06);
+  border-color: var(--c-accent-dim);
+  color: var(--c-accent-dim);
 }
