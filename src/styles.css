@@ -201,6 +201,191 @@
   --c-accent-4-bg: #CFFAFE;
 }
 
+/* Rose — vibrant + energetic · hot pink primary · pink → fuchsia gradient
+   signature. Sibling of Prism / Citrus with the same atmospheric structure
+   but a hot-pink palette. Best for moods that want confidence and warmth
+   without going full orange. */
+:root[data-theme="rose"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #FFF7FB;
+  --c-bg2: #FCE7F3;
+  --c-bg3: #FBCFE8;
+  --c-fg1: #2A0F1F;
+  --c-fg2: #5A1A40;
+  --c-fg3: #8E3D6B;
+  --c-accent: #EC4899;
+  --c-accent-light: #F472B6;
+  --c-accent-dim: #BE185D;
+  --c-accent-bg: #FCE7F3;
+  --c-accent-rgb: 236 72 153;
+  --c-accent-dim-rgb: 190 24 93;
+  --c-border: #FDD7E8;
+  --c-border-light: #FAB0CF;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #F59E0B;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #B91C1C;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 185 28 28;
+  --c-info: #06B6D4;
+  --c-info-bg: #CFFAFE;
+  --c-accent-2:    #34D399;  /* mint green */
+  --c-accent-2-bg: #D1FAE5;
+  --c-accent-3:    #FACC15;  /* sunny yellow */
+  --c-accent-3-bg: #FEF9C3;
+  --c-accent-4:    #06B6D4;  /* cyan kicker */
+  --c-accent-4-bg: #CFFAFE;
+}
+
+/* Mint — vibrant + energetic · teal primary · teal → emerald-mint gradient
+   signature. The cool-green / fresh-organic option in the vibrant family.
+   Stands distinct from Heritage (deep coconut green) and Aura (mint as
+   secondary) by anchoring on saturated teal. */
+:root[data-theme="mint"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #F5FFFB;
+  --c-bg2: #D1FAE5;
+  --c-bg3: #A7F3D0;
+  --c-fg1: #0E1F18;
+  --c-fg2: #1F4F3D;
+  --c-fg3: #5C8473;
+  --c-accent: #14B8A6;
+  --c-accent-light: #2DD4BF;
+  --c-accent-dim: #0F766E;
+  --c-accent-bg: #CCFBF1;
+  --c-accent-rgb: 20 184 166;
+  --c-accent-dim-rgb: 15 118 110;
+  --c-border: #BBF7D0;
+  --c-border-light: #86EFAC;
+  --c-success: #10B981;
+  --c-success-bg: #ECFDF5;
+  --c-warning: #EAB308;
+  --c-warning-bg: #FEF9C3;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0EA5E9;
+  --c-info-bg: #E0F2FE;
+  --c-accent-2:    #FB923C;  /* peach orange — warm complement */
+  --c-accent-2-bg: #FED7AA;
+  --c-accent-3:    #FACC15;  /* sunny yellow */
+  --c-accent-3-bg: #FEF9C3;
+  --c-accent-4:    #EC4899;  /* magenta kicker */
+  --c-accent-4-bg: #FCE7F3;
+}
+
+/* Twilight — vibrant + energetic · violet primary · violet → magenta
+   gradient signature. The moody / electric option — sits between Aura's
+   pastel lavender and Rose's hot pink in saturation. Confident and
+   slightly dramatic. */
+:root[data-theme="twilight"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #FBF7FF;
+  --c-bg2: #F3E8FF;
+  --c-bg3: #E9D5FF;
+  --c-fg1: #1F0F2A;
+  --c-fg2: #4F1F5C;
+  --c-fg3: #7B4F8E;
+  --c-accent: #9333EA;
+  --c-accent-light: #A855F7;
+  --c-accent-dim: #6B21A8;
+  --c-accent-bg: #F3E8FF;
+  --c-accent-rgb: 147 51 234;
+  --c-accent-dim-rgb: 107 33 168;
+  --c-border: #E9D5FF;
+  --c-border-light: #D8B4FE;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #F59E0B;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0EA5E9;
+  --c-info-bg: #E0F2FE;
+  --c-accent-2:    #06B6D4;  /* cyan */
+  --c-accent-2-bg: #CFFAFE;
+  --c-accent-3:    #FACC15;  /* sunny yellow */
+  --c-accent-3-bg: #FEF9C3;
+  --c-accent-4:    #EC4899;  /* magenta kicker — extends the gradient */
+  --c-accent-4-bg: #FCE7F3;
+}
+
+/* Aqua — vibrant + energetic · sky-blue primary · sky → cyan gradient
+   signature. The clean-oceanic option. Distinct from Prism (which leans
+   indigo-purple) by anchoring on pure sky-blue. */
+:root[data-theme="aqua"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #F5FBFF;
+  --c-bg2: #E0F2FE;
+  --c-bg3: #BAE6FD;
+  --c-fg1: #0A1F2A;
+  --c-fg2: #1E4960;
+  --c-fg3: #5C8499;
+  --c-accent: #0EA5E9;
+  --c-accent-light: #38BDF8;
+  --c-accent-dim: #0369A1;
+  --c-accent-bg: #E0F2FE;
+  --c-accent-rgb: 14 165 233;
+  --c-accent-dim-rgb: 3 105 161;
+  --c-border: #BAE6FD;
+  --c-border-light: #7DD3FC;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #F59E0B;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #06B6D4;
+  --c-info-bg: #CFFAFE;
+  --c-accent-2:    #34D399;  /* mint green */
+  --c-accent-2-bg: #D1FAE5;
+  --c-accent-3:    #FB923C;  /* peach orange */
+  --c-accent-3-bg: #FED7AA;
+  --c-accent-4:    #FACC15;  /* sunny yellow */
+  --c-accent-4-bg: #FEF9C3;
+}
+
+/* Lemon — vibrant + energetic · lime / chartreuse primary · lime → yellow
+   gradient signature. The bright fresh-citrus / spring meadow option.
+   Distinct from Mint (teal-anchored), Citrus (orange-anchored), and
+   Heritage (deep forest green) by anchoring on saturated lime green
+   that runs into a sunny yellow on the gradient surfaces. */
+:root[data-theme="lemon"] {
+  --c-bg0: #FFFFFF;
+  --c-bg1: #FCFFF5;
+  --c-bg2: #ECFCCB;
+  --c-bg3: #D9F99D;
+  --c-fg1: #1A2A0A;
+  --c-fg2: #3F5C20;
+  --c-fg3: #738E50;
+  --c-accent: #84CC16;
+  --c-accent-light: #A3E635;
+  --c-accent-dim: #4D7C0F;
+  --c-accent-bg: #ECFCCB;
+  --c-accent-rgb: 132 204 22;
+  --c-accent-dim-rgb: 77 124 15;
+  --c-border: #D9F99D;
+  --c-border-light: #BEF264;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #EAB308;
+  --c-warning-bg: #FEF9C3;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #0EA5E9;
+  --c-info-bg: #E0F2FE;
+  --c-accent-2:    #FACC15;  /* sunny yellow — gradient pair */
+  --c-accent-2-bg: #FEF9C3;
+  --c-accent-3:    #FB923C;  /* peach orange */
+  --c-accent-3-bg: #FED7AA;
+  --c-accent-4:    #06B6D4;  /* cyan kicker */
+  --c-accent-4-bg: #CFFAFE;
+}
+
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
  * RGB channels so they stay readable on whatever background the theme uses. */
 :root,
@@ -5713,4 +5898,398 @@ textarea:focus-visible,
   background: rgba(249, 115, 22, 0.06);
   border-color: var(--c-accent-dim);
   color: var(--c-accent-dim);
+}
+
+/* ── Rose ─────────────────────────────────────────────────────────────────
+ * Hot pink primary; pink → fuchsia gradient signature. Same atmospheric
+ * structure as Prism / Citrus. */
+:root[data-theme="rose"] body {
+  background:
+    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(236, 72, 153, 0.18) 0%, rgba(236, 72, 153, 0) 60%),
+    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(217, 70, 239, 0.14) 0%, rgba(217, 70, 239, 0) 60%),
+    #FFFFFF;
+  background-attachment: fixed;
+}
+:root[data-theme="rose"] .dh-page { background: transparent; }
+:root[data-theme="rose"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.22) 0%, rgba(217, 70, 239, 0.18) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="rose"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #EC4899 0%, #D946EF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="rose"] .dh-kpi-tile {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+:root[data-theme="rose"] .dh-kpi-tile:hover { background: var(--c-bg2); }
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg); color: var(--c-accent);
+}
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #EC4899 0%, #D946EF 100%);
+  border: none; color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(236, 72, 153, 0.30);
+}
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #BE185D 0%, #EC4899 50%, #D946EF 100%);
+  box-shadow: 0 8px 22px rgba(236, 72, 153, 0.42);
+}
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
+}
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
+:root[data-theme="rose"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+}
+:root[data-theme="rose"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+  border-color: rgba(52, 211, 153, 0.22);
+}
+:root[data-theme="rose"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg); color: var(--c-accent-3);
+  border-color: rgba(250, 204, 21, 0.22);
+}
+:root[data-theme="rose"] .dh-btn-primary {
+  background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="rose"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #BE185D 0%, #EC4899 100%);
+  box-shadow: 0 6px 18px rgba(236, 72, 153, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+:root[data-theme="rose"] .dh-btn-outline {
+  border-color: var(--c-accent); color: var(--c-accent);
+}
+:root[data-theme="rose"] .dh-btn-outline:hover {
+  background: rgba(236, 72, 153, 0.06);
+  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
+}
+
+/* ── Mint ─────────────────────────────────────────────────────────────────
+ * Teal primary; teal → emerald-mint gradient signature. */
+:root[data-theme="mint"] body {
+  background:
+    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(20, 184, 166, 0.18) 0%, rgba(20, 184, 166, 0) 60%),
+    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(110, 231, 183, 0.16) 0%, rgba(110, 231, 183, 0) 60%),
+    #FFFFFF;
+  background-attachment: fixed;
+}
+:root[data-theme="mint"] .dh-page { background: transparent; }
+:root[data-theme="mint"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.22) 0%, rgba(110, 231, 183, 0.20) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="mint"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #14B8A6 0%, #6EE7B7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="mint"] .dh-kpi-tile {
+  background: var(--c-bg1); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 14px 16px;
+}
+:root[data-theme="mint"] .dh-kpi-tile:hover { background: var(--c-bg2); }
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg); color: var(--c-accent);
+}
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #14B8A6 0%, #6EE7B7 100%);
+  border: none; color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(20, 184, 166, 0.30);
+}
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #0F766E 0%, #14B8A6 50%, #6EE7B7 100%);
+  box-shadow: 0 8px 22px rgba(20, 184, 166, 0.42);
+}
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
+}
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
+:root[data-theme="mint"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+}
+:root[data-theme="mint"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+  border-color: rgba(251, 146, 60, 0.22);
+}
+:root[data-theme="mint"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg); color: var(--c-accent-3);
+  border-color: rgba(250, 204, 21, 0.22);
+}
+:root[data-theme="mint"] .dh-btn-primary {
+  background: linear-gradient(135deg, #14B8A6 0%, #0F766E 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="mint"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+  box-shadow: 0 6px 18px rgba(20, 184, 166, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+:root[data-theme="mint"] .dh-btn-outline {
+  border-color: var(--c-accent); color: var(--c-accent);
+}
+:root[data-theme="mint"] .dh-btn-outline:hover {
+  background: rgba(20, 184, 166, 0.06);
+  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
+}
+
+/* ── Twilight ─────────────────────────────────────────────────────────────
+ * Violet primary; violet → magenta gradient signature. */
+:root[data-theme="twilight"] body {
+  background:
+    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(147, 51, 234, 0.18) 0%, rgba(147, 51, 234, 0) 60%),
+    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(236, 72, 153, 0.14) 0%, rgba(236, 72, 153, 0) 60%),
+    #FFFFFF;
+  background-attachment: fixed;
+}
+:root[data-theme="twilight"] .dh-page { background: transparent; }
+:root[data-theme="twilight"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.22) 0%, rgba(236, 72, 153, 0.18) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="twilight"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #9333EA 0%, #EC4899 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="twilight"] .dh-kpi-tile {
+  background: var(--c-bg1); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 14px 16px;
+}
+:root[data-theme="twilight"] .dh-kpi-tile:hover { background: var(--c-bg2); }
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg); color: var(--c-accent);
+}
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #9333EA 0%, #EC4899 100%);
+  border: none; color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(147, 51, 234, 0.30);
+}
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #6B21A8 0%, #9333EA 50%, #EC4899 100%);
+  box-shadow: 0 8px 22px rgba(147, 51, 234, 0.42);
+}
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
+}
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
+:root[data-theme="twilight"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+}
+:root[data-theme="twilight"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+  border-color: rgba(6, 182, 212, 0.22);
+}
+:root[data-theme="twilight"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg); color: var(--c-accent-3);
+  border-color: rgba(250, 204, 21, 0.22);
+}
+:root[data-theme="twilight"] .dh-btn-primary {
+  background: linear-gradient(135deg, #9333EA 0%, #6B21A8 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="twilight"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #6B21A8 0%, #9333EA 100%);
+  box-shadow: 0 6px 18px rgba(147, 51, 234, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+:root[data-theme="twilight"] .dh-btn-outline {
+  border-color: var(--c-accent); color: var(--c-accent);
+}
+:root[data-theme="twilight"] .dh-btn-outline:hover {
+  background: rgba(147, 51, 234, 0.06);
+  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
+}
+
+/* ── Aqua ─────────────────────────────────────────────────────────────────
+ * Sky-blue primary; sky → cyan gradient signature. */
+:root[data-theme="aqua"] body {
+  background:
+    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(14, 165, 233, 0.18) 0%, rgba(14, 165, 233, 0) 60%),
+    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(34, 211, 238, 0.14) 0%, rgba(34, 211, 238, 0) 60%),
+    #FFFFFF;
+  background-attachment: fixed;
+}
+:root[data-theme="aqua"] .dh-page { background: transparent; }
+:root[data-theme="aqua"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(34, 211, 238, 0.18) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="aqua"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #0EA5E9 0%, #22D3EE 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="aqua"] .dh-kpi-tile {
+  background: var(--c-bg1); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 14px 16px;
+}
+:root[data-theme="aqua"] .dh-kpi-tile:hover { background: var(--c-bg2); }
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg); color: var(--c-accent);
+}
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);
+  border: none; color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.30);
+}
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 50%, #22D3EE 100%);
+  box-shadow: 0 8px 22px rgba(14, 165, 233, 0.42);
+}
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
+}
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
+:root[data-theme="aqua"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+}
+:root[data-theme="aqua"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+  border-color: rgba(52, 211, 153, 0.22);
+}
+:root[data-theme="aqua"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg); color: var(--c-accent-3);
+  border-color: rgba(251, 146, 60, 0.22);
+}
+:root[data-theme="aqua"] .dh-btn-primary {
+  background: linear-gradient(135deg, #0EA5E9 0%, #0369A1 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="aqua"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%);
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+:root[data-theme="aqua"] .dh-btn-outline {
+  border-color: var(--c-accent); color: var(--c-accent);
+}
+:root[data-theme="aqua"] .dh-btn-outline:hover {
+  background: rgba(14, 165, 233, 0.06);
+  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
+}
+
+/* ── Lemon ────────────────────────────────────────────────────────────────
+ * Lime / chartreuse primary; lime → yellow gradient signature. */
+:root[data-theme="lemon"] body {
+  background:
+    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(132, 204, 22, 0.18) 0%, rgba(132, 204, 22, 0) 60%),
+    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(250, 204, 21, 0.16) 0%, rgba(250, 204, 21, 0) 60%),
+    #FFFFFF;
+  background-attachment: fixed;
+}
+:root[data-theme="lemon"] .dh-page { background: transparent; }
+:root[data-theme="lemon"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(132, 204, 22, 0.22) 0%, rgba(250, 204, 21, 0.20) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="lemon"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #84CC16 0%, #FACC15 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="lemon"] .dh-kpi-tile {
+  background: var(--c-bg1); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 14px 16px;
+}
+:root[data-theme="lemon"] .dh-kpi-tile:hover { background: var(--c-bg2); }
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg); color: var(--c-accent);
+}
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #84CC16 0%, #FACC15 100%);
+  border: none; color: #1A2A0A;
+  box-shadow: 0 6px 18px rgba(132, 204, 22, 0.30);
+}
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #4D7C0F 0%, #84CC16 50%, #FACC15 100%);
+  box-shadow: 0 8px 22px rgba(132, 204, 22, 0.42);
+}
+/* Lemon's gradient tile uses dark text since #FACC15 yellow needs contrast */
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(26, 42, 10, 0.16); color: #1A2A0A;
+}
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #1A2A0A; }
+:root[data-theme="lemon"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+}
+:root[data-theme="lemon"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+  border-color: rgba(250, 204, 21, 0.22);
+}
+:root[data-theme="lemon"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg); color: var(--c-accent-3);
+  border-color: rgba(251, 146, 60, 0.22);
+}
+:root[data-theme="lemon"] .dh-btn-primary {
+  background: linear-gradient(135deg, #84CC16 0%, #4D7C0F 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(132, 204, 22, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="lemon"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #4D7C0F 0%, #84CC16 100%);
+  box-shadow: 0 6px 18px rgba(132, 204, 22, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+:root[data-theme="lemon"] .dh-btn-outline {
+  border-color: var(--c-accent); color: var(--c-accent);
+}
+:root[data-theme="lemon"] .dh-btn-outline:hover {
+  background: rgba(132, 204, 22, 0.06);
+  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
 }

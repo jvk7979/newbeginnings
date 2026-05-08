@@ -34,6 +34,12 @@ export const THEMES = [
   { id: 'aura',     label: 'Aura',     mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7C7AED'] },
   { id: 'prism',    label: 'Prism',    mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
   { id: 'citrus',   label: 'Citrus',   mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
+  // Candidates — preview live, then keep favourites and remove the rest.
+  { id: 'rose',     label: 'Rose',     mode: 'light', swatch: ['#FFFFFF', '#FFF7FB', '#EC4899'] },
+  { id: 'mint',     label: 'Mint',     mode: 'light', swatch: ['#FFFFFF', '#F5FFFB', '#14B8A6'] },
+  { id: 'twilight', label: 'Twilight', mode: 'light', swatch: ['#FFFFFF', '#FBF7FF', '#9333EA'] },
+  { id: 'aqua',     label: 'Aqua',     mode: 'light', swatch: ['#FFFFFF', '#F5FBFF', '#0EA5E9'] },
+  { id: 'lemon',    label: 'Lemon',    mode: 'light', swatch: ['#FFFFFF', '#FCFFF5', '#84CC16'] },
 ];
 
 const DEFAULT_THEME = 'heritage';
