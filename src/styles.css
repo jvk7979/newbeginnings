@@ -5343,10 +5343,11 @@ textarea:focus-visible,
  * ───────────────────────────────────────────────────────────────────────── */
 
 /* ── Aura ─────────────────────────────────────────────────────────────────
- * Soft pastel gradient on the page itself; KPI tiles become glassy
- * translucent surfaces with a subtle blur. Primary CTA becomes a pill with
- * a coloured glow shadow. Hero photo is hidden — the gradient backdrop
- * does the work. */
+ * Soft pastel gradient on the page; the Godavari hero photo stays but
+ * gets a lavender→peach scrim layered on top so the warm tones of the
+ * photo settle into the cool atmosphere of the rest of the page. KPI
+ * tiles become glassy translucent surfaces with a subtle blur. Primary
+ * CTA becomes a pill with a coloured glow shadow. */
 :root[data-theme="aura"] body {
   background:
     linear-gradient(135deg, #F4F6FB 0%, #EBE9FB 50%, #F8E9F0 100%);
@@ -5355,27 +5356,22 @@ textarea:focus-visible,
 :root[data-theme="aura"] .dh-page {
   background: transparent;
 }
-:root[data-theme="aura"] .dh-hero {
-  background: transparent;
-  min-height: 460px;
-}
-:root[data-theme="aura"] .dh-hero-img {
-  display: none;
-}
-:root[data-theme="aura"] .dh-hero-content {
-  position: relative;
-  top: 0;
-  left: 0;
-  padding: clamp(40px, 6vw, 64px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 40px);
-  max-width: min(720px, 100%);
-}
-:root[data-theme="aura"] .dh-hero-title,
-:root[data-theme="aura"] .dh-hero-welcome,
-:root[data-theme="aura"] .dh-hero-tagline {
-  color: var(--c-fg1);
+/* Tint scrim sits on top of the hero photo, below the content. The hero
+   already establishes a stacking context (position:relative) and the
+   content layer has z-index: 2, so :before at z-index: 1 sandwiches
+   correctly between photo (implicit 0) and text. */
+:root[data-theme="aura"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(124, 122, 237, 0.22) 0%, rgba(244, 114, 182, 0.18) 100%);
+  pointer-events: none;
+  z-index: 1;
 }
 :root[data-theme="aura"] .dh-hero-title-italic {
-  color: var(--c-accent);
+  /* The default accent for Aura (lavender) sits too close in hue to the
+     scrim — drop the italic to fg1 charcoal for clean legibility. */
+  color: var(--c-fg1);
 }
 :root[data-theme="aura"] .dh-kpi-tile {
   background: rgba(255, 255, 255, 0.62);
@@ -5416,10 +5412,12 @@ textarea:focus-visible,
 }
 
 /* ── Prism ────────────────────────────────────────────────────────────────
- * Pure white page, with two large radial glows pinned to opposite corners
- * (indigo top-right, cyan bottom-left). Hero italic headline gets a
- * gradient text fill; the centre KPI tile becomes a gradient surface; the
- * primary CTA is a gradient button with a coloured glow shadow. */
+ * White page with indigo + cyan radial corner glows on the body. The
+ * Godavari hero photo stays but picks up a translucent indigo→cyan wash
+ * so the warm photo reads as part of Prism's cool gradient palette. Hero
+ * italic line gets a gradient text fill; the centre KPI tile becomes a
+ * full gradient surface; the primary CTA is a gradient button with a
+ * coloured glow shadow. */
 :root[data-theme="prism"] body {
   background:
     radial-gradient(ellipse 720px 720px at 100% 0%, rgba(99, 91, 255, 0.16) 0%, rgba(99, 91, 255, 0) 60%),
@@ -5430,49 +5428,17 @@ textarea:focus-visible,
 :root[data-theme="prism"] .dh-page {
   background: transparent;
 }
-:root[data-theme="prism"] .dh-hero {
-  background: transparent;
-  min-height: 460px;
-  position: relative;
-  overflow: hidden;
-}
-:root[data-theme="prism"] .dh-hero-img {
-  display: none;
-}
+/* Wash overlay over the hero photo. Same stacking-context trick as Aura:
+   ::before at z-index 1 sits between the photo (z-index 0) and the
+   .dh-hero-content (z-index 2) which is already established by the
+   default styling. */
 :root[data-theme="prism"] .dh-hero::before {
   content: '';
   position: absolute;
-  top: -140px;
-  right: -120px;
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle at center, rgba(99, 91, 255, 0.20) 0%, rgba(99, 91, 255, 0) 70%);
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99, 91, 255, 0.22) 0%, rgba(6, 182, 212, 0.18) 100%);
   pointer-events: none;
   z-index: 1;
-}
-:root[data-theme="prism"] .dh-hero::after {
-  content: '';
-  position: absolute;
-  bottom: -120px;
-  left: -80px;
-  width: 360px;
-  height: 360px;
-  background: radial-gradient(circle at center, rgba(6, 182, 212, 0.16) 0%, rgba(6, 182, 212, 0) 70%);
-  pointer-events: none;
-  z-index: 1;
-}
-:root[data-theme="prism"] .dh-hero-content {
-  position: relative;
-  top: 0;
-  left: 0;
-  padding: clamp(40px, 6vw, 64px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 40px);
-  max-width: min(720px, 100%);
-  z-index: 2;
-}
-:root[data-theme="prism"] .dh-hero-title,
-:root[data-theme="prism"] .dh-hero-welcome,
-:root[data-theme="prism"] .dh-hero-tagline {
-  color: var(--c-fg1);
 }
 :root[data-theme="prism"] .dh-hero-title-italic {
   background: linear-gradient(90deg, #635BFF 0%, #06B6D4 100%);
