@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { C } from '../tokens';
 import { useIdeas, usePlans, useFiles } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import heroImg from '../assets/hero_gpdavari1.png';
 
 // Heritage Dashboard. Designed around the Godavari hero photo as the
@@ -88,46 +89,59 @@ export default function Dashboard({ onNavigate }) {
   const { ideas } = useIdeas();
   const { plans } = usePlans();
   const { files } = useFiles();
+  const { user }  = useAuth();
 
   const eligibleCount   = useMemo(() => plans.filter(p => p.eligibleForCalc).length, [plans]);
   const featuredIdeas   = useMemo(() => ideas.slice(0, 3), [ideas]);
   const activeProjects  = useMemo(() => plans.filter(p => p.status === 'active' || !p.status).slice(0, 3), [plans]);
   const recentDocuments = useMemo(() => files.slice(0, 4), [files]);
 
-  const today = new Date();
-  const todayStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const firstName = user?.displayName?.split(' ')[0] || 'there';
 
   return (
     <div className="dh-page" style={{ background: C.bg0 }}>
 
-      {/* ── Hero — full-width Godavari photo, editorial content stacks
-            below on the coconut-cream background. ──────────────────── */}
+      {/* ── Hero — Godavari banner with editorial overlay (top-left
+            content card + top-right pull-quote on web/iPad). On mobile
+            content collapses below the photo. ───────────────────────── */}
       <section className="dh-hero">
         <img src={heroImg} alt="Godavari river at dusk" className="dh-hero-img" />
         <div className="dh-hero-content">
-          <span className="dh-hero-eyebrow">{todayStr}</span>
-          <h1 className="dh-hero-title">Welcome back.</h1>
-          <p className="dh-hero-tagline">Build with purpose. Grow with roots.</p>
-          <div className="dh-hero-meta">
-            <span><strong>{ideas.length}</strong> ideas</span>
-            <span className="dh-hero-meta-sep" />
-            <span><strong>{plans.length}</strong> projects</span>
-            {eligibleCount > 0 && <>
-              <span className="dh-hero-meta-sep" />
-              <span><strong>{eligibleCount}</strong> in calculation</span>
-            </>}
-          </div>
+          <span className="dh-hero-welcome">
+            Welcome back, {firstName}
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true" style={{ marginLeft: 6, color: 'var(--c-h-gold)' }}>
+              <path d="M12 2c-2.5 4-6 6-9 6 0 5 4 9 9 12 5-3 9-7 9-12-3 0-6.5-2-9-6z"/>
+            </svg>
+          </span>
+          <h1 className="dh-hero-title">
+            Start. Plan. Grow.
+            <span className="dh-hero-title-italic">Rooted in Godavari, Built for Tomorrow.</span>
+          </h1>
+          <p className="dh-hero-tagline">
+            Turn your ideas into thriving businesses with clarity,<br />
+            structure, and regional wisdom.
+          </p>
           <div className="dh-hero-actions">
             <button onClick={() => onNavigate('new-idea')} className="dh-btn dh-btn-primary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               New Idea
             </button>
-            <button onClick={() => onNavigate('new-project')} className="dh-btn dh-btn-secondary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="13" height="13" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              New Project
+            <button onClick={() => onNavigate('ideas')} className="dh-btn dh-btn-outline">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" aria-hidden="true"><path d="M11 19c-7 0-7-9-7-9s5 0 7 4c2-4 7-4 7-4s0 9-7 9z"/><path d="M11 19v-7"/></svg>
+              Explore Ideas
             </button>
           </div>
         </div>
+
+        {/* Pull-quote pinned to top-right of the hero. Hidden on mobile. */}
+        <aside className="dh-hero-quote" aria-label="Tagline">
+          <span className="dh-hero-quote-mark" aria-hidden="true">&ldquo;</span>
+          <p className="dh-hero-quote-text">
+            From the banks of the Godavari<br />
+            to a future of abundance.
+          </p>
+          <p className="dh-hero-quote-cite">— The New Beginnings</p>
+        </aside>
       </section>
 
       <div className="dh-container dh-container-pad">

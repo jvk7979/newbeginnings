@@ -4814,46 +4814,147 @@ textarea:focus-visible,
   );
 }
 /* Web + iPad: editorial content sits transparently in the top-left
-   corner of the hero, no card / background / border. Pure dark text
-   on the photo — relies on the photo's washed warm-cream tones for
-   contrast. */
+   corner of the hero. Welcome eyebrow + 2-line headline (second line
+   italic in Cormorant Garamond) + tagline + 2 CTAs. Pure dark text on
+   the photo. */
 .dh-hero-content {
   position: absolute;
-  top: clamp(20px, 4vw, 36px);
+  top: clamp(28px, 4vw, 44px);
   left: clamp(20px, 5vw, 56px);
-  max-width: min(460px, calc(100% - 40px));
+  max-width: min(580px, calc(60% - 24px));
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
   padding: 0;
   box-sizing: border-box;
-  color: #000;
+  color: #1a1815;
   z-index: 2;
 }
-.dh-hero-content .dh-hero-title   { font-size: clamp(30px, 4vw, 44px); color: #000; }
-.dh-hero-content .dh-hero-tagline { font-size: clamp(15px, 1.6vw, 18px); color: #1a1815; }
-.dh-hero-content .dh-hero-eyebrow { color: #8a5e1a; }
-.dh-hero-content .dh-hero-meta         { color: #1a1815; }
-.dh-hero-content .dh-hero-meta strong  { color: #000; }
-.dh-hero-content .dh-hero-meta-sep     { background: #5c5648; }
+.dh-hero-welcome {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d2a26;
+  margin-bottom: -4px;
+}
+.dh-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(36px, 4.6vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  color: #000;
+  display: block;
+}
+.dh-hero-title-italic {
+  display: block;
+  margin-top: 4px;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(28px, 3.4vw, 40px);
+  color: var(--c-accent);
+  letter-spacing: -0.005em;
+  line-height: 1.1;
+}
+.dh-hero-tagline {
+  font-family: 'DM Sans', sans-serif;
+  font-style: normal;
+  font-size: clamp(14px, 1.4vw, 16px);
+  font-weight: 400;
+  color: #2d2a26;
+  margin: 0;
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+.dh-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+/* Outlined CTA — green border + green text on cream, matches the
+   inspiration's "Explore Ideas" treatment. */
+.dh-btn-outline {
+  background: rgba(253, 250, 242, 0.85);
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+.dh-btn-outline:hover {
+  background: var(--c-accent-bg);
+  border-color: var(--c-accent-dim);
+  color: var(--c-accent-dim);
+}
+
+/* Pull-quote in top-right of hero — translucent cream panel with a
+   big serif quote mark, italic body, small attribution. */
+.dh-hero-quote {
+  position: absolute;
+  top: clamp(28px, 4vw, 44px);
+  right: clamp(20px, 5vw, 56px);
+  max-width: 280px;
+  padding: 16px 20px 14px 22px;
+  background: rgba(253, 250, 242, 0.88);
+  border: 1px solid rgba(229, 221, 201, 0.7);
+  border-radius: 10px;
+  border-left: 3px solid var(--c-h-gold);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px rgba(45, 42, 38, 0.10);
+  z-index: 2;
+}
+.dh-hero-quote-mark {
+  display: block;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 0.6;
+  color: var(--c-h-gold);
+  margin-bottom: 6px;
+}
+.dh-hero-quote-text {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--c-fg1);
+  line-height: 1.4;
+  margin: 0 0 8px;
+}
+.dh-hero-quote-cite {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--c-fg3);
+  margin: 0;
+}
+
+/* iPad: shrink quote panel slightly, give content card less max-width
+   so they don't collide. */
+@media (max-width: 1100px) {
+  .dh-hero-content { max-width: min(520px, calc(58% - 16px)); }
+  .dh-hero-quote   { max-width: 240px; padding: 14px 16px 12px 18px; }
+  .dh-hero-quote-text { font-size: 14px; }
+}
 
 /* Mobile: revert to a normal static block below the image with the
-   default heritage-token colours on the cream background. */
+   default heritage-token colours on the cream background. Quote
+   panel hides on mobile (the headline + tagline already carry the
+   editorial voice; an extra panel would clutter the small screen). */
 @media (max-width: 640px) {
   .dh-hero-content {
     position: static;
     max-width: 100%;
     padding: 18px 18px 24px;
-    gap: 4px;
+    gap: 8px;
     color: var(--c-fg1);
   }
-  .dh-hero-content .dh-hero-title   { font-size: 32px; color: var(--c-fg1); }
-  .dh-hero-content .dh-hero-tagline { font-size: 16px; margin-bottom: 8px; color: var(--c-fg2); }
-  .dh-hero-content .dh-hero-eyebrow { color: var(--c-h-gold); }
-  .dh-hero-content .dh-hero-meta         { color: var(--c-fg2); font-size: 12px; gap: 10px; margin-bottom: 12px; }
-  .dh-hero-content .dh-hero-meta strong  { color: var(--c-fg1); }
-  .dh-hero-content .dh-hero-meta-sep     { background: var(--c-fg3); }
+  .dh-hero-welcome { font-size: 13px; }
+  .dh-hero-title   { font-size: 30px; color: var(--c-fg1); }
+  .dh-hero-title-italic { font-size: 22px; margin-top: 2px; }
+  .dh-hero-tagline { font-size: 14px; color: var(--c-fg2); }
   .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
+  .dh-hero-quote   { display: none; }
 }
 .dh-hero-eyebrow {
   font-family: 'DM Sans', sans-serif;

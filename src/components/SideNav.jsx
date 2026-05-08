@@ -77,8 +77,11 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
     }}>
       {/* Logo */}
       <div style={{ padding: '14px 16px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-        <button className="sidenav-logo-btn" onClick={() => onNavigate('dashboard')}>
+        <button className="sidenav-logo-btn" onClick={() => onNavigate('dashboard')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
           <img src={logoImg} alt="The New Beginnings" className="logo-img sidenav-logo-img" />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.fg3, alignSelf: 'center' }}>
+            Godavari Heritage
+          </span>
         </button>
         {mobile && (
           <button onClick={() => onNavigate(null)}
