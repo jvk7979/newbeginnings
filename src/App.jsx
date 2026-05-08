@@ -259,7 +259,14 @@ export default function App() {
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
           <ErrorBoundary>
             <Suspense fallback={<Spinner />}>
-              {renderPage()}
+              {/* `key={page}` remounts the wrapper on each route change so the
+                  CSS enter animation fires per navigation. The wrapper takes
+                  flex:1 + display:flex so the inner page still gets the full
+                  height it had before — animation is opacity + tiny y-shift,
+                  no layout disruption. */}
+              <div key={page} className="page-enter" style={{ flex: 1, display: 'flex', minWidth: 0 }}>
+                {renderPage()}
+              </div>
             </Suspense>
           </ErrorBoundary>
         </div>

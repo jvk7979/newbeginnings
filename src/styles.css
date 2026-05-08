@@ -5432,6 +5432,173 @@ textarea:focus-visible,
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+ * Page transitions — fade + tiny upward slide on every route change.
+ * Wrapper in App.jsx uses `key={page}` so this fires per navigation.
+ * Anchor links (e.g. Plan Detail TOC) get smooth scroll behaviour and a
+ * scroll-margin so they don't hide sections under any sticky element.
+ * Honours prefers-reduced-motion.
+ * ───────────────────────────────────────────────────────────────────────── */
+.page-enter {
+  animation: page-enter 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { animation: none; }
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Plan Detail reading view polish (#5)
+ *
+ * Drop caps on the Executive Summary and the first section's content,
+ * tighter editorial line-height + letter-spacing, and a sticky TOC
+ * sidebar that appears on wide viewports.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* Tighter reading typography across the prose surface. */
+.plan-detail-redesign .plan-section-prose {
+  font-size: 17px;
+  line-height: 1.78;
+  letter-spacing: 0.005em;
+}
+
+/* Drop cap on the very first prose surface in the reading view —
+   normally that's the Executive Summary. Cormorant italic, accent-coloured,
+   floats left. */
+.plan-detail-redesign .plan-section-summary .plan-section-prose::first-letter {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 4.2em;
+  line-height: 0.85;
+  color: var(--c-accent);
+  float: left;
+  margin: 4px 12px 0 -2px;
+  padding-top: 6px;
+}
+
+/* Sections get scroll-margin so TOC anchor jumps don't sit pinned
+   directly to the top of the viewport. */
+.plan-detail-redesign [id^="plan-section-"] {
+  scroll-margin-top: 24px;
+}
+
+/* TOC sidebar — vertical list of section titles, sticky on the left
+   beside the main content. Only appears when the viewport is wide enough
+   to comfortably host both the 800px reading column AND a 200px aside.
+   Narrow viewports keep the content column centred at max-width 800. */
+.plan-detail-layout {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+.plan-detail-toc { display: none; }
+@media (min-width: 1180px) {
+  .plan-detail-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 1080px;
+  }
+  .plan-detail-layout > .plan-detail-content {
+    flex: 1;
+    min-width: 0;
+    max-width: 800px;
+  }
+  .plan-detail-toc {
+    display: block;
+    width: 200px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 24px;
+    align-self: flex-start;
+  }
+}
+.plan-detail-toc-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 12px;
+}
+.plan-detail-toc ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 1px solid var(--c-border);
+}
+.plan-detail-toc a {
+  display: block;
+  padding: 7px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--c-fg3);
+  text-decoration: none;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  transition: color 150ms, border-color 150ms, background 150ms;
+}
+.plan-detail-toc a:hover {
+  color: var(--c-fg1);
+  border-left-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb) / 0.04);
+}
+.plan-detail-toc a.is-active {
+  color: var(--c-accent);
+  font-weight: 600;
+  border-left-color: var(--c-accent);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Sign-in page polish (#7)
+ *
+ * Theme-aware atmospheric layers — left panel picks up two soft radial
+ * glows in the active theme's accent (auto-themed via --c-accent-rgb,
+ * so Heritage glows green, Aura lavender, Prism indigo, Citrus orange,
+ * Lemon lime). Right panel page background gets a faint accent halo at
+ * the bottom-right so the card sits on a less flat surface. Google CTA
+ * picks up an accent-tinted hover shadow + accessible focus ring.
+ * ───────────────────────────────────────────────────────────────────────── */
+.auth-page-bg {
+  background:
+    radial-gradient(ellipse 900px 700px at 100% 100%, rgba(var(--c-accent-rgb) / 0.07), transparent 60%),
+    var(--c-bg0);
+}
+.auth-left-atmo {
+  position: relative;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(var(--c-accent-rgb) / 0.22), transparent 55%),
+    radial-gradient(circle at 92% 96%, rgba(var(--c-accent-rgb) / 0.12), transparent 50%),
+    var(--c-accent-bg);
+}
+.auth-google-btn {
+  transition: box-shadow 200ms ease, border-color 200ms ease, transform 200ms ease;
+}
+.auth-google-btn:hover:not(:disabled) {
+  border-color: rgba(var(--c-accent-rgb) / 0.55);
+  box-shadow: 0 6px 22px rgba(var(--c-accent-rgb) / 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+.auth-google-btn:focus-visible {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb) / 0.25), 0 4px 14px rgba(var(--c-accent-rgb) / 0.18);
+}
+.auth-google-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(var(--c-accent-rgb) / 0.18);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
  * Theme atmospheric overrides (Aura + Prism)
  *
  * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /

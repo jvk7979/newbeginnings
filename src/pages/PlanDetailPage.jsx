@@ -359,7 +359,22 @@ export default function PlanDetailPage({ plan, onNavigate }) {
        </div>
       </section>
 
-      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
+      <div className="plan-detail-layout">
+        {!isEditing && sections.length >= 2 && (
+          <aside className="plan-detail-toc" aria-label="Plan contents">
+            <div className="plan-detail-toc-eyebrow">Contents</div>
+            <ol>
+              {sections.map((sec, i) => (
+                <li key={i}>
+                  <a href={`#plan-section-${i}`}>
+                    {sec.title?.trim() || `Section ${i + 1}`}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </aside>
+        )}
+        <div className="plan-detail-content">
 
         {/* ── VIEW MODE ── */}
         {!isEditing && (
@@ -382,7 +397,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
             {sections.map((sec, i) => (
               editingSecIdx === i ? (
-                <div key={i} style={{ background: C.bg1, border: `1px solid ${C.accentDim}`, borderRadius: 10, padding: '16px 18px', marginBottom: 20, boxShadow: `0 0 0 2px ${alpha(C.accentDim, 22)}` }}>
+                <div key={i} id={`plan-section-${i}`} style={{ background: C.bg1, border: `1px solid ${C.accentDim}`, borderRadius: 10, padding: '16px 18px', marginBottom: 20, boxShadow: `0 0 0 2px ${alpha(C.accentDim, 22)}` }}>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, marginBottom: 10 }}>Section {i + 1}</div>
                   <input autoFocus value={editingSecDraft.title} onChange={e => setEditingSecDraft(d => ({ ...d, title: e.target.value }))} placeholder="Section title" style={{ ...inputStyle, marginBottom: 10, fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17 }} onFocus={focus} onBlur={blur} />
                   <textarea value={editingSecDraft.content} onChange={e => setEditingSecDraft(d => ({ ...d, content: e.target.value }))} placeholder="Section content…" style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.7 }} onFocus={focus} onBlur={blur} />
@@ -392,7 +407,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                   </div>
                 </div>
               ) : (
-                <div key={i} draggable onDragStart={() => setDragIdx(i)} onDragOver={e => { e.preventDefault(); setDragOverIdx(i); }} onDragLeave={() => setDragOverIdx(prev => prev === i ? null : prev)} onDrop={() => handleDrop(i)} onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                <div key={i} id={`plan-section-${i}`} draggable onDragStart={() => setDragIdx(i)} onDragOver={e => { e.preventDefault(); setDragOverIdx(i); }} onDragLeave={() => setDragOverIdx(prev => prev === i ? null : prev)} onDrop={() => handleDrop(i)} onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
                   style={{ marginBottom: 28, paddingBottom: 28, borderBottom: i < sections.length - 1 ? `1px solid ${C.border}` : 'none', opacity: dragIdx === i ? 0.4 : 1, outline: dragOverIdx === i && dragIdx !== i ? `2px solid ${C.accentDim}` : 'none', borderRadius: dragOverIdx === i && dragIdx !== i ? 8 : 0, transition: 'opacity 150ms' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                     <div role="img" aria-hidden="true" title="Drag to reorder" style={{ cursor: 'grab', color: C.fg3, flexShrink: 0, paddingTop: 6, fontSize: 17, lineHeight: 1, userSelect: 'none', touchAction: 'none', minWidth: 20 }}>⠿</div>
@@ -636,7 +651,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
 
         {/* ── DISCUSSION — always visible ── */}
         <DiscussionThread collectionName="planDiscussions" docId={plan.id} />
-      </div>
+        </div>{/* /.plan-detail-content */}
+      </div>{/* /.plan-detail-layout */}
     </div>
     {confirmDel && (
       <ConfirmModal
