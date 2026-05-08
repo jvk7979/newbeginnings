@@ -298,8 +298,6 @@ export default function Dashboard({ onNavigate }) {
           <p className="dh-closing-intro">A fresh start. Endless possibilities.</p>
           <p className="dh-closing-script">A river nurtures every tree on its banks.</p>
           <p className="dh-closing-script dh-closing-script-2">A plan nurtures every dream you build.</p>
-          <div className="dh-closing-rule" aria-hidden="true" />
-          <p className="dh-closing-credit">— The New Beginnings · Rajahmundry Ventures</p>
         </section>
       </div>
     </div>
