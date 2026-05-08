@@ -33,11 +33,11 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 //   oxford / burgundy → heritage  (rev-2 retirement — blue / red gone)
 //   vellum            → heritage  (rev-2 retirement — warm ledger gone)
 export const THEMES = [
-  { id: 'heritage', label: 'Heritage', mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#2F6B4F'] },
-  { id: 'aura',     label: 'Aura',     mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7C7AED'] },
+  { id: 'heritage', label: 'Heritage', mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#37986b'] },
+  { id: 'aura',     label: 'Aura',     mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7674ef'] },
   { id: 'prism',    label: 'Prism',    mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
   { id: 'citrus',   label: 'Citrus',   mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
-  { id: 'lemon',    label: 'Lemon',    mode: 'light', swatch: ['#FFFFFF', '#FCFFF5', '#84CC16'] },
+  { id: 'lemon',    label: 'Lemon',    mode: 'light', swatch: ['#FFFFFF', '#FCFFF5', '#82c41f'] },
 ];
 
 const DEFAULT_THEME = 'heritage';
