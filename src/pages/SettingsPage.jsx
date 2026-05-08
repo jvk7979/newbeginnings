@@ -91,55 +91,6 @@ const THEME_PREVIEW = {
     },
     desc: 'Hot orange + lime + sunny yellow. Same gradient signature as Prism, shifted warm. Energetic, sunset feel.',
   },
-  // ── Candidates — preview live, pick favourites, the rest get removed. ──
-  rose: {
-    bg0: '#FFFFFF', bg1: '#FFF7FB', bg2: '#FCE7F3', bg3: '#FBCFE8',
-    fg1: '#2A0F1F', accent: '#EC4899', border: '#FDD7E8',
-    accents: ['#EC4899', '#34D399', '#FACC15'],
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#EC4899', to: '#D946EF',
-      ctaFrom: '#EC4899', ctaTo: '#BE185D',
-      glowRgb: '236,72,153', glowRgb2: '217,70,239',
-    },
-    desc: 'Hot pink + mint + yellow. Pink → fuchsia gradient. Confident and warm without going full orange.',
-  },
-  mint: {
-    bg0: '#FFFFFF', bg1: '#F5FFFB', bg2: '#D1FAE5', bg3: '#A7F3D0',
-    fg1: '#0E1F18', accent: '#14B8A6', border: '#BBF7D0',
-    accents: ['#14B8A6', '#FB923C', '#FACC15'],
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#14B8A6', to: '#6EE7B7',
-      ctaFrom: '#14B8A6', ctaTo: '#0F766E',
-      glowRgb: '20,184,166', glowRgb2: '110,231,183',
-    },
-    desc: 'Teal + peach + yellow. Teal → emerald-mint gradient. Fresh, organic, cool-green.',
-  },
-  twilight: {
-    bg0: '#FFFFFF', bg1: '#FBF7FF', bg2: '#F3E8FF', bg3: '#E9D5FF',
-    fg1: '#1F0F2A', accent: '#9333EA', border: '#E9D5FF',
-    accents: ['#9333EA', '#06B6D4', '#FACC15'],
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#9333EA', to: '#EC4899',
-      ctaFrom: '#9333EA', ctaTo: '#6B21A8',
-      glowRgb: '147,51,234', glowRgb2: '236,72,153',
-    },
-    desc: 'Violet + cyan + yellow. Violet → magenta gradient. Moody, electric, slightly dramatic.',
-  },
-  aqua: {
-    bg0: '#FFFFFF', bg1: '#F5FBFF', bg2: '#E0F2FE', bg3: '#BAE6FD',
-    fg1: '#0A1F2A', accent: '#0EA5E9', border: '#BAE6FD',
-    accents: ['#0EA5E9', '#34D399', '#FB923C'],
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#0EA5E9', to: '#22D3EE',
-      ctaFrom: '#0EA5E9', ctaTo: '#0369A1',
-      glowRgb: '14,165,233', glowRgb2: '34,211,238',
-    },
-    desc: 'Sky-blue + mint + peach. Sky → cyan gradient. Clean, oceanic, pure cool.',
-  },
   lemon: {
     bg0: '#FFFFFF', bg1: '#FCFFF5', bg2: '#ECFCCB', bg3: '#D9F99D',
     fg1: '#1A2A0A', accent: '#84CC16', border: '#D9F99D',

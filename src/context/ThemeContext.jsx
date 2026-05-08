@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-// Four-palette theme set (locked in 2026-05-08, rev 3). Heritage is the
+// Five-palette theme set (locked in 2026-05-08, rev 4). Heritage is the
 // default — coconut-cream + deep coconut green + river blue + gold +
-// dark warm-brown text, paired with the Godavari hero photo. Three
+// dark warm-brown text, paired with the Godavari hero photo. Four
 // alternates each keep the editorial typography (Cormorant Garamond /
 // Playfair Display / DM Sans / JetBrains Mono) but bring a distinct
 // atmospheric layer:
@@ -14,6 +14,9 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 //   • citrus — sibling of prism with the same atmospheric structure but
 //              shifted warm: orange primary, orange→yellow gradient
 //              signature, lime green secondary. Energetic, sunset feel.
+//   • lemon  — sibling of prism / citrus with lime / chartreuse primary
+//              and lime → yellow gradient signature. Spring meadow / fresh
+//              citrus mood; brightest of the vibrants.
 // All atmospheric overrides live in styles.css under "Theme atmospheric
 // overrides"; this file is just the palette + picker registration.
 //
@@ -34,11 +37,6 @@ export const THEMES = [
   { id: 'aura',     label: 'Aura',     mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7C7AED'] },
   { id: 'prism',    label: 'Prism',    mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
   { id: 'citrus',   label: 'Citrus',   mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
-  // Candidates — preview live, then keep favourites and remove the rest.
-  { id: 'rose',     label: 'Rose',     mode: 'light', swatch: ['#FFFFFF', '#FFF7FB', '#EC4899'] },
-  { id: 'mint',     label: 'Mint',     mode: 'light', swatch: ['#FFFFFF', '#F5FFFB', '#14B8A6'] },
-  { id: 'twilight', label: 'Twilight', mode: 'light', swatch: ['#FFFFFF', '#FBF7FF', '#9333EA'] },
-  { id: 'aqua',     label: 'Aqua',     mode: 'light', swatch: ['#FFFFFF', '#F5FBFF', '#0EA5E9'] },
   { id: 'lemon',    label: 'Lemon',    mode: 'light', swatch: ['#FFFFFF', '#FCFFF5', '#84CC16'] },
 ];
 
@@ -58,6 +56,12 @@ const LEGACY_THEME_MAP = {
   linen:    'heritage',
   oxford:   'heritage',
   burgundy: 'heritage',
+  // Candidates that were live for a session and then trimmed.
+  // Anyone who clicked one falls back to heritage on next load.
+  rose:     'heritage',
+  mint:     'heritage',
+  twilight: 'heritage',
+  aqua:     'heritage',
 };
 
 const ThemeContext = createContext(null);
