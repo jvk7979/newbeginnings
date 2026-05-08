@@ -4813,46 +4813,46 @@ textarea:focus-visible,
     rgba(45, 42, 38, 0.65) 100%
   );
 }
-/* Web + iPad: translucent cream card pinned to top-left of the hero. */
+/* Web + iPad: editorial content sits transparently in the top-left
+   corner of the hero, no card / background / border. Pure dark text
+   on the photo — relies on the photo's washed warm-cream tones for
+   contrast. */
 .dh-hero-content {
   position: absolute;
   top: clamp(20px, 4vw, 36px);
   left: clamp(20px, 5vw, 56px);
-  max-width: min(440px, calc(100% - 40px));
+  max-width: min(460px, calc(100% - 40px));
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 22px 26px 24px;
+  padding: 0;
   box-sizing: border-box;
-  color: var(--c-fg1);
-  background: rgba(253, 250, 242, 0.92);
-  border: 1px solid rgba(229, 221, 201, 0.7);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 8px 22px rgba(45, 42, 38, 0.12);
+  color: #000;
   z-index: 2;
 }
-.dh-hero-content .dh-hero-title { font-size: clamp(30px, 4vw, 44px); }
-.dh-hero-content .dh-hero-tagline { font-size: clamp(15px, 1.6vw, 18px); }
+.dh-hero-content .dh-hero-title   { font-size: clamp(30px, 4vw, 44px); color: #000; }
+.dh-hero-content .dh-hero-tagline { font-size: clamp(15px, 1.6vw, 18px); color: #1a1815; }
+.dh-hero-content .dh-hero-eyebrow { color: #8a5e1a; }
+.dh-hero-content .dh-hero-meta         { color: #1a1815; }
+.dh-hero-content .dh-hero-meta strong  { color: #000; }
+.dh-hero-content .dh-hero-meta-sep     { background: #5c5648; }
 
-/* Mobile: revert to a normal static block below the image. */
+/* Mobile: revert to a normal static block below the image with the
+   default heritage-token colours on the cream background. */
 @media (max-width: 640px) {
   .dh-hero-content {
     position: static;
     max-width: 100%;
     padding: 18px 18px 24px;
     gap: 4px;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
+    color: var(--c-fg1);
   }
-  .dh-hero-content .dh-hero-title   { font-size: 32px; }
-  .dh-hero-content .dh-hero-tagline { font-size: 16px; margin-bottom: 8px; }
-  .dh-hero-meta    { margin-bottom: 12px; gap: 10px; font-size: 12px; }
+  .dh-hero-content .dh-hero-title   { font-size: 32px; color: var(--c-fg1); }
+  .dh-hero-content .dh-hero-tagline { font-size: 16px; margin-bottom: 8px; color: var(--c-fg2); }
+  .dh-hero-content .dh-hero-eyebrow { color: var(--c-h-gold); }
+  .dh-hero-content .dh-hero-meta         { color: var(--c-fg2); font-size: 12px; gap: 10px; margin-bottom: 12px; }
+  .dh-hero-content .dh-hero-meta strong  { color: var(--c-fg1); }
+  .dh-hero-content .dh-hero-meta-sep     { background: var(--c-fg3); }
   .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
 }
 .dh-hero-eyebrow {
