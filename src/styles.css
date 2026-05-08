@@ -4766,12 +4766,16 @@ textarea:focus-visible,
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────── */
-/* Full-width Godavari photo at the top of the page, then editorial
-   content (eyebrow, title, tagline, meta, CTA buttons) stacked below
-   on the coconut-cream background. The photo spans the entire
-   content-area width and shows in its native 1916x821 aspect ratio
-   (object-fit: contain) so it never gets cropped. */
+/* Full-width Godavari photo at the top of the page. On web + iPad
+   the editorial content (eyebrow, title, tagline, meta, CTA buttons)
+   floats over the photo as a translucent cream card pinned to the
+   top-left — this gives the dark heritage-token text the contrast it
+   needs to read against a bright sunlit-river photo without resorting
+   to white-on-image. On mobile the overlay collapses to a normal
+   static block below the photo (the photo there shows in its full
+   native 1916x821 aspect ratio with object-fit: contain — no crop). */
 .dh-hero {
+  position: relative;
   width: 100%;
   background: var(--c-bg0);
   display: flex;
@@ -4780,14 +4784,14 @@ textarea:focus-visible,
 .dh-hero-img {
   display: block;
   width: 100%;
-  /* Web + iPad: cap the hero height to 440px and use object-fit: cover
+  /* Web + iPad: cap the hero height to 540px and use object-fit: cover
      so the photo stays full-width but reads as a banner instead of
      dominating the page. The crop is intentional — sky-top and water-
      bottom edges trim, the river / palms / boat stay framed. Mobile
      overrides this below to keep the photo at its native aspect
      ratio (no crop) since on a narrow phone there's no excess height
      to remove. */
-  height: 440px;
+  height: 540px;
   object-fit: cover;
   object-position: center 50%;
 }
@@ -4809,23 +4813,47 @@ textarea:focus-visible,
     rgba(45, 42, 38, 0.65) 100%
   );
 }
+/* Web + iPad: translucent cream card pinned to top-left of the hero. */
 .dh-hero-content {
+  position: absolute;
+  top: clamp(20px, 4vw, 36px);
+  left: clamp(20px, 5vw, 56px);
+  max-width: min(440px, calc(100% - 40px));
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 28px clamp(20px, 5vw, 56px) 32px;
+  padding: 22px 26px 24px;
   box-sizing: border-box;
   color: var(--c-fg1);
+  background: rgba(253, 250, 242, 0.92);
+  border: 1px solid rgba(229, 221, 201, 0.7);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 22px rgba(45, 42, 38, 0.12);
+  z-index: 2;
 }
+.dh-hero-content .dh-hero-title { font-size: clamp(30px, 4vw, 44px); }
+.dh-hero-content .dh-hero-tagline { font-size: clamp(15px, 1.6vw, 18px); }
+
+/* Mobile: revert to a normal static block below the image. */
 @media (max-width: 640px) {
-  .dh-hero-content { padding: 18px 18px 24px; gap: 4px; }
-  .dh-hero-tagline { margin-bottom: 8px; font-size: 16px; }
+  .dh-hero-content {
+    position: static;
+    max-width: 100%;
+    padding: 18px 18px 24px;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+  .dh-hero-content .dh-hero-title   { font-size: 32px; }
+  .dh-hero-content .dh-hero-tagline { font-size: 16px; margin-bottom: 8px; }
   .dh-hero-meta    { margin-bottom: 12px; gap: 10px; font-size: 12px; }
   .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
-  .dh-hero-title   { font-size: 32px; }
 }
 .dh-hero-eyebrow {
   font-family: 'DM Sans', sans-serif;
