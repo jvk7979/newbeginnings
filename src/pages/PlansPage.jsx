@@ -249,14 +249,11 @@ export default function PlansPage({ onNavigate }) {
 
       {/* Empty states */}
       {plans.length === 0 ? (
-        <div style={{ background: C.bg1, border: `2px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 40, marginBottom: 14 }}>📋</div>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, color: C.fg1, marginBottom: 8 }}>No projects yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 20 }}>Create your first project to get started.</div>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-            onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-            onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={() => onNavigate('new-project')}>+ Create Project</button>
+        <div className="empty-state">
+          <div className="empty-state-art" aria-hidden="true">📋</div>
+          <div className="empty-state-title">Plan your first venture</div>
+          <div className="empty-state-copy">Build a structured project plan with sections, KPIs, and supporting documents.</div>
+          <button className="themed-cta" onClick={() => onNavigate('new-project')}>+ Create a project</button>
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginTop: 40, textAlign: 'center' }}>

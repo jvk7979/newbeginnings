@@ -5733,6 +5733,154 @@ html { scroll-behavior: smooth; }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+ * Empty states (#3)
+ *
+ * Replacement for the old `dashed border + emoji + button` empty cards.
+ * The new pattern: a soft accent halo behind a circular badge containing
+ * the emoji or SVG, a Playfair title, friendly copy, and a themed-cta
+ * primary CTA. Auto-themes via --c-accent-rgb so all five themes pick up
+ * the right glow and badge colour.
+ * ───────────────────────────────────────────────────────────────────────── */
+.empty-state {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  padding: 56px 28px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+.empty-state::before {
+  content: '';
+  position: absolute;
+  top: -90px; left: 50%;
+  transform: translateX(-50%);
+  width: 420px; height: 260px;
+  background: radial-gradient(ellipse 320px 150px at 50% 50%, rgba(var(--c-accent-rgb) / 0.12), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.empty-state > * { position: relative; z-index: 1; }
+.empty-state-art {
+  width: 72px; height: 72px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: rgba(var(--c-accent-rgb) / 0.14);
+  border: 1px solid rgba(var(--c-accent-rgb) / 0.26);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: var(--c-accent);
+  box-shadow: 0 6px 18px rgba(var(--c-accent-rgb) / 0.14);
+}
+.empty-state-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-fg1);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+.empty-state-copy {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--c-fg2);
+  margin: 0 auto 24px;
+  line-height: 1.55;
+  max-width: 380px;
+}
+
+/* Compact variant — used inside Dashboard column tiles where vertical
+   space is limited. Same theming via --c-accent-rgb. */
+.empty-state-compact {
+  padding: 28px 18px;
+  border-radius: 12px;
+}
+.empty-state-compact::before {
+  top: -50px;
+  width: 280px; height: 160px;
+}
+.empty-state-compact .empty-state-art {
+  width: 48px; height: 48px;
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+.empty-state-compact .empty-state-title { font-size: 16px; margin-bottom: 4px; }
+.empty-state-compact .empty-state-copy { font-size: 13px; margin-bottom: 14px; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Form inputs (#4)
+ *
+ * Drop-in classes for inputs / textareas / selects in NewIdeaPage,
+ * NewPlanPage, edit modes, etc. Every theme gets a matching focus halo
+ * (4 px coloured ring in the accent) + the same accent border on focus.
+ * Hover hint is a slightly accented border. Error state uses --c-danger.
+ *
+ * Components apply className='form-input' instead of inline focus/blur
+ * handlers. The CSS handles the full hover/focus/error matrix.
+ * ───────────────────────────────────────────────────────────────────────── */
+.form-input {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  color: var(--c-fg1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  padding: 10px 12px;
+  outline: none;
+  width: 100%;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+.form-input:hover:not(:disabled):not(:focus) {
+  border-color: rgba(var(--c-accent-rgb) / 0.40);
+}
+.form-input:focus,
+.form-input:focus-visible {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb) / 0.16);
+}
+.form-input.has-error {
+  border-color: var(--c-danger);
+}
+.form-input.has-error:focus {
+  border-color: var(--c-danger);
+  box-shadow: 0 0 0 4px rgba(var(--c-danger-rgb) / 0.18);
+}
+.form-input:disabled {
+  background: var(--c-bg2);
+  color: var(--c-fg3);
+  cursor: not-allowed;
+}
+textarea.form-input {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+.form-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--c-fg2);
+  margin-bottom: 6px;
+  display: block;
+}
+.form-helper {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-fg3);
+  margin-top: 5px;
+}
+.form-error {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--c-danger);
+  margin-top: 6px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
  * Theme atmospheric overrides (Aura + Prism)
  *
  * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /

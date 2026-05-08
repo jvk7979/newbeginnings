@@ -232,14 +232,13 @@ export default function FilesPage({ onNavigate }) {
 
       {/* Empty state */}
       {files.length === 0 ? (
-        <div style={{ background: C.bg1, border: `2px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 40, marginBottom: 14 }}>📄</div>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, color: C.fg1, marginBottom: 8 }}>No documents yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 6, maxWidth: 360, margin: '0 auto 16px' }}>
-            Upload PDFs to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: C.bg2, padding: '1px 4px', borderRadius: 3 }}>public/files/</code>, then register them here.
+        <div className="empty-state">
+          <div className="empty-state-art" aria-hidden="true">📄</div>
+          <div className="empty-state-title">Build your reference library</div>
+          <div className="empty-state-copy">
+            Upload PDFs to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: 'var(--c-bg2)', padding: '1px 5px', borderRadius: 3, fontSize: '0.92em' }}>public/files/</code>, then register them here.
           </div>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-            onClick={() => setShowModal(true)}>+ Add Document</button>
+          <button className="themed-cta" onClick={() => setShowModal(true)}>+ Add a document</button>
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, textAlign: 'center', padding: '40px 0' }}>

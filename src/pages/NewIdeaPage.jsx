@@ -17,10 +17,10 @@ export default function NewIdeaPage({ onNavigate }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms, box-shadow 150ms' };
-  const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
-  const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; };
-  const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
+  // Form chrome handled by `.form-input` / `.form-label` / `.form-error`
+  // classes in styles.css — themed focus halo, hover hint, and error
+  // border via --c-accent-rgb / --c-danger so all five themes light up
+  // their own accent on focus.
 
   const handleExtracted = (parsed) => {
     setForm(f => ({
@@ -66,19 +66,18 @@ export default function NewIdeaPage({ onNavigate }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
-          <label style={labelStyle}>Idea Title *</label>
-          <input style={{ ...inputStyle, borderColor: error ? C.danger : C.border }} value={form.title}
+          <label className="form-label">Idea Title *</label>
+          <input className={`form-input${error ? ' has-error' : ''}`} value={form.title}
             onChange={e => { setForm({ ...form, title: e.target.value }); setError(''); }}
             placeholder="What's the idea?"
-            maxLength={120}
-            onFocus={focus} onBlur={blur} />
-          {error && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginTop: 4 }}>{error}</div>}
+            maxLength={120} />
+          {error && <div className="form-error">{error}</div>}
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 180 }}>
-            <label style={labelStyle}>Stage</label>
+            <label className="form-label">Stage</label>
             <div className="select-wrap">
-              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
                 <option value="draft">Draft</option>
                 <option value="validating">Validating</option>
                 <option value="active">Active</option>
@@ -87,9 +86,9 @@ export default function NewIdeaPage({ onNavigate }) {
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 180 }}>
-            <label style={labelStyle}>Category</label>
+            <label className="form-label">Category</label>
             <div className="select-wrap">
-              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
                 <option value="">— None —</option>
                 {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -97,8 +96,8 @@ export default function NewIdeaPage({ onNavigate }) {
           </div>
         </div>
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-            <label style={{ ...labelStyle, marginBottom: 0 }}>Description</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <label className="form-label" style={{ marginBottom: 0 }}>Description</label>
             {form.desc.trim() && (
               <button type="button" onClick={() => setForm(f => ({ ...f, desc: formatText(f.desc) }))}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
@@ -106,38 +105,33 @@ export default function NewIdeaPage({ onNavigate }) {
               </button>
             )}
           </div>
-          <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 120, lineHeight: 1.6 }} value={form.desc}
+          <textarea className="form-input" value={form.desc}
             onChange={e => setForm({ ...form, desc: e.target.value })}
-            placeholder="Describe the problem, target customer, rough mechanics…"
-            onFocus={focus} onBlur={blur} />
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>{form.desc.length} characters</div>
+            placeholder="Describe the problem, target customer, rough mechanics…" />
+          <div className="form-helper">{form.desc.length} characters</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <label style={labelStyle}>Project Cost Est. (₹) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
-            <input type="number" min={0} style={inputStyle} value={form.estimatedCapex}
-              onChange={e => setForm({ ...form, estimatedCapex: e.target.value })}
-              onFocus={focus} onBlur={blur} />
+            <label className="form-label">Project Cost Est. (₹) <span style={{ fontWeight: 400, color: C.fg3, textTransform: 'none', letterSpacing: 0 }}>— optional</span></label>
+            <input type="number" min={0} className="form-input" value={form.estimatedCapex}
+              onChange={e => setForm({ ...form, estimatedCapex: e.target.value })} />
           </div>
           <div>
-            <label style={labelStyle}>Estimated Payback (yrs) <span style={{ fontWeight: 400, color: C.fg3 }}>— optional</span></label>
-            <input type="number" min={0} step={0.5} style={inputStyle} value={form.estimatedPayback}
-              onChange={e => setForm({ ...form, estimatedPayback: e.target.value })}
-              onFocus={focus} onBlur={blur} />
+            <label className="form-label">Estimated Payback (yrs) <span style={{ fontWeight: 400, color: C.fg3, textTransform: 'none', letterSpacing: 0 }}>— optional</span></label>
+            <input type="number" min={0} step={0.5} className="form-input" value={form.estimatedPayback}
+              onChange={e => setForm({ ...form, estimatedPayback: e.target.value })} />
           </div>
         </div>
         <div>
-          <label style={labelStyle}>Sources (optional)</label>
+          <label className="form-label">Sources (optional)</label>
           <SourcesEditor sources={form.sources} onChange={s => setForm(f => ({ ...f, sources: s }))} />
         </div>
         <div>
-          <label style={labelStyle}>Attach Document (optional)</label>
+          <label className="form-label">Attach Document (optional)</label>
           <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
         </div>
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-          <button disabled={saving} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
-            onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
-            onMouseLeave={e => { if (!saving) e.currentTarget.style.background = C.accent; }}
+          <button disabled={saving} className="themed-cta"
             onClick={handleSave}>{saving ? 'Saving…' : 'Save Idea'}</button>
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
             onClick={() => onNavigate('ideas')}>Cancel</button>

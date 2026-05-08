@@ -169,14 +169,11 @@ export default function IdeasPage({ onNavigate }) {
 
       {/* Empty states */}
       {ideas.length === 0 ? (
-        <div style={{ background: C.bg1, border: `2px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 40, marginBottom: 14 }}>💡</div>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, color: C.fg1, marginBottom: 8 }}>No ideas yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 20 }}>Capture your first venture idea to get started.</div>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '10px 22px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}
-            onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-            onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={() => onNavigate('new-idea')}>+ New Idea</button>
+        <div className="empty-state">
+          <div className="empty-state-art" aria-hidden="true">💡</div>
+          <div className="empty-state-title">Your first venture starts here</div>
+          <div className="empty-state-copy">Capture an idea — even half-formed. You can always refine it later.</div>
+          <button className="themed-cta" onClick={() => onNavigate('new-idea')}>+ Capture an idea</button>
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginTop: 40, textAlign: 'center' }}>

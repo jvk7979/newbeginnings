@@ -30,10 +30,9 @@ export default function NewPlanPage({ onNavigate }) {
   const [summarizing, setSummarizing] = useState(false);
   const [error, setError] = useState('');
 
-  const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms', boxSizing: 'border-box' };
-  const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
-  const focus = e => { e.target.style.borderColor = C.accentDim; e.target.style.boxShadow = `0 0 0 2px ${alpha(C.accentDim, 33)}`; };
-  const blur  = e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; };
+  // Form chrome handled by .form-input / .form-label / .form-error
+  // shared classes — themed focus halo and accent border via
+  // --c-accent-rgb so all five themes light up their own accent.
 
   const handleExtracted = (parsed) => {
     setForm(f => ({ ...f, title: parsed.title || f.title, summary: parsed.summary || f.summary }));
@@ -88,29 +87,28 @@ export default function NewPlanPage({ onNavigate }) {
 
         {/* Title */}
         <div>
-          <label style={labelStyle}>Project Title *</label>
-          <input style={{ ...inputStyle, borderColor: error ? C.danger : C.border }} value={form.title}
+          <label className="form-label">Project Title *</label>
+          <input className={`form-input${error ? ' has-error' : ''}`} value={form.title}
             onChange={e => { setForm({ ...form, title: e.target.value }); setError(''); }}
             placeholder="e.g. Coconut Processing Plant — Feasibility Report"
-            maxLength={140}
-            onFocus={focus} onBlur={blur} />
-          {error && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, marginTop: 4 }}>{error}</div>}
+            maxLength={140} />
+          {error && <div className="form-error">{error}</div>}
         </div>
 
         {/* Category + Status row */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           <div>
-            <label style={labelStyle}>Category</label>
+            <label className="form-label">Category</label>
             <div className="select-wrap">
-              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
                 {PLAN_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label style={labelStyle}>Status</label>
+            <label className="form-label">Status</label>
             <div className="select-wrap">
-              <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
                 {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
@@ -119,16 +117,16 @@ export default function NewPlanPage({ onNavigate }) {
 
         {/* Link to Idea (optional) */}
         <div>
-          <label style={labelStyle}>Link to Idea (optional)</label>
+          <label className="form-label">Link to Idea (optional)</label>
           <div className="select-wrap">
-            <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+            <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }}
               value={form.linkedIdeaId}
               onChange={e => setForm({ ...form, linkedIdeaId: e.target.value })}>
               <option value="">— None —</option>
               {ideas.map(i => <option key={i.id} value={i.id}>{i.title}</option>)}
             </select>
           </div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>
+          <div className="form-helper">
             Connect this project to the idea it grew from. You can link many projects to one idea.
           </div>
         </div>
@@ -153,7 +151,7 @@ export default function NewPlanPage({ onNavigate }) {
 
         {/* File attachment — above summary so AI button activates immediately */}
         <div>
-          <label style={labelStyle}>Attach Document (optional)</label>
+          <label className="form-label">Attach Document (optional)</label>
           <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
           {isSummarySupported(selectedFile) && (
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, marginTop: 6 }}>
@@ -165,7 +163,7 @@ export default function NewPlanPage({ onNavigate }) {
         {/* Executive Summary */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-            <label style={{ ...labelStyle, marginBottom: 0 }}>Executive Summary</label>
+            <label className="form-label" style={{ marginBottom: 0 }}>Executive Summary</label>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               {isSummarySupported(selectedFile) && (
                 <button type="button" onClick={handleGenerateSummary} disabled={summarizing}
@@ -183,33 +181,29 @@ export default function NewPlanPage({ onNavigate }) {
               )}
             </div>
           </div>
-          <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} value={form.summary}
+          <textarea className="form-input" style={{ minHeight: 100 }} value={form.summary}
             onChange={e => setForm({ ...form, summary: e.target.value })}
-            placeholder={isSummarySupported(selectedFile) ? 'Click ✦ Generate AI Summary above to auto-fill from the attached document…' : 'One-paragraph overview of the project…'}
-            onFocus={focus} onBlur={blur} />
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 4 }}>{form.summary.length} characters</div>
+            placeholder={isSummarySupported(selectedFile) ? 'Click ✦ Generate AI Summary above to auto-fill from the attached document…' : 'One-paragraph overview of the project…'} />
+          <div className="form-helper">{form.summary.length} characters</div>
         </div>
 
         {/* Notes */}
         <div>
-          <label style={labelStyle}>Notes / Additional Description</label>
-          <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.6 }} value={form.notes}
+          <label className="form-label">Notes / Additional Description</label>
+          <textarea className="form-input" style={{ minHeight: 80 }} value={form.notes}
             onChange={e => setForm({ ...form, notes: e.target.value })}
-            placeholder="Internal notes, observations, or additional context…"
-            onFocus={focus} onBlur={blur} />
+            placeholder="Internal notes, observations, or additional context…" />
         </div>
 
         {/* Sources */}
         <div>
-          <label style={labelStyle}>Sources (optional)</label>
+          <label className="form-label">Sources (optional)</label>
           <SourcesEditor sources={form.sources} onChange={s => setForm(f => ({ ...f, sources: s }))} />
         </div>
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-          <button disabled={saving} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, padding: '9px 20px', borderRadius: 6, background: saving ? C.bg2 : C.accent, color: saving ? C.fg3 : '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}
-            onMouseEnter={e => { if (!saving) e.currentTarget.style.background = C.accentDim; }}
-            onMouseLeave={e => { if (!saving) e.currentTarget.style.background = C.accent; }}
+          <button disabled={saving} className="themed-cta"
             onClick={handleSave}>{saving ? 'Saving…' : 'Save Project'}</button>
           <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 20px', borderRadius: 6, background: 'transparent', color: C.fg3, border: `1px solid ${C.border}`, cursor: 'pointer' }}
             onClick={() => onNavigate('projects')}>Cancel</button>
