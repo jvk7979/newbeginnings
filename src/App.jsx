@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense, Component } from 'react';
 import { C } from './tokens';
-import logoImg from './assets/logo.png';
+import logoImg from './assets/logo.webp';
 import { useAuth } from './context/AuthContext';
 import { useIdeas, usePlans, useFiles, useBackup } from './context/AppContext';
 import SideNav from './components/SideNav';

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { C } from '../tokens';
 import { useIdeas, usePlans, useFiles } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import heroImg from '../assets/hero_gpdavari1.png';
+import heroImg from '../assets/hero_gpdavari1.webp';
 
 // Heritage Dashboard. Designed around the Godavari hero photo as the
 // magazine cover — coconut cream surfaces, deep coconut green accents,

@@ -4,7 +4,7 @@ import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { useIdeas, usePlans, useProjects, useBackup } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
-import logoImg from '../assets/logo.png';
+import logoImg from '../assets/logo.webp';
 import ConfirmModal from './ConfirmModal';
 
 const NAV_ITEMS = [

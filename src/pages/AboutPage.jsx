@@ -1,5 +1,5 @@
 import { C, alpha } from '../tokens';
-import logoImg from '../assets/logo.png';
+import logoImg from '../assets/logo.webp';
 
 // Cap line length at ~70-75ch on long-prose blocks; the surrounding
 // outer container stays wider so the Page-by-page grid + Region focus

@@ -1,5 +1,9 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
@@ -14,7 +18,20 @@ const firebaseConfig = {
 };
 
 export const app            = initializeApp(firebaseConfig);
-export const db             = getFirestore(app);
+
+// Firestore offline persistence — every read hits IndexedDB first, so
+// pages render instantly on flaky / no-connection visits, and any writes
+// made while offline get queued and flushed when the network returns.
+// `persistentMultipleTabManager` lets the cache be shared across tabs of
+// the same app (vs each tab keeping its own isolated cache). Falling back
+// to in-memory if IndexedDB fails is automatic — `initializeFirestore`
+// silently downgrades on browsers that don't support it.
+export const db             = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
+
 export const storage        = getStorage(app);
 export const auth           = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
