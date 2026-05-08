@@ -4780,14 +4780,14 @@ textarea:focus-visible,
 .dh-hero-img {
   display: block;
   width: 100%;
-  /* Web + iPad: cap the hero height to 360px and use object-fit: cover
+  /* Web + iPad: cap the hero height to 440px and use object-fit: cover
      so the photo stays full-width but reads as a banner instead of
      dominating the page. The crop is intentional — sky-top and water-
      bottom edges trim, the river / palms / boat stay framed. Mobile
      overrides this below to keep the photo at its native aspect
      ratio (no crop) since on a narrow phone there's no excess height
      to remove. */
-  height: 360px;
+  height: 440px;
   object-fit: cover;
   object-position: center 50%;
 }
