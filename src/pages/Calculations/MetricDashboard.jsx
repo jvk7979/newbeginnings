@@ -1,8 +1,11 @@
 import { C, alpha } from '../../tokens';
 import IRRGauge from '../../components/calc/IRRGauge';
 import DonutChart from '../../components/calc/DonutChart';
+import ChartEyebrow from '../../components/calc/ChartEyebrow';
 import { Sparkline, NPVBar, PaybackTrack } from '../../components/calc/charts';
 import { fmtINR } from '../../components/calc/primitives';
+import { useReveal } from '../../utils/useReveal';
+import { useCountUp } from '../../utils/useCountUp';
 
 // Project Health Dashboard — IRR gauge + revenue composition + 4 KPI tiles.
 // Single dominant gauge for the headline metric, icon-led tiles for the rest.
@@ -10,12 +13,22 @@ export default function MetricDashboard({
   calc, input, dr, tn,
   irrColor, npvColor, paybackColor, ebitdaColor,
 }) {
+  // Count-up gated on the dashboard scrolling into view. On Calculations
+  // the dashboard usually mounts inside the viewport so the tween starts
+  // straight away; the observer is here so a long page that pushes it
+  // below the fold still gets the count-up beat once it appears.
+  const reveal = useReveal();
+  const revenueAnim = useCountUp(calc.revenue, { enabled: reveal.visible });
+  const ebitdaAnim  = useCountUp(calc.ebitda,  { enabled: reveal.visible });
+  const npvAnim     = useCountUp(calc.npv,     { enabled: reveal.visible });
+  const paybackAnim = useCountUp(calc.payback ?? 0, { enabled: reveal.visible, duration: 500 });
+
   return (
-    <div className="calc-metric-dashboard">
+    <div ref={reveal.ref} className="calc-metric-dashboard">
 
       {/* Big IRR gauge — semicircular with red/yellow/green zones */}
       <div className="calc-gauge-card">
-        <div className="calc-gauge-eyebrow">IRR</div>
+        <ChartEyebrow>IRR</ChartEyebrow>
         <IRRGauge value={calc.irr} hurdle={dr} />
         <div className="calc-gauge-value" style={{ color: irrColor }}>
           {calc.irr !== null ? `${calc.irr.toFixed(0)}%` : '—'}
@@ -27,7 +40,7 @@ export default function MetricDashboard({
           with the gauge so users see top-line health (IRR + revenue mix) at
           a glance, without having to open the Summary tab. */}
       <div className="calc-composition-card">
-        <div className="calc-composition-eyebrow">Revenue Composition</div>
+        <ChartEyebrow>Revenue Composition</ChartEyebrow>
         {calc.revenueByProduct.length === 0 ? (
           <div className="calc-composition-empty">
             Add products in the Assumptions panel to see the revenue mix.
@@ -64,7 +77,7 @@ export default function MetricDashboard({
         {[
           {
             label: 'Annual Revenue',
-            value: fmtINR(calc.revenue),
+            value: fmtINR(revenueAnim),
             sub: `over ${input.lifetime} yrs`,
             color: C.accent,
             icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>,
@@ -72,7 +85,7 @@ export default function MetricDashboard({
           },
           {
             label: 'EBITDA',
-            value: fmtINR(calc.ebitda),
+            value: fmtINR(ebitdaAnim),
             sub: `${calc.ebitdaMargin.toFixed(0)}% margin`,
             color: ebitdaColor,
             icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
@@ -80,7 +93,7 @@ export default function MetricDashboard({
           },
           {
             label: 'NPV',
-            value: fmtINR(calc.npv),
+            value: fmtINR(npvAnim),
             sub: `at ${dr}% discount`,
             color: npvColor,
             icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
@@ -88,7 +101,7 @@ export default function MetricDashboard({
           },
           {
             label: 'Payback',
-            value: calc.payback !== null ? `${calc.payback} yr${calc.payback !== 1 ? 's' : ''}` : '—',
+            value: calc.payback !== null ? `${paybackAnim} yr${paybackAnim !== 1 ? 's' : ''}` : '—',
             sub: `${tn}-yr tenure`,
             color: paybackColor,
             icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,

@@ -68,9 +68,10 @@ export default function LoanAmortisationChart({ rows, tenure }) {
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', maxWidth: W }}
          role="img" aria-label="Loan amortisation chart — principal, interest, balance per year">
 
-      {/* Zero / axis line */}
+      {/* Zero / axis line — chart-axis token at 1.2px for the warmer
+          editorial rule consistent with Revenue/EBITDA + Waterfall */}
       <line x1={padLeft} y1={zeroY} x2={W - padRight} y2={zeroY}
-            stroke={C.border} strokeWidth="1" />
+            stroke={C.chartAxis} strokeWidth="1.2" />
 
       {/* Stacked bars per year */}
       {data.map((r, i) => {
@@ -86,15 +87,15 @@ export default function LoanAmortisationChart({ rows, tenure }) {
 
         return (
           <g key={r.t}>
-            {/* Principal — sage */}
+            {/* Principal — chart-accent (the theme's primary metric colour) */}
             {principalH > 0.5 && (
               <rect x={x} y={principalY} width={barW} height={principalH}
-                    fill={C.accent} rx={2} />
+                    fill={C.chartAccent} rx={2} />
             )}
-            {/* Interest — red, stacked above */}
+            {/* Interest — chart-negative, stacked above */}
             {interestH > 0.5 && (
               <rect x={x} y={interestY} width={barW} height={interestH}
-                    fill="#dc2626" fillOpacity={0.85} rx={2} />
+                    fill={C.chartNegative} fillOpacity={0.85} rx={2} />
             )}
 
             {/* Total label above the stack — only when there's a meaningful total */}
@@ -138,9 +139,9 @@ export default function LoanAmortisationChart({ rows, tenure }) {
 
       {/* Legend at the bottom */}
       <g transform={`translate(${padLeft}, ${H - 8})`}>
-        <rect x="0"   y="-9" width="11" height="11" fill={C.accent} rx={2} />
+        <rect x="0"   y="-9" width="11" height="11" fill={C.chartAccent} rx={2} />
         <text x="16"  y="0"  fontSize="11" fontFamily="'DM Sans', sans-serif" fill={C.fg2}>Principal</text>
-        <rect x="86"  y="-9" width="11" height="11" fill="#dc2626" rx={2} fillOpacity="0.85" />
+        <rect x="86"  y="-9" width="11" height="11" fill={C.chartNegative} rx={2} fillOpacity="0.85" />
         <text x="102" y="0"  fontSize="11" fontFamily="'DM Sans', sans-serif" fill={C.fg2}>Interest</text>
         <line x1="170" y1="-3" x2="186" y2="-3" stroke="#2563a8" strokeWidth="2" strokeLinecap="round" />
         <circle cx="178" cy="-3" r="2.5" fill="#2563a8" stroke="#fff" strokeWidth="1.2" />

@@ -4,8 +4,10 @@ import { C } from '../../tokens';
 // decorative (the underlying data is the same calc.rows the projection table
 // uses).
 
-// Sparkline with a soft area fill underneath. Used for Revenue/EBITDA where
-// the year-over-year shape tells you whether the project ramps or fades.
+// Sparkline with an editorial cream wash underneath the line. The wash
+// uses the shared bg2 token rather than the line colour so the chart
+// reads as "ink on parchment" instead of "blue-on-blue" — matches the
+// heritage palette and adapts cleanly across themes.
 export function Sparkline({ values, color, width = 100, height = 28 }) {
   if (!values || values.length < 2) return null;
   const min = Math.min(...values, 0);
@@ -21,15 +23,18 @@ export function Sparkline({ values, color, width = 100, height = 28 }) {
   const areaPath = `M 0,${height} L ${pts.join(' L ')} L ${lastX},${height} Z`;
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" style={{ display: 'block' }}>
-      <path d={areaPath} fill={color} fillOpacity="0.14" />
+      <path d={areaPath} fill={C.bg2} fillOpacity="0.55" />
       <polyline points={pts.join(' ')} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={pts[pts.length - 1].split(',')[0]} cy={pts[pts.length - 1].split(',')[1]} r="2" fill={color} />
+      <circle cx={pts[pts.length - 1].split(',')[0]} cy={pts[pts.length - 1].split(',')[1]} r="2.4" fill={color} stroke="#fff" strokeWidth="1" />
     </svg>
   );
 }
 
 // Centered NPV bar — extends right (positive) or left (negative) from the
 // midline, scaled relative to capex. Magnitude AND sign in one glance.
+// Bar colour is now driven by sign via chart tokens, so callers no longer
+// need to thread a colour prop through (kept for backwards-compat as a
+// fallback override).
 export function NPVBar({ value, scale, color, width = 100, height = 14 }) {
   if (!isFinite(value)) return null;
   const half = width / 2;
@@ -37,15 +42,16 @@ export function NPVBar({ value, scale, color, width = 100, height = 14 }) {
   const ratio = Math.max(-1, Math.min(1, value / safeScale));
   const barWidth = Math.abs(ratio) * (half - 2);
   const positive = value >= 0;
+  const fill = color || (positive ? C.chartPositive : C.chartNegative);
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" style={{ display: 'block' }}>
-      <line x1={half} y1="0" x2={half} y2={height} stroke={C.fg3} strokeWidth="1" strokeDasharray="2,2" />
+      <line x1={half} y1="0" x2={half} y2={height} stroke={C.chartAxis} strokeWidth="1" strokeDasharray="2,2" />
       <rect
         x={positive ? half : half - barWidth}
         y="3"
         width={barWidth}
         height={height - 6}
-        fill={color}
+        fill={fill}
         rx="1.5"
       />
     </svg>
@@ -53,16 +59,17 @@ export function NPVBar({ value, scale, color, width = 100, height = 14 }) {
 }
 
 // Payback track — tenure-length axis with year-tick marks and a dot at
-// the payback year.
+// the payback year. Axis warms to chart-axis (heritage warm-brown) so the
+// track feels printed rather than wireframed.
 export function PaybackTrack({ payback, tenure, color, width = 100, height = 14 }) {
   const ticks = Math.max(1, tenure);
   const usable = width - 2;
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" style={{ display: 'block' }}>
-      <line x1="1" y1={height / 2} x2={width - 1} y2={height / 2} stroke={C.border} strokeWidth="1" />
+      <line x1="1" y1={height / 2} x2={width - 1} y2={height / 2} stroke={C.chartAxis} strokeWidth="1.2" />
       {Array.from({ length: ticks + 1 }).map((_, i) => {
         const tx = (i / ticks) * usable + 1;
-        return <line key={i} x1={tx} y1={height / 2 - 2.5} x2={tx} y2={height / 2 + 2.5} stroke={C.fg3} strokeWidth="1" />;
+        return <line key={i} x1={tx} y1={height / 2 - 2.5} x2={tx} y2={height / 2 + 2.5} stroke={C.chartAxis} strokeWidth="1" />;
       })}
       {payback !== null && payback <= ticks && (
         <circle

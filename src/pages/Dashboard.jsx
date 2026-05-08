@@ -4,6 +4,8 @@ import { useIdeas, usePlans, useFiles } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import heroImg from '../assets/hero_gpdavari1.webp';
 import { IllIdea, IllPlan, IllDoc } from '../components/illustrations';
+import { useReveal } from '../utils/useReveal';
+import { useCountUp } from '../utils/useCountUp';
 
 // Heritage Dashboard. Designed around the Godavari hero photo as the
 // magazine cover — coconut cream surfaces, deep coconut green accents,
@@ -97,6 +99,22 @@ export default function Dashboard({ onNavigate }) {
   const activeProjects  = useMemo(() => plans.filter(p => p.status === 'active' || !p.status).slice(0, 3), [plans]);
   const recentDocuments = useMemo(() => files.slice(0, 4), [files]);
 
+  // Scroll-reveal observers — one per section so the strip, the
+  // three-column body, and the closing tagline each animate in once
+  // they peek into the viewport. Reduced motion bypasses all three
+  // (useReveal returns visible:true immediately).
+  const kpiReveal     = useReveal();
+  const colsReveal    = useReveal();
+  const closingReveal = useReveal();
+
+  // KPI count-up — gated on the strip becoming visible so the user
+  // actually sees the tween. If the strip is already on-screen on first
+  // mount (short data, no scroll), the hook starts the tween straight
+  // away. Reduced motion returns the target instantly.
+  const ideasCountAnim    = useCountUp(ideas.length,     { enabled: kpiReveal.visible });
+  const plansCountAnim    = useCountUp(plans.length,     { enabled: kpiReveal.visible });
+  const eligibleCountAnim = useCountUp(eligibleCount,    { enabled: kpiReveal.visible });
+
   // First-name resolution for the hero greeting:
   //   1. Use the first token of displayName when set (e.g. "Venkat Krishna" -> "Venkat").
   //   2. Otherwise fall back to the local part of the email, with the first
@@ -152,18 +170,26 @@ export default function Dashboard({ onNavigate }) {
 
       <div className="dh-container dh-container-pad">
 
-        {/* ── KPI strip — sits BELOW the hero so the photo is fully visible. */}
-        <div className="dh-kpi-strip">
-          <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"     value={ideas.length} />
-          <KpiTile icon={ICON_PROJECT}   label="Active Projects" value={plans.length} />
-          <KpiTile icon={ICON_SPARKLE}   label="In Calculation"  value={eligibleCount} />
+        {/* ── KPI strip — sits BELOW the hero so the photo is fully visible.
+              Reveal-fade fires once the strip scrolls into view; the three
+              tile values count up from 0 in the same beat. */}
+        <div ref={kpiReveal.ref}
+             className={`dh-kpi-strip reveal-fade${kpiReveal.visible ? ' is-visible' : ''}`}>
+          <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"     value={ideasCountAnim} />
+          <KpiTile icon={ICON_PROJECT}   label="Active Projects" value={plansCountAnim} />
+          <KpiTile icon={ICON_SPARKLE}   label="In Calculation"  value={eligibleCountAnim} />
         </div>
 
-        {/* ── Three-column section: Featured / Active / Documents ─── */}
-        <div className="dh-three-col">
+        {/* ── Three-column section: Featured / Active / Documents ───
+              Each column reveal-fades with a staggered delay so the eye
+              tracks left-to-right rather than three columns popping
+              simultaneously. The container holds the observer; children
+              read its visible state via the className expression. */}
+        <div ref={colsReveal.ref} className="dh-three-col">
 
           {/* Featured Ideas */}
-          <div>
+          <div className={`reveal-fade${colsReveal.visible ? ' is-visible' : ''}`}
+               style={{ transitionDelay: '0ms' }}>
             <SectionHeader
               kicker="Pipeline"
               title="Featured Ideas"
@@ -204,7 +230,8 @@ export default function Dashboard({ onNavigate }) {
           </div>
 
           {/* Active Projects */}
-          <div>
+          <div className={`reveal-fade${colsReveal.visible ? ' is-visible' : ''}`}
+               style={{ transitionDelay: '60ms' }}>
             <SectionHeader
               kicker="In motion"
               title="Active Projects"
@@ -250,7 +277,8 @@ export default function Dashboard({ onNavigate }) {
           </div>
 
           {/* Documents */}
-          <div>
+          <div className={`reveal-fade${colsReveal.visible ? ' is-visible' : ''}`}
+               style={{ transitionDelay: '120ms' }}>
             <SectionHeader
               kicker="Library"
               title="Recent Documents"
@@ -286,7 +314,8 @@ export default function Dashboard({ onNavigate }) {
         </div>
 
         {/* ── Closing tagline banner with palm-leaf flourishes ─────── */}
-        <section className="dh-closing">
+        <section ref={closingReveal.ref}
+                 className={`dh-closing reveal-fade${closingReveal.visible ? ' is-visible' : ''}`}>
           <div className="dh-closing-leaf dh-closing-leaf-left" aria-hidden="true">
             <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="80" height="80">
               <path d="M40 70 C 40 40, 40 20, 40 10"/>

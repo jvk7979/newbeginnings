@@ -47,22 +47,23 @@ export default function RevenueEbitdaBarChart({ rows, startYear, windowYears = 5
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', maxWidth: W }}
          role="img" aria-label="Revenue and EBITDA by year">
-      {/* Zero / axis line */}
-      <line x1={padLeft} y1={axisY} x2={W - padRight} y2={axisY} stroke={C.border} strokeWidth="1" />
+      {/* Zero / axis line — chart-axis (warm-brown) at 1.2px reads as
+          inked rule rather than wireframe */}
+      <line x1={padLeft} y1={axisY} x2={W - padRight} y2={axisY} stroke={C.chartAxis} strokeWidth="1.2" />
 
       {data.map((r, i) => {
         const cx       = padLeft + groupW * i + groupW / 2;
         const revH     = (Math.abs(r.revenue) / maxAbs) * (zeroY - padTop);
         const ebPos    = r.ebitda >= 0;
         const ebitdaH  = (Math.abs(r.ebitda)  / maxAbs) * (ebPos ? (zeroY - padTop) : (H - padBottom - zeroY));
-        const ebColor  = ebPos ? '#2a7d3c' : '#c0392b';
+        const ebColor  = ebPos ? C.chartPositive : C.chartNegative;
         const revBarX  = cx - barW - gap / 2;
         const ebBarX   = cx + gap / 2;
         return (
           <g key={r.t}>
             {/* Revenue bar — always above the zero line */}
             <rect x={revBarX} y={zeroY - revH} width={barW} height={revH}
-                  fill={C.accent} rx={3} />
+                  fill={C.chartAccent} rx={3} />
             <text x={revBarX + barW / 2} y={zeroY - revH - 8}
                   textAnchor="middle" fontSize={FS_VALUE} fontWeight="600"
                   fontFamily="'JetBrains Mono', monospace" fill={C.fg1}>
@@ -94,10 +95,10 @@ export default function RevenueEbitdaBarChart({ rows, startYear, windowYears = 5
       {/* Legend — sits a clean ~30px below the year row so the two
           rows never crowd each other */}
       <g transform={`translate(${padLeft}, ${legendY})`}>
-        <rect x="0"  y="-9" width="11" height="11" fill={C.accent} rx={2} />
+        <rect x="0"  y="-9" width="11" height="11" fill={C.chartAccent} rx={2} />
         <text x="16" y="0"  fontSize={FS_LEGEND} fontWeight="500"
               fontFamily="'DM Sans', sans-serif" fill={C.fg2}>Revenue</text>
-        <rect x="92" y="-9" width="11" height="11" fill="#2a7d3c" rx={2} />
+        <rect x="92" y="-9" width="11" height="11" fill={C.chartPositive} rx={2} />
         <text x="108" y="0" fontSize={FS_LEGEND} fontWeight="500"
               fontFamily="'DM Sans', sans-serif" fill={C.fg2}>EBITDA</text>
       </g>

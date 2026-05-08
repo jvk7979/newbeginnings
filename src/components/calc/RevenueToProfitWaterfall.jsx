@@ -65,20 +65,22 @@ export default function RevenueToProfitWaterfall({ row }) {
   const groupW = innerW / steps.length;
   const barW   = Math.min(56, groupW * 0.62);
 
-  // Pick a colour for each step. Subtract = red, totals/subtotals tinted.
+  // Pick a colour for each step using the chart token roles so the
+  // waterfall adapts cleanly across themes. Subtract steps and negatives
+  // pull the negative role; subtotals/totals run on accent / positive.
   const colorFor = (s) => {
-    if (s.kind === 'subtract') return '#dc2626';
-    if (s.kind === 'final')    return s.out >= 0 ? '#16a34a' : '#dc2626';
-    if (s.kind === 'subtotal') return s.out >= 0 ? C.accent : '#dc2626';
-    return C.accent; // 'total' (Revenue)
+    if (s.kind === 'subtract') return C.chartNegative;
+    if (s.kind === 'final')    return s.out >= 0 ? C.chartPositive : C.chartNegative;
+    if (s.kind === 'subtotal') return s.out >= 0 ? C.chartAccent   : C.chartNegative;
+    return C.chartAccent; // 'total' (Revenue)
   };
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', maxWidth: W }}
          role="img" aria-label="Cash flow waterfall — Revenue to PAT">
-      {/* Zero line */}
+      {/* Zero line — chart-axis at 1.2px reads warmer than the cool border token */}
       <line x1={padLeft} y1={zeroY} x2={W - padRight} y2={zeroY}
-            stroke={C.border} strokeWidth="1" />
+            stroke={C.chartAxis} strokeWidth="1.2" />
 
       {steps.map((s, i) => {
         const cx = padLeft + groupW * i + groupW / 2;
@@ -133,7 +135,7 @@ export default function RevenueToProfitWaterfall({ row }) {
               fontSize="12"
               fontWeight="700"
               fontFamily="'JetBrains Mono', monospace"
-              fill={isSub ? '#dc2626' : (s.out >= 0 ? C.fg1 : '#dc2626')}>
+              fill={isSub ? C.chartNegative : (s.out >= 0 ? C.fg1 : C.chartNegative)}>
               {isSub ? '−' : ''}{fmtShort(Math.abs(labelValue))}
             </text>
 
