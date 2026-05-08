@@ -114,8 +114,8 @@ export default function Dashboard({ onNavigate }) {
             </svg>
           </span>
           <h1 className="dh-hero-title">
-            Start. Plan. Grow.
-            <span className="dh-hero-title-italic">Rooted in Godavari, Built for Tomorrow.</span>
+            A fresh start.
+            <span className="dh-hero-title-italic">Endless possibilities.</span>
           </h1>
           <p className="dh-hero-tagline">
             Turn your ideas into thriving businesses with clarity,<br />

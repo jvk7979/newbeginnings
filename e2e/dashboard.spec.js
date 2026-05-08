@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 
 test('hero section renders', async ({ page }) => {
   await expect(page.locator('.dh-hero').first()).toBeVisible();
-  await expect(page.locator('.dh-hero-title').filter({ hasText: 'Start. Plan. Grow.' })).toBeVisible();
+  await expect(page.locator('.dh-hero-title').filter({ hasText: 'A fresh start.' })).toBeVisible();
 });
 
 test('hero CTA buttons are present', async ({ page }) => {

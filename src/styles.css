@@ -4885,47 +4885,46 @@ textarea:focus-visible,
   color: var(--c-accent-dim);
 }
 
-/* Pull-quote in top-right of hero — translucent cream panel with a
-   big serif quote mark, italic body, small attribution. */
+/* Pull-quote in top-right of hero — blends directly into the photo.
+   No card chrome (no background, no border, no blur, no shadow).
+   Just a thin gold left rule anchoring an italic quote in dark text
+   on the photo. Relies on the photo's washed warm-cream tones for
+   contrast, the same way the left-side editorial content does. */
 .dh-hero-quote {
   position: absolute;
   top: clamp(28px, 4vw, 44px);
   right: clamp(20px, 5vw, 56px);
-  max-width: 280px;
-  padding: 16px 20px 14px 22px;
-  background: rgba(253, 250, 242, 0.88);
-  border: 1px solid rgba(229, 221, 201, 0.7);
-  border-radius: 10px;
-  border-left: 3px solid var(--c-h-gold);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  box-shadow: 0 6px 18px rgba(45, 42, 38, 0.10);
+  max-width: 300px;
+  padding: 4px 0 4px 14px;
+  border-left: 2px solid var(--c-h-gold);
+  background: transparent;
   z-index: 2;
 }
 .dh-hero-quote-mark {
   display: block;
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 700;
   line-height: 0.6;
   color: var(--c-h-gold);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .dh-hero-quote-text {
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
-  color: var(--c-fg1);
+  color: #1a1815;
   line-height: 1.4;
-  margin: 0 0 8px;
+  margin: 0 0 6px;
 }
 .dh-hero-quote-cite {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--c-fg3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4d3f1f;
   margin: 0;
 }
 
@@ -5035,10 +5034,13 @@ textarea:focus-visible,
   padding: 0 clamp(16px, 5vw, 56px);
   box-sizing: border-box;
 }
-.dh-container-pad { padding-top: 36px; }
+.dh-container-pad { padding-top: 0; }
 @media (max-width: 640px) {
-  .dh-container-pad { padding-top: 22px; }
+  .dh-container-pad { padding-top: 0; }
 }
+/* Pull the KPI strip up so it sits directly under the hero photo
+   without an empty cream band between them. */
+.dh-kpi-strip { margin-top: 0; }
 
 /* ── KPI strip — BELOW the hero so the photo is fully visible.
    Three count tiles only (Total Ideas / Active Projects / In
@@ -5324,16 +5326,18 @@ textarea:focus-visible,
   margin: 0 0 14px;
 }
 .dh-closing-script {
-  font-family: 'Pinyon Script', 'Playfair Display', Georgia, serif;
-  font-size: clamp(22px, 4.4vw, 44px);
-  font-weight: 400;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(20px, 2.6vw, 28px);
+  font-weight: 600;
   color: var(--c-accent);
-  line-height: 1.25;
+  line-height: 1.4;
+  letter-spacing: 0.005em;
   margin: 0;
   word-break: break-word;
 }
 @media (max-width: 640px) {
-  .dh-closing-script { font-size: 22px; }
+  .dh-closing-script { font-size: 18px; }
 }
 .dh-closing-script-2 { color: var(--c-h-gold); margin-top: 4px; }
 .dh-closing-rule {
