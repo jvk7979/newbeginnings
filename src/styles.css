@@ -2,18 +2,22 @@
  * Theme tokens (CSS variables). Switching themes is a matter of setting
  * `document.documentElement.dataset.theme = '<name>'`.
  *
- * Three palettes ship as of 2026-05:
+ * Six palettes ship as of 2026-05-08:
  *   heritage — DEFAULT — coconut cream + deep coconut green + gold + river blue
- *   forest   — deeper banking-green for a conservative read
- *   amber    — warm cream + deep amber for a heritage tone
+ *   vellum   — 1920s ledger / walnut ink on aged paper
+ *   field    — clean near-white + saturated emerald (formerly 'forest')
+ *   linen    — monochrome editorial — strips colour, lets typography carry
+ *   oxford   — academic dust jacket — ivory paper + Oxford navy + brass trim
+ *   burgundy — Penguin Classics shelf — cream + oxblood spine + gold lettering
  *
- * Twelve other palettes (sage, saffron, meadow, regalia, espresso,
- * mahogany, clay, monogram, transformative-teal, quant, sapphire,
- * sprout) were retired here. Every component reads from these CSS
- * variables, so deleting unused blocks is purely housekeeping — no
- * functional impact. Existing localStorage values for retired themes
- * will fail validation in ThemeContext.setTheme() and fall through to
- * the new default (heritage) on next visit.
+ * Earlier palettes that were retired in this directory (sage, saffron,
+ * meadow, regalia, espresso, mahogany, clay, monogram, transformative-
+ * teal, quant, sapphire, sprout, amber, forest) were removed as pure
+ * housekeeping — every component reads from these CSS variables, so
+ * deleting unused blocks has no functional impact. ThemeContext silently
+ * normalises the recent legacy ids on load: `forest` → `field`, `amber` →
+ * `heritage`, `sprout` → `heritage`. Anything else falls through to the
+ * default.
  * ───────────────────────────────────────────────────────────────────────── */
 
 /* Heritage — coconut cream + deep coconut green + river blue + gold
@@ -63,8 +67,37 @@
   --c-h-terracotta-bg: #F8E8D8;
 }
 
-/* Forest — banking green · saturated emerald · conservative + readable */
-:root[data-theme="forest"] {
+/* Vellum — 1920s ledger · walnut ink on aged paper · Cormorant italic sings here */
+:root[data-theme="vellum"] {
+  --c-bg0: #F2EBDA;
+  --c-bg1: #FAF4E5;
+  --c-bg2: #E5DBC2;
+  --c-bg3: #D4C49E;
+  --c-fg1: #2A1F14;
+  --c-fg2: #5A4A30;
+  --c-fg3: #8B7A52;
+  --c-accent: #6B3F2A;
+  --c-accent-light: #8A5538;
+  --c-accent-dim: #4F2D1C;
+  --c-accent-bg: #EFE2CC;
+  --c-accent-rgb: 107 63 42;
+  --c-accent-dim-rgb: 79 45 28;
+  --c-border: #E0D6BC;
+  --c-border-light: #C9BB94;
+  --c-success: #5C7B3C;
+  --c-success-bg: #EAEEDC;
+  --c-warning: #B07820;
+  --c-warning-bg: #F5E8C5;
+  --c-danger: #A4422A;
+  --c-danger-bg: #F5E0D5;
+  --c-danger-rgb: 164 66 42;
+  --c-info: #5A7A8E;
+  --c-info-bg: #E0E8EE;
+}
+
+/* Field — clean near-white · saturated emerald · the work-mode sibling to Heritage
+   (formerly 'forest' — palette unchanged, renamed for clarity) */
+:root[data-theme="field"] {
   --c-bg0: #FAFAF7;
   --c-bg1: #FFFFFF;
   --c-bg2: #F0F1EC;
@@ -91,32 +124,88 @@
   --c-info-bg: #EFF6FF;
 }
 
-/* Amber Haze — soft warm cream base · deep amber accent #B45309 */
-:root[data-theme="amber"] {
-  --c-bg0: #FDF8EE;
+/* Linen — monochrome editorial · Are.na / The Browser · typography carries it all */
+:root[data-theme="linen"] {
+  --c-bg0: #FBFAF6;
   --c-bg1: #FFFFFF;
-  --c-bg2: #F8EBC8;
-  --c-bg3: #EDD89A;
-  --c-fg1: #1F1300;
-  --c-fg2: #5C3D00;
-  --c-fg3: #9A7530;
-  --c-accent: #B45309;
-  --c-accent-light: #D97706;
-  --c-accent-dim: #8A3F05;
-  --c-accent-bg: #FEF3DC;
-  --c-accent-rgb: 180 83 9;
-  --c-accent-dim-rgb: 138 63 5;
-  --c-border: #F0DCB0;
-  --c-border-light: #DEC382;
-  --c-success: #15803D;
-  --c-success-bg: #F0FDF4;
-  --c-warning: #B45309;
-  --c-warning-bg: #FEF3DC;
-  --c-danger: #B91C1C;
-  --c-danger-bg: #FEF2F2;
-  --c-danger-rgb: 185 28 28;
-  --c-info: #1976D2;
-  --c-info-bg: #E3F2FD;
+  --c-bg2: #F2F1ED;
+  --c-bg3: #E2E0DA;
+  --c-fg1: #0E0E0E;
+  --c-fg2: #4A4A4A;
+  --c-fg3: #8A8A8A;
+  --c-accent: #1F1F1F;
+  --c-accent-light: #3A3A3A;
+  --c-accent-dim: #0E0E0E;
+  --c-accent-bg: #F0EFEB;
+  --c-accent-rgb: 31 31 31;
+  --c-accent-dim-rgb: 14 14 14;
+  --c-border: #E0DED7;
+  --c-border-light: #C9C7BE;
+  --c-success: #2D6E3D;
+  --c-success-bg: #EBF1ED;
+  --c-warning: #8B6914;
+  --c-warning-bg: #F4EEDC;
+  --c-danger: #8B2424;
+  --c-danger-bg: #F2E5E5;
+  --c-danger-rgb: 139 36 36;
+  --c-info: #1F4D7A;
+  --c-info-bg: #E5ECF3;
+}
+
+/* Oxford — academic dust jacket · ivory paper + Oxford navy + brass trim */
+:root[data-theme="oxford"] {
+  --c-bg0: #F4F2EA;
+  --c-bg1: #FBF9F1;
+  --c-bg2: #E8E5D5;
+  --c-bg3: #D5D2BE;
+  --c-fg1: #1A2238;
+  --c-fg2: #3F4960;
+  --c-fg3: #6F7A92;
+  --c-accent: #1A2238;
+  --c-accent-light: #2D3A5C;
+  --c-accent-dim: #0F162A;
+  --c-accent-bg: #E8EBF3;
+  --c-accent-rgb: 26 34 56;
+  --c-accent-dim-rgb: 15 22 42;
+  --c-border: #E0DCCB;
+  --c-border-light: #C8C3A8;
+  --c-success: #2B6E4F;
+  --c-success-bg: #E5EFE9;
+  --c-warning: #A8782A;
+  --c-warning-bg: #F2E9CD;
+  --c-danger: #8E342B;
+  --c-danger-bg: #F2DFD9;
+  --c-danger-rgb: 142 52 43;
+  --c-info: #1A4571;
+  --c-info-bg: #DCE6F1;
+}
+
+/* Burgundy — Penguin Classics shelf · cream + oxblood spine + gold lettering */
+:root[data-theme="burgundy"] {
+  --c-bg0: #F5EFE6;
+  --c-bg1: #FCF7EE;
+  --c-bg2: #E9DFCE;
+  --c-bg3: #D6C8AC;
+  --c-fg1: #2A1414;
+  --c-fg2: #5A2E2E;
+  --c-fg3: #8B5A5A;
+  --c-accent: #7A2C25;
+  --c-accent-light: #9C3D34;
+  --c-accent-dim: #561C18;
+  --c-accent-bg: #F2E3DD;
+  --c-accent-rgb: 122 44 37;
+  --c-accent-dim-rgb: 86 28 24;
+  --c-border: #DECDB6;
+  --c-border-light: #C7B292;
+  --c-success: #4A6B30;
+  --c-success-bg: #E8EEDC;
+  --c-warning: #A8782A;
+  --c-warning-bg: #F2E9CD;
+  --c-danger: #B23522;
+  --c-danger-bg: #F5DDD6;
+  --c-danger-rgb: 178 53 34;
+  --c-info: #3A6280;
+  --c-info-bg: #DCE6EE;
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim

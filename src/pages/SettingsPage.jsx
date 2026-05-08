@@ -41,6 +41,19 @@ const DARK_MODE_OPTIONS = [
   { id: 'system', label: 'System', hint: 'Follow OS preference' },
 ];
 
+// Static preview palette — used to render each card with its OWN theme's
+// colours regardless of which theme is currently active. Source of truth
+// is src/styles.css; if a theme's tokens change there, mirror the change
+// here for the picker preview.
+const THEME_PREVIEW = {
+  heritage: { bg0: '#F6F1E7', bg1: '#FDFAF2', bg2: '#EDE5D2', bg3: '#DDD0B5', fg1: '#2D2A26', accent: '#2F6B4F', border: '#E5DDC9' },
+  vellum:   { bg0: '#F2EBDA', bg1: '#FAF4E5', bg2: '#E5DBC2', bg3: '#D4C49E', fg1: '#2A1F14', accent: '#6B3F2A', border: '#E0D6BC' },
+  field:    { bg0: '#FAFAF7', bg1: '#FFFFFF', bg2: '#F0F1EC', bg3: '#DDDFD6', fg1: '#0A1F0E', accent: '#15803D', border: '#E5E7E0' },
+  linen:    { bg0: '#FBFAF6', bg1: '#FFFFFF', bg2: '#F2F1ED', bg3: '#E2E0DA', fg1: '#0E0E0E', accent: '#1F1F1F', border: '#E0DED7' },
+  oxford:   { bg0: '#F4F2EA', bg1: '#FBF9F1', bg2: '#E8E5D5', bg3: '#D5D2BE', fg1: '#1A2238', accent: '#1A2238', border: '#E0DCCB' },
+  burgundy: { bg0: '#F5EFE6', bg1: '#FCF7EE', bg2: '#E9DFCE', bg3: '#D6C8AC', fg1: '#2A1414', accent: '#7A2C25', border: '#DECDB6' },
+};
+
 export default function SettingsPage() {
   const { theme, setTheme, themes, darkMode, setDarkMode } = useTheme();
   const { user } = useAuth();
@@ -93,50 +106,96 @@ export default function SettingsPage() {
           </SectionCard>
         )}
 
-        {/* Theme picker */}
-        <SectionCard title="Theme" subtitle="Three palettes ship — Heritage is the default.">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
-            {themes.map(t => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTheme(t.id)}
-                aria-pressed={theme === t.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '12px 14px',
-                  border: theme === t.id ? `2px solid ${C.accent}` : `1px solid ${C.border}`,
-                  borderRadius: 10,
-                  background: theme === t.id ? C.accentBg : C.bg1,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: C.fg1,
-                  transition: 'all 120ms',
-                }}>
-                <span style={{ display: 'flex', flexShrink: 0 }}>
-                  {t.swatch.map((color, i) => (
-                    <span key={i}
-                      style={{
-                        width: 18, height: 18,
-                        background: color,
-                        marginLeft: i > 0 ? -6 : 0,
-                        border: '2px solid #fff',
-                        borderRadius: '50%',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-                      }} />
-                  ))}
-                </span>
-                <span style={{ flex: 1 }}>{t.label}</span>
-                {theme === t.id && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
-                )}
-              </button>
-            ))}
+        {/* Theme picker — six light themes, each rendered as a live preview card.
+            Each card's preview uses that theme's own palette regardless of which
+            theme is currently active, so users can compare moods at a glance. */}
+        <SectionCard title="Theme" subtitle="Six light palettes — Heritage is the default. Dark mode (below) overlays whichever you pick.">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+            {themes.map(t => {
+              const p = THEME_PREVIEW[t.id] || THEME_PREVIEW.heritage;
+              const isActive = theme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTheme(t.id)}
+                  aria-pressed={isActive}
+                  aria-label={`Use ${t.label} theme`}
+                  style={{
+                    position: 'relative',
+                    background: p.bg0,
+                    border: isActive ? `2px solid ${p.accent}` : `1px solid ${p.border}`,
+                    borderRadius: 12,
+                    padding: isActive ? 15 : 16,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    overflow: 'hidden',
+                    minHeight: 132,
+                    boxShadow: isActive ? `0 6px 18px rgba(0,0,0,0.08)` : '0 1px 2px rgba(0,0,0,0.04)',
+                    transition: 'box-shadow 120ms, transform 120ms',
+                  }}>
+                  <div style={{
+                    fontFamily: "'Cormorant', Georgia, serif",
+                    fontStyle: 'italic',
+                    fontWeight: 600,
+                    fontSize: 18,
+                    letterSpacing: '1.2px',
+                    textTransform: 'uppercase',
+                    color: p.fg1,
+                    lineHeight: 1,
+                    marginBottom: 4,
+                  }}>VENTURE LOG</div>
+                  <div style={{
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: p.fg1,
+                    marginBottom: 14,
+                  }}>{t.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {[p.bg1, p.bg2, p.bg3].map((c, i) => (
+                        <span key={i} aria-hidden style={{
+                          width: 14, height: 14,
+                          background: c,
+                          border: `1px solid ${p.border}`,
+                          borderRadius: 4,
+                        }} />
+                      ))}
+                    </div>
+                    <span aria-hidden style={{
+                      background: p.accent,
+                      color: p.bg0,
+                      padding: '4px 10px',
+                      borderRadius: 999,
+                      fontSize: 11,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontWeight: 500,
+                      letterSpacing: '0.3px',
+                    }}>+ New idea</span>
+                  </div>
+                  {isActive && (
+                    <span aria-hidden style={{
+                      position: 'absolute',
+                      top: 10,
+                      right: 10,
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      background: p.accent,
+                      color: p.bg0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="12" height="12">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </SectionCard>
 
