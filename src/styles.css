@@ -4886,61 +4886,14 @@ textarea:focus-visible,
   color: var(--c-accent-dim);
 }
 
-/* Pull-quote in top-right of hero — blends directly into the photo.
-   No card chrome (no background, no border, no blur, no shadow).
-   Just a thin gold left rule anchoring an italic quote in dark text
-   on the photo. Relies on the photo's washed warm-cream tones for
-   contrast, the same way the left-side editorial content does. */
-.dh-hero-quote {
-  position: absolute;
-  top: clamp(28px, 4vw, 44px);
-  right: clamp(20px, 5vw, 56px);
-  max-width: 300px;
-  padding: 4px 0 4px 14px;
-  border-left: 2px solid var(--c-h-gold);
-  background: transparent;
-  z-index: 2;
-}
-.dh-hero-quote-mark {
-  display: block;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 0.6;
-  color: var(--c-h-gold);
-  margin-bottom: 4px;
-}
-.dh-hero-quote-text {
-  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: 16px;
-  font-weight: 500;
-  color: #1a1815;
-  line-height: 1.4;
-  margin: 0 0 6px;
-}
-.dh-hero-quote-cite {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #4d3f1f;
-  margin: 0;
-}
-
-/* iPad: shrink quote panel slightly, give content card less max-width
-   so they don't collide. */
+/* iPad: give the content card a slightly smaller max-width so the
+   long headline doesn't crowd the right edge of the photo. */
 @media (max-width: 1100px) {
-  .dh-hero-content { max-width: min(520px, calc(58% - 16px)); }
-  .dh-hero-quote   { max-width: 240px; padding: 14px 16px 12px 18px; }
-  .dh-hero-quote-text { font-size: 14px; }
+  .dh-hero-content { max-width: min(520px, calc(60% - 16px)); }
 }
 
 /* Mobile: revert to a normal static block below the image with the
-   default heritage-token colours on the cream background. Quote
-   panel hides on mobile (the headline + tagline already carry the
-   editorial voice; an extra panel would clutter the small screen). */
+   default heritage-token colours on the cream background. */
 @media (max-width: 640px) {
   .dh-hero-content {
     position: static;
@@ -4954,7 +4907,6 @@ textarea:focus-visible,
   .dh-hero-title-italic { font-size: 22px; margin-top: 2px; }
   .dh-hero-tagline { font-size: 14px; color: var(--c-fg2); }
   .dh-hero-actions .dh-btn { padding: 8px 14px; font-size: 13px; }
-  .dh-hero-quote   { display: none; }
 }
 .dh-hero-eyebrow {
   font-family: 'DM Sans', sans-serif;

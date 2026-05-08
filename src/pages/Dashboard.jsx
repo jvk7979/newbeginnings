@@ -133,15 +133,6 @@ export default function Dashboard({ onNavigate }) {
           </div>
         </div>
 
-        {/* Pull-quote pinned to top-right of the hero. Hidden on mobile. */}
-        <aside className="dh-hero-quote" aria-label="Tagline">
-          <span className="dh-hero-quote-mark" aria-hidden="true">&ldquo;</span>
-          <p className="dh-hero-quote-text">
-            From the banks of the Godavari<br />
-            to a future of abundance.
-          </p>
-          <p className="dh-hero-quote-cite">— The New Beginnings</p>
-        </aside>
       </section>
 
       <div className="dh-container dh-container-pad">
