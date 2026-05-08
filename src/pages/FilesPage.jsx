@@ -4,6 +4,7 @@ import { useFiles } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 import ConfirmModal from '../components/ConfirmModal';
+import { IllDoc } from '../components/illustrations';
 
 const iStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '10px 12px', outline: 'none', width: '100%', boxSizing: 'border-box', transition: 'border 150ms' };
 const lStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -233,7 +234,7 @@ export default function FilesPage({ onNavigate }) {
       {/* Empty state */}
       {files.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-art" aria-hidden="true">📄</div>
+          <div className="empty-state-art" aria-hidden="true"><IllDoc /></div>
           <div className="empty-state-title">Build your reference library</div>
           <div className="empty-state-copy">
             Upload PDFs to your GitHub repo under <code style={{ fontFamily: "'JetBrains Mono', monospace", background: 'var(--c-bg2)', padding: '1px 5px', borderRadius: 3, fontSize: '0.92em' }}>public/files/</code>, then register them here.

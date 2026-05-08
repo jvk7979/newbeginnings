@@ -7,6 +7,7 @@ import QuickEditForm from '../components/QuickEditForm';
 import SavedViewsBar from '../components/SavedViewsBar';
 import ComparePanel from '../components/ComparePanel';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
+import { IllPlan } from '../components/illustrations';
 
 const FILTERS = [
   { id: 'all',       label: 'All' },
@@ -250,7 +251,7 @@ export default function PlansPage({ onNavigate }) {
       {/* Empty states */}
       {plans.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-art" aria-hidden="true">📋</div>
+          <div className="empty-state-art" aria-hidden="true"><IllPlan /></div>
           <div className="empty-state-title">Plan your first venture</div>
           <div className="empty-state-copy">Build a structured project plan with sections, KPIs, and supporting documents.</div>
           <button className="themed-cta" onClick={() => onNavigate('new-project')}>+ Create a project</button>

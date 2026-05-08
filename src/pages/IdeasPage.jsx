@@ -6,6 +6,7 @@ import IdeaCard from '../components/IdeaCard';
 import SavedViewsBar from '../components/SavedViewsBar';
 import ComparePanel from '../components/ComparePanel';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
+import { IllIdea } from '../components/illustrations';
 
 const FILTERS = [
   { id: 'all',        label: 'All' },
@@ -170,7 +171,7 @@ export default function IdeasPage({ onNavigate }) {
       {/* Empty states */}
       {ideas.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-art" aria-hidden="true">💡</div>
+          <div className="empty-state-art" aria-hidden="true"><IllIdea /></div>
           <div className="empty-state-title">Your first venture starts here</div>
           <div className="empty-state-copy">Capture an idea — even half-formed. You can always refine it later.</div>
           <button className="themed-cta" onClick={() => onNavigate('new-idea')}>+ Capture an idea</button>

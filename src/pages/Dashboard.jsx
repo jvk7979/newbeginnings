@@ -3,6 +3,7 @@ import { C } from '../tokens';
 import { useIdeas, usePlans, useFiles } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import heroImg from '../assets/hero_gpdavari1.webp';
+import { IllIdea, IllPlan, IllDoc } from '../components/illustrations';
 
 // Heritage Dashboard. Designed around the Godavari hero photo as the
 // magazine cover — coconut cream surfaces, deep coconut green accents,
@@ -17,10 +18,10 @@ import heroImg from '../assets/hero_gpdavari1.webp';
 // columns and duplicated what the Calculations page already shows.
 
 const STATUS_COLORS = {
-  draft:         '#1E40AF',
+  draft:         '#3150b7',
   validating:    '#854D0E',
   active:        '#065F46',
-  archived:      '#4B5563',
+  archived:      '#36040d',
 };
 
 const IDEA_STATUS_LABELS = { draft: 'Draft', validating: 'Validating', active: 'Active', archived: 'Archived' };
@@ -173,6 +174,7 @@ export default function Dashboard({ onNavigate }) {
               <EmptyTile
                 copy="No ideas captured yet."
                 btn="+ New Idea"
+                art={<IllIdea />}
                 onClick={() => onNavigate('new-idea')}
               />
             ) : (
@@ -213,6 +215,7 @@ export default function Dashboard({ onNavigate }) {
               <EmptyTile
                 copy="No active projects."
                 btn="+ New Project"
+                art={<IllPlan />}
                 onClick={() => onNavigate('new-project')}
               />
             ) : (
@@ -258,6 +261,7 @@ export default function Dashboard({ onNavigate }) {
               <EmptyTile
                 copy="No documents uploaded."
                 btn="Upload Document"
+                art={<IllDoc />}
                 onClick={() => onNavigate('documents')}
               />
             ) : (
@@ -318,9 +322,10 @@ export default function Dashboard({ onNavigate }) {
   );
 }
 
-function EmptyTile({ copy, btn, onClick }) {
+function EmptyTile({ copy, btn, onClick, art }) {
   return (
     <div className="dh-empty">
+      {art && <div className="dh-empty-art" aria-hidden="true">{art}</div>}
       <div className="dh-empty-copy">{copy}</div>
       <button onClick={onClick} className="dh-btn dh-btn-primary dh-empty-btn">{btn}</button>
     </div>
