@@ -1,39 +1,31 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-// Eleven-palette theme set (rev 5, 2026-05-11 — added midnight / coastal /
-// plum / jade / terracotta / mono). Heritage is the default — coconut-cream
-// + deep coconut green + river blue + gold + dark warm-brown text, paired
-// with the Godavari hero photo. All alternates keep the editorial typography
-// (Cormorant Garamond / Playfair Display / DM Sans / JetBrains Mono) but
-// bring a distinct atmospheric layer.
+// Eight-palette theme set (rev 6, 2026-05-11 — retired aura / lemon / jade
+// from rev-5 to tighten the picker around eight strong distinct moods).
+// Heritage is the default — coconut-cream + deep coconut green + river blue
+// + gold + dark warm-brown text, paired with the Godavari hero photo. All
+// alternates keep the editorial typography (Cormorant Garamond / Playfair
+// Display / DM Sans / JetBrains Mono) but bring a distinct atmospheric
+// layer.
 //
-// Rev-4 set (light, editorial / soft / vibrant atmospheres):
-//   • aura       — soft pastel gradient backdrop, glass-blur KPI tiles,
-//                  lavender pill CTA. Calm, multi-tonal pastel palette.
-//   • prism      — white page with indigo+cyan radial corner glows, gradient
-//                  KPI tile, gradient CTA, gradient italic in the hero
-//                  headline. Confident, saturated, cool register.
-//   • citrus     — sibling of prism shifted warm: orange primary,
+//   • prism      — vibrant — white page with indigo+cyan radial corner glows,
+//                  gradient KPI tile, gradient CTA, gradient italic hero.
+//                  Confident, saturated, cool register.
+//   • citrus     — vibrant — sibling of prism shifted warm: orange primary,
 //                  orange→yellow gradient signature, lime green secondary.
 //                  Energetic, sunset feel.
-//   • lemon      — sibling of prism / citrus with lime / chartreuse primary
-//                  and lime → yellow gradient signature. Spring meadow.
-//
-// Rev-5 additions:
-//   • midnight   — DARK theme. Near-black slate backdrop, warm brass primary,
+//   • midnight   — DARK — near-black slate backdrop, warm brass primary,
 //                  dim sage secondary, parchment text. Library-after-dark.
 //                  First-class dark palette (mode: 'dark').
-//   • coastal    — vibrant family, slate ocean blue primary + sunset coral
+//   • coastal    — vibrant — slate ocean blue primary + sunset coral
 //                  secondary, slate→coral gradient. Pacific Northwest calm.
-//   • plum       — vibrant family, deep aubergine primary + brass secondary,
+//   • plum       — vibrant — deep aubergine primary + brass secondary,
 //                  aubergine→brass gradient. Boutique-hotel luxury.
-//   • jade       — vibrant family, jade primary + sand secondary, jade→sand
-//                  gradient. Spa / coastal-retreat. Sister to Heritage cool.
-//   • terracotta — editorial family, warm sand backdrop, burnt sienna primary,
+//   • terracotta — editorial — warm sand backdrop, burnt sienna primary,
 //                  sage secondary. Mediterranean clay village. Sister to
 //                  Heritage warmer / southern.
-//   • mono       — editorial family, paper white, ink-black primary + one
-//                  red pop (#C9302C). Sunday Times newspaper / maximum
+//   • mono       — editorial — paper white, ink-black primary + one red
+//                  pop (#C9302C). Sunday Times newspaper / maximum
 //                  typography.
 //
 // All atmospheric overrides live in styles.css under "Theme atmospheric
@@ -44,23 +36,21 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 // previews; it doesn't depend on this array beyond {id, label}.
 //
 // Legacy migration (handled in the useState initialiser below):
-//   sprout            → heritage  (2026-05 rename — pre-rev-1 default)
-//   forest            → heritage  (rev-1 retirement — closest in mood now)
-//   amber             → heritage  (rev-1 retirement)
-//   field             → heritage  (rev-2 retirement — clean light gone)
-//   linen             → heritage  (rev-2 retirement — monochrome gone)
-//   oxford / burgundy → heritage  (rev-2 retirement — blue / red gone)
-//   vellum            → heritage  (rev-2 retirement — warm ledger gone)
+//   aura / lemon / jade → heritage  (rev-6 retirement)
+//   sprout              → heritage  (2026-05 rename — pre-rev-1 default)
+//   forest              → heritage  (rev-1 retirement — closest in mood now)
+//   amber               → heritage  (rev-1 retirement)
+//   field               → heritage  (rev-2 retirement — clean light gone)
+//   linen               → heritage  (rev-2 retirement — monochrome gone)
+//   oxford / burgundy   → heritage  (rev-2 retirement — blue / red gone)
+//   vellum              → heritage  (rev-2 retirement — warm ledger gone)
 export const THEMES = [
   { id: 'heritage',   label: 'Heritage',   mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#37986b'] },
-  { id: 'aura',       label: 'Aura',       mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7674ef'] },
   { id: 'prism',      label: 'Prism',      mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
   { id: 'citrus',     label: 'Citrus',     mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
-  { id: 'lemon',      label: 'Lemon',      mode: 'light', swatch: ['#FFFFFF', '#FCFFF5', '#82c41f'] },
   { id: 'midnight',   label: 'Midnight',   mode: 'dark',  swatch: ['#0E1116', '#161A22', '#E8B97B'] },
   { id: 'coastal',    label: 'Coastal',    mode: 'light', swatch: ['#F4F7F9', '#FFFFFF', '#3B6E8F'] },
   { id: 'plum',       label: 'Plum',       mode: 'light', swatch: ['#F7F2F6', '#FFFDFE', '#5A2A52'] },
-  { id: 'jade',       label: 'Jade',       mode: 'light', swatch: ['#F0F7F4', '#FFFFFF', '#2F8E7E'] },
   { id: 'terracotta', label: 'Terracotta', mode: 'light', swatch: ['#FBF5EE', '#FFFCF6', '#B5532A'] },
   { id: 'mono',       label: 'Mono',       mode: 'light', swatch: ['#FAFAFA', '#FFFFFF', '#111111'] },
 ];
@@ -73,6 +63,10 @@ const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 // versions. Anything not in this map and not in THEMES falls through to
 // DEFAULT_THEME on next load.
 const LEGACY_THEME_MAP = {
+  // Rev-6 retirements (2026-05-11) — picker trimmed from 11 → 8.
+  aura:     'heritage',
+  lemon:    'heritage',
+  jade:     'heritage',
   sprout:   'heritage',
   forest:   'heritage',
   amber:    'heritage',

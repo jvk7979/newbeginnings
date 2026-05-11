@@ -2,16 +2,20 @@
  * Theme tokens (CSS variables). Switching themes is a matter of setting
  * `document.documentElement.dataset.theme = '<name>'`.
  *
- * Three palettes ship as of 2026-05-08 (rev 2):
- *   heritage — DEFAULT — coconut cream + deep coconut green + gold + river blue.
- *              Editorial / leather-notebook mood; Godavari hero photo.
- *   aura     — soft + airy — pale lavender→peach gradient backdrop, glass-blur
- *              KPI tiles, lavender accent. Calm, breathable, slightly futuristic.
- *   prism    — vibrant + energetic — pure white with indigo→cyan radial corner
- *              glows, gradient KPI tile, gradient CTA. Confident, kinetic.
+ * Eight palettes ship as of 2026-05-11 (rev 6):
+ *   heritage   — DEFAULT — cream + deep coconut green + gold + river blue.
+ *                Editorial / leather-notebook mood; Godavari hero photo.
+ *   prism      — vibrant — white + indigo→cyan radial glows, gradient KPI tile,
+ *                gradient CTA. Stripe / Figma vocabulary.
+ *   citrus     — vibrant — sibling of prism shifted warm: orange + yellow.
+ *   midnight   — DARK — near-black slate + brass primary + sage. Library mood.
+ *   coastal    — vibrant — slate ocean blue + sunset coral on fog gray.
+ *   plum       — vibrant — deep aubergine + brass on pale lilac. Jewel-tone.
+ *   terracotta — editorial — burnt sienna + sage on warm sand. Mediterranean.
+ *   mono       — editorial — ink black + one red pop on paper. Newspaper.
  *
  * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /
- * JetBrains Mono) is the brand voice — held constant across all three themes.
+ * JetBrains Mono) is the brand voice — held constant across all eight themes.
  * Themes vary only the palette and the atmospheric layer (page background,
  * KPI surfaces, CTA treatment), so navigating between pages stays coherent.
  *
@@ -19,12 +23,13 @@
  * "Theme atmospheric overrides"). Component CSS uses var(--c-*) tokens so
  * deeper styling tracks each theme's accent automatically.
  *
- * Earlier palettes retired in this directory (vellum, field, linen, oxford,
- * burgundy from rev 1; forest, amber, sprout from previous revs; plus a long
- * tail of deprecated names) are removed as pure housekeeping — every component
- * reads from these CSS variables, so deleted blocks have no functional impact.
- * ThemeContext silently normalises legacy ids on load — see LEGACY_THEME_MAP
- * there. Anything not mapped falls through to the heritage default.
+ * Earlier palettes retired in this directory (aura, lemon, jade from rev 5;
+ * vellum, field, linen, oxford, burgundy from rev 1; forest, amber, sprout
+ * from previous revs; plus a long tail of deprecated names) are removed as
+ * pure housekeeping — every component reads from these CSS variables, so
+ * deleted blocks have no functional impact. ThemeContext silently normalises
+ * legacy ids on load — see LEGACY_THEME_MAP there. Anything not mapped falls
+ * through to the heritage default.
  * ───────────────────────────────────────────────────────────────────────── */
 
 /* Heritage — coconut cream + deep coconut green + river blue + gold
@@ -80,57 +85,6 @@
   --c-chart-neutral:  #B88A3B; /* gold — interest, neutral zones */
   --c-chart-accent:   #2F6B4F; /* deep coconut green — primary metric */
   --c-chart-axis:     #8A7256; /* warm brown — axis lines, tick marks */
-}
-
-/* Aura — soft + airy · pale lavender → peach gradient backdrop · glass-blur
-   tiles · lavender-indigo accent. Atmosphere from Arc browser / pastel-OS
-   territory, but the editorial typography (Cormorant / Playfair / DM Sans)
-   stays intact so the brand voice carries across the theme switch.
-
-   Aura also exposes three secondary accent colours — mint, peach, butter —
-   used by the dashboard to colour the KPI tile icons and card-row leaves
-   so the page reads with more chromatic range than the lavender accent
-   alone could carry. All four secondaries are pastel-tuned so they sit
-   naturally on Aura's cool gradient backdrop. */
-:root[data-theme="aura"] {
-  --c-bg0: #F4F6FB;
-  --c-bg1: #FFFFFF;
-  --c-bg2: #EBE9FB;
-  --c-bg3: #DBD8F2;
-  --c-fg1: #1F2937;
-  --c-fg2: #4B5563;
-  --c-fg3: #9CA3AF;
-  --c-accent: #7C7AED;
-  --c-accent-light: #9D9CF3;
-  --c-accent-dim: #5E5BCC;
-  --c-accent-bg: #EFEEFC;
-  --c-accent-rgb: 124 122 237;
-  --c-accent-dim-rgb: 94 91 204;
-  --c-border: #E5E7EB;
-  --c-border-light: #D1D5DB;
-  --c-success: #10B981;
-  --c-success-bg: #ECFDF5;
-  --c-warning: #F59E0B;
-  --c-warning-bg: #FEF3C7;
-  --c-danger: #F472B6;
-  --c-danger-bg: #FCE7F3;
-  --c-danger-rgb: 244 114 182;
-  --c-info: #38BDF8;
-  --c-info-bg: #E0F2FE;
-  /* Secondary palette — pastel mint / peach / butter. */
-  --c-accent-2:    #34D399;  /* mint green */
-  --c-accent-2-bg: #D1FAE5;
-  --c-accent-3:    #FB923C;  /* peach orange */
-  --c-accent-3-bg: #FED7AA;
-  --c-accent-4:    #FACC15;  /* honey yellow */
-  --c-accent-4-bg: #FEF3C7;
-
-  /* Chart palette */
-  --c-chart-positive: #34D399; /* mint — sits well on lavender pastel */
-  --c-chart-negative: #F472B6; /* danger pink (matches --c-danger) */
-  --c-chart-neutral:  #F59E0B; /* amber */
-  --c-chart-accent:   #7C7AED; /* lavender primary */
-  --c-chart-axis:     #9CA3AF; /* cool grey */
 }
 
 /* Prism — vibrant + energetic · white base with indigo + cyan radial glows ·
@@ -228,51 +182,6 @@
   --c-chart-neutral:  #D97706; /* amber */
   --c-chart-accent:   #F97316; /* orange primary */
   --c-chart-axis:     #8E7A60; /* warm tan */
-}
-
-/* Lemon — vibrant + energetic · lime / chartreuse primary · lime → yellow
-   gradient signature. The bright fresh-citrus / spring meadow option.
-   Distinct from Mint (teal-anchored), Citrus (orange-anchored), and
-   Heritage (deep forest green) by anchoring on saturated lime green
-   that runs into a sunny yellow on the gradient surfaces. */
-:root[data-theme="lemon"] {
-  --c-bg0: #FFFFFF;
-  --c-bg1: #FCFFF5;
-  --c-bg2: #ECFCCB;
-  --c-bg3: #D9F99D;
-  --c-fg1: #1A2A0A;
-  --c-fg2: #3F5C20;
-  --c-fg3: #738E50;
-  --c-accent: #84CC16;
-  --c-accent-light: #A3E635;
-  --c-accent-dim: #4D7C0F;
-  --c-accent-bg: #ECFCCB;
-  --c-accent-rgb: 132 204 22;
-  --c-accent-dim-rgb: 77 124 15;
-  --c-border: #D9F99D;
-  --c-border-light: #BEF264;
-  --c-success: #16A34A;
-  --c-success-bg: #DCFCE7;
-  --c-warning: #EAB308;
-  --c-warning-bg: #FEF9C3;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEE2E2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #0EA5E9;
-  --c-info-bg: #E0F2FE;
-  --c-accent-2:    #FACC15;  /* sunny yellow — gradient pair */
-  --c-accent-2-bg: #FEF9C3;
-  --c-accent-3:    #FB923C;  /* peach orange */
-  --c-accent-3-bg: #FED7AA;
-  --c-accent-4:    #06B6D4;  /* cyan kicker */
-  --c-accent-4-bg: #CFFAFE;
-
-  /* Chart palette */
-  --c-chart-positive: #16A34A;
-  --c-chart-negative: #DC2626;
-  --c-chart-neutral:  #EAB308; /* yellow */
-  --c-chart-accent:   #84CC16; /* lime primary */
-  --c-chart-axis:     #738E50; /* sage axis */
 }
 
 /* Midnight — first-class DARK theme. Slate-near-black backdrop · warm brass
@@ -408,50 +317,6 @@
   --c-chart-neutral:  #C49A6C;
   --c-chart-accent:   #5A2A52;
   --c-chart-axis:     #8A7385;
-}
-
-/* Jade — pale mint backdrop · jade primary · sand + coral secondaries ·
-   spa / coastal-retreat mood. Cool but warm-tinged. Sister to Heritage on
-   the cool register. Vibrant family — gradient signature runs jade → sand. */
-:root[data-theme="jade"] {
-  --c-bg0: #F0F7F4;          /* pale mint */
-  --c-bg1: #FFFFFF;          /* card */
-  --c-bg2: #DDEEE6;
-  --c-bg3: #BFDCCE;
-  --c-fg1: #13322C;          /* forest text */
-  --c-fg2: #2F5650;
-  --c-fg3: #6A8580;
-  --c-accent: #2F8E7E;       /* jade */
-  --c-accent-light: #4FB09F;
-  --c-accent-dim: #1F6E60;
-  --c-accent-bg: #DDF0EB;
-  --c-accent-rgb: 47 142 126;
-  --c-accent-dim-rgb: 31 110 96;
-  --c-border: #D2E5DD;
-  --c-border-light: #B0CFC2;
-  --c-success: #2F8E7E;
-  --c-success-bg: #DDF0EB;
-  --c-warning: #E8B97B;      /* sand */
-  --c-warning-bg: #F7ECD9;
-  --c-danger: #C75A4A;       /* warm coral-red */
-  --c-danger-bg: #F8E1DC;
-  --c-danger-rgb: 199 90 74;
-  --c-info: #4F8A9F;
-  --c-info-bg: #E0ECF1;
-  /* Secondary palette — sand / coral / muted teal. */
-  --c-accent-2:    #E8B97B;  /* sand — gradient pair */
-  --c-accent-2-bg: #F7ECD9;
-  --c-accent-3:    #E8896B;  /* coral */
-  --c-accent-3-bg: #FBE6DE;
-  --c-accent-4:    #4F8A9F;  /* muted teal */
-  --c-accent-4-bg: #E0ECF1;
-
-  /* Chart palette */
-  --c-chart-positive: #2F8E7E;
-  --c-chart-negative: #C75A4A;
-  --c-chart-neutral:  #E8B97B;
-  --c-chart-accent:   #2F8E7E;
-  --c-chart-axis:     #6A8580;
 }
 
 /* Terracotta — warm sand backdrop · burnt sienna primary · sage + cream
@@ -5911,8 +5776,9 @@ html { scroll-behavior: smooth; }
  *
  * Theme-aware atmospheric layers — left panel picks up two soft radial
  * glows in the active theme's accent (auto-themed via --c-accent-rgb,
- * so Heritage glows green, Aura lavender, Prism indigo, Citrus orange,
- * Lemon lime). Right panel page background gets a faint accent halo at
+ * so Heritage glows green, Prism indigo, Citrus orange, Midnight brass,
+ * Coastal slate, Plum aubergine, Terracotta sienna, Mono black). Right
+ * panel page background gets a faint accent halo at
  * the bottom-right so the card sits on a less flat surface. Google CTA
  * picks up an accent-tinted hover shadow + accessible focus ring.
  * ───────────────────────────────────────────────────────────────────────── */
@@ -5950,22 +5816,14 @@ html { scroll-behavior: smooth; }
  * SideNav theme identity (#2)
  *
  * Active nav items pick up theme-specific chrome: a gradient pill in the
- * vibrant family (Prism / Citrus / Lemon), a glass-blur surface in Aura,
- * and the existing accent-bg fill in Heritage (the default). Inline JSX
+ * vibrant family (Prism / Citrus / Coastal / Plum), a brass-tinted dark
+ * fill in Midnight, a solid fill in the editorial family (Terracotta /
+ * Mono), and the existing accent-bg fill in Heritage (the default). Inline JSX
  * styles use Heritage's accent values, so we use !important here to win
  * the cascade for non-Heritage themes. Icons + active-bar inherit the
  * new colour automatically when the parent button text colour changes,
  * because their svg strokes already use currentColor.
  * ───────────────────────────────────────────────────────────────────────── */
-
-/* Aura — frosted glass active item with a soft lavender shadow. */
-:root[data-theme="aura"] .sidenav-item[aria-current="page"] {
-  background: rgba(255, 255, 255, 0.62) !important;
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
-  box-shadow: 0 4px 14px rgba(124, 122, 237, 0.18) !important;
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
-}
 
 /* Vibrant family — gradient-pill active item with white text + white icon. */
 :root[data-theme="prism"] .sidenav-item[aria-current="page"] {
@@ -5978,19 +5836,10 @@ html { scroll-behavior: smooth; }
   color: #FFFFFF !important;
   box-shadow: 0 4px 14px rgba(249, 115, 22, 0.30) !important;
 }
-:root[data-theme="lemon"] .sidenav-item[aria-current="page"] {
-  background: linear-gradient(135deg, #84CC16 0%, #FACC15 100%) !important;
-  color: #1A2A0A !important;
-  box-shadow: 0 4px 14px rgba(132, 204, 22, 0.30) !important;
-}
-/* Vibrants: icon + active-bar follow the new text colour (white for
-   prism / citrus, charcoal for lemon's bright gradient). */
 :root[data-theme="prism"]  .sidenav-item[aria-current="page"] .sidenav-item-icon,
 :root[data-theme="citrus"] .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
-:root[data-theme="lemon"]  .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #1A2A0A !important; }
 :root[data-theme="prism"]  .sidenav-item[aria-current="page"] .sidenav-item-bar,
 :root[data-theme="citrus"] .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
-:root[data-theme="lemon"]  .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #1A2A0A !important; }
 
 /* Midnight — dark theme. Active item: brass-tinted dark fill, brass icon,
    warm-parchment text. */
@@ -6003,7 +5852,7 @@ html { scroll-behavior: smooth; }
 :root[data-theme="midnight"] .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #E8B97B !important; }
 :root[data-theme="midnight"] .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #E8B97B !important; }
 
-/* Coastal / Plum / Jade — vibrant family, gradient-pill active item. */
+/* Coastal / Plum — vibrant family, gradient-pill active item. */
 :root[data-theme="coastal"] .sidenav-item[aria-current="page"] {
   background: linear-gradient(135deg, #3B6E8F 0%, #E8896B 100%) !important;
   color: #FFFFFF !important;
@@ -6014,17 +5863,10 @@ html { scroll-behavior: smooth; }
   color: #FFFFFF !important;
   box-shadow: 0 4px 14px rgba(90, 42, 82, 0.30) !important;
 }
-:root[data-theme="jade"] .sidenav-item[aria-current="page"] {
-  background: linear-gradient(135deg, #2F8E7E 0%, #E8B97B 100%) !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(47, 142, 126, 0.30) !important;
-}
 :root[data-theme="coastal"] .sidenav-item[aria-current="page"] .sidenav-item-icon,
-:root[data-theme="plum"]    .sidenav-item[aria-current="page"] .sidenav-item-icon,
-:root[data-theme="jade"]    .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
+:root[data-theme="plum"]    .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
 :root[data-theme="coastal"] .sidenav-item[aria-current="page"] .sidenav-item-bar,
-:root[data-theme="plum"]    .sidenav-item[aria-current="page"] .sidenav-item-bar,
-:root[data-theme="jade"]    .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
+:root[data-theme="plum"]    .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
 
 /* Terracotta / Mono — editorial family, solid-fill active item. */
 :root[data-theme="terracotta"] .sidenav-item[aria-current="page"] {
@@ -6048,8 +5890,9 @@ html { scroll-behavior: smooth; }
  * Every page-pad with a `.page-hero-atmo` modifier class gets a soft
  * accent halo behind the page title, so switching themes transforms
  * pages beyond just the Dashboard. Auto-themes via --c-accent-rgb so
- * Heritage glows green, Aura lavender, Prism indigo, Citrus orange,
- * Lemon lime — no per-theme overrides needed.
+ * each theme glows in its own accent (heritage green, prism indigo,
+ * citrus orange, midnight brass, coastal slate, plum aubergine,
+ * terracotta sienna, mono black) — no per-theme overrides needed.
  *
  * The halo lives on a ::before pseudo-element pinned to the top of the
  * page-pad. Pointer-events:none so it never interferes with clicks.
@@ -6078,8 +5921,9 @@ html { scroll-behavior: smooth; }
  *
  * Drop-in replacement for the inline-styled "+ New" / "Save" buttons
  * across pages. In the vibrant family it picks up the theme's gradient;
- * in Aura it's a pill with a coloured glow; in Heritage it's the existing
- * solid accent. Theme detection is automatic via --c-accent-rgb / theme
+ * in Midnight it's solid brass with dark text; in Heritage / Terracotta /
+ * Mono it's the existing solid accent. Theme detection is automatic via
+ * --c-accent-rgb / theme
  * selectors. Components apply this className alongside (or instead of)
  * their existing inline styles — !important wins where the inline
  * background still tries to assert a colour.
@@ -6108,9 +5952,6 @@ html { scroll-behavior: smooth; }
 }
 .themed-cta:active:not(:disabled) { transform: translateY(0); }
 .themed-cta:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-:root[data-theme="aura"] .themed-cta {
-  border-radius: 999px;
-}
 :root[data-theme="prism"] .themed-cta {
   background: linear-gradient(135deg, #635BFF 0%, #4F46E5 100%);
 }
@@ -6123,12 +5964,6 @@ html { scroll-behavior: smooth; }
 :root[data-theme="citrus"] .themed-cta:hover:not(:disabled) {
   background: linear-gradient(135deg, #C2410C 0%, #F97316 100%);
 }
-:root[data-theme="lemon"] .themed-cta {
-  background: linear-gradient(135deg, #84CC16 0%, #4D7C0F 100%);
-}
-:root[data-theme="lemon"] .themed-cta:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4D7C0F 0%, #84CC16 100%);
-}
 /* Midnight — solid brass CTA on dark; default --c-accent flow handles the
    colour, but the box-shadow needs a brass tint that reads against dark. */
 :root[data-theme="midnight"] .themed-cta {
@@ -6137,7 +5972,7 @@ html { scroll-behavior: smooth; }
 :root[data-theme="midnight"] .themed-cta:hover:not(:disabled) {
   background: var(--c-accent-light);
 }
-/* Coastal / Plum / Jade — vibrant family, gradient CTA. */
+/* Coastal / Plum — vibrant family, gradient CTA. */
 :root[data-theme="coastal"] .themed-cta {
   background: linear-gradient(135deg, #3B6E8F 0%, #2A536D 100%);
 }
@@ -6149,12 +5984,6 @@ html { scroll-behavior: smooth; }
 }
 :root[data-theme="plum"] .themed-cta:hover:not(:disabled) {
   background: linear-gradient(135deg, #401A39 0%, #5A2A52 100%);
-}
-:root[data-theme="jade"] .themed-cta {
-  background: linear-gradient(135deg, #2F8E7E 0%, #1F6E60 100%);
-}
-:root[data-theme="jade"] .themed-cta:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1F6E60 0%, #2F8E7E 100%);
 }
 /* Terracotta / Mono — editorial, default solid-accent CTA flow is fine.
    No override needed; var(--c-accent) handles the colour. */
@@ -6319,113 +6148,19 @@ textarea.form-input {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * Theme atmospheric overrides (Aura + Prism)
+ * Theme atmospheric overrides
  *
  * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /
  * JetBrains Mono) stays the same across all themes — only the page
  * backdrop, KPI tile surface treatment, hero photo behaviour, and primary
  * CTA chrome change. Heritage uses the default styling (the Godavari hero
- * photo + warm cream surfaces); Aura and Prism replace the photo with
- * their own atmospheric layer and re-style the KPI / CTA chrome.
+ * photo + warm cream surfaces); each other theme replaces the photo wash
+ * and re-styles the KPI / CTA chrome to fit its own atmosphere.
  *
  * All overrides are scoped to :root[data-theme="<id>"] so toggling themes
  * is a single attribute change on <html>. Nothing in this section reaches
  * inside a Heritage-themed page.
  * ───────────────────────────────────────────────────────────────────────── */
-
-/* ── Aura ─────────────────────────────────────────────────────────────────
- * Soft pastel gradient on the page; the Godavari hero photo stays but
- * gets a lavender→peach scrim layered on top so the warm tones of the
- * photo settle into the cool atmosphere of the rest of the page. KPI
- * tiles become glassy translucent surfaces with a subtle blur. Primary
- * CTA becomes a pill with a coloured glow shadow. */
-:root[data-theme="aura"] body {
-  background:
-    linear-gradient(135deg, #F4F6FB 0%, #EBE9FB 50%, #F8E9F0 100%);
-  background-attachment: fixed;
-}
-:root[data-theme="aura"] .dh-page {
-  background: transparent;
-}
-/* Tint scrim sits on top of the hero photo, below the content. The hero
-   already establishes a stacking context (position:relative) and the
-   content layer has z-index: 2, so :before at z-index: 1 sandwiches
-   correctly between photo (implicit 0) and text. */
-:root[data-theme="aura"] .dh-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(124, 122, 237, 0.22) 0%, rgba(244, 114, 182, 0.18) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-:root[data-theme="aura"] .dh-hero-title-italic {
-  /* The default accent for Aura (lavender) sits too close in hue to the
-     scrim — drop the italic to fg1 charcoal for clean legibility. */
-  color: var(--c-fg1);
-}
-:root[data-theme="aura"] .dh-kpi-tile {
-  background: rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 14px rgba(124, 122, 237, 0.10);
-}
-:root[data-theme="aura"] .dh-kpi-tile:hover {
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 8px 22px rgba(124, 122, 237, 0.16);
-}
-/* KPI tile icons rotate through the secondary palette so the strip reads
-   as three distinct categories (Total Ideas / Active Projects / In
-   Calculation), rather than a wall of lavender. */
-:root[data-theme="aura"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
-  background: var(--c-accent-bg);
-  color: var(--c-accent);
-}
-:root[data-theme="aura"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
-  background: var(--c-accent-2-bg);
-  color: var(--c-accent-2);
-}
-:root[data-theme="aura"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
-  background: var(--c-accent-3-bg);
-  color: var(--c-accent-3);
-}
-/* Card-row leaves: the .dh-card-row-leaf-river and .dh-card-row-leaf-gold
-   classes default to Heritage-only --c-h-river / --c-h-gold variables —
-   override them to Aura's secondary palette so the three category leaves
-   (Featured / Active Projects / Documents) keep their distinct identity. */
-:root[data-theme="aura"] .dh-card-row-leaf-river {
-  background: var(--c-accent-2-bg);
-  color: var(--c-accent-2);
-  border-color: rgba(52, 211, 153, 0.22);
-}
-:root[data-theme="aura"] .dh-card-row-leaf-gold {
-  background: var(--c-accent-3-bg);
-  color: var(--c-accent-3);
-  border-color: rgba(251, 146, 60, 0.22);
-}
-:root[data-theme="aura"] .dh-btn-primary {
-  border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(124, 122, 237, 0.35);
-  transition: box-shadow 160ms, transform 160ms;
-}
-:root[data-theme="aura"] .dh-btn-primary:hover {
-  background: var(--c-accent);
-  box-shadow: 0 6px 20px rgba(124, 122, 237, 0.50);
-  transform: translateY(-1px);
-}
-:root[data-theme="aura"] .dh-btn-outline {
-  border-radius: 999px;
-}
-:root[data-theme="aura"] .dh-card-row,
-:root[data-theme="aura"] .dh-empty {
-  background: rgba(255, 255, 255, 0.70);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-}
 
 /* ── Prism ────────────────────────────────────────────────────────────────
  * White page with indigo + cyan radial corner glows on the body. The
@@ -6444,10 +6179,9 @@ textarea.form-input {
 :root[data-theme="prism"] .dh-page {
   background: transparent;
 }
-/* Wash overlay over the hero photo. Same stacking-context trick as Aura:
-   ::before at z-index 1 sits between the photo (z-index 0) and the
-   .dh-hero-content (z-index 2) which is already established by the
-   default styling. */
+/* Wash overlay over the hero photo. ::before at z-index 1 sits between
+   the photo (z-index 0) and the .dh-hero-content (z-index 2) which is
+   already established by the default styling. */
 :root[data-theme="prism"] .dh-hero::before {
   content: '';
   position: absolute;
@@ -6499,8 +6233,9 @@ textarea.form-input {
   background: var(--c-accent-3-bg);
   color: var(--c-accent-3);
 }
-/* Card-row leaves: same Heritage-var fallback fix as Aura — route the
-   river/gold classes through Prism's secondary emerald + hot-orange. */
+/* Card-row leaves: the river/gold classes default to Heritage-only
+   --c-h-* variables — route them through Prism's secondary emerald +
+   hot-orange so non-Heritage themes still pick up distinct leaf colours. */
 :root[data-theme="prism"] .dh-card-row-leaf-river {
   background: var(--c-accent-2-bg);
   color: var(--c-accent-2);
@@ -6638,85 +6373,6 @@ textarea.form-input {
   background: rgba(249, 115, 22, 0.06);
   border-color: var(--c-accent-dim);
   color: var(--c-accent-dim);
-}
-
-/* ── Lemon ────────────────────────────────────────────────────────────────
- * Lime / chartreuse primary; lime → yellow gradient signature. */
-:root[data-theme="lemon"] body {
-  background:
-    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(132, 204, 22, 0.18) 0%, rgba(132, 204, 22, 0) 60%),
-    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(250, 204, 21, 0.16) 0%, rgba(250, 204, 21, 0) 60%),
-    #FFFFFF;
-  background-attachment: fixed;
-}
-:root[data-theme="lemon"] .dh-page { background: transparent; }
-:root[data-theme="lemon"] .dh-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(132, 204, 22, 0.22) 0%, rgba(250, 204, 21, 0.20) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-:root[data-theme="lemon"] .dh-hero-title-italic {
-  background: linear-gradient(90deg, #84CC16 0%, #FACC15 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-:root[data-theme="lemon"] .dh-kpi-tile {
-  background: var(--c-bg1); border: 1px solid var(--c-border);
-  border-radius: 12px; padding: 14px 16px;
-}
-:root[data-theme="lemon"] .dh-kpi-tile:hover { background: var(--c-bg2); }
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
-  background: var(--c-accent-bg); color: var(--c-accent);
-}
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) {
-  background: linear-gradient(135deg, #84CC16 0%, #FACC15 100%);
-  border: none; color: #1A2A0A;
-  box-shadow: 0 6px 18px rgba(132, 204, 22, 0.30);
-}
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2):hover {
-  background: linear-gradient(135deg, #4D7C0F 0%, #84CC16 50%, #FACC15 100%);
-  box-shadow: 0 8px 22px rgba(132, 204, 22, 0.42);
-}
-/* Lemon's gradient tile uses dark text since #FACC15 yellow needs contrast */
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
-  background: rgba(26, 42, 10, 0.16); color: #1A2A0A;
-}
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #1A2A0A; }
-:root[data-theme="lemon"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-}
-:root[data-theme="lemon"] .dh-card-row-leaf-river {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-  border-color: rgba(250, 204, 21, 0.22);
-}
-:root[data-theme="lemon"] .dh-card-row-leaf-gold {
-  background: var(--c-accent-3-bg); color: var(--c-accent-3);
-  border-color: rgba(251, 146, 60, 0.22);
-}
-:root[data-theme="lemon"] .dh-btn-primary {
-  background: linear-gradient(135deg, #84CC16 0%, #4D7C0F 100%);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(132, 204, 22, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 160ms, transform 160ms, background 160ms;
-}
-:root[data-theme="lemon"] .dh-btn-primary:hover {
-  background: linear-gradient(135deg, #4D7C0F 0%, #84CC16 100%);
-  box-shadow: 0 6px 18px rgba(132, 204, 22, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-:root[data-theme="lemon"] .dh-btn-outline {
-  border-color: var(--c-accent); color: var(--c-accent);
-}
-:root[data-theme="lemon"] .dh-btn-outline:hover {
-  background: rgba(132, 204, 22, 0.06);
-  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
 }
 
 /* ── Midnight ─────────────────────────────────────────────────────────────
@@ -6975,86 +6631,6 @@ textarea.form-input {
 }
 :root[data-theme="plum"] .dh-btn-outline:hover {
   background: rgba(90, 42, 82, 0.06);
-  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
-}
-
-/* ── Jade ─────────────────────────────────────────────────────────────────
- * Vibrant sibling. Jade + sand radial corner glows; hero photo picks up
- * a jade wash; gradient italic jade → sand; gradient centre KPI tile;
- * gradient CTA. Cool spa / coastal-retreat mood with warm sand counterpoint. */
-:root[data-theme="jade"] body {
-  background:
-    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(47, 142, 126, 0.16) 0%, rgba(47, 142, 126, 0) 60%),
-    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(232, 185, 123, 0.14) 0%, rgba(232, 185, 123, 0) 60%),
-    #F0F7F4;
-  background-attachment: fixed;
-}
-:root[data-theme="jade"] .dh-page { background: transparent; }
-:root[data-theme="jade"] .dh-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(47, 142, 126, 0.24) 0%, rgba(232, 185, 123, 0.18) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-:root[data-theme="jade"] .dh-hero-title-italic {
-  background: linear-gradient(90deg, #2F8E7E 0%, #E8B97B 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-:root[data-theme="jade"] .dh-kpi-tile {
-  background: var(--c-bg1); border: 1px solid var(--c-border);
-  border-radius: 12px; padding: 14px 16px;
-}
-:root[data-theme="jade"] .dh-kpi-tile:hover { background: var(--c-bg2); }
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
-  background: var(--c-accent-bg); color: var(--c-accent);
-}
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(2) {
-  background: linear-gradient(135deg, #2F8E7E 0%, #E8B97B 100%);
-  border: none; color: #FFFFFF;
-  box-shadow: 0 6px 18px rgba(47, 142, 126, 0.30);
-}
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(2):hover {
-  background: linear-gradient(135deg, #1F6E60 0%, #2F8E7E 50%, #E8B97B 100%);
-  box-shadow: 0 8px 22px rgba(47, 142, 126, 0.42);
-}
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
-  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
-}
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
-:root[data-theme="jade"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-}
-:root[data-theme="jade"] .dh-card-row-leaf-river {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-  border-color: rgba(232, 185, 123, 0.24);
-}
-:root[data-theme="jade"] .dh-card-row-leaf-gold {
-  background: var(--c-accent-3-bg); color: var(--c-accent-3);
-  border-color: rgba(232, 137, 107, 0.24);
-}
-:root[data-theme="jade"] .dh-btn-primary {
-  background: linear-gradient(135deg, #2F8E7E 0%, #1F6E60 100%);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(47, 142, 126, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 160ms, transform 160ms, background 160ms;
-}
-:root[data-theme="jade"] .dh-btn-primary:hover {
-  background: linear-gradient(135deg, #1F6E60 0%, #2F8E7E 100%);
-  box-shadow: 0 6px 18px rgba(47, 142, 126, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-:root[data-theme="jade"] .dh-btn-outline {
-  border-color: var(--c-accent); color: var(--c-accent);
-}
-:root[data-theme="jade"] .dh-btn-outline:hover {
-  background: rgba(47, 142, 126, 0.06);
   border-color: var(--c-accent-dim); color: var(--c-accent-dim);
 }
 

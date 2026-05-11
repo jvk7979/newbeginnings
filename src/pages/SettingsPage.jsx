@@ -44,14 +44,13 @@ const DARK_MODE_OPTIONS = [
 // Static preview palette — each card renders in its OWN theme's colours
 // regardless of which theme is currently active. Source of truth is
 // src/styles.css. The `atmosphere` field gates the picker render path:
-//   editorial — flat bg, solid CTA pill (Heritage)
-//   soft      — pastel gradient bg, glass-blur chips, pill CTA (Aura)
+//   editorial — flat bg, solid CTA pill (Heritage / Terracotta / Mono)
 //   vibrant   — radial corner glows, gradient italic, gradient CTA. The
 //               actual gradient colours are taken from the per-theme
-//               `gradient` field so the same code-path serves both Prism
-//               (indigo→cyan) and Citrus (orange→yellow).
-// `accents` is the [primary, secondary-green, secondary-orange-or-yellow]
-// triplet the dashboard rotates through (KPI icons, card-row leaves).
+//               `gradient` field so the same code-path serves Prism, Citrus,
+//               Midnight, Coastal and Plum.
+// `accents` is the [primary, secondary-1, secondary-2] triplet the dashboard
+// rotates through (KPI icons, card-row leaves).
 const THEME_PREVIEW = {
   heritage: {
     bg0: '#F6F1E7', bg1: '#FDFAF2', bg2: '#EDE5D2', bg3: '#DDD0B5',
@@ -59,13 +58,6 @@ const THEME_PREVIEW = {
     accents: ['#2F6B4F', '#7FA9B8', '#B88A3B'], // green / river blue / gold
     atmosphere: 'editorial',
     desc: 'Cream + green + river blue + gold. Leather-notebook editorial mood with the Godavari hero photo.',
-  },
-  aura: {
-    bg0: '#F4F6FB', bg1: '#FFFFFF', bg2: '#EBE9FB', bg3: '#DBD8F2',
-    fg1: '#1F2937', accent: '#7C7AED', border: '#E5E7EB',
-    accents: ['#7C7AED', '#34D399', '#FB923C'], // lavender / mint / peach
-    atmosphere: 'soft',
-    desc: 'Lavender + mint + peach pastel. Gradient backdrop, glass-blur tiles, lavender pill CTA. Calm, multi-tonal.',
   },
   prism: {
     bg0: '#FFFFFF', bg1: '#F8F9FB', bg2: '#F1F3F8', bg3: '#E5E9F0',
@@ -90,18 +82,6 @@ const THEME_PREVIEW = {
       glowRgb: '249,115,22', glowRgb2: '250,204,21',
     },
     desc: 'Hot orange + lime + sunny yellow. Same gradient signature as Prism, shifted warm. Energetic, sunset feel.',
-  },
-  lemon: {
-    bg0: '#FFFFFF', bg1: '#FCFFF5', bg2: '#ECFCCB', bg3: '#D9F99D',
-    fg1: '#1A2A0A', accent: '#84CC16', border: '#D9F99D',
-    accents: ['#84CC16', '#FACC15', '#FB923C'],
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#84CC16', to: '#FACC15',
-      ctaFrom: '#84CC16', ctaTo: '#4D7C0F',
-      glowRgb: '132,204,22', glowRgb2: '250,204,21',
-    },
-    desc: 'Lime + yellow + peach. Lime → yellow gradient. Bright, fresh, spring-meadow energy.',
   },
   // Midnight is the only dark theme — routed through the `vibrant` code path
   // so the picker card renders with radial corner glows (brass + sage) and
@@ -142,18 +122,6 @@ const THEME_PREVIEW = {
       glowRgb: '90,42,82', glowRgb2: '196,154,108',
     },
     desc: 'Deep aubergine + brass + dusty rose on pale lilac. Romantic, jewel-tone, boutique luxury.',
-  },
-  jade: {
-    bg0: '#F0F7F4', bg1: '#FFFFFF', bg2: '#DDEEE6', bg3: '#BFDCCE',
-    fg1: '#13322C', accent: '#2F8E7E', border: '#D2E5DD',
-    accents: ['#2F8E7E', '#E8B97B', '#E8896B'], // jade / sand / coral
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#2F8E7E', to: '#E8B97B',
-      ctaFrom: '#2F8E7E', ctaTo: '#1F6E60',
-      glowRgb: '47,142,126', glowRgb2: '232,185,123',
-    },
-    desc: 'Jade + sand + coral on pale mint. Cool spa / coastal-retreat — Heritage on the cool side.',
   },
   terracotta: {
     bg0: '#FBF5EE', bg1: '#FFFCF6', bg2: '#F4E8D7', bg3: '#E5D2B2',
@@ -223,39 +191,35 @@ export default function SettingsPage() {
           </SectionCard>
         )}
 
-        {/* Theme picker — three light palettes. Editorial typography (Cormorant /
-            Playfair / DM Sans) is constant across all themes; what each preview
-            below shows is the per-theme atmospheric layer (gradient backdrop,
-            glass tiles, corner glows, gradient CTA) the user gets when they
-            switch. Each card paints in its OWN theme regardless of which is
-            active, so they're directly comparable. */}
+        {/* Theme picker — eight palettes (seven light + Midnight dark).
+            Editorial typography (Cormorant / Playfair / DM Sans) is constant
+            across all themes; what each preview below shows is the per-theme
+            atmospheric layer (gradient backdrop, corner glows, gradient CTA,
+            or flat editorial) the user gets when they switch. Each card paints
+            in its OWN theme regardless of which is active, so they're directly
+            comparable. */}
         <SectionCard
           title="Theme"
-          subtitle="Eleven palettes — Heritage is the default. Editorial typography is the same across all of them; only the colour and atmospheric layer change. Midnight is the dark option."
+          subtitle="Eight palettes — Heritage is the default. Editorial typography is the same across all of them; only the colour and atmospheric layer change. Midnight is the dark option."
         >
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             {themes.map(t => {
               const p = THEME_PREVIEW[t.id] || THEME_PREVIEW.heritage;
               const isActive  = theme === t.id;
-              const isAura    = p.atmosphere === 'soft';
               const isVibrant = p.atmosphere === 'vibrant';
               const g = p.gradient || {};
 
-              const cardBackground = isAura
-                ? 'linear-gradient(135deg, #F4F6FB 0%, #EBE9FB 50%, #F8E9F0 100%)'
-                : isVibrant
-                  ? `radial-gradient(ellipse 200px 200px at 100% 0%, rgba(${g.glowRgb},0.18) 0%, rgba(${g.glowRgb},0) 60%), radial-gradient(ellipse 180px 180px at 0% 100%, rgba(${g.glowRgb2},0.14) 0%, rgba(${g.glowRgb2},0) 60%), ${p.bg0}`
-                  : p.bg0;
+              const cardBackground = isVibrant
+                ? `radial-gradient(ellipse 200px 200px at 100% 0%, rgba(${g.glowRgb},0.18) 0%, rgba(${g.glowRgb},0) 60%), radial-gradient(ellipse 180px 180px at 0% 100%, rgba(${g.glowRgb2},0.14) 0%, rgba(${g.glowRgb2},0) 60%), ${p.bg0}`
+                : p.bg0;
 
               const ctaBackground = isVibrant
                 ? `linear-gradient(135deg, ${g.ctaFrom} 0%, ${g.ctaTo} 100%)`
                 : p.accent;
 
-              const ctaShadow = isAura
-                ? '0 4px 14px rgba(124, 122, 237, 0.40)'
-                : isVibrant
-                  ? `0 4px 14px rgba(${g.glowRgb}, 0.40)`
-                  : 'none';
+              const ctaShadow = isVibrant
+                ? `0 4px 14px rgba(${g.glowRgb}, 0.40)`
+                : 'none';
 
               return (
                 <button
@@ -320,7 +284,7 @@ export default function SettingsPage() {
                           width: 18, height: 18,
                           background: c,
                           borderRadius: '50%',
-                          border: `2px solid ${isVibrant ? '#FFFFFF' : isAura ? 'rgba(255,255,255,0.85)' : p.bg1}`,
+                          border: `2px solid ${isVibrant ? '#FFFFFF' : p.bg1}`,
                           boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
                         }} />
                       ))}
@@ -329,7 +293,7 @@ export default function SettingsPage() {
                       background: ctaBackground,
                       color: '#FFFFFF',
                       padding: '5px 12px',
-                      borderRadius: isAura ? 999 : isVibrant ? 8 : 999,
+                      borderRadius: isVibrant ? 8 : 999,
                       fontSize: 11,
                       fontFamily: "'DM Sans', sans-serif",
                       fontWeight: 500,
@@ -350,11 +314,9 @@ export default function SettingsPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: isAura
-                        ? '0 4px 10px rgba(124,122,237,0.40)'
-                        : isVibrant
-                          ? `0 4px 10px rgba(${g.glowRgb},0.40)`
-                          : 'none',
+                      boxShadow: isVibrant
+                        ? `0 4px 10px rgba(${g.glowRgb},0.40)`
+                        : 'none',
                     }}>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
                         <polyline points="20 6 9 17 4 12"/>
