@@ -42,10 +42,12 @@ test('three-column body sections render', async ({ page }) => {
   await expect(page.locator('.dh-section-title').filter({ hasText: 'Recent Documents' })).toBeVisible();
 });
 
-test('closing tagline banner renders', async ({ page }) => {
-  await expect(page.locator('.dh-closing').first()).toBeVisible();
-  await expect(page.locator('.dh-closing-intro').filter({ hasText: 'A fresh start' })).toBeVisible();
-  await expect(page.locator('.dh-closing-script').first()).toBeVisible();
+test('features card renders with the three CTA cards', async ({ page }) => {
+  await expect(page.locator('.dh-features').first()).toBeVisible();
+  await expect(page.locator('.dh-features-title').filter({ hasText: 'Build your next venture' })).toBeVisible();
+  await expect(page.locator('.dh-feature-title').filter({ hasText: 'Explore Ideas' })).toBeVisible();
+  await expect(page.locator('.dh-feature-title').filter({ hasText: 'Manage Projects' })).toBeVisible();
+  await expect(page.locator('.dh-feature-title').filter({ hasText: 'Run Calculations' })).toBeVisible();
 });
 
 test('hero New Idea button navigates to new-idea', async ({ page }) => {

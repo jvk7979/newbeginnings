@@ -5534,73 +5534,162 @@ textarea:focus-visible,
 }
 .dh-empty-art > svg { width: 32px; height: 32px; opacity: 0.84; }
 
-/* ── Closing banner with palm-leaf flourishes ─────────────────────── */
-.dh-closing {
+/* ── Features card — closes the dashboard with a workspace overview.
+   Banner header (eyebrow + Cormorant italic title + DM Sans subhead with
+   leaf flourishes on the edges) sits above three feature cards (Explore
+   Ideas / Manage Projects / Run Calculations) that route to the matching
+   sections. All colours track --c-* tokens so the card auto-themes
+   across all 8 palettes. ───────────────────────────────────────────── */
+.dh-features {
   position: relative;
-  text-align: center;
-  padding: 56px 24px 48px;
   margin: 24px 0 0;
+  padding: 36px 28px 32px;
   background: linear-gradient(180deg, var(--c-bg1) 0%, var(--c-bg2) 100%);
   border-radius: 14px;
   border: 1px solid var(--c-border);
   overflow: hidden;
 }
 @media (max-width: 640px) {
-  .dh-closing { padding: 36px 16px 32px; }
+  .dh-features { padding: 28px 16px 24px; }
 }
-.dh-closing-leaf {
+.dh-features-banner {
+  position: relative;
+  text-align: center;
+  padding: 8px 80px 28px;
+}
+@media (max-width: 640px) {
+  .dh-features-banner { padding: 4px 0 20px; }
+}
+.dh-features-leaf {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  color: var(--c-h-gold);
+  transform: translateY(-55%);
+  color: var(--c-accent);
+  opacity: 0.32;
+  pointer-events: none;
+}
+.dh-features-leaf-left  { left: clamp(4px, 2vw, 24px); }
+.dh-features-leaf-right { right: clamp(4px, 2vw, 24px); transform: translateY(-55%) scaleX(-1); }
+@media (max-width: 720px) {
+  .dh-features-leaf { display: none; }
+}
+.dh-features-eyebrow {
+  display: inline-block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-fg3);
+  margin-bottom: 12px;
+}
+.dh-features-title {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(22px, 2.8vw, 30px);
+  font-weight: 600;
+  color: var(--c-accent);
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+  margin: 0 0 10px;
+}
+.dh-features-subhead {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(13px, 1.4vw, 14px);
+  color: var(--c-fg2);
+  line-height: 1.55;
+  max-width: 580px;
+  margin: 0 auto;
+}
+/* Riverbank decoration band — coconut palms on each bank + water lines +
+   two boats. Sits below the subhead and visually separates the banner
+   from the 3-card grid. Capped at 520px so it stays roughly centred
+   on wide screens; scales down responsively on narrow ones. */
+.dh-features-river {
+  display: flex;
+  justify-content: center;
+  margin: 18px auto 4px;
+  color: var(--c-accent);
   opacity: 0.5;
   pointer-events: none;
 }
-.dh-closing-leaf-left  { left: clamp(12px, 4vw, 48px); }
-.dh-closing-leaf-right { right: clamp(12px, 4vw, 48px); transform: translateY(-50%) scaleX(-1); }
+.dh-features-river svg {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+}
 @media (max-width: 640px) {
-  .dh-closing-leaf { display: none; }
+  .dh-features-river { margin: 14px auto 2px; opacity: 0.45; }
 }
-.dh-closing-intro {
-  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(13px, 1.6vw, 16px);
-  font-weight: 500;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--c-fg3);
-  margin: 0 0 14px;
+.dh-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
-.dh-closing-script {
-  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(20px, 2.6vw, 28px);
+@media (max-width: 900px) {
+  .dh-features-grid { grid-template-columns: 1fr; }
+}
+.dh-feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 8px;
+  padding: 20px 20px 18px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease;
+  font-family: inherit;
+}
+.dh-feature-card:hover {
+  border-color: rgba(var(--c-accent-rgb) / 0.40);
+  box-shadow: 0 6px 18px rgba(var(--c-accent-rgb) / 0.12);
+  transform: translateY(-1px);
+}
+.dh-feature-card:focus-visible {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px rgba(var(--c-accent-rgb) / 0.25);
+}
+.dh-feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  margin-bottom: 2px;
+}
+.dh-feature-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--c-fg1);
+  line-height: 1.2;
+}
+.dh-feature-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--c-fg2);
+  margin: 0;
+}
+.dh-feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
   font-weight: 600;
   color: var(--c-accent);
-  line-height: 1.4;
-  letter-spacing: 0.005em;
-  margin: 0;
-  word-break: break-word;
+  margin-top: 4px;
+  transition: gap 160ms ease;
 }
-@media (max-width: 640px) {
-  .dh-closing-script { font-size: 18px; }
-}
-.dh-closing-script-2 { color: var(--c-h-gold); margin-top: 4px; }
-.dh-closing-rule {
-  width: 60px; height: 2px;
-  margin: 22px auto 14px;
-  background: var(--c-h-gold);
-  opacity: 0.6;
-}
-.dh-closing-credit {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--c-fg3);
-  margin: 0;
-}
+.dh-feature-card:hover .dh-feature-link { gap: 10px; }
 
 /* ─────────────────────────────────────────────────────────────────────────
  * Page transitions — fade + tiny upward slide on every route change.

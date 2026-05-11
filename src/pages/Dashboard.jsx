@@ -2,10 +2,25 @@ import { useMemo } from 'react';
 import { C } from '../tokens';
 import { useIdeas, usePlans, useFiles } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import heroImg from '../assets/hero_gpdavari1.webp';
 import { IllIdea, IllPlan, IllDoc } from '../components/illustrations';
 import { useReveal } from '../utils/useReveal';
 import { useCountUp } from '../utils/useCountUp';
+
+// Eyebrow label for the bottom "features card" — Heritage keeps the
+// Godavari brand prefix; other themes drop it so the eyebrow stays
+// honest to the chosen palette and doesn't pretend to be heritage.
+const THEME_EYEBROW = {
+  heritage:   'GODAVARI HERITAGE WORKSPACE',
+  prism:      'PRISM WORKSPACE',
+  citrus:     'CITRUS WORKSPACE',
+  midnight:   'MIDNIGHT WORKSPACE',
+  coastal:    'COASTAL WORKSPACE',
+  plum:       'PLUM WORKSPACE',
+  terracotta: 'TERRACOTTA WORKSPACE',
+  mono:       'MONO WORKSPACE',
+};
 
 // Heritage Dashboard. Designed around the Godavari hero photo as the
 // magazine cover — coconut cream surfaces, deep coconut green accents,
@@ -57,6 +72,41 @@ const ICON_DOC = (
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
   </svg>
 );
+const ICON_CALCULATOR = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="22" height="22" aria-hidden="true">
+    <rect x="4" y="2" width="16" height="20" rx="2"/>
+    <line x1="8" y1="6" x2="16" y2="6"/>
+    <line x1="8" y1="10" x2="10" y2="10"/>
+    <line x1="12" y1="10" x2="14" y2="10"/>
+    <line x1="16" y1="10" x2="16" y2="10"/>
+    <line x1="8" y1="14" x2="10" y2="14"/>
+    <line x1="12" y1="14" x2="14" y2="14"/>
+    <line x1="16" y1="14" x2="16" y2="14"/>
+    <line x1="8" y1="18" x2="10" y2="18"/>
+    <line x1="12" y1="18" x2="14" y2="18"/>
+    <line x1="16" y1="18" x2="16" y2="18"/>
+  </svg>
+);
+const ICON_CLIPBOARD = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="22" height="22" aria-hidden="true">
+    <rect x="5" y="4" width="14" height="18" rx="2"/>
+    <path d="M9 4V2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V4"/>
+    <line x1="9" y1="10" x2="15" y2="10"/>
+    <line x1="9" y1="14" x2="15" y2="14"/>
+    <line x1="9" y1="18" x2="13" y2="18"/>
+  </svg>
+);
+const ICON_LIGHTBULB_LG = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="22" height="22" aria-hidden="true">
+    <path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/>
+  </svg>
+);
+const ICON_ARROW_RIGHT = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" aria-hidden="true">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="12 5 19 12 12 19"/>
+  </svg>
+);
 
 function KpiTile({ icon, label, value, hint }) {
   return (
@@ -93,6 +143,8 @@ export default function Dashboard({ onNavigate }) {
   const { plans } = usePlans();
   const { files } = useFiles();
   const { user }  = useAuth();
+  const { theme } = useTheme();
+  const eyebrow   = THEME_EYEBROW[theme] || THEME_EYEBROW.heritage;
 
   const eligibleCount   = useMemo(() => plans.filter(p => p.eligibleForCalc).length, [plans]);
   const featuredIdeas   = useMemo(() => ideas.slice(0, 3), [ideas]);
@@ -313,38 +365,146 @@ export default function Dashboard({ onNavigate }) {
           </div>
         </div>
 
-        {/* ── Closing tagline banner with palm-leaf flourishes ─────── */}
+        {/* ── Features card — workspace overview with three CTA cards.
+              Replaces the old "A river nurtures every tree…" tagline so
+              the bottom of the dashboard ends on something actionable
+              instead of decorative. Reveal-fade fires once the section
+              peeks into the viewport. ─────────────────────────────────── */}
         <section ref={closingReveal.ref}
-                 className={`dh-closing reveal-fade${closingReveal.visible ? ' is-visible' : ''}`}>
-          <div className="dh-closing-leaf dh-closing-leaf-left" aria-hidden="true">
-            <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="80" height="80">
-              <path d="M40 70 C 40 40, 40 20, 40 10"/>
-              <path d="M40 60 C 25 55, 18 48, 10 42"/>
-              <path d="M40 50 C 25 45, 18 38, 10 32"/>
-              <path d="M40 40 C 28 35, 20 28, 14 22"/>
-              <path d="M40 30 C 30 25, 24 18, 20 12"/>
-              <path d="M40 60 C 55 55, 62 48, 70 42"/>
-              <path d="M40 50 C 55 45, 62 38, 70 32"/>
-              <path d="M40 40 C 52 35, 60 28, 66 22"/>
-              <path d="M40 30 C 50 25, 56 18, 60 12"/>
-            </svg>
+                 className={`dh-features reveal-fade${closingReveal.visible ? ' is-visible' : ''}`}>
+          <div className="dh-features-banner">
+            {/* Side leaves — engraving style, same minimal vertical-spine
+                + angled-branch pattern used in the old closing banner.
+                currentColor inherits --c-accent so they auto-theme. */}
+            <div className="dh-features-leaf dh-features-leaf-left" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
+                <path d="M40 70 C 40 40, 40 20, 40 10"/>
+                <path d="M40 60 C 25 55, 18 48, 10 42"/>
+                <path d="M40 50 C 25 45, 18 38, 10 32"/>
+                <path d="M40 40 C 28 35, 20 28, 14 22"/>
+                <path d="M40 30 C 30 25, 24 18, 20 12"/>
+                <path d="M40 60 C 55 55, 62 48, 70 42"/>
+                <path d="M40 50 C 55 45, 62 38, 70 32"/>
+                <path d="M40 40 C 52 35, 60 28, 66 22"/>
+                <path d="M40 30 C 50 25, 56 18, 60 12"/>
+              </svg>
+            </div>
+            <div className="dh-features-leaf dh-features-leaf-right" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
+                <path d="M40 70 C 40 40, 40 20, 40 10"/>
+                <path d="M40 60 C 25 55, 18 48, 10 42"/>
+                <path d="M40 50 C 25 45, 18 38, 10 32"/>
+                <path d="M40 40 C 28 35, 20 28, 14 22"/>
+                <path d="M40 30 C 30 25, 24 18, 20 12"/>
+                <path d="M40 60 C 55 55, 62 48, 70 42"/>
+                <path d="M40 50 C 55 45, 62 38, 70 32"/>
+                <path d="M40 40 C 52 35, 60 28, 66 22"/>
+                <path d="M40 30 C 50 25, 56 18, 60 12"/>
+              </svg>
+            </div>
+
+            <span className="dh-features-eyebrow">{eyebrow}</span>
+            <h2 className="dh-features-title">Build your next venture with clarity</h2>
+            <p className="dh-features-subhead">
+              Capture ideas, shape them into projects, attach documents, and run calculations in one place.
+            </p>
+
+            {/* Riverbank scene — wide horizontal SVG below the subhead.
+                Tells the Godavari story in one image: coconut palms on
+                each bank (minimal engraving), two undulating water lines,
+                two boats drifting between. Same line-weight + stroke as
+                the side leaves so the aesthetic stays unified. */}
+            <div className="dh-features-river" aria-hidden="true">
+              <svg viewBox="0 0 520 56" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="520" height="56" preserveAspectRatio="xMidYMid meet">
+                {/* Left coconut palm — minimal engraving style. */}
+                <g transform="translate(10 6)">
+                  {/* trunk */}
+                  <path d="M14 46 Q 12 28 14 14"/>
+                  {/* fronds — 3 per side + 1 centre, simple curves */}
+                  <path d="M14 14 Q 6 14 0 12"/>
+                  <path d="M14 14 Q 6 10 2 4"/>
+                  <path d="M14 14 Q 10 8 8 0"/>
+                  <path d="M14 14 Q 22 14 28 12"/>
+                  <path d="M14 14 Q 22 10 26 4"/>
+                  <path d="M14 14 Q 18 8 20 0"/>
+                  <path d="M14 14 Q 14 8 14 2"/>
+                  {/* 3 tiny coconuts at base of crown */}
+                  <circle cx="12" cy="16" r="1.1"/>
+                  <circle cx="16" cy="16" r="1.1"/>
+                  <circle cx="14" cy="18" r="1.1"/>
+                </g>
+
+                {/* Right coconut palm — mirror of left. */}
+                <g transform="translate(482 6)">
+                  <path d="M14 46 Q 12 28 14 14"/>
+                  <path d="M14 14 Q 6 14 0 12"/>
+                  <path d="M14 14 Q 6 10 2 4"/>
+                  <path d="M14 14 Q 10 8 8 0"/>
+                  <path d="M14 14 Q 22 14 28 12"/>
+                  <path d="M14 14 Q 22 10 26 4"/>
+                  <path d="M14 14 Q 18 8 20 0"/>
+                  <path d="M14 14 Q 14 8 14 2"/>
+                  <circle cx="12" cy="16" r="1.1"/>
+                  <circle cx="16" cy="16" r="1.1"/>
+                  <circle cx="14" cy="18" r="1.1"/>
+                </g>
+
+                {/* River — two undulating water lines between the palms. */}
+                <path d="M52 36 Q 92 32 132 36 T 212 36 T 292 36 T 372 36 T 452 36 T 468 36"/>
+                <path d="M52 46 Q 100 42 148 46 T 244 46 T 340 46 T 436 46 T 468 46" opacity="0.55"/>
+
+                {/* Boat 1 — left of centre. Simple hull + standing boatman
+                    with paddle. Uses currentColor stroke only (no fill) so
+                    it stays in the engraving aesthetic. */}
+                <g transform="translate(200 22)">
+                  <path d="M0 12 Q 12 18 24 12"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <line x1="12" y1="12" x2="12" y2="4"/>
+                  <line x1="12" y1="8" x2="20" y2="14"/>
+                </g>
+
+                {/* Boat 2 — right of centre, slightly smaller. */}
+                <g transform="translate(310 26)">
+                  <path d="M0 10 Q 10 15 20 10"/>
+                  <line x1="2" y1="10" x2="18" y2="10"/>
+                  <line x1="10" y1="10" x2="10" y2="4"/>
+                  <line x1="10" y1="7" x2="4" y2="13"/>
+                </g>
+              </svg>
+            </div>
           </div>
-          <div className="dh-closing-leaf dh-closing-leaf-right" aria-hidden="true">
-            <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="80" height="80">
-              <path d="M40 70 C 40 40, 40 20, 40 10"/>
-              <path d="M40 60 C 25 55, 18 48, 10 42"/>
-              <path d="M40 50 C 25 45, 18 38, 10 32"/>
-              <path d="M40 40 C 28 35, 20 28, 14 22"/>
-              <path d="M40 30 C 30 25, 24 18, 20 12"/>
-              <path d="M40 60 C 55 55, 62 48, 70 42"/>
-              <path d="M40 50 C 55 45, 62 38, 70 32"/>
-              <path d="M40 40 C 52 35, 60 28, 66 22"/>
-              <path d="M40 30 C 50 25, 56 18, 60 12"/>
-            </svg>
+
+          <div className="dh-features-grid">
+            <button type="button" onClick={() => onNavigate('ideas')} className="dh-feature-card">
+              <div className="dh-feature-icon" aria-hidden="true">{ICON_LIGHTBULB_LG}</div>
+              <div className="dh-feature-title">Explore Ideas</div>
+              <p className="dh-feature-desc">Review opportunities and save the ones worth developing.</p>
+              <span className="dh-feature-link">
+                Browse Ideas
+                {ICON_ARROW_RIGHT}
+              </span>
+            </button>
+
+            <button type="button" onClick={() => onNavigate('projects')} className="dh-feature-card">
+              <div className="dh-feature-icon" aria-hidden="true">{ICON_CLIPBOARD}</div>
+              <div className="dh-feature-title">Manage Projects</div>
+              <p className="dh-feature-desc">Turn shortlisted ideas into structured project plans.</p>
+              <span className="dh-feature-link">
+                Open Projects
+                {ICON_ARROW_RIGHT}
+              </span>
+            </button>
+
+            <button type="button" onClick={() => onNavigate('calculations')} className="dh-feature-card">
+              <div className="dh-feature-icon" aria-hidden="true">{ICON_CALCULATOR}</div>
+              <div className="dh-feature-title">Run Calculations</div>
+              <p className="dh-feature-desc">Estimate investment, returns, and feasibility for each project.</p>
+              <span className="dh-feature-link">
+                Start Analysis
+                {ICON_ARROW_RIGHT}
+              </span>
+            </button>
           </div>
-          <p className="dh-closing-intro">A fresh start. Endless possibilities.</p>
-          <p className="dh-closing-script">A river nurtures every tree on its banks.</p>
-          <p className="dh-closing-script dh-closing-script-2">A plan nurtures every dream you build.</p>
         </section>
       </div>
     </div>
