@@ -103,6 +103,72 @@ const THEME_PREVIEW = {
     },
     desc: 'Lime + yellow + peach. Lime → yellow gradient. Bright, fresh, spring-meadow energy.',
   },
+  // Midnight is the only dark theme — routed through the `vibrant` code path
+  // so the picker card renders with radial corner glows (brass + sage) and
+  // a gradient brass italic title against the dark bg0. The CTA gradient is
+  // brass-dim → brass so white text stays legible against the warmer brass.
+  midnight: {
+    bg0: '#0E1116', bg1: '#161A22', bg2: '#1F2530', bg3: '#2A323F',
+    fg1: '#F2EDE3', accent: '#E8B97B', border: '#2A323F',
+    accents: ['#E8B97B', '#7CB7A4', '#D4A6A0'], // brass / sage / dusty rose
+    atmosphere: 'vibrant',
+    gradient: {
+      from: '#E8B97B', to: '#F2CC95',
+      ctaFrom: '#C99857', ctaTo: '#E8B97B',
+      glowRgb: '232,185,123', glowRgb2: '124,183,164',
+    },
+    desc: 'Brass + sage + parchment on near-black slate. First-class dark theme — library-after-dark editorial mood.',
+  },
+  coastal: {
+    bg0: '#F4F7F9', bg1: '#FFFFFF', bg2: '#E8EEF2', bg3: '#D4DEE5',
+    fg1: '#1B2A33', accent: '#3B6E8F', border: '#DCE5EC',
+    accents: ['#3B6E8F', '#E8896B', '#4F8A8B'], // slate / coral / muted teal
+    atmosphere: 'vibrant',
+    gradient: {
+      from: '#3B6E8F', to: '#E8896B',
+      ctaFrom: '#3B6E8F', ctaTo: '#2A536D',
+      glowRgb: '59,110,143', glowRgb2: '232,137,107',
+    },
+    desc: 'Slate ocean blue + sunset coral on fog gray. Pacific Northwest calm — trustworthy and quiet.',
+  },
+  plum: {
+    bg0: '#F7F2F6', bg1: '#FFFDFE', bg2: '#EFE5EE', bg3: '#DECCDC',
+    fg1: '#2C1828', accent: '#5A2A52', border: '#E5D5E1',
+    accents: ['#5A2A52', '#C49A6C', '#D4A6A0'], // aubergine / brass / dusty rose
+    atmosphere: 'vibrant',
+    gradient: {
+      from: '#5A2A52', to: '#C49A6C',
+      ctaFrom: '#5A2A52', ctaTo: '#401A39',
+      glowRgb: '90,42,82', glowRgb2: '196,154,108',
+    },
+    desc: 'Deep aubergine + brass + dusty rose on pale lilac. Romantic, jewel-tone, boutique luxury.',
+  },
+  jade: {
+    bg0: '#F0F7F4', bg1: '#FFFFFF', bg2: '#DDEEE6', bg3: '#BFDCCE',
+    fg1: '#13322C', accent: '#2F8E7E', border: '#D2E5DD',
+    accents: ['#2F8E7E', '#E8B97B', '#E8896B'], // jade / sand / coral
+    atmosphere: 'vibrant',
+    gradient: {
+      from: '#2F8E7E', to: '#E8B97B',
+      ctaFrom: '#2F8E7E', ctaTo: '#1F6E60',
+      glowRgb: '47,142,126', glowRgb2: '232,185,123',
+    },
+    desc: 'Jade + sand + coral on pale mint. Cool spa / coastal-retreat — Heritage on the cool side.',
+  },
+  terracotta: {
+    bg0: '#FBF5EE', bg1: '#FFFCF6', bg2: '#F4E8D7', bg3: '#E5D2B2',
+    fg1: '#3A2418', accent: '#B5532A', border: '#ECDCC2',
+    accents: ['#B5532A', '#739E7A', '#C9943F'], // sienna / sage / deep gold
+    atmosphere: 'editorial',
+    desc: 'Burnt sienna + sage + deep gold on warm sand. Mediterranean sun-baked clay — Heritage warmer / southern.',
+  },
+  mono: {
+    bg0: '#FAFAFA', bg1: '#FFFFFF', bg2: '#F0F0F0', bg3: '#DCDCDC',
+    fg1: '#1A1A1A', accent: '#111111', border: '#E5E5E5',
+    accents: ['#111111', '#C9302C', '#2D6A3F'], // ink / red pop / forest
+    atmosphere: 'editorial',
+    desc: 'Ink black + one red pop on paper. Sunday Times newspaper — maximum typography, zero color noise.',
+  },
 };
 
 export default function SettingsPage() {
@@ -165,7 +231,7 @@ export default function SettingsPage() {
             active, so they're directly comparable. */}
         <SectionCard
           title="Theme"
-          subtitle="Three palettes — Heritage is the default. Editorial typography is the same across all three; only the colour and atmospheric layer change."
+          subtitle="Eleven palettes — Heritage is the default. Editorial typography is the same across all of them; only the colour and atmospheric layer change. Midnight is the dark option."
         >
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             {themes.map(t => {
@@ -178,7 +244,7 @@ export default function SettingsPage() {
               const cardBackground = isAura
                 ? 'linear-gradient(135deg, #F4F6FB 0%, #EBE9FB 50%, #F8E9F0 100%)'
                 : isVibrant
-                  ? `radial-gradient(ellipse 200px 200px at 100% 0%, rgba(${g.glowRgb},0.18) 0%, rgba(${g.glowRgb},0) 60%), radial-gradient(ellipse 180px 180px at 0% 100%, rgba(${g.glowRgb2},0.14) 0%, rgba(${g.glowRgb2},0) 60%), #FFFFFF`
+                  ? `radial-gradient(ellipse 200px 200px at 100% 0%, rgba(${g.glowRgb},0.18) 0%, rgba(${g.glowRgb},0) 60%), radial-gradient(ellipse 180px 180px at 0% 100%, rgba(${g.glowRgb2},0.14) 0%, rgba(${g.glowRgb2},0) 60%), ${p.bg0}`
                   : p.bg0;
 
               const ctaBackground = isVibrant

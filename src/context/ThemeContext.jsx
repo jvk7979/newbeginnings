@@ -1,22 +1,41 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-// Five-palette theme set (locked in 2026-05-08, rev 4). Heritage is the
-// default — coconut-cream + deep coconut green + river blue + gold +
-// dark warm-brown text, paired with the Godavari hero photo. Four
-// alternates each keep the editorial typography (Cormorant Garamond /
-// Playfair Display / DM Sans / JetBrains Mono) but bring a distinct
-// atmospheric layer:
-//   • aura   — soft pastel gradient backdrop, glass-blur KPI tiles,
-//              lavender pill CTA. Calm, multi-tonal pastel palette.
-//   • prism  — white page with indigo+cyan radial corner glows, gradient
-//              KPI tile, gradient CTA, gradient italic in the hero
-//              headline. Confident, saturated, cool register.
-//   • citrus — sibling of prism with the same atmospheric structure but
-//              shifted warm: orange primary, orange→yellow gradient
-//              signature, lime green secondary. Energetic, sunset feel.
-//   • lemon  — sibling of prism / citrus with lime / chartreuse primary
-//              and lime → yellow gradient signature. Spring meadow / fresh
-//              citrus mood; brightest of the vibrants.
+// Eleven-palette theme set (rev 5, 2026-05-11 — added midnight / coastal /
+// plum / jade / terracotta / mono). Heritage is the default — coconut-cream
+// + deep coconut green + river blue + gold + dark warm-brown text, paired
+// with the Godavari hero photo. All alternates keep the editorial typography
+// (Cormorant Garamond / Playfair Display / DM Sans / JetBrains Mono) but
+// bring a distinct atmospheric layer.
+//
+// Rev-4 set (light, editorial / soft / vibrant atmospheres):
+//   • aura       — soft pastel gradient backdrop, glass-blur KPI tiles,
+//                  lavender pill CTA. Calm, multi-tonal pastel palette.
+//   • prism      — white page with indigo+cyan radial corner glows, gradient
+//                  KPI tile, gradient CTA, gradient italic in the hero
+//                  headline. Confident, saturated, cool register.
+//   • citrus     — sibling of prism shifted warm: orange primary,
+//                  orange→yellow gradient signature, lime green secondary.
+//                  Energetic, sunset feel.
+//   • lemon      — sibling of prism / citrus with lime / chartreuse primary
+//                  and lime → yellow gradient signature. Spring meadow.
+//
+// Rev-5 additions:
+//   • midnight   — DARK theme. Near-black slate backdrop, warm brass primary,
+//                  dim sage secondary, parchment text. Library-after-dark.
+//                  First-class dark palette (mode: 'dark').
+//   • coastal    — vibrant family, slate ocean blue primary + sunset coral
+//                  secondary, slate→coral gradient. Pacific Northwest calm.
+//   • plum       — vibrant family, deep aubergine primary + brass secondary,
+//                  aubergine→brass gradient. Boutique-hotel luxury.
+//   • jade       — vibrant family, jade primary + sand secondary, jade→sand
+//                  gradient. Spa / coastal-retreat. Sister to Heritage cool.
+//   • terracotta — editorial family, warm sand backdrop, burnt sienna primary,
+//                  sage secondary. Mediterranean clay village. Sister to
+//                  Heritage warmer / southern.
+//   • mono       — editorial family, paper white, ink-black primary + one
+//                  red pop (#C9302C). Sunday Times newspaper / maximum
+//                  typography.
+//
 // All atmospheric overrides live in styles.css under "Theme atmospheric
 // overrides"; this file is just the palette + picker registration.
 //
@@ -33,11 +52,17 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 //   oxford / burgundy → heritage  (rev-2 retirement — blue / red gone)
 //   vellum            → heritage  (rev-2 retirement — warm ledger gone)
 export const THEMES = [
-  { id: 'heritage', label: 'Heritage', mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#37986b'] },
-  { id: 'aura',     label: 'Aura',     mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7674ef'] },
-  { id: 'prism',    label: 'Prism',    mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
-  { id: 'citrus',   label: 'Citrus',   mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
-  { id: 'lemon',    label: 'Lemon',    mode: 'light', swatch: ['#FFFFFF', '#FCFFF5', '#82c41f'] },
+  { id: 'heritage',   label: 'Heritage',   mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#37986b'] },
+  { id: 'aura',       label: 'Aura',       mode: 'light', swatch: ['#F4F6FB', '#EBE9FB', '#7674ef'] },
+  { id: 'prism',      label: 'Prism',      mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
+  { id: 'citrus',     label: 'Citrus',     mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
+  { id: 'lemon',      label: 'Lemon',      mode: 'light', swatch: ['#FFFFFF', '#FCFFF5', '#82c41f'] },
+  { id: 'midnight',   label: 'Midnight',   mode: 'dark',  swatch: ['#0E1116', '#161A22', '#E8B97B'] },
+  { id: 'coastal',    label: 'Coastal',    mode: 'light', swatch: ['#F4F7F9', '#FFFFFF', '#3B6E8F'] },
+  { id: 'plum',       label: 'Plum',       mode: 'light', swatch: ['#F7F2F6', '#FFFDFE', '#5A2A52'] },
+  { id: 'jade',       label: 'Jade',       mode: 'light', swatch: ['#F0F7F4', '#FFFFFF', '#2F8E7E'] },
+  { id: 'terracotta', label: 'Terracotta', mode: 'light', swatch: ['#FBF5EE', '#FFFCF6', '#B5532A'] },
+  { id: 'mono',       label: 'Mono',       mode: 'light', swatch: ['#FAFAFA', '#FFFFFF', '#111111'] },
 ];
 
 const DEFAULT_THEME = 'heritage';
