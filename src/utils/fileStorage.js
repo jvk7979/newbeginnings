@@ -52,6 +52,25 @@ export async function uploadFileToDB(file) {
   return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
 }
 
+// Upload an image File → Firebase Storage → return metadata object.
+// Like uploadFileToDB, but preserves the image's own MIME type so the
+// stored blob renders inline when later fetched via getFileUrl.
+export async function uploadImageToDB(file) {
+  const blobId  = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+  const fileRef = ref(storage, `uploads/${blobId}`);
+
+  await new Promise((resolve, reject) => {
+    const task  = uploadBytesResumable(fileRef, file, { contentType: file.type || 'image/jpeg' });
+    const timer = setTimeout(() => { task.cancel(); reject(new Error('Upload timed out — check your connection and try again.')); }, 30000);
+    task.on('state_changed', null,
+      err  => { clearTimeout(timer); console.error('[Storage image upload error]', err?.code, err); reject(err); },
+      ()   => { clearTimeout(timer); resolve(); }
+    );
+  });
+
+  return { blobId, name: file.name, type: detectType(file), size: file.size, uploadedAt: todayLabel() };
+}
+
 // Resolve an authenticated download URL on demand. Callers should treat
 // the returned URL as ephemeral and never persist it.
 export async function getFileUrl(blobId) {
