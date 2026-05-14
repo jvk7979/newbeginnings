@@ -24,6 +24,7 @@ export default function CommandPalette({ open, onClose, onNavigate }) {
       { id: 'go-home',      label: 'Go to Home',       group: 'Navigate', keywords: 'home dashboard',           run: () => onNavigate('dashboard') },
       { id: 'go-ideas',     label: 'Go to Ideas',      group: 'Navigate', keywords: 'ideas brainstorm',         run: () => onNavigate('ideas') },
       { id: 'go-projects',  label: 'Go to Projects',   group: 'Navigate', keywords: 'projects plans business',  run: () => onNavigate('projects') },
+      { id: 'go-markets',   label: 'Go to Markets',    group: 'Navigate', keywords: 'markets mandi commodity prices raw material', run: () => onNavigate('markets') },
       { id: 'go-about',     label: 'Go to About',      group: 'Navigate', keywords: 'about info',               run: () => onNavigate('about') },
       ...(isAdmin ? [{ id: 'go-access', label: 'Go to Access (admin)', group: 'Navigate', keywords: 'access users admin allow', run: () => onNavigate('access') }] : []),
 

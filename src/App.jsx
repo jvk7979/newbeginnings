@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense, Component } from 'react';
 import { C } from './tokens';
 import logoImg from './assets/logo.webp';
 import { useAuth } from './context/AuthContext';
-import { useIdeas, usePlans, useBackup } from './context/AppContext';
+import { useIdeas, usePlans, useCommodities, useBackup } from './context/AppContext';
 import SideNav from './components/SideNav';
 import SignInPage from './pages/SignInPage';
 import Footer from './components/Footer';
@@ -26,9 +26,11 @@ const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
 const ScenariosPage    = lazy(() => import('./pages/ScenariosPage'));
 const SettingsPage     = lazy(() => import('./pages/SettingsPage'));
 const ResearchVaultPage = lazy(() => import('./pages/ResearchVault'));
+const MarketsPage         = lazy(() => import('./pages/Markets'));
+const CommodityDetailPage = lazy(() => import('./pages/Markets/CommodityDetailPage'));
 
-const LINKABLE = ['dashboard', 'ideas', 'projects', 'about', 'access', 'calculations', 'scenarios', 'settings'];
-const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'research'];
+const LINKABLE = ['dashboard', 'ideas', 'projects', 'markets', 'about', 'access', 'calculations', 'scenarios', 'settings'];
+const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'research', 'commodity-detail'];
 
 const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
@@ -161,6 +163,7 @@ export default function App() {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { ideas } = useIdeas();
   const { plans } = usePlans();
+  const { commodities } = useCommodities();
   const { dataLoading } = useBackup();
 
   const [page,   setPage]   = useState(() => parseHash().page);
@@ -222,6 +225,7 @@ export default function App() {
 
   const idea = ideas.find(i => i.id == itemId);
   const plan = plans.find(p => p.id == itemId);
+  const commodity = commodities.find(c => c.id == itemId);
 
   const renderPage = () => {
     switch (page) {
@@ -242,6 +246,10 @@ export default function App() {
       case 'research':
         if (!itemId) return <NotFound label="Project" dest="projects" onNavigate={navigate} />;
         return <ResearchVaultPage key={itemId} planId={itemId} plan={plan} onNavigate={navigate} />;
+      case 'markets':        return <MarketsPage onNavigate={navigate} />;
+      case 'commodity-detail':
+        if (!itemId || !commodity) return <NotFound label="Commodity" dest="markets" onNavigate={navigate} />;
+        return <CommodityDetailPage key={commodity.id} commodity={commodity} onNavigate={navigate} />;
       case 'scenarios':      return <ScenariosPage onNavigate={navigate} />;
       case 'settings':       return <SettingsPage />;
       default:               return <Dashboard onNavigate={navigate} />;
