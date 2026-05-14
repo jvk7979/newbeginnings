@@ -5394,7 +5394,7 @@ textarea:focus-visible,
 }
 .dh-section-link:hover { opacity: 0.78; }
 
-/* ── Three-column section ─────────────────────────────────────────── */
+/* ── Two-column section ───────────────────────────────────────────── */
 .dh-three-col {
   display: grid;
   /* Two columns since the Documents column was removed — the class name

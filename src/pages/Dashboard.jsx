@@ -225,9 +225,9 @@ export default function Dashboard({ onNavigate }) {
           <KpiTile icon={ICON_SPARKLE}   label="In Calculation"  value={eligibleCountAnim} />
         </div>
 
-        {/* ── Three-column section: Featured / Active / Documents ───
+        {/* ── Two-column section: Featured Ideas / Active Projects ────
               Each column reveal-fades with a staggered delay so the eye
-              tracks left-to-right rather than three columns popping
+              tracks left-to-right rather than both columns popping
               simultaneously. The container holds the observer; children
               read its visible state via the className expression. */}
         <div ref={colsReveal.ref} className="dh-three-col">
