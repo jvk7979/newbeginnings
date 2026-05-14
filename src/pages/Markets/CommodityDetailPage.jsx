@@ -16,6 +16,25 @@ const fmtPrice = (n) => {
     : n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
 };
 
+// Short relative-time label for the sync indicator. `ms` is an epoch.
+const relTime = (ms) => {
+  if (!ms) return '';
+  const s = Math.floor((Date.now() - ms) / 1000);
+  if (s < 3600)  return `${Math.max(1, Math.floor(s / 60))}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+};
+
+// Derives the sync-indicator text + colour from a commodity's `sync` field.
+// Only called for commodities with an `agmarknet` mapping.
+const syncIndicator = (commodity, dangerColor, mutedColor) => {
+  const sync = commodity.sync;
+  if (!sync)                     return { text: 'Auto-fetch enabled — first sync pending', color: mutedColor };
+  if (sync.status === 'ok')      return { text: `Auto-synced from Agmarknet · ${relTime(sync.at)}`, color: mutedColor };
+  if (sync.status === 'no-data') return { text: 'No Andhra Pradesh market data this week', color: mutedColor };
+  return { text: `Sync error — ${sync.message || 'check the API key'}`, color: dangerColor };
+};
+
 export default function CommodityDetailPage({ commodity, onNavigate }) {
   const { updateCommodity, deleteCommodity, restoreCommodity } = useCommodities();
   const { isViewer } = useAuth();
@@ -71,6 +90,14 @@ export default function CommodityDetailPage({ commodity, onNavigate }) {
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
             {commodity.unit}{commodity.mandi ? ` · ${commodity.mandi}` : ''}
           </div>
+          {commodity.agmarknet && (() => {
+            const ind = syncIndicator(commodity, C.danger, C.fg3);
+            return (
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: ind.color, marginTop: 4 }}>
+                {ind.text}
+              </div>
+            );
+          })()}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 14 }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 34, fontWeight: 700, color: C.fg1 }}>
               {price != null ? `₹${fmtPrice(price)}` : '—'}
@@ -123,7 +150,12 @@ export default function CommodityDetailPage({ commodity, onNavigate }) {
           <div style={{ border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden' }}>
             {[...sorted].reverse().map((e, i) => (
               <div key={e.ts} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', borderBottom: i < sorted.length - 1 ? `1px solid ${C.border}` : 'none', background: i % 2 ? C.bg0 : C.bg1 }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2 }}>{e.date}</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {e.date}
+                  {e.source === 'agmarknet' && (
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.accent, background: alpha(C.accent, 11), border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 3, padding: '1px 5px' }}>auto</span>
+                  )}
+                </span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg1 }}>₹{fmtPrice(e.price)}</span>
               </div>
             ))}
