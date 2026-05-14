@@ -253,8 +253,8 @@ export function AppProvider({ children }) {
   // ── Bulk import ──────────────────────────────────────────────────────────
   const importData = useCallback(async (data) => {
     if (!user) return;
-      // Commodities are intentionally excluded — market price data is live, not part of a user backup.
-      for (const name of ['ideas', 'projects', 'plans']) {
+    // Commodities are intentionally excluded — market price data is live, not part of a user backup.
+    for (const name of ['ideas', 'projects', 'plans']) {
       const snap = await getDocs(sharedCol(name));
       if (!snap.empty) {
         const batch = writeBatch(db);
