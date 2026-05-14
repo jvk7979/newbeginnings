@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { C, alpha } from '../../tokens';
-import { CLIP_TYPE_ORDER, CLIP_TYPES } from './ClipTypeBadge';
+import { CLIP_TYPES } from './ClipTypeBadge';
 import { useToast } from '../../context/ToastContext';
 import UploadZone from '../../components/UploadZone';
 import {
@@ -12,6 +12,7 @@ const inputStyle = { width: '100%', background: C.bg1, border: `1px solid ${C.bo
 const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
 
 const parseTags = (s) => s.split(',').map(t => t.trim()).filter(Boolean);
+const toTitleCase = (s) => s[0] + s.slice(1).toLowerCase();
 
 // Human-readable type labels for the picker step.
 const TYPE_PICKER = [
@@ -96,6 +97,8 @@ export default function AddClipModal({ onClose, onAdd }) {
       onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 520, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
         <button onClick={onClose} aria-label="Close"
+          onMouseEnter={e => { e.currentTarget.style.color = C.fg1; e.currentTarget.style.background = C.bg2; }}
+          onMouseLeave={e => { e.currentTarget.style.color = C.fg3; e.currentTarget.style.background = 'none'; }}
           style={{ position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           ×
         </button>
@@ -115,7 +118,7 @@ export default function AddClipModal({ onClose, onAdd }) {
                   onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
                   <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, marginBottom: 4 }}>
                     <span aria-hidden="true" style={{ marginRight: 6 }}>{CLIP_TYPES[t].glyph}</span>
-                    {CLIP_TYPES[t].label[0] + CLIP_TYPES[t].label.slice(1).toLowerCase()}
+                    {toTitleCase(CLIP_TYPES[t].label)}
                   </div>
                   <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, lineHeight: 1.45 }}>{blurb}</div>
                 </button>
@@ -131,7 +134,7 @@ export default function AddClipModal({ onClose, onAdd }) {
                 style={{ background: 'none', border: 'none', color: C.accent, cursor: 'pointer', padding: 0, fontFamily: 'inherit', fontSize: 'inherit' }}>
                 ← Type
               </button>
-              {'  ·  '}{CLIP_TYPES[type].label[0] + CLIP_TYPES[type].label.slice(1).toLowerCase()}
+              {'  ·  '}{toTitleCase(CLIP_TYPES[type].label)}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -155,13 +158,15 @@ export default function AddClipModal({ onClose, onAdd }) {
                   {imageFile ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 8, background: C.accentBg, border: `1px solid ${alpha(C.accent, 44)}` }}>
                       <span style={{ flex: 1, minWidth: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{imageFile.name}</span>
-                      <button onClick={() => setImageFile(null)}
+                      <button onClick={() => { setImageFile(null); setImageErr(''); }}
                         style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', flexShrink: 0 }}>
                         Remove
                       </button>
                     </div>
                   ) : (
-                    <label style={{ display: 'block', border: `2px dashed ${C.border}`, borderRadius: 8, padding: '20px', textAlign: 'center', cursor: 'pointer', background: C.bg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2 }}>
+                    <label tabIndex={0}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.currentTarget.querySelector('input').click(); } }}
+                      style={{ display: 'block', border: `2px dashed ${C.border}`, borderRadius: 8, padding: '20px', textAlign: 'center', cursor: 'pointer', background: C.bg1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, outline: 'none' }}>
                       Click to choose an image
                       <input type="file" accept="image/*" style={{ display: 'none' }}
                         onChange={e => { pickImage(e.target.files[0]); e.target.value = ''; }} />
@@ -197,18 +202,11 @@ export default function AddClipModal({ onClose, onAdd }) {
                 <input style={inputStyle} value={tagsInput} onChange={e => setTagsInput(e.target.value)} placeholder="Comma-separated, e.g. Subsidy, Policy" />
               </div>
 
-              {type !== 'pdf' && type !== 'photo' && (
-                <div>
-                  <label style={labelStyle}>Source label (optional)</label>
-                  <input style={inputStyle} value={sourceLabel} onChange={e => setSourceLabel(e.target.value)} placeholder="e.g. coirboard.gov.in, CIRCOT field note" />
-                </div>
-              )}
-              {(type === 'pdf' || type === 'photo') && (
-                <div>
-                  <label style={labelStyle}>Source label (optional)</label>
-                  <input style={inputStyle} value={sourceLabel} onChange={e => setSourceLabel(e.target.value)} placeholder="e.g. Personal, Field — Apr 18" />
-                </div>
-              )}
+              <div>
+                <label style={labelStyle}>Source label (optional)</label>
+                <input style={inputStyle} value={sourceLabel} onChange={e => setSourceLabel(e.target.value)}
+                  placeholder={(type === 'pdf' || type === 'photo') ? 'e.g. Personal, Field — Apr 18' : 'e.g. coirboard.gov.in, CIRCOT field note'} />
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 22 }}>
