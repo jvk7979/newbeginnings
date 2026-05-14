@@ -27,9 +27,10 @@ const AccessPage      = lazy(() => import('./pages/AccessPage'));
 const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
 const ScenariosPage    = lazy(() => import('./pages/ScenariosPage'));
 const SettingsPage     = lazy(() => import('./pages/SettingsPage'));
+const ResearchVaultPage = lazy(() => import('./pages/ResearchVault'));
 
 const LINKABLE = ['dashboard', 'ideas', 'projects', 'documents', 'about', 'access', 'calculations', 'scenarios', 'settings'];
-const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'document-detail'];
+const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'document-detail', 'research'];
 
 const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
@@ -246,6 +247,9 @@ export default function App() {
       case 'about':          return <AboutPage onNavigate={navigate} />;
       case 'access':         return <AccessPage onNavigate={navigate} />;
       case 'calculations':   return <CalculationsPage onNavigate={navigate} />;
+      case 'research':
+        if (!itemId) return <NotFound label="Project" dest="projects" onNavigate={navigate} />;
+        return <ResearchVaultPage key={itemId} planId={itemId} plan={plan} onNavigate={navigate} />;
       case 'scenarios':      return <ScenariosPage onNavigate={navigate} />;
       case 'settings':       return <SettingsPage />;
       default:               return <Dashboard onNavigate={navigate} />;
