@@ -7,6 +7,7 @@
 // server-side key stored as a Firebase secret (never shipped to clients).
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { defineSecret } from 'firebase-functions/params';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -18,6 +19,9 @@ const db = getFirestore();
 // Server-side Gemini key — stored via `firebase functions:secrets:set GEMINI_API_KEY`.
 // NOT bundled with the client.
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY');
+// data.gov.in API key for the Agmarknet price feed — set via
+// `firebase functions:secrets:set DATA_GOV_IN_API_KEY`. Never shipped to clients.
+const DATA_GOV_IN_API_KEY = defineSecret('DATA_GOV_IN_API_KEY');
 
 const ADMIN_EMAILS = new Set([
   'thenewbeginningsventure@gmail.com',
@@ -224,3 +228,100 @@ export const summariseDocumentText = onCall(callOpts, withAuth(async (req) => {
   const result = await ask(SUMMARY_PROMPT + text.slice(0, 12000));
   return { text: result };
 }));
+
+// ── Agmarknet auto-fetch (Markets Phase 2) ──────────────────────────────
+// A scheduled function pulls daily mandi prices from the data.gov.in
+// Agmarknet API for every commodity the user has mapped (via the curated
+// picker) to an Agmarknet source, keeping one price point per ISO week in
+// the commodity's `history`. It only touches commodities with an
+// `agmarknet` mapping — a no-op until the user maps one, so Phase 1 seed
+// and manual commodities are never modified.
+
+const AGMARKNET_RESOURCE = '9ef84268-d588-465a-a308-a864a43d0070';
+
+// Monday 00:00 (server-local) of the week containing `now`. Used as the
+// stable `ts` for the current week's auto-fetched point so a daily re-run
+// updates that point in place instead of appending duplicates.
+function startOfWeek(now = Date.now()) {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  const day = (d.getDay() + 6) % 7; // Mon=0 .. Sun=6
+  d.setDate(d.getDate() - day);
+  return d.getTime();
+}
+
+const agmarknetDateLabel = () =>
+  new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+// Fetch the Andhra-Pradesh-averaged modal price for one Agmarknet commodity
+// name. Returns a number, or null when no AP records are available.
+async function fetchAgmarknetPrice(apiKey, commodityName) {
+  const url = new URL(`https://api.data.gov.in/resource/${AGMARKNET_RESOURCE}`);
+  url.searchParams.set('api-key', apiKey);
+  url.searchParams.set('format', 'json');
+  url.searchParams.set('limit', '1000');
+  url.searchParams.set('filters[commodity]', commodityName);
+  url.searchParams.set('filters[state]', 'Andhra Pradesh');
+
+  const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+  if (!res.ok) throw new Error(`Agmarknet API responded ${res.status}`);
+  const data = await res.json();
+  const records = Array.isArray(data?.records) ? data.records : [];
+
+  // The modal-price field in the data.gov.in JSON is `modal_price`.
+  const modals = records
+    .map(r => parseFloat(r.modal_price))
+    .filter(n => Number.isFinite(n) && n > 0);
+  if (modals.length === 0) return null;
+  return modals.reduce((a, b) => a + b, 0) / modals.length;
+}
+
+// Runs daily at 6am IST.
+export const syncAgmarknetPrices = onSchedule(
+  {
+    schedule: '0 6 * * *',
+    timeZone: 'Asia/Kolkata',
+    secrets: [DATA_GOV_IN_API_KEY],
+    timeoutSeconds: 300,
+    memory: '256MiB',
+  },
+  async () => {
+    const apiKey = DATA_GOV_IN_API_KEY.value();
+    const snap = await db.collection('sharedCommodities').get();
+    const mapped = snap.docs.filter(d => d.data()?.agmarknet?.name);
+
+    const weekTs = startOfWeek();
+    const weekDate = agmarknetDateLabel();
+
+    for (const docSnap of mapped) {
+      const commodity = docSnap.data();
+      const ref = docSnap.ref;
+      try {
+        const price = await fetchAgmarknetPrice(apiKey, commodity.agmarknet.name);
+        if (price == null) {
+          await ref.update({
+            sync: { at: Date.now(), status: 'no-data', message: 'No Andhra Pradesh market data this week.' },
+          });
+          continue;
+        }
+        const rounded = Math.round(price * 100) / 100;
+        // One point per ISO week, updated in place: drop any existing
+        // agmarknet point for this week, append the fresh one, re-sort.
+        const history = Array.isArray(commodity.history) ? commodity.history : [];
+        const kept = history.filter(p => !(p.source === 'agmarknet' && p.ts === weekTs));
+        kept.push({ ts: weekTs, date: weekDate, price: rounded, source: 'agmarknet' });
+        kept.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+        await ref.update({
+          history: kept,
+          sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (AP average).` },
+        });
+      } catch (err) {
+        console.error('[syncAgmarknetPrices]', commodity.name, err);
+        await ref.update({
+          sync: { at: Date.now(), status: 'error', message: String(err?.message || err).slice(0, 200) },
+        });
+      }
+    }
+    console.log(`[syncAgmarknetPrices] processed ${mapped.length} mapped commodit${mapped.length === 1 ? 'y' : 'ies'}`);
+  }
+);
