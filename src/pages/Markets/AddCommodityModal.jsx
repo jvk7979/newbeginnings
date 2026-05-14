@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C } from '../../tokens';
 import { COMMODITY_COLORS } from './commodityColors';
 import { useToast } from '../../context/ToastContext';
+import { AGMARKNET_COMMODITIES } from './agmarknetCommodities';
 
 const inputStyle = { width: '100%', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 12px', outline: 'none', boxSizing: 'border-box' };
 const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -15,6 +16,7 @@ export default function AddCommodityModal({ onClose, onAdd }) {
   const [mandi, setMandi] = useState('');
   const [color, setColor] = useState(COMMODITY_COLORS[0].key);
   const [price, setPrice] = useState('');
+  const [agmarknetKey, setAgmarknetKey] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit = name.trim() && unit.trim();
@@ -23,12 +25,14 @@ export default function AddCommodityModal({ onClose, onAdd }) {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
     try {
+      const ag = AGMARKNET_COMMODITIES.find(c => c.key === agmarknetKey);
       const commodity = {
         name: name.trim(),
         unit: unit.trim(),
         mandi: mandi.trim(),
         color,
         notes: '',
+        agmarknet: ag ? { key: ag.key, name: ag.name } : null,
         history: [],
       };
       const p = parseFloat(price);
@@ -78,6 +82,17 @@ export default function AddCommodityModal({ onClose, onAdd }) {
                   aria-label={c.label} aria-pressed={color === c.key}
                   style={{ width: 30, height: 30, borderRadius: 7, background: c.hex, cursor: 'pointer', border: `2px solid ${color === c.key ? C.fg1 : 'transparent'}` }} />
               ))}
+            </div>
+          </div>
+          <div>
+            <label style={labelStyle}>Auto-fetch source (optional)</label>
+            <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+              value={agmarknetKey} onChange={e => setAgmarknetKey(e.target.value)}>
+              <option value="">Manual only</option>
+              {AGMARKNET_COMMODITIES.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
+            </select>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 4 }}>
+              Mapped commodities auto-update weekly from Agmarknet (Andhra Pradesh average).
             </div>
           </div>
           <div>
