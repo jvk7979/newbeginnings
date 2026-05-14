@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans, useIdeas } from '../context/AppContext';
+import { db } from '../firebase';
+import { collection, getCountFromServer } from 'firebase/firestore';
 import { useAutosave } from '../utils/useAutosave';
 import AutosaveStatus from '../components/AutosaveStatus';
 import { useToast } from '../context/ToastContext';
@@ -51,6 +53,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [improvingSummary, setImprovingSummary] = useState(false);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [clipCount, setClipCount] = useState(null);
   const pagePadRef = useRef(null);
   const [editingSecIdx,   setEditingSecIdx]   = useState(null);
   const [editingSecDraft, setEditingSecDraft] = useState(null);
@@ -84,6 +87,17 @@ export default function PlanDetailPage({ plan, onNavigate }) {
     const t2 = setTimeout(scroll, 100);
     const t3 = setTimeout(scroll, 400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [plan.id]);
+
+  // One-shot lightweight count of the project's research clips for the
+  // header button. If it fails (offline / rules), the button still renders
+  // without the "· N" suffix — the count is decorative, not load-bearing.
+  useEffect(() => {
+    let alive = true;
+    getCountFromServer(collection(db, 'sharedPlans', String(plan.id), 'clips'))
+      .then(snap => { if (alive) setClipCount(snap.data().count); })
+      .catch(() => { /* leave null */ });
+    return () => { alive = false; };
   }, [plan.id]);
 
   const inputStyle = { background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 16, padding: '9px 12px', outline: 'none', width: '100%', transition: 'border 150ms' };
@@ -312,6 +326,12 @@ export default function PlanDetailPage({ plan, onNavigate }) {
             Projects
           </button>
           <div className="plan-hero-actions">
+            {!isEditing && (
+              <button onClick={() => onNavigate('research', { id: plan.id })} className="plan-hero-btn plan-hero-btn-ghost">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Research Vault{clipCount != null ? ` · ${clipCount}` : ''}
+              </button>
+            )}
             {!isEditing && sections.length > 0 && (
               <button onClick={handleExportPDF} className="plan-hero-btn plan-hero-btn-ghost">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
