@@ -42,21 +42,21 @@ export default function AccessPage() {
     setScanError('');
     setCleanupResult('');
     try {
-      const [allBlobs, plansSnap, ideasSnap, filesSnap] = await Promise.all([
+      // The Documents feature (sharedFiles) was removed — only plan and idea
+      // attachments reference uploaded blobs now. Any sharedFiles-era blobs
+      // correctly surface as orphans for cleanup.
+      const [allBlobs, plansSnap, ideasSnap] = await Promise.all([
         listAllUploadedBlobs(),
         getDocs(collection(db, 'sharedPlans')),
         getDocs(collection(db, 'sharedIdeas')),
-        getDocs(collection(db, 'sharedFiles')),
       ]);
       const referenced = new Set();
-      const collect = (snap, key) => snap.docs.forEach(d => {
-        const data = d.data();
-        const id = key === 'attachedFile' ? data?.attachedFile?.blobId : data?.blobId || data?.attachedFile?.blobId;
+      const collect = (snap) => snap.docs.forEach(d => {
+        const id = d.data()?.attachedFile?.blobId;
         if (id) referenced.add(id);
       });
-      collect(plansSnap, 'attachedFile');
-      collect(ideasSnap, 'attachedFile');
-      collect(filesSnap, 'either');
+      collect(plansSnap);
+      collect(ideasSnap);
       const orphanList = allBlobs.filter(b => !referenced.has(b.blobId));
       setOrphans(orphanList);
     } catch (e) {
