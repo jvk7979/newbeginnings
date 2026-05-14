@@ -53,8 +53,10 @@ export async function uploadFileToDB(file) {
 }
 
 // Upload an image File → Firebase Storage → return metadata object.
-// Like uploadFileToDB, but preserves the image's own MIME type so the
-// stored blob renders inline when later fetched via getFileUrl.
+// Like uploadFileToDB, but passes the image's own MIME type as the
+// Storage contentType (uploadFileToDB only knows PDF/DOC/DOCX) so the
+// stored blob carries an image content-type and renders inline when
+// fetched via getFileUrl.
 export async function uploadImageToDB(file) {
   const blobId  = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
   const fileRef = ref(storage, `uploads/${blobId}`);
