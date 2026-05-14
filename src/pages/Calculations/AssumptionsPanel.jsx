@@ -16,32 +16,35 @@ export default function AssumptionsPanel({
   const [costTab, setCostTab] = useState('fixed');
   const { commodities } = useCommodities();
 
-  // Bind a variable-cost row to a Markets commodity (or unbind with '').
-  // Binding snapshots the commodity's current price into the row; the price
-  // stays editable afterwards — "Refresh from Markets" re-pulls it.
-  const bindCommodity = (rowId, value) => {
+  // Bind a row (field = 'varRows' for costs, 'revenueRows' for products) to a
+  // Markets commodity, or unbind with ''. Binding snapshots the commodity's
+  // current price into the row; the price stays editable afterwards —
+  // "Refresh from Markets" re-pulls it.
+  const bindCommodity = (field, rowId, value) => {
     if (value === '') {
-      setRow('varRows', rowId, 'commodityId', null);
+      setRow(field, rowId, 'commodityId', null);
       return;
     }
     const cid = Number(value);
-    setRow('varRows', rowId, 'commodityId', cid);
+    setRow(field, rowId, 'commodityId', cid);
     const com = commodities.find(c => c.id == cid);
     const snap = com ? currentPrice(com.history) : null;
-    if (snap != null) setRow('varRows', rowId, 'price', snap);
+    if (snap != null) setRow(field, rowId, 'price', snap);
   };
 
-  // Re-snapshot every bound row's price from its commodity's current price.
+  // Re-snapshot every bound row's price (variable costs + products) from its
+  // commodity's current price.
   const refreshFromMarkets = () => {
-    setI({
-      varRows: input.varRows.map(r => {
-        if (!r.commodityId) return r;
-        const com = commodities.find(c => c.id == r.commodityId);
-        const snap = com ? currentPrice(com.history) : null;
-        return snap != null ? { ...r, price: snap } : r;
-      }),
+    const resnap = (rows) => rows.map(r => {
+      if (!r.commodityId) return r;
+      const com = commodities.find(c => c.id == r.commodityId);
+      const snap = com ? currentPrice(com.history) : null;
+      return snap != null ? { ...r, price: snap } : r;
     });
+    setI({ varRows: resnap(input.varRows), revenueRows: resnap(input.revenueRows) });
   };
+
+  const anyBound = input.varRows.some(r => r.commodityId) || input.revenueRows.some(r => r.commodityId);
 
   return (
     <div className="calc-left calc-assumptions" style={style}>
@@ -110,13 +113,13 @@ export default function AssumptionsPanel({
         summary={`${fmtINR(calc.revenue)}/yr`}
         open={openSections.includes('products')} onToggle={toggleSection}>
         <Hint>List everything you sell. Price × Qty at 100% capacity; the slider scales them.</Hint>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
-          {['Product', 'Unit', 'Price ₹', 'Qty/yr', ''].map((h, i) => (
+        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr 0.9fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
+          {['Product', 'Unit', 'Price ₹', 'Qty/yr', 'Mandi', ''].map((h, i) => (
             <div key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, paddingLeft: i === 0 ? 14 : 0 }}>{h}</div>
           ))}
         </div>
         {input.revenueRows.map((row, i) => (
-          <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+          <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr 0.9fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: PRODUCT_COLORS[i % PRODUCT_COLORS.length], flexShrink: 0 }} />
               <input value={row.name} placeholder="Product" onChange={e => setRow('revenueRows', row.id, 'name', e.target.value)} style={{ ...IS, flex: 1 }} />
@@ -124,13 +127,30 @@ export default function AssumptionsPanel({
             <input value={row.unit} placeholder="kg" onChange={e => setRow('revenueRows', row.id, 'unit', e.target.value)} style={IS} />
             <input type="number" value={row.price} min={0} onChange={e => setRow('revenueRows', row.id, 'price', e.target.value)} style={IS} />
             <input type="number" value={row.qty} min={0} onChange={e => setRow('revenueRows', row.id, 'qty', e.target.value)} style={IS} />
+            <select
+              value={row.commodityId ?? ''}
+              onChange={e => bindCommodity('revenueRows', row.id, e.target.value)}
+              style={{ ...IS, fontSize: 11, padding: '5px 4px', cursor: 'pointer' }}
+              aria-label="Linked Markets commodity">
+              <option value="">— manual —</option>
+              {commodities.map(com => (
+                <option key={com.id} value={com.id}>{com.name}</option>
+              ))}
+            </select>
             <button onClick={() => delRow('revenueRows', row.id)} disabled={input.revenueRows.length === 1}
               style={{ background: 'none', border: 'none', cursor: input.revenueRows.length === 1 ? 'default' : 'pointer', color: input.revenueRows.length === 1 ? C.fg3 : '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
           </div>
         ))}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-          <button onClick={() => addRow('revenueRows', { name: '', unit: '', price: 0, qty: 0, enabled: true })}
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add product</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => addRow('revenueRows', { name: '', unit: '', price: 0, qty: 0, enabled: true, commodityId: null })}
+              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add product</button>
+            {anyBound && (
+              <button onClick={refreshFromMarkets}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}
+                title="Re-pull the current Markets price into every bound row">↻ Refresh from Markets</button>
+            )}
+          </div>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.revenue)}/yr at {input.capacityPct}%</span>
         </div>
       </Section>
@@ -195,7 +215,7 @@ export default function AssumptionsPanel({
                   </select>
                   <select
                     value={row.commodityId ?? ''}
-                    onChange={e => bindCommodity(row.id, e.target.value)}
+                    onChange={e => bindCommodity('varRows', row.id, e.target.value)}
                     style={{ ...IS, fontSize: 11, padding: '5px 4px', cursor: 'pointer' }}
                     aria-label="Linked Markets commodity">
                     <option value="">— manual —</option>
@@ -211,7 +231,7 @@ export default function AssumptionsPanel({
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                 <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0, enabled: true, productId: null, commodityId: null })}
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
-                {input.varRows.some(r => r.commodityId) && (
+                {anyBound && (
                   <button onClick={refreshFromMarkets}
                     style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}
                     title="Re-pull the current Markets price into every bound row">↻ Refresh from Markets</button>
