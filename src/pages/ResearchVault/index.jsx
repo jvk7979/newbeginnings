@@ -59,6 +59,14 @@ export default function ResearchVaultPage({ planId, plan, onNavigate }) {
     return () => unsub();
   }, [planId]);
 
+  // Keep the open ClipModal in sync with live data — after an edit saves,
+  // onSnapshot refreshes `clips`; mirror that into `activeClip` so the
+  // modal's view mode shows the updated values. If the clip was deleted,
+  // close the modal.
+  useEffect(() => {
+    setActiveClip(prev => prev ? (clips.find(c => c.id === prev.id) || null) : prev);
+  }, [clips]);
+
   const changeView = useCallback((next) => {
     setView(next);
     try { localStorage.setItem(VIEW_KEY, next); } catch { /* private mode */ }
