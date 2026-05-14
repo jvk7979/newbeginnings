@@ -95,9 +95,9 @@ async function ensureCommoditiesSeed() {
   await batch.commit();
 }
 
-// ── Four separate contexts ─────────────────────────────────────────────────
+// ── Five separate contexts ─────────────────────────────────────────────────
 // Each one is exposed by a focused hook (useIdeas / usePlans /
-// useProjects / useBackup). Pages that subscribe to only one collection no
+// useProjects / useBackup / useCommodities). Pages that subscribe to only one collection no
 // longer re-render when an unrelated collection changes — the original
 // single-context architecture echoed every Firestore snapshot to every
 // consumer.
@@ -253,7 +253,8 @@ export function AppProvider({ children }) {
   // ── Bulk import ──────────────────────────────────────────────────────────
   const importData = useCallback(async (data) => {
     if (!user) return;
-    for (const name of ['ideas', 'projects', 'plans']) {
+      // Commodities are intentionally excluded — market price data is live, not part of a user backup.
+      for (const name of ['ideas', 'projects', 'plans']) {
       const snap = await getDocs(sharedCol(name));
       if (!snap.empty) {
         const batch = writeBatch(db);
