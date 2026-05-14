@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { C, alpha } from '../../tokens';
 import { PRODUCT_COLORS_EXPORT as PRODUCT_COLORS } from '../../utils/calcEngine';
 import { Section, Stepper, ChipRow, Hint, IS, fmtINR } from '../../components/calc/primitives';
+import { useCommodities } from '../../context/AppContext';
+import { currentPrice } from '../Markets/marketsMath';
 
 // LEFT PANEL — Assumptions. Five collapsible groups: Capacity, Products,
 // Costs (variable/fixed sub-tabs), Financing, Subsidies, Working Capital.
@@ -12,6 +14,34 @@ export default function AssumptionsPanel({
   style,
 }) {
   const [costTab, setCostTab] = useState('fixed');
+  const { commodities } = useCommodities();
+
+  // Bind a variable-cost row to a Markets commodity (or unbind with '').
+  // Binding snapshots the commodity's current price into the row; the price
+  // stays editable afterwards — "Refresh from Markets" re-pulls it.
+  const bindCommodity = (rowId, value) => {
+    if (value === '') {
+      setRow('varRows', rowId, 'commodityId', null);
+      return;
+    }
+    const cid = Number(value);
+    setRow('varRows', rowId, 'commodityId', cid);
+    const com = commodities.find(c => c.id == cid);
+    const snap = com ? currentPrice(com.history) : null;
+    if (snap != null) setRow('varRows', rowId, 'price', snap);
+  };
+
+  // Re-snapshot every bound row's price from its commodity's current price.
+  const refreshFromMarkets = () => {
+    setI({
+      varRows: input.varRows.map(r => {
+        if (!r.commodityId) return r;
+        const com = commodities.find(c => c.id == r.commodityId);
+        const snap = com ? currentPrice(com.history) : null;
+        return snap != null ? { ...r, price: snap } : r;
+      }),
+    });
+  };
 
   return (
     <div className="calc-left calc-assumptions" style={style}>
@@ -147,8 +177,8 @@ export default function AssumptionsPanel({
                 label: p.name || `Product ${pi + 1}`,
               }));
               return (
-                <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.5fr 0.5fr 0.5fr 0.9fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
-                  {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Qty/yr', 'Linked', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
+                <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.5fr 0.5fr 0.5fr 0.9fr 0.9fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+                  {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Qty/yr', 'Linked', 'Mandi', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
                   <input value={row.name} placeholder="Material" onChange={e => setRow('varRows', row.id, 'name', e.target.value)} style={IS} />
                   <input value={row.unit} placeholder="kg" onChange={e => setRow('varRows', row.id, 'unit', e.target.value)} style={IS} />
                   <input type="number" value={row.price} min={0} onChange={e => setRow('varRows', row.id, 'price', e.target.value)} style={IS} />
@@ -163,13 +193,30 @@ export default function AssumptionsPanel({
                       <option key={p.id} value={p.id}>{p.label}</option>
                     ))}
                   </select>
+                  <select
+                    value={row.commodityId ?? ''}
+                    onChange={e => bindCommodity(row.id, e.target.value)}
+                    style={{ ...IS, fontSize: 11, padding: '5px 4px', cursor: 'pointer' }}
+                    aria-label="Linked Markets commodity">
+                    <option value="">— manual —</option>
+                    {commodities.map(com => (
+                      <option key={com.id} value={com.id}>{com.name}</option>
+                    ))}
+                  </select>
                   <button onClick={() => delRow('varRows', row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
                 </div>
               );
             })}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-              <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0, enabled: true, productId: null })}
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0, enabled: true, productId: null, commodityId: null })}
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
+                {input.varRows.some(r => r.commodityId) && (
+                  <button onClick={refreshFromMarkets}
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}
+                    title="Re-pull the current Markets price into every bound row">↻ Refresh from Markets</button>
+                )}
+              </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.variableCosts)}/yr</span>
             </div>
           </>
