@@ -4,6 +4,7 @@ import { useCommodities } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import CommodityCard from './CommodityCard';
 import AddCommodityModal from './AddCommodityModal';
+import AutoFetchSettings from './AutoFetchSettings';
 import EmptyState from './EmptyState';
 
 const todayLabel = () => new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -37,6 +38,8 @@ export default function MarketsPage({ onNavigate }) {
           )}
         </div>
       </div>
+
+      {canAdd && <AutoFetchSettings />}
 
       {commodities.length === 0 ? (
         <EmptyState onAdd={() => setAddOpen(true)} canAdd={canAdd} />

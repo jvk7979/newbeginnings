@@ -276,16 +276,45 @@ async function fetchAgmarknetPrice(apiKey, commodityName) {
   return modals.reduce((a, b) => a + b, 0) / modals.length;
 }
 
-// Runs daily at 6am IST.
+// IST is UTC+5:30 — derive the IST hour / IST calendar-day directly from the
+// epoch so the schedule gate is immune to the server's timezone.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+const istHourOf = (ms) => new Date(ms + IST_OFFSET_MS).getUTCHours();
+const istDayOf  = (ms) => Math.floor((ms + IST_OFFSET_MS) / 86400000);
+
+// Runs hourly. The actual fetch is gated by the marketsConfig/autoFetch doc
+// (UI-controlled from the Markets page): it only runs when not paused, the
+// current IST hour matches the configured hour, and at least `frequencyDays`
+// IST days have passed since the last run. A missing config doc defaults to
+// daily at 6am IST.
 export const syncAgmarknetPrices = onSchedule(
   {
-    schedule: '0 6 * * *',
+    schedule: '0 * * * *',
     timeZone: 'Asia/Kolkata',
     secrets: [DATA_GOV_IN_API_KEY],
     timeoutSeconds: 300,
     memory: '256MiB',
   },
   async () => {
+    const cfgRef = db.doc('marketsConfig/autoFetch');
+    const cfgSnap = await cfgRef.get();
+    const cfg = cfgSnap.exists ? cfgSnap.data() : {};
+    const frequencyDays = Number(cfg.frequencyDays) > 0 ? Number(cfg.frequencyDays) : 1;
+    const hourIST = Number.isInteger(cfg.hourIST) ? cfg.hourIST : 6;
+    const now = Date.now();
+
+    if (cfg.paused === true) {
+      console.log('[syncAgmarknetPrices] paused — skipping.');
+      return;
+    }
+    if (istHourOf(now) !== hourIST) {
+      return; // not the configured hour
+    }
+    if (cfg.lastRunAt && (istDayOf(now) - istDayOf(cfg.lastRunAt)) < frequencyDays) {
+      console.log('[syncAgmarknetPrices] not due yet — skipping.');
+      return;
+    }
+
     const apiKey = DATA_GOV_IN_API_KEY.value();
     const snap = await db.collection('sharedCommodities').get();
     const mapped = snap.docs.filter(d => d.data()?.agmarknet?.name);
@@ -326,6 +355,7 @@ export const syncAgmarknetPrices = onSchedule(
         }
       }
     }
+    await cfgRef.set({ lastRunAt: now }, { merge: true });
     console.log(`[syncAgmarknetPrices] processed ${mapped.length} mapped commodit${mapped.length === 1 ? 'y' : 'ies'}`);
   }
 );
