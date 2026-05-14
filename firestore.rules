@@ -53,6 +53,12 @@ service cloud.firestore {
     match /planDiscussions/{planId}/{document=**} {
       allow read, write: if request.auth != null && isAllowed();
     }
+    // Per-project Research Vault clips — web links, PDFs, quotes, photos
+    // collected against a plan. Mirrors the access model of the parent
+    // sharedPlans collection: any signed-in allowed family member.
+    match /sharedPlans/{planId}/clips/{clipId} {
+      allow read, write: if request.auth != null && isAllowed();
+    }
     // Step 3: per-idea topic threads. ideaTopics holds the topic metadata
     // (title, category, author); ideaTopicComments holds each topic's
     // comment thread (mirrors the existing ideaDiscussions / planDiscussions
