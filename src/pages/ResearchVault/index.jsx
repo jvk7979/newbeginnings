@@ -12,6 +12,8 @@ import AddClipModal from './AddClipModal';
 import ClipModal from './ClipModal';
 import EmptyState from './EmptyState';
 
+// One app-wide view preference (intentionally not per-project) — switching
+// to timeline on any project makes timeline the default everywhere.
 const VIEW_KEY = 'nb_vault_view';
 
 const clipsCol = (planId)     => collection(db, 'sharedPlans', String(planId), 'clips');
@@ -48,7 +50,10 @@ export default function ResearchVaultPage({ planId, plan, onNavigate }) {
     setLoading(true);
     const q = query(clipsCol(planId), orderBy('createdAt', 'desc'));
     const unsub = onSnapshot(q,
-      snap => { setClips(snap.docs.map(d => ({ id: d.id, ...d.data() }))); setLoading(false); },
+      // Each clip doc stores its own numeric `id` (set in handleAddClip),
+      // so d.data() already carries it — consistent with how AppContext
+      // reads ideas/plans.
+      snap => { setClips(snap.docs.map(d => d.data())); setLoading(false); },
       err  => { console.error('[ResearchVault/onSnapshot]', err); setClips([]); setLoading(false); }
     );
     return () => unsub();
