@@ -85,10 +85,14 @@ the app (viewers are read-only).
 
 ### Routing & entry point
 
-- New route `research/<planId>` added to `App.jsx`: `planId` added to the
-  `DETAIL` route list, a new `case 'research'` in `renderPage` resolving the
-  plan by id (reusing `NotFound` when the plan is missing), and a lazy-loaded
-  `ResearchVaultPage` import.
+- New route `research/<planId>` added to `App.jsx`: `research` added to the
+  `DETAIL` route list, a new `case 'research'` in `renderPage`, and a
+  lazy-loaded `ResearchVaultPage` import. The page is **`planId`-driven** — it
+  receives `planId` from the route and fetches clips directly from the
+  subcollection, independent of the in-memory `plans` array. The plan object is
+  passed best-effort for the breadcrumb title (falls back to "Project" if not
+  resolved). `NotFound` is shown only when `planId` itself is absent from the
+  route.
 - `PlanDetailPage` hero toolbar gains a **`Research Vault · N clips`** button
   alongside Export/Edit/Delete. The count is a one-shot lightweight read
   (`getCountFromServer` on the subcollection); if it fails, the button still
@@ -145,8 +149,12 @@ Reused UI: `Tag`, `Badge`, `ConfirmModal`, `useToast`, `UploadZone` /
   is deleted best-effort (swallow failure — the admin orphan scan reclaims any
   leftovers). Quote and web clips have no blob, so their delete is just the
   doc.
-- **Stale / bad route** — `research/<planId>` with no matching plan reuses the
-  existing `NotFound` component with a "← Go back" link to Projects.
+- **Bad route** — `research` with no id segment reuses the existing `NotFound`
+  component with a "← Go back" link to Projects.
+- **Clips snapshot error** — if the `onSnapshot` subscription errors (e.g.
+  permission-denied), clips stay an empty array and the page degrades to the
+  empty state rather than crashing — same defensive pattern as
+  `DiscussionThread`.
 - **Loading / empty** — spinner while the snapshot loads; `EmptyState` when
   there are zero clips; a "no clips match" line when filters exclude everything.
 - **Count query failure** — the header button renders without the `· N clips`
@@ -154,15 +162,26 @@ Reused UI: `Tag`, `Badge`, `ConfirmModal`, `useToast`, `UploadZone` /
 
 ## Testing
 
-New `e2e/research-vault.spec.js` (Playwright, matching the existing suite):
+The project has no unit-test runner — verification is `npm run build`
+(must pass) plus Playwright e2e. The e2e harness (`?e2e=1`) bypasses auth and
+runs with **empty Firestore data**, so e2e covers UI presence and trusts data
+integration via runtime use — the same approach as `e2e/linking.spec.js`.
 
-- Open the vault from the Project Detail header button; breadcrumb renders.
-- Add one clip of each type (web/pdf/quote/photo); each appears in the grid.
-- Toggle to timeline view; a clip appears under the correct week group.
-- Filter chips and search narrow the list.
-- Web clip click opens the URL; pdf/quote/photo click opens `ClipModal`.
-- Edit a clip; delete a clip and exercise Undo.
-- Viewer role: New Clip / edit / delete are hidden.
+Each implementation task ends with a successful `npm run build`.
+
+New `e2e/research-vault.spec.js` (Playwright, matching the existing suite),
+navigating directly via `#/research/1`:
+
+- Vault page renders: breadcrumb, "Research Log" title, **New Clip** button.
+- View toggle (grid ⇄ timeline) is present and switches the active view.
+- Type filter chips render with the correct labels.
+- Search input is present.
+- Empty state renders (no clips exist in e2e mode).
+- **New Clip** opens `AddClipModal` with the type picker.
+- `#/research` with no id renders the `NotFound` component.
+
+Full clip CRUD (add/edit/delete/undo, click behaviour, week grouping, viewer
+permissions) is verified via runtime use against real Firestore.
 
 ## Files touched
 
