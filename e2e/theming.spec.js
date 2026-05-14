@@ -154,7 +154,7 @@ test.describe('SideNav theme identity (#2)', () => {
 
   test('all main nav buttons have .sidenav-item class', async ({ page }) => {
     await goto(page);
-    // 8 items in NAV_ITEMS (Home, Ideas, Projects, Documents, Calculations,
+    // 8 items in NAV_ITEMS (Home, Ideas, Projects, Markets, Calculations,
     // Scenarios, Settings, About). Admin-only Access button is conditional.
     const count = await page.locator('.sidenav-desktop .sidenav-item').count();
     expect(count).toBeGreaterThanOrEqual(8);

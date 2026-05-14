@@ -11,6 +11,7 @@ const PAGES = [
   { hash: 'new-idea',     label: 'New Idea' },
   { hash: 'projects',     label: 'Projects' },
   { hash: 'new-project',  label: 'New Project' },
+  { hash: 'markets',      label: 'Markets' },
   { hash: 'calculations', label: 'Calculations' },
   { hash: 'about',        label: 'About' },
 ];
