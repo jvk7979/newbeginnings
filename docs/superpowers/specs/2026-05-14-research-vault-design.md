@@ -138,12 +138,13 @@ Reused UI: `Tag`, `Badge`, `ConfirmModal`, `useToast`, `UploadZone` /
 - **Upload failures** — `uploadFileToDB` already has a 30s timeout;
   `AddClipModal` stays open with an error toast so input is not lost. The
   Firestore write happens only after the upload resolves.
-- **Delete coordination** — delete the clip's Firestore doc, then best-effort
-  delete the blob (swallow failure; the admin orphan scan reclaims leftovers).
-  Toast offers **Undo**, which re-writes the clip doc — safe because the blob
-  was not yet removed at undo time, or was and the metadata still round-trips
-  for non-file clips. (For file clips, Undo restores the doc; the blob delete
-  is deferred until the undo window closes.)
+- **Delete coordination** — delete the clip's Firestore doc immediately and
+  show a toast with **Undo**. The blob delete (for pdf/photo clips) is
+  *deferred* until the undo window closes: if the user clicks Undo, the clip
+  doc is re-written and the blob is untouched; if the window expires, the blob
+  is deleted best-effort (swallow failure — the admin orphan scan reclaims any
+  leftovers). Quote and web clips have no blob, so their delete is just the
+  doc.
 - **Stale / bad route** — `research/<planId>` with no matching plan reuses the
   existing `NotFound` component with a "← Go back" link to Projects.
 - **Loading / empty** — spinner while the snapshot loads; `EmptyState` when
