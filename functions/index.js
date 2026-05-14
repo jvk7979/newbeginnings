@@ -317,9 +317,13 @@ export const syncAgmarknetPrices = onSchedule(
         });
       } catch (err) {
         console.error('[syncAgmarknetPrices]', commodity.name, err);
-        await ref.update({
-          sync: { at: Date.now(), status: 'error', message: String(err?.message || err).slice(0, 200) },
-        });
+        try {
+          await ref.update({
+            sync: { at: Date.now(), status: 'error', message: String(err?.message || err).slice(0, 200) },
+          });
+        } catch (writeErr) {
+          console.error('[syncAgmarknetPrices] failed to write error status for', commodity.name, writeErr);
+        }
       }
     }
     console.log(`[syncAgmarknetPrices] processed ${mapped.length} mapped commodit${mapped.length === 1 ? 'y' : 'ies'}`);
