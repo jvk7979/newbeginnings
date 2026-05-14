@@ -44,9 +44,6 @@ service cloud.firestore {
     match /sharedPlans/{doc} {
       allow read, write: if request.auth != null && isAllowed();
     }
-    match /sharedFiles/{fileId} {
-      allow read, write: if request.auth != null && isAllowed();
-    }
     match /ideaDiscussions/{ideaId}/{document=**} {
       allow read, write: if request.auth != null && isAllowed();
     }

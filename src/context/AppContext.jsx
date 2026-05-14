@@ -66,31 +66,27 @@ async function ensureSharedData(uid) {
   localStorage.removeItem('nb_plans');
 }
 
-// ── Five separate contexts ─────────────────────────────────────────────────
-// Each one is exposed by a focused hook (useIdeas / usePlans / useFiles /
+// ── Four separate contexts ─────────────────────────────────────────────────
+// Each one is exposed by a focused hook (useIdeas / usePlans /
 // useProjects / useBackup). Pages that subscribe to only one collection no
 // longer re-render when an unrelated collection changes — the original
 // single-context architecture echoed every Firestore snapshot to every
 // consumer.
 const IdeasContext    = createContext(null);
 const PlansContext    = createContext(null);
-const FilesContext    = createContext(null);
 const ProjectsContext = createContext(null);
 const BackupContext   = createContext(null);
-
-const fileRef = (id) => doc(db, 'sharedFiles', String(id));
 
 export function AppProvider({ children }) {
   const { user } = useAuth();
   const [ideas,    setIdeas]    = useState([]);
   const [projects, setProjects] = useState([]);
   const [plans,    setPlans]    = useState([]);
-  const [files,    setFiles]    = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const loadedCount = useRef(0);
 
   useEffect(() => {
-    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setFiles([]); setDataLoading(false); return; }
+    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setDataLoading(false); return; }
 
     loadedCount.current = 0;
     setDataLoading(true);
@@ -98,7 +94,7 @@ export function AppProvider({ children }) {
     const uid = user.uid;
     ensureSharedData(uid);
 
-    const tick = () => { loadedCount.current++; if (loadedCount.current >= 4) setDataLoading(false); };
+    const tick = () => { loadedCount.current++; if (loadedCount.current >= 3) setDataLoading(false); };
     const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
 
     const timeout = setTimeout(() => setDataLoading(false), 5000);
@@ -106,9 +102,8 @@ export function AppProvider({ children }) {
     const u1 = onSnapshot(sharedCol('ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
     const u2 = onSnapshot(sharedCol('projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
     const u3 = onSnapshot(sharedCol('plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
-    const u4 = onSnapshot(collection(db, 'sharedFiles'), s => { setFiles(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
 
-    return () => { u1(); u2(); u3(); u4(); clearTimeout(timeout); };
+    return () => { u1(); u2(); u3(); clearTimeout(timeout); };
   }, [user]);
 
   // ── Ideas ────────────────────────────────────────────────────────────────
@@ -193,29 +188,6 @@ export function AppProvider({ children }) {
     await setDoc(sharedRef('plans', plan.id), plan);
   }, [user]);
 
-  // ── Shared Files ─────────────────────────────────────────────────────────
-  const addFile = useCallback(async (file) => {
-    if (!user) return;
-    const item = { ...file, id: Date.now(), date: todayStr(), addedBy: user.email || user.uid };
-    await setDoc(fileRef(item.id), item);
-  }, [user]);
-
-  const updateFile = useCallback(async (id, patch) => {
-    if (!user) return;
-    await updateDoc(fileRef(id), patch);
-  }, [user]);
-
-  const deleteFile = useCallback(async (id) => {
-    if (!user) return;
-    try {
-      const snap = await getDoc(fileRef(id));
-      const data = snap.data();
-      const blobId = data?.blobId || data?.attachedFile?.blobId;
-      if (blobId) await deleteFileFromDB(blobId);
-    } catch { /* ignore — proceed with Firestore delete regardless */ }
-    await deleteDoc(fileRef(id));
-  }, [user]);
-
   // ── Bulk import ──────────────────────────────────────────────────────────
   const importData = useCallback(async (data) => {
     if (!user) return;
@@ -243,8 +215,6 @@ export function AppProvider({ children }) {
     [ideas, addIdea, updateIdea, deleteIdea, restoreIdea]);
   const plansValue    = useMemo(() => ({ plans, addPlan, updatePlan, deletePlan, restorePlan }),
     [plans, addPlan, updatePlan, deletePlan, restorePlan]);
-  const filesValue    = useMemo(() => ({ files, addFile, updateFile, deleteFile }),
-    [files, addFile, updateFile, deleteFile]);
   const projectsValue = useMemo(() => ({ projects, addProject, updateProject, deleteProject, restoreProject }),
     [projects, addProject, updateProject, deleteProject, restoreProject]);
   const backupValue   = useMemo(() => ({ dataLoading, importData }),
@@ -252,15 +222,13 @@ export function AppProvider({ children }) {
 
   return (
     <ProjectsContext.Provider value={projectsValue}>
-      <FilesContext.Provider value={filesValue}>
-        <PlansContext.Provider value={plansValue}>
-          <IdeasContext.Provider value={ideasValue}>
-            <BackupContext.Provider value={backupValue}>
-              {children}
-            </BackupContext.Provider>
-          </IdeasContext.Provider>
-        </PlansContext.Provider>
-      </FilesContext.Provider>
+      <PlansContext.Provider value={plansValue}>
+        <IdeasContext.Provider value={ideasValue}>
+          <BackupContext.Provider value={backupValue}>
+            {children}
+          </BackupContext.Provider>
+        </IdeasContext.Provider>
+      </PlansContext.Provider>
     </ProjectsContext.Provider>
   );
 }
@@ -268,7 +236,6 @@ export function AppProvider({ children }) {
 // ── Public hooks ───────────────────────────────────────────────────────────
 export function useIdeas()    { return useContext(IdeasContext); }
 export function usePlans()    { return useContext(PlansContext); }
-export function useFiles()    { return useContext(FilesContext); }
 export function useProjects() { return useContext(ProjectsContext); }
 export function useBackup()   { return useContext(BackupContext); }
 
@@ -279,7 +246,6 @@ export function useAppData() {
   return {
     ...useIdeas(),
     ...usePlans(),
-    ...useFiles(),
     ...useProjects(),
     ...useBackup(),
   };

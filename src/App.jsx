@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense, Component } from 'react';
 import { C } from './tokens';
 import logoImg from './assets/logo.webp';
 import { useAuth } from './context/AuthContext';
-import { useIdeas, usePlans, useFiles, useBackup } from './context/AppContext';
+import { useIdeas, usePlans, useBackup } from './context/AppContext';
 import SideNav from './components/SideNav';
 import SignInPage from './pages/SignInPage';
 import Footer from './components/Footer';
@@ -20,8 +20,6 @@ const IdeaDetailPage  = lazy(() => import('./pages/IdeaDetailPage'));
 const PlansPage       = lazy(() => import('./pages/PlansPage'));
 const PlanDetailPage  = lazy(() => import('./pages/PlanDetailPage'));
 const NewPlanPage     = lazy(() => import('./pages/NewPlanPage'));
-const FilesPage       = lazy(() => import('./pages/FilesPage'));
-const FileDetailPage  = lazy(() => import('./pages/FileDetailPage'));
 const AboutPage       = lazy(() => import('./pages/AboutPage'));
 const AccessPage      = lazy(() => import('./pages/AccessPage'));
 const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
@@ -29,8 +27,8 @@ const ScenariosPage    = lazy(() => import('./pages/ScenariosPage'));
 const SettingsPage     = lazy(() => import('./pages/SettingsPage'));
 const ResearchVaultPage = lazy(() => import('./pages/ResearchVault'));
 
-const LINKABLE = ['dashboard', 'ideas', 'projects', 'documents', 'about', 'access', 'calculations', 'scenarios', 'settings'];
-const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'document-detail', 'research'];
+const LINKABLE = ['dashboard', 'ideas', 'projects', 'about', 'access', 'calculations', 'scenarios', 'settings'];
+const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'research'];
 
 const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
@@ -163,7 +161,6 @@ export default function App() {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { ideas } = useIdeas();
   const { plans } = usePlans();
-  const { files } = useFiles();
   const { dataLoading } = useBackup();
 
   const [page,   setPage]   = useState(() => parseHash().page);
@@ -225,7 +222,6 @@ export default function App() {
 
   const idea = ideas.find(i => i.id == itemId);
   const plan = plans.find(p => p.id == itemId);
-  const file = files.find(f => f.id == itemId);
 
   const renderPage = () => {
     switch (page) {
@@ -240,10 +236,6 @@ export default function App() {
         if (!itemId || !plan) return <NotFound label="Project" dest="projects" onNavigate={navigate} />;
         return <PlanDetailPage key={plan.id} plan={plan} onNavigate={navigate} />;
       case 'new-project':    return <NewPlanPage onNavigate={navigate} />;
-      case 'documents':      return <FilesPage onNavigate={navigate} />;
-      case 'document-detail':
-        if (!itemId || !file) return <NotFound label="Document" dest="documents" onNavigate={navigate} />;
-        return <FileDetailPage key={file.id} file={file} onNavigate={navigate} />;
       case 'about':          return <AboutPage onNavigate={navigate} />;
       case 'access':         return <AccessPage onNavigate={navigate} />;
       case 'calculations':   return <CalculationsPage onNavigate={navigate} />;

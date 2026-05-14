@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 import { goto } from './helpers.js';
 
 const ATMO_PAGES = [
-  'ideas', 'projects', 'documents', 'settings', 'about', 'new-idea', 'new-project',
+  'ideas', 'projects', 'settings', 'about', 'new-idea', 'new-project',
 ];
 
 test.describe('Page atmospheric layer (#1)', () => {
@@ -79,13 +79,6 @@ test.describe('Themed empty states (#3)', () => {
     await goto(page, 'projects');
     await expect(page.locator('.empty-state-art').first()).toBeVisible();
     await expect(page.locator('.empty-state .themed-cta').filter({ hasText: /Create a project/i }))
-      .toBeVisible();
-  });
-
-  test('Files empty state has the badge + themed CTA with new copy', async ({ page }) => {
-    await goto(page, 'documents');
-    await expect(page.locator('.empty-state-art').first()).toBeVisible();
-    await expect(page.locator('.empty-state .themed-cta').filter({ hasText: /Add a document/i }))
       .toBeVisible();
   });
 
