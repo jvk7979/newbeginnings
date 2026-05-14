@@ -41,3 +41,10 @@ test('#/commodity-detail with no id renders Not Found', async ({ page }) => {
   await goto(page, 'commodity-detail');
   await expect(page.locator('text=/not found/i').first()).toBeVisible();
 });
+
+test('add-commodity modal has the auto-fetch source field', async ({ page }) => {
+  await goto(page, 'markets');
+  await page.locator('button').filter({ hasText: /Track/ }).first().click();
+  await page.waitForTimeout(200);
+  await expect(page.locator('text=Auto-fetch source').first()).toBeVisible();
+});
