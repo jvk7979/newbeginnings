@@ -36,10 +36,9 @@ test('page does not overflow horizontally', async ({ page }) => {
   expect(overflows).toBe(false);
 });
 
-test('three-column body sections render', async ({ page }) => {
+test('two-column body sections render', async ({ page }) => {
   await expect(page.locator('.dh-section-title').filter({ hasText: 'Featured Ideas' })).toBeVisible();
   await expect(page.locator('.dh-section-title').filter({ hasText: 'Active Projects' })).toBeVisible();
-  await expect(page.locator('.dh-section-title').filter({ hasText: 'Recent Documents' })).toBeVisible();
 });
 
 test('features card renders with the three CTA cards', async ({ page }) => {

@@ -54,12 +54,6 @@ const PAGES = [
     title: 'Calculations',
     desc: 'The financial calculator. Pick a project, enter capex, products, costs, financing, and any subsidies you qualify for. The page shows IRR, NPV, payback, DSCR, and a year-by-year cash-flow projection in real time. Save persists to that project. The Sensitivity tab tells me which inputs move IRR most. The Compare tab lets me put two projects side-by-side.',
   },
-  {
-    icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><circle cx="11" cy="14" r="3"/><path d="M13.5 16.5l2.5 2.5"/></svg>,
-    dest: 'documents',
-    title: 'Documents',
-    desc: "Where the PDFs live — feasibility reports, market studies, government scheme docs, anything I want all of us reading the same copy of. Read directly in the app, no download needed.",
-  },
 ];
 
 const REGIONS = [
@@ -119,9 +113,6 @@ export default function AboutPage({ onNavigate }) {
             </li>
             <li style={{ marginBottom: 10 }}>
               <strong style={{ color: C.fg1 }}>Run the numbers.</strong> Tick "Eligible for Calculations" on the project, then open <button onClick={() => onNavigate('calculations')} style={{ background: 'none', border: 'none', color: C.accent, fontWeight: 600, cursor: 'pointer', padding: 0, font: 'inherit' }}>Calculations</button>. Capex, products, costs, subsidies — IRR, NPV, payback, DSCR all live. Save when I want to lock it in. Use Sensitivity to see which inputs matter most; use Compare to put two projects side-by-side.
-            </li>
-            <li>
-              <strong style={{ color: C.fg1 }}>Keep the documents in one place.</strong> Feasibility reports and market studies live in <button onClick={() => onNavigate('documents')} style={{ background: 'none', border: 'none', color: C.accent, fontWeight: 600, cursor: 'pointer', padding: 0, font: 'inherit' }}>Documents</button> — readable directly in the app, no downloads, same copy for everyone.
             </li>
           </ol>
         </div>

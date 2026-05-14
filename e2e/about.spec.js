@@ -39,10 +39,10 @@ test('"How I use this site" walkthrough renders', async ({ page }) => {
   expect(body).toContain('Promote it to a project');
 });
 
-test('page-by-page guide lists all 5 pages', async ({ page }) => {
+test('page-by-page guide lists all 4 pages', async ({ page }) => {
   await expect(page.locator('text=Page by page').first()).toBeVisible();
   const body = await page.locator('body').innerText();
-  for (const title of ['Home', 'Ideas', 'Projects', 'Calculations', 'Documents']) {
+  for (const title of ['Home', 'Ideas', 'Projects', 'Calculations']) {
     expect(body).toContain(title);
   }
 });

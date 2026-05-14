@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { C } from '../tokens';
-import { useIdeas, usePlans, useFiles } from '../context/AppContext';
+import { useIdeas, usePlans } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import heroImg from '../assets/hero_gpdavari1.webp';
-import { IllIdea, IllPlan, IllDoc } from '../components/illustrations';
+import { IllIdea, IllPlan } from '../components/illustrations';
 import { useReveal } from '../utils/useReveal';
 import { useCountUp } from '../utils/useCountUp';
 
@@ -65,11 +65,6 @@ const ICON_PROJECT = (
 const ICON_SPARKLE = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
     <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>
-  </svg>
-);
-const ICON_DOC = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
   </svg>
 );
 const ICON_CALCULATOR = (
@@ -141,7 +136,6 @@ function SectionHeader({ kicker, title, actionLabel, onAction }) {
 export default function Dashboard({ onNavigate }) {
   const { ideas } = useIdeas();
   const { plans } = usePlans();
-  const { files } = useFiles();
   const { user }  = useAuth();
   const { theme } = useTheme();
   const eyebrow   = THEME_EYEBROW[theme] || THEME_EYEBROW.heritage;
@@ -149,7 +143,6 @@ export default function Dashboard({ onNavigate }) {
   const eligibleCount   = useMemo(() => plans.filter(p => p.eligibleForCalc).length, [plans]);
   const featuredIdeas   = useMemo(() => ideas.slice(0, 3), [ideas]);
   const activeProjects  = useMemo(() => plans.filter(p => p.status === 'active' || !p.status).slice(0, 3), [plans]);
-  const recentDocuments = useMemo(() => files.slice(0, 4), [files]);
 
   // Scroll-reveal observers — one per section so the strip, the
   // three-column body, and the closing tagline each animate in once
@@ -328,41 +321,6 @@ export default function Dashboard({ onNavigate }) {
             )}
           </div>
 
-          {/* Documents */}
-          <div className={`reveal-fade${colsReveal.visible ? ' is-visible' : ''}`}
-               style={{ transitionDelay: '120ms' }}>
-            <SectionHeader
-              kicker="Library"
-              title="Recent Documents"
-              actionLabel={files.length > 0 ? 'View all' : null}
-              onAction={() => onNavigate('documents')}
-            />
-            {recentDocuments.length === 0 ? (
-              <EmptyTile
-                copy="No documents uploaded."
-                btn="Upload Document"
-                art={<IllDoc />}
-                onClick={() => onNavigate('documents')}
-              />
-            ) : (
-              <div className="dh-stack">
-                {recentDocuments.map(f => (
-                  <button key={f.id} onClick={() => onNavigate('document-detail', f)} className="dh-card-row">
-                    <div className="dh-card-row-leaf dh-card-row-leaf-gold" aria-hidden="true">
-                      {ICON_DOC}
-                    </div>
-                    <div className="dh-card-row-body">
-                      <div className="dh-card-row-title">{f.fileName || f.title || 'Untitled'}</div>
-                      <div className="dh-card-row-meta">
-                        <span className="dh-mono">{f.fileName?.split('.').pop()?.toUpperCase() || 'FILE'}</span>
-                        {f.uploadedAt && <span style={{ color: C.fg3 }}>{new Date(f.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* ── Features card — workspace overview with three CTA cards.
