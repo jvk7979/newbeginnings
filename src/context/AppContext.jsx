@@ -26,12 +26,30 @@ const SEED_PLANS = [
   { id: 2, title: 'Coco Peat Unit — Viability Analysis', updated: 'Mar 30, 2026', sectionCount: 3, status: 'draft', summary: '₹50–60 lakh small-scale unit. Marginal case EBITDA near break-even. Works only with grow bag mix, subsidy stack, and Kadiyam anchor buyers.', sections: [{ title: 'Executive Summary', content: 'A ₹50–60 lakh small-scale coco peat unit is a marginal opportunity. EBITDA is near break-even without subsidies. Works only with grow-bag focused mix, full subsidy stack, and Kadiyam nursery buyers locked in advance.' }, { title: 'Market & Buyers', content: 'Kadiyam cluster (600–800 nurseries, 15 km away). Grow bags at ₹65–150/piece carry 3–4× the margin of loose peat.' }, { title: 'Recommendation', content: 'Pursue only if Kadiyam buyer MoU is secured first. CITUS and AP MSME subsidies are essential — apply before committing capital.' }] },
 ];
 
+// Starter commodities seeded on first load — each carries one initial price
+// point so the Markets overview grid renders meaningfully from day one.
+const SEED_COMMODITIES = (() => {
+  const ts = Date.now();
+  const date = new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return [
+    { name: 'Coconut Husk',    unit: '₹/piece',   mandi: 'Rajahmundry mandi', color: 'amber', price: 0.95 },
+    { name: 'Coir Fiber',      unit: '₹/kg',      mandi: 'Rajahmundry mandi', color: 'sage',  price: 24.5 },
+    { name: 'Copra (Milling)', unit: '₹/quintal', mandi: 'Rajahmundry mandi', color: 'clay',  price: 11850 },
+    { name: 'Shell Charcoal',  unit: '₹/kg',      mandi: 'Rajahmundry mandi', color: 'rust',  price: 38.0 },
+  ].map((c, i) => ({
+    id: ts + i,
+    name: c.name, unit: c.unit, mandi: c.mandi, color: c.color, notes: '',
+    addedBy: 'seed', createdAt: ts + i,
+    history: [{ ts, date, price: c.price }],
+  }));
+})();
+
 function todayStr() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // All data lives in shared top-level collections — visible to every signed-in family member
-const SHARED = { ideas: 'sharedIdeas', projects: 'sharedProjects', plans: 'sharedPlans' };
+const SHARED = { ideas: 'sharedIdeas', projects: 'sharedProjects', plans: 'sharedPlans', commodities: 'sharedCommodities' };
 const sharedCol = (name) => collection(db, SHARED[name]);
 const sharedRef = (name, id) => doc(db, SHARED[name], String(id));
 
@@ -66,44 +84,59 @@ async function ensureSharedData(uid) {
   localStorage.removeItem('nb_plans');
 }
 
+// Seed the four starter commodities on first load. Independent of
+// ensureSharedData's ideas/projects/plans migration so it also runs on
+// installs that already have idea data.
+async function ensureCommoditiesSeed() {
+  const snap = await getDocs(sharedCol('commodities'));
+  if (!snap.empty) return;
+  const batch = writeBatch(db);
+  SEED_COMMODITIES.forEach(c => batch.set(sharedRef('commodities', c.id), c));
+  await batch.commit();
+}
+
 // ── Four separate contexts ─────────────────────────────────────────────────
 // Each one is exposed by a focused hook (useIdeas / usePlans /
 // useProjects / useBackup). Pages that subscribe to only one collection no
 // longer re-render when an unrelated collection changes — the original
 // single-context architecture echoed every Firestore snapshot to every
 // consumer.
-const IdeasContext    = createContext(null);
-const PlansContext    = createContext(null);
-const ProjectsContext = createContext(null);
-const BackupContext   = createContext(null);
+const IdeasContext       = createContext(null);
+const PlansContext       = createContext(null);
+const ProjectsContext    = createContext(null);
+const BackupContext      = createContext(null);
+const CommoditiesContext = createContext(null);
 
 export function AppProvider({ children }) {
   const { user } = useAuth();
-  const [ideas,    setIdeas]    = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [plans,    setPlans]    = useState([]);
+  const [ideas,       setIdeas]       = useState([]);
+  const [projects,    setProjects]    = useState([]);
+  const [plans,       setPlans]       = useState([]);
+  const [commodities, setCommodities] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const loadedCount = useRef(0);
 
   useEffect(() => {
-    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setDataLoading(false); return; }
+    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setCommodities([]); setDataLoading(false); return; }
 
     loadedCount.current = 0;
     setDataLoading(true);
 
     const uid = user.uid;
     ensureSharedData(uid);
+    ensureCommoditiesSeed();
 
-    const tick = () => { loadedCount.current++; if (loadedCount.current >= 3) setDataLoading(false); };
+    const tick = () => { loadedCount.current++; if (loadedCount.current >= 4) setDataLoading(false); };
     const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
 
     const timeout = setTimeout(() => setDataLoading(false), 5000);
 
-    const u1 = onSnapshot(sharedCol('ideas'),    s => { setIdeas(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
-    const u2 = onSnapshot(sharedCol('projects'), s => { setProjects(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
-    const u3 = onSnapshot(sharedCol('plans'),    s => { setPlans(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+    const u1 = onSnapshot(sharedCol('ideas'),       s => { setIdeas(sort(s.docs.map(d => d.data())));       tick(); }, () => tick());
+    const u2 = onSnapshot(sharedCol('projects'),    s => { setProjects(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
+    const u3 = onSnapshot(sharedCol('plans'),       s => { setPlans(sort(s.docs.map(d => d.data())));       tick(); }, () => tick());
+    const u4 = onSnapshot(sharedCol('commodities'), s => { setCommodities(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
 
-    return () => { u1(); u2(); u3(); clearTimeout(timeout); };
+    return () => { u1(); u2(); u3(); u4(); clearTimeout(timeout); };
   }, [user]);
 
   // ── Ideas ────────────────────────────────────────────────────────────────
@@ -188,6 +221,35 @@ export function AppProvider({ children }) {
     await setDoc(sharedRef('plans', plan.id), plan);
   }, [user]);
 
+  // ── Commodities ──────────────────────────────────────────────────────────
+  const addCommodity = useCallback(async (commodity) => {
+    if (!user) return;
+    const id = Date.now();
+    const item = {
+      ...commodity,
+      id,
+      createdAt: id,
+      addedBy: user.email || user.uid,
+      history: commodity.history || [],
+    };
+    await setDoc(sharedRef('commodities', id), item);
+  }, [user]);
+
+  const updateCommodity = useCallback(async (id, patch) => {
+    if (!user) return;
+    await updateDoc(sharedRef('commodities', id), patch);
+  }, [user]);
+
+  const deleteCommodity = useCallback(async (id) => {
+    if (!user) return;
+    await deleteDoc(sharedRef('commodities', id));
+  }, [user]);
+
+  const restoreCommodity = useCallback(async (commodity) => {
+    if (!user) return;
+    await setDoc(sharedRef('commodities', commodity.id), commodity);
+  }, [user]);
+
   // ── Bulk import ──────────────────────────────────────────────────────────
   const importData = useCallback(async (data) => {
     if (!user) return;
@@ -211,33 +273,38 @@ export function AppProvider({ children }) {
   // Per-context memoised values. Each value object only re-renders when its
   // own collection or callbacks change — the previous single-value design
   // forced every consumer to re-render on any collection update.
-  const ideasValue    = useMemo(() => ({ ideas, addIdea, updateIdea, deleteIdea, restoreIdea }),
+  const ideasValue       = useMemo(() => ({ ideas, addIdea, updateIdea, deleteIdea, restoreIdea }),
     [ideas, addIdea, updateIdea, deleteIdea, restoreIdea]);
-  const plansValue    = useMemo(() => ({ plans, addPlan, updatePlan, deletePlan, restorePlan }),
+  const plansValue       = useMemo(() => ({ plans, addPlan, updatePlan, deletePlan, restorePlan }),
     [plans, addPlan, updatePlan, deletePlan, restorePlan]);
-  const projectsValue = useMemo(() => ({ projects, addProject, updateProject, deleteProject, restoreProject }),
+  const projectsValue    = useMemo(() => ({ projects, addProject, updateProject, deleteProject, restoreProject }),
     [projects, addProject, updateProject, deleteProject, restoreProject]);
-  const backupValue   = useMemo(() => ({ dataLoading, importData }),
+  const backupValue      = useMemo(() => ({ dataLoading, importData }),
     [dataLoading, importData]);
+  const commoditiesValue = useMemo(() => ({ commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity }),
+    [commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity]);
 
   return (
-    <ProjectsContext.Provider value={projectsValue}>
-      <PlansContext.Provider value={plansValue}>
-        <IdeasContext.Provider value={ideasValue}>
-          <BackupContext.Provider value={backupValue}>
-            {children}
-          </BackupContext.Provider>
-        </IdeasContext.Provider>
-      </PlansContext.Provider>
-    </ProjectsContext.Provider>
+    <CommoditiesContext.Provider value={commoditiesValue}>
+      <ProjectsContext.Provider value={projectsValue}>
+        <PlansContext.Provider value={plansValue}>
+          <IdeasContext.Provider value={ideasValue}>
+            <BackupContext.Provider value={backupValue}>
+              {children}
+            </BackupContext.Provider>
+          </IdeasContext.Provider>
+        </PlansContext.Provider>
+      </ProjectsContext.Provider>
+    </CommoditiesContext.Provider>
   );
 }
 
 // ── Public hooks ───────────────────────────────────────────────────────────
-export function useIdeas()    { return useContext(IdeasContext); }
-export function usePlans()    { return useContext(PlansContext); }
-export function useProjects() { return useContext(ProjectsContext); }
-export function useBackup()   { return useContext(BackupContext); }
+export function useIdeas()       { return useContext(IdeasContext); }
+export function usePlans()       { return useContext(PlansContext); }
+export function useProjects()    { return useContext(ProjectsContext); }
+export function useBackup()      { return useContext(BackupContext); }
+export function useCommodities() { return useContext(CommoditiesContext); }
 
 // Backward-compatible aggregated hook. New code should prefer the focused
 // hooks above; useAppData is retained so existing consumers keep working
@@ -248,5 +315,6 @@ export function useAppData() {
     ...usePlans(),
     ...useProjects(),
     ...useBackup(),
+    ...useCommodities(),
   };
 }
