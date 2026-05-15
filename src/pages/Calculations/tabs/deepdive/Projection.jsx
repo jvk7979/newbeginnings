@@ -4,9 +4,10 @@ import { fmtINR } from '../../../../components/calc/primitives';
 import RevenueEbitdaBarChart from '../../../../components/calc/RevenueEbitdaBarChart';
 import ProjectionTable from '../ProjectionTab';
 
-// 5-year default chart view of revenue + EBITDA. The full year-by-year
-// table is collapsed behind a toggle so the chart claims the page on
-// first paint. Footer shows cumulative and end-window summary metrics.
+// 5-year default chart view of revenue + Operating Profit. The full
+// year-by-year table is collapsed behind a toggle so the chart claims the
+// page on first paint. Footer shows cumulative and end-window summary
+// metrics.
 export default function Projection({ calc }) {
   const [showTable, setShowTable] = useState(false);
   if (!calc.rows || calc.rows.length === 0) {
@@ -38,9 +39,9 @@ export default function Projection({ calc }) {
 
       <div className="calc-projection-footer">
         {[
-          { label: `Cumulative ${windowYears}-yr Revenue`, value: fmtINR(cumRevenue), color: C.fg1 },
-          { label: `Cumulative ${windowYears}-yr EBITDA`,  value: fmtINR(cumEbitda),  color: cumEbitda >= 0 ? '#2a7d3c' : '#c0392b' },
-          { label: `Yr ${windowYears} EBITDA Margin`,      value: `${lastMargin.toFixed(0)}%`, color: lastMargin >= 0 ? '#2a7d3c' : '#c0392b' },
+          { label: `Cumulative ${windowYears}-yr Revenue`,         value: fmtINR(cumRevenue), color: C.fg1 },
+          { label: `Cumulative ${windowYears}-yr Operating Profit`, value: fmtINR(cumEbitda),  color: cumEbitda >= 0 ? '#2a7d3c' : '#c0392b' },
+          { label: `Yr ${windowYears} Operating Margin`,            value: `${lastMargin.toFixed(0)}%`, color: lastMargin >= 0 ? '#2a7d3c' : '#c0392b' },
         ].map(t => (
           <div key={t.label} className="calc-projection-footer-tile">
             <div className="calc-projection-footer-label">{t.label}</div>

@@ -152,7 +152,7 @@ export default function LiveDrivers({ input, calc, setI }) {
             negative: deltaIRR < -0.01,
           },
           {
-            label: 'EBITDA',
+            label: 'Operating Profit',
             value: fmtINR(flexed.ebitda),
             delta: calc.ebitda !== flexed.ebitda ? `${deltaEbitda > 0 ? '+' : ''}${fmtINR(deltaEbitda)}` : null,
             positive: deltaEbitda > 0,

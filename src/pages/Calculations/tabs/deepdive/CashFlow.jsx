@@ -67,7 +67,7 @@ export default function CashFlow({ calc }) {
         {[
           { label: `${yearLabel} Revenue`,    value: fmtINR(row.revenue),                                              color: C.fg1 },
           { label: 'Gross Margin',            value: `${grossMargin.toFixed(1)}%`,                                     color: grossMargin >= 0 ? '#2a7d3c' : '#c0392b' },
-          { label: 'EBITDA Margin',           value: `${ebitdaMargin.toFixed(1)}%`,                                    color: ebitdaMargin >= 0 ? '#2a7d3c' : '#c0392b' },
+          { label: 'Operating Margin',        value: `${ebitdaMargin.toFixed(1)}%`,                                    color: ebitdaMargin >= 0 ? '#2a7d3c' : '#c0392b' },
           { label: 'PAT Margin',              value: `${patMargin.toFixed(1)}%`,                                       color: patMargin >= 0 ? '#2a7d3c' : '#c0392b' },
           { label: 'PAT Take-Home',           value: fmtINR(row.pat),                                                  color: row.pat >= 0 ? '#2a7d3c' : '#c0392b' },
         ].map(t => (

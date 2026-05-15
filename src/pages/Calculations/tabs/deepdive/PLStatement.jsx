@@ -5,17 +5,19 @@ import GlossaryTerm from '../../../../components/calc/GlossaryTerm';
 // Statement-style P&L. Three-column layout: line item / detail / amount.
 // All values reflect Year 1 of the projection — typical year a banker
 // reads. Detail column documents the formula so the engine isn't a black
-// box. Sub-totals (Gross Profit, EBITDA, PBT, PAT) get bold weight and a
-// hairline above them.
+// box. Sub-totals (Gross Profit, Operating Profit, PBT, PAT, Net Profit)
+// get bold weight and a hairline above them.
 export default function PLStatement({ calc, input }) {
   if (!calc.rows || calc.rows.length === 0) {
     return <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, padding: '20px 0', fontStyle: 'italic' }}>Add CAPEX, products and costs to see the P&L.</div>;
   }
   const y1 = calc.rows[0];
-  const grossProfit = y1.revenue - y1.variableCosts;
-  const grossMargin = y1.revenue > 0 ? (grossProfit / y1.revenue) * 100 : 0;
-  const ebitdaMargin = y1.revenue > 0 ? (y1.ebitda / y1.revenue) * 100 : 0;
-  const taxRate = input.taxRate ?? 25;
+  const grossProfit  = y1.revenue - y1.variableCosts;
+  const grossMargin  = y1.revenue > 0 ? (grossProfit / y1.revenue) * 100 : 0;
+  const opMargin     = y1.revenue > 0 ? (y1.ebitda / y1.revenue) * 100 : 0;
+  const netProfit    = y1.netProfit ?? (y1.ebitda - y1.interest - y1.tax - y1.principal);
+  const netMargin    = y1.revenue > 0 ? (netProfit / y1.revenue) * 100 : 0;
+  const taxRate      = input.taxRate ?? 25;
 
   // Each entry: [label, detail, amount, options]
   // options: { bold, subtotal (hairline above), positive, negative, indent }
@@ -25,11 +27,11 @@ export default function PLStatement({ calc, input }) {
     { label: 'Variable Costs',   term: 'Variable Costs',      detail: `Σ raw material × qty × ${y1CapacityPct}% capacity`,   amount: -y1.variableCosts,   indent: true,  negative: true },
     { label: 'Gross Profit',     term: 'Gross Profit',        detail: `${grossMargin.toFixed(1)}% gross margin`, amount: grossProfit,       subtotal: true, bold: true },
 
-    // Engine excludes disabled fixed rows from EBITDA — keep these
-    // line items in lockstep so the statement reconciles to the EBITDA
-    // total below. Without this filter, a disabled row would render
-    // as a deduction in the table while the EBITDA value below would
-    // (correctly) ignore it, breaking the chain.
+    // Engine excludes disabled fixed rows from Operating Profit — keep
+    // these line items in lockstep so the statement reconciles to the
+    // Operating Profit total below. Without this filter, a disabled row
+    // would render as a deduction in the table while the Operating Profit
+    // value below would (correctly) ignore it, breaking the chain.
     ...input.fixedRows.filter(r => r.enabled !== false && Number(r.amount) > 0).map(r => ({
       label: r.name || 'Fixed Cost',
       term: 'Fixed Costs',
@@ -39,7 +41,7 @@ export default function PLStatement({ calc, input }) {
       negative: true,
     })),
 
-    { label: 'EBITDA',           term: 'EBITDA',              detail: `${ebitdaMargin.toFixed(1)}% EBITDA margin`, amount: y1.ebitda,        subtotal: true, bold: true,
+    { label: 'Operating Profit', term: 'Operating Profit',    detail: `${opMargin.toFixed(1)}% operating margin`, amount: y1.ebitda,        subtotal: true, bold: true,
       positive: y1.ebitda >= 0, negative: y1.ebitda < 0 },
 
     { label: 'Depreciation',     term: 'Depreciation',        detail: '15% WDV on remaining book value',        amount: -y1.depreciation,    indent: true,  negative: true },
@@ -51,8 +53,13 @@ export default function PLStatement({ calc, input }) {
 
     { label: 'Tax',              term: null,                  detail: `${taxRate}% effective rate`,              amount: -y1.tax,            indent: true,  negative: y1.tax > 0 },
 
-    { label: 'PAT',              term: 'PAT',                 detail: 'Profit after tax',                        amount: y1.pat,             subtotal: true, bold: true,
+    { label: 'PAT',              term: 'PAT',                 detail: 'Profit after tax (accounting view)',      amount: y1.pat,             subtotal: true, bold: true,
       positive: y1.pat >= 0, negative: y1.pat < 0 },
+
+    { label: 'Loan Principal',   term: null,                  detail: 'Year 1 principal repayment',              amount: -y1.principal,      indent: true,  negative: y1.principal > 0 },
+
+    { label: 'Net Profit',       term: 'Net Profit',          detail: `${netMargin.toFixed(1)}% net margin · cash after interest, tax, principal`, amount: netProfit, subtotal: true, bold: true,
+      positive: netProfit >= 0, negative: netProfit < 0 },
   ];
 
   return (

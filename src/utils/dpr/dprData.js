@@ -92,7 +92,8 @@ export function buildDPRData({ input, calc, project }) {
       { label: 'NPV',              value: fmtCompact(calc.npv),                       sub: `at ${dr}% discount` },
       { label: 'Payback',          value: calc.payback !== null ? `${calc.payback} year${calc.payback !== 1 ? 's' : ''}` : '> lifetime', sub: `${tn}-yr loan tenure` },
       { label: 'Y1 DSCR',          value: calc.dscrY1 !== null ? calc.dscrY1.toFixed(2) : '—', sub: '≥ 1.25 comfortable' },
-      { label: 'EBITDA',           value: fmtCompact(calc.ebitda),                    sub: `${calc.ebitdaMargin.toFixed(1)}% margin` },
+      { label: 'Operating Profit', value: fmtCompact(calc.ebitda),                    sub: `${calc.ebitdaMargin.toFixed(1)}% margin` },
+      { label: 'Net Profit (Y1)',  value: fmtCompact(calc.netProfitY1 ?? 0),          sub: `after interest, tax, principal` },
       { label: 'Annual Revenue',   value: fmtCompact(calc.revenue),                   sub: `at ${ceiling}% ceiling` },
     ],
   };
@@ -170,7 +171,7 @@ export function buildDPRData({ input, calc, project }) {
     { label: 'Less: Variable Costs', amount: -(y1.variableCosts || 0),  detail: `Σ raw material × qty × ${(y1.capacityPct ?? 0).toFixed(0)}% capacity`, indent: true },
     { label: 'Gross Profit',      amount: grossProfit,                  detail: `${y1.revenue ? ((grossProfit / y1.revenue) * 100).toFixed(1) : 0}% gross margin`, subtotal: true },
     ...fixedCosts.map(f => ({ label: `Less: ${f.name}`, amount: -f.annualValue, detail: 'Annual fixed cost', indent: true })),
-    { label: 'EBITDA',            amount: y1.ebitda || 0,               detail: `${y1.revenue ? ((y1.ebitda / y1.revenue) * 100).toFixed(1) : 0}% EBITDA margin`, subtotal: true },
+    { label: 'Operating Profit',  amount: y1.ebitda || 0,               detail: `${y1.revenue ? ((y1.ebitda / y1.revenue) * 100).toFixed(1) : 0}% operating margin`, subtotal: true },
     { label: 'Less: Depreciation', amount: -(y1.depreciation || 0),     detail: '15% WDV on remaining book value', indent: true },
     { label: 'Less: Interest',    amount: -(y1.interest || 0),          detail: `${finance.interestRate}% on Y1 loan balance`, indent: true },
     ...(y1.subvention > 0
@@ -178,7 +179,9 @@ export function buildDPRData({ input, calc, project }) {
       : []),
     { label: 'PBT',               amount: y1.ebt || 0,                  detail: 'Profit before tax', subtotal: true },
     { label: 'Less: Tax',         amount: -(y1.tax || 0),               detail: `${taxRate}% effective rate`, indent: true },
-    { label: 'PAT',               amount: y1.pat || 0,                  detail: 'Profit after tax (take-home)', subtotal: true },
+    { label: 'PAT',               amount: y1.pat || 0,                  detail: 'Profit after tax (accounting view)', subtotal: true },
+    { label: 'Less: Loan Principal', amount: -(y1.principal || 0),      detail: 'Year 1 principal repayment', indent: true },
+    { label: 'Net Profit',        amount: (y1.netProfit ?? ((y1.ebitda || 0) - (y1.interest || 0) - (y1.tax || 0) - (y1.principal || 0))), detail: `${y1.revenue ? (((y1.netProfit ?? 0) / y1.revenue) * 100).toFixed(1) : 0}% net margin · cash after interest, tax, principal`, subtotal: true },
   ];
 
   // 5-year projection table — slice all rows; bankers want the full
@@ -214,7 +217,7 @@ export function buildDPRData({ input, calc, project }) {
     { label: 'Working Capital',   value: fmtCompact(calc.workingCapital),                                                              threshold: `${finance.receivableDays}R + ${finance.inventoryDays}I − ${finance.payableDays}P d` },
   ];
 
-  // Sensitivity — top 3 drivers ranked by EBITDA impact
+  // Sensitivity — top 3 drivers ranked by Operating Profit impact
   const sensitivity = (() => {
     try {
       const { rows } = runSensitivity(input, 20);
@@ -228,7 +231,7 @@ export function buildDPRData({ input, calc, project }) {
         driver: r.label,
         deltaLow: r.deltaEbitdaLow,
         deltaHigh: r.deltaEbitdaHigh,
-        // Swing = max abs delta as a % of base EBITDA
+        // Swing = max abs delta as a % of base Operating Profit
         swingPct: Math.abs(r.base.ebitda) > 0
           ? (Math.max(Math.abs(r.deltaEbitdaLow), Math.abs(r.deltaEbitdaHigh)) / Math.abs(r.base.ebitda)) * 100
           : 0,

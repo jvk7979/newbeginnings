@@ -5,17 +5,18 @@ import { fmtINR } from '../../../components/calc/primitives';
 import { loadScenarios, saveScenarios } from '../../../utils/scenarios';
 
 // Per-metric "winner direction" — used to decide which column wins on
-// each comparison row. Higher is better for IRR/NPV/EBITDA/DSCR;
-// lower is better for Payback / Effective CAPEX (smaller capex on the
-// same returns is more efficient).
+// each comparison row. Higher is better for IRR/NPV/Profit/DSCR; lower
+// is better for Payback / Effective CAPEX (smaller capex on the same
+// returns is more efficient).
 const COMPARE_METRICS = [
-  { key: 'irr',          label: 'IRR',             higherWins: true,  fmt: (v) => v.irr  !== null ? `${v.irr.toFixed(1)}%` : '—', score: (v) => v.irr ?? -Infinity },
-  { key: 'npv',          label: 'NPV',             higherWins: true,  fmt: (v) => fmtINR(v.npv),                                  score: (v) => v.npv ?? -Infinity },
-  { key: 'payback',      label: 'Payback',         higherWins: false, fmt: (v) => v.payback !== null ? `${v.payback} yr` : '> life', score: (v) => v.payback ?? Infinity },
-  { key: 'dscrY1',       label: 'Y1 DSCR',         higherWins: true,  fmt: (v) => v.dscrY1 !== null ? v.dscrY1.toFixed(2) : '—', score: (v) => v.dscrY1 ?? -Infinity },
-  { key: 'ebitda',       label: 'EBITDA',          higherWins: true,  fmt: (v) => fmtINR(v.ebitda),                               score: (v) => v.ebitda },
-  { key: 'ebitdaMargin', label: 'EBITDA Margin',   higherWins: true,  fmt: (v) => `${v.ebitdaMargin.toFixed(1)}%`,                score: (v) => v.ebitdaMargin },
-  { key: 'effectiveCapex', label: 'Effective CAPEX', higherWins: false, fmt: (v) => fmtINR(v.effectiveCapex),                     score: (v) => v.effectiveCapex },
+  { key: 'irr',             label: 'IRR',              higherWins: true,  fmt: (v) => v.irr  !== null ? `${v.irr.toFixed(1)}%` : '—', score: (v) => v.irr ?? -Infinity },
+  { key: 'npv',             label: 'NPV',              higherWins: true,  fmt: (v) => fmtINR(v.npv),                                  score: (v) => v.npv ?? -Infinity },
+  { key: 'payback',         label: 'Payback',          higherWins: false, fmt: (v) => v.payback !== null ? `${v.payback} yr` : '> life', score: (v) => v.payback ?? Infinity },
+  { key: 'dscrY1',          label: 'Y1 DSCR',          higherWins: true,  fmt: (v) => v.dscrY1 !== null ? v.dscrY1.toFixed(2) : '—', score: (v) => v.dscrY1 ?? -Infinity },
+  { key: 'ebitda',          label: 'Operating Profit', higherWins: true,  fmt: (v) => fmtINR(v.ebitda),                               score: (v) => v.ebitda },
+  { key: 'ebitdaMargin',    label: 'Operating Margin', higherWins: true,  fmt: (v) => `${v.ebitdaMargin.toFixed(1)}%`,                score: (v) => v.ebitdaMargin },
+  { key: 'netProfitY1',     label: 'Net Profit (Y1)',  higherWins: true,  fmt: (v) => fmtINR(v.netProfitY1 ?? 0),                     score: (v) => v.netProfitY1 ?? 0 },
+  { key: 'effectiveCapex',  label: 'Effective CAPEX',  higherWins: false, fmt: (v) => fmtINR(v.effectiveCapex),                       score: (v) => v.effectiveCapex },
 ];
 
 export default function Scenarios({ projectId, currentInput, currentCalc, loadScenario }) {
@@ -170,7 +171,7 @@ export default function Scenarios({ projectId, currentInput, currentCalc, loadSc
                 </div>
                 <div className="calc-scenarios-card-kpis">
                   <span><em>IRR</em> <strong>{irrText}</strong></span>
-                  <span><em>EBITDA</em> <strong style={{ color: sCalc.ebitda >= 0 ? '#2a7d3c' : '#c0392b' }}>{fmtINR(sCalc.ebitda)}</strong></span>
+                  <span><em>Op. Profit</em> <strong style={{ color: sCalc.ebitda >= 0 ? '#2a7d3c' : '#c0392b' }}>{fmtINR(sCalc.ebitda)}</strong></span>
                   <span><em>Payback</em> <strong>{paybackText}</strong></span>
                 </div>
                 <div className="calc-scenarios-card-actions">

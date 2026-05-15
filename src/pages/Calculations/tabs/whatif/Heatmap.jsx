@@ -58,7 +58,8 @@ const AXES = [
 const METRICS = [
   { key: 'irr',     label: 'IRR',         higherWins: true,  fmt: (r) => r.irr  !== null ? `${r.irr.toFixed(1)}%` : '—', score: (r) => r.irr ?? -Infinity },
   { key: 'npv',     label: 'NPV',         higherWins: true,  fmt: (r) => fmtINR(r.npv),                                  score: (r) => r.npv ?? -Infinity },
-  { key: 'ebitda',  label: 'EBITDA Y1',   higherWins: true,  fmt: (r) => fmtINR(r.rows[0]?.ebitda ?? 0),                 score: (r) => r.rows[0]?.ebitda ?? 0 },
+  { key: 'ebitda',  label: 'Op. Profit Y1', higherWins: true,  fmt: (r) => fmtINR(r.rows[0]?.ebitda ?? 0),               score: (r) => r.rows[0]?.ebitda ?? 0 },
+  { key: 'netY1',   label: 'Net Profit Y1', higherWins: true,  fmt: (r) => fmtINR(r.rows[0]?.netProfit ?? 0),            score: (r) => r.rows[0]?.netProfit ?? 0 },
   { key: 'payback', label: 'Payback',     higherWins: false, fmt: (r) => r.payback !== null ? `${r.payback}y` : '> life', score: (r) => r.payback ?? 99 },
   { key: 'dscrY1',  label: 'Y1 DSCR',     higherWins: true,  fmt: (r) => r.dscrY1 !== null ? r.dscrY1.toFixed(2) : '—',  score: (r) => r.dscrY1 ?? 0 },
 ];

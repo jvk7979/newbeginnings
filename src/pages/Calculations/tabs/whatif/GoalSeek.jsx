@@ -14,7 +14,8 @@ import { fmtINR } from '../../../../components/calc/primitives';
 const TARGETS = [
   { key: 'irr',     label: 'IRR',       unit: '%',  metric: (r) => r.irr },
   { key: 'npv',     label: 'NPV',       unit: '₹',  metric: (r) => r.npv },
-  { key: 'ebitda',  label: 'EBITDA Y1', unit: '₹',  metric: (r) => r.rows[0]?.ebitda ?? 0 },
+  { key: 'ebitda',  label: 'Op. Profit Y1', unit: '₹',  metric: (r) => r.rows[0]?.ebitda ?? 0 },
+  { key: 'netY1',   label: 'Net Profit Y1', unit: '₹',  metric: (r) => r.rows[0]?.netProfit ?? 0 },
   { key: 'payback', label: 'Payback',   unit: 'yr', metric: (r) => r.payback ?? 99 },
   { key: 'dscrY1',  label: 'Y1 DSCR',   unit: '',   metric: (r) => r.dscrY1 ?? 0 },
 ];

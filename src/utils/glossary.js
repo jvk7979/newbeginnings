@@ -14,17 +14,23 @@ export const GLOSSARY = {
     'Positive NPV means the project earns more than the cost of capital; negative means it doesn\'t.',
 
   DSCR:
-    'Debt Service Coverage Ratio. EBITDA ÷ (Principal + Interest) for the year. ' +
-    'Banks expect ≥ 1.25 for comfort; ≥ 1.5 is strong. Below 1.0 means EBITDA can\'t cover debt service. ' +
+    'Debt Service Coverage Ratio. Operating Profit ÷ (Principal + Interest) for the year. ' +
+    'Banks expect ≥ 1.25 for comfort; ≥ 1.5 is strong. Below 1.0 means Operating Profit can\'t cover debt service. ' +
     'Y1 DSCR is shown on the dashboard because it\'s usually the binding year.',
 
   Payback:
     'Years until cumulative net cash flow turns positive — i.e., the year you recover your initial equity. ' +
     'Shorter is better. The model uses integer-year resolution.',
 
-  EBITDA:
-    'Earnings Before Interest, Tax, Depreciation, Amortisation. The "pure operating profit" before financing ' +
-    'decisions and accounting allocations. Calculated as Revenue − Variable Costs − Fixed Costs.',
+  'Operating Profit':
+    'Revenue − Variable Costs − Fixed Costs. The annual cash profit from the core business, before financing ' +
+    'decisions (interest, principal repayment) and accounting allocations (depreciation, tax). ' +
+    'Same as EBITDA in accounting textbooks.',
+
+  'Net Profit':
+    'Operating Profit − Interest − Tax − Loan Principal. The cash actually left over after the bank EMI and the ' +
+    'taxman are paid each year. Differs from PAT in that it excludes the non-cash depreciation deduction and ' +
+    'explicitly subtracts the loan principal repayment — closer to "money in your pocket" than the accounting PAT.',
 
   CAPEX:
     'Capital Expenditure. The one-time investment in plant, machinery, land, civil work etc. — before subsidies. ' +
@@ -70,13 +76,14 @@ export const GLOSSARY = {
     'MSME term loans typically run 5–10 years.',
 
   PAT:
-    'Profit After Tax. PBT − Tax. The "take-home" earnings after every deduction. Negative PAT means a loss year.',
+    'Profit After Tax. PBT − Tax. The accounting "earnings after every deduction." Includes depreciation ' +
+    '(non-cash) and excludes loan principal — for a cash-only view of profit, see Net Profit instead.',
 
   PBT:
-    'Profit Before Tax. EBITDA − Depreciation − Interest. Drives the year\'s tax bill (no tax when PBT is negative).',
+    'Profit Before Tax. Operating Profit − Depreciation − Interest. Drives the year\'s tax bill (no tax when PBT is negative).',
 
   EBT:
-    'Earnings Before Tax (same as PBT). EBITDA − Depreciation − Interest.',
+    'Earnings Before Tax (same as PBT). Operating Profit − Depreciation − Interest.',
 
   'PMEGP':
     'Prime Minister\'s Employment Generation Programme. Manufacturing subsidy capped at ₹50L of project cost; ' +

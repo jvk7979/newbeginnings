@@ -11,17 +11,18 @@ import { useCountUp } from '../../utils/useCountUp';
 // Single dominant gauge for the headline metric, icon-led tiles for the rest.
 export default function MetricDashboard({
   calc, input, dr, tn,
-  irrColor, npvColor, paybackColor, ebitdaColor,
+  irrColor, npvColor, paybackColor, ebitdaColor, netProfitColor,
 }) {
   // Count-up gated on the dashboard scrolling into view. On Calculations
   // the dashboard usually mounts inside the viewport so the tween starts
   // straight away; the observer is here so a long page that pushes it
   // below the fold still gets the count-up beat once it appears.
   const reveal = useReveal();
-  const revenueAnim = useCountUp(calc.revenue, { enabled: reveal.visible });
-  const ebitdaAnim  = useCountUp(calc.ebitda,  { enabled: reveal.visible });
-  const npvAnim     = useCountUp(calc.npv,     { enabled: reveal.visible });
-  const paybackAnim = useCountUp(calc.payback ?? 0, { enabled: reveal.visible, duration: 500 });
+  const revenueAnim   = useCountUp(calc.revenue,     { enabled: reveal.visible });
+  const ebitdaAnim    = useCountUp(calc.ebitda,      { enabled: reveal.visible });
+  const netProfitAnim = useCountUp(calc.netProfitY1, { enabled: reveal.visible });
+  const npvAnim       = useCountUp(calc.npv,         { enabled: reveal.visible });
+  const paybackAnim   = useCountUp(calc.payback ?? 0, { enabled: reveal.visible, duration: 500 });
 
   return (
     <div ref={reveal.ref} className="calc-metric-dashboard">
@@ -84,12 +85,20 @@ export default function MetricDashboard({
             chart: <Sparkline values={calc.rows.map(r => r.revenue)} color={C.accent} width={120} height={26} />,
           },
           {
-            label: 'EBITDA',
+            label: 'Operating Profit',
             value: fmtINR(ebitdaAnim),
-            sub: `${calc.ebitdaMargin.toFixed(0)}% margin`,
+            sub: `${calc.ebitdaMargin.toFixed(0)}% margin · at ceiling`,
             color: ebitdaColor,
             icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
             chart: <Sparkline values={calc.rows.map(r => r.ebitda)} color={ebitdaColor} width={120} height={26} />,
+          },
+          {
+            label: 'Net Profit',
+            value: fmtINR(netProfitAnim),
+            sub: `Y1 · after interest, tax, principal`,
+            color: netProfitColor,
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><path d="M19 19l2 2"/></svg>,
+            chart: <Sparkline values={calc.rows.map(r => r.netProfit ?? 0)} color={netProfitColor} width={120} height={26} />,
           },
           {
             label: 'NPV',

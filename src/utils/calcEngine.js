@@ -224,9 +224,14 @@ export function runCalc(input) {
     const tax         = Math.max(0, ebt * (num(taxRate) / 100));
     const pat         = ebt - tax;
     const ncf         = pat + depreciation - principal + subvention;
+    // Net Profit (the user-facing "cash left after operating + debt + tax")
+    // = Operating Profit − Interest − Tax − Principal. Differs from PAT in
+    // that it excludes the depreciation deduction (depreciation isn't a
+    // real rupee outflow) and explicitly subtracts loan principal.
+    const netProfit   = ebitdaYr - interest - tax - principal;
     cumNCF += ncf;
     const dscr = (principal + interest) > 0 ? ebitdaYr / (principal + interest) : null;
-    rows.push({ t, capacityPct: capYr * 100, revenue: revYr, variableCosts: varYr, fixedCosts: fixedYr, ebitda: ebitdaYr, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, cumNCF, dscr, loanBalance });
+    rows.push({ t, capacityPct: capYr * 100, revenue: revYr, variableCosts: varYr, fixedCosts: fixedYr, ebitda: ebitdaYr, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, netProfit, cumNCF, dscr, loanBalance });
   }
 
   const totalSubvention = rows.reduce((s, r) => s + r.subvention, 0);
@@ -255,8 +260,18 @@ export function runCalc(input) {
 
   const dscrY1 = rows[0]?.dscr ?? null;
 
+  // Headline Net Profit for the dashboard — Year-1 figure (the year the
+  // loan is fully active and most painful). Subsequent years climb as
+  // capacity ramps and loan interest declines; Y1 is the conservative
+  // "first year reality" most banker-style DPRs surface.
+  const netProfitY1       = rows[0]?.netProfit ?? 0;
+  const netProfitY1Margin = (rows[0]?.revenue || 0) > 0
+    ? (netProfitY1 / rows[0].revenue) * 100
+    : 0;
+
   return {
     effectiveCapex, equity, loan, revenue, variableCosts, fixedCosts, ebitda, ebitdaMargin,
+    netProfitY1, netProfitY1Margin,
     rows, irr, npv, payback, breakEvenRev, breakEvenCapacity, workingCapital,
     revenueByProduct, dscrY1, totalSubvention,
   };

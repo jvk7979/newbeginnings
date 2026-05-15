@@ -1,11 +1,11 @@
 import { C } from '../../tokens';
 import { fmtShort } from './primitives';
 
-// Cash Flow Waterfall: Revenue → Variable → Fixed → EBITDA → Depr →
-// Interest → PBT → Tax → PAT. Each "subtract" step is a floating
+// Cash Flow Waterfall: Revenue → Variable → Fixed → Operating Profit →
+// Depr → Interest → PBT → Tax → PAT. Each "subtract" step is a floating
 // rectangle between its in-value and out-value (the running total
-// before vs after). Subtotals (EBITDA, PBT, PAT) are full bars from
-// the zero line. Dashed connector lines between adjacent bars trace
+// before vs after). Subtotals (Operating Profit, PBT, PAT) are full bars
+// from the zero line. Dashed connector lines between adjacent bars trace
 // the running total so the eye follows the deductions chain.
 //
 // Caller passes a row from calc.rows (Year 1 by default). All step
@@ -34,7 +34,7 @@ export default function RevenueToProfitWaterfall({ row }) {
     { key: 'revenue', label: 'Revenue',    kind: 'total',    in: 0,                       out: row.revenue },
     { key: 'var',     label: '− Variable', kind: 'subtract', in: row.revenue,             out: ebitdaAfterVar },
     { key: 'fixed',   label: '− Fixed',    kind: 'subtract', in: ebitdaAfterVar,          out: ebitda },
-    { key: 'ebitda',  label: 'EBITDA',     kind: 'subtotal', in: 0,                       out: ebitda },
+    { key: 'ebitda',  label: 'Op. Profit', kind: 'subtotal', in: 0,                       out: ebitda },
     { key: 'depr',    label: '− Depr',     kind: 'subtract', in: ebitda,                  out: ebitda - row.depreciation },
     { key: 'int',     label: '− Interest', kind: 'subtract', in: ebitda - row.depreciation, out: pbt },
     { key: 'pbt',     label: 'PBT',        kind: 'subtotal', in: 0,                       out: pbt },

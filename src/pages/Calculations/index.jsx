@@ -150,6 +150,10 @@ export default function CalculationsPage({ onNavigate }) {
   const paybackColor = !hasData || calc.payback === null ? C.fg2 : calc.payback < tn * 0.6 ? '#2a7d3c' : calc.payback < tn * 0.8 ? '#b06000' : '#c0392b';
   const dscrColor    = !hasData || calc.dscrY1 === null ? C.fg2 : calc.dscrY1 >= 1.5 ? '#2a7d3c' : calc.dscrY1 >= 1.25 ? '#b06000' : '#c0392b';
   const ebitdaColor  = !hasData ? C.fg2 : calc.ebitda > 0 ? '#2a7d3c' : '#c0392b';
+  // Net Profit (Y1, after interest+tax+principal) — same green/red rule as
+  // EBITDA. A negative Y1 net profit isn't fatal (later years usually
+  // recover as capacity ramps + loan balance falls), but it's a flag.
+  const netProfitColor = !hasData ? C.fg2 : (calc.netProfitY1 ?? 0) > 0 ? '#2a7d3c' : '#c0392b';
 
   const sliderMin = 10, sliderMax = 100;
   const bePct  = calc.breakEvenCapacity !== null ? Math.min(sliderMax, Math.max(sliderMin, calc.breakEvenCapacity)) : null;
@@ -188,6 +192,7 @@ export default function CalculationsPage({ onNavigate }) {
         npvColor={npvColor}
         paybackColor={paybackColor}
         ebitdaColor={ebitdaColor}
+        netProfitColor={netProfitColor}
       />
 
       <div className="calc-panels">

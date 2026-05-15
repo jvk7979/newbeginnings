@@ -272,7 +272,8 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
               { label: 'Revenue',         value: fmtINR(calc.revenue),                                          color: C.fg1 },
               { label: 'Variable',        value: '−' + fmtINR(calc.variableCosts),                              color: '#c0392b' },
               { label: 'Operating Costs', value: '−' + fmtINR(calc.variableCosts + calc.fixedCosts),            color: '#c0392b' },
-              { label: 'EBITDA',          value: fmtINR(calc.ebitda),                                           color: calc.ebitda >= 0 ? '#2a7d3c' : '#c0392b' },
+              { label: 'Operating Profit', value: fmtINR(calc.ebitda),                                          color: calc.ebitda >= 0 ? '#2a7d3c' : '#c0392b' },
+              { label: 'Net Profit (Y1)',  value: fmtINR(calc.netProfitY1 ?? 0),                                color: (calc.netProfitY1 ?? 0) >= 0 ? '#2a7d3c' : '#c0392b' },
             ].map(t => (
               <div key={t.label} className="calc-quick-kpi-tile">
                 <div className="calc-quick-kpi-label">{t.label}</div>

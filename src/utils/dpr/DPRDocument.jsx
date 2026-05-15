@@ -546,7 +546,7 @@ function PLStatementSection({ plStatement }) {
       <Text style={styles.sectionEyebrow}>SECTION 4</Text>
       <Text style={styles.sectionTitle}>Year-1 P&amp;L Statement</Text>
       <Text style={styles.sectionLead}>
-        Year-1 deductions chain: Revenue → Variable → Fixed → EBITDA → Depreciation → Interest → PBT → Tax → PAT.
+        Year-1 deductions chain: Revenue → Variable → Fixed → Operating Profit → Depreciation → Interest → PBT → Tax → PAT → Principal → Net Profit.
         Detail column documents the formula source for each line.
       </Text>
 
@@ -607,10 +607,11 @@ function ProjectionSection({ projection }) {
           <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right' }]}>REVENUE</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>VAR</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>FIXED</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>EBITDA</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>OP. PROFIT</Text>
           <Text style={[styles.tableHeaderCell, { flex: 0.9, textAlign: 'right' }]}>DEPR</Text>
           <Text style={[styles.tableHeaderCell, { flex: 0.9, textAlign: 'right' }]}>INT</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>PAT</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>NET PROFIT</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>NCF</Text>
           <Text style={[styles.tableHeaderCell, { flex: 0.6, textAlign: 'right' }]}>DSCR</Text>
         </View>
@@ -627,6 +628,7 @@ function ProjectionSection({ projection }) {
               <Text style={[styles.tableCell, styles.tableCellRight, { flex: 0.9, color: COLORS.fg3 }]}>{fmtCompact(r.depreciation)}</Text>
               <Text style={[styles.tableCell, styles.tableCellRight, { flex: 0.9, color: COLORS.fg3 }]}>{fmtCompact(r.interest)}</Text>
               <Text style={[styles.tableCell, styles.tableCellRight, { flex: 1, color: r.pat >= 0 ? COLORS.fg1 : COLORS.red }]}>{fmtCompact(r.pat)}</Text>
+              <Text style={[styles.tableCell, styles.tableCellRight, styles.tableCellBold, { flex: 1, color: (r.netProfit ?? 0) >= 0 ? COLORS.green : COLORS.red }]}>{fmtCompact(r.netProfit ?? 0)}</Text>
               <Text style={[styles.tableCell, styles.tableCellRight, styles.tableCellBold, { flex: 1, color: r.ncf >= 0 ? COLORS.green : COLORS.red }]}>{fmtCompact(r.ncf)}</Text>
               <Text style={[styles.tableCell, styles.tableCellRight, styles.tableCellBold, { flex: 0.6, color: dscrColour }]}>{dscr}</Text>
             </View>
@@ -720,15 +722,15 @@ function SensitivitySection({ sensitivity }) {
       <Text style={styles.sectionEyebrow}>SECTION 8</Text>
       <Text style={styles.sectionTitle}>Sensitivity Analysis</Text>
       <Text style={styles.sectionLead}>
-        Each driver flexed ±20% one at a time. EBITDA delta in rupees, sorted by impact. Top entries are where contract negotiation, hedging, or tighter assumptions earn the most.
+        Each driver flexed ±20% one at a time. Operating Profit delta in rupees, sorted by impact. Top entries are where contract negotiation, hedging, or tighter assumptions earn the most.
       </Text>
 
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={[styles.tableHeaderCell, { flex: 0.5 }]}>RANK</Text>
           <Text style={[styles.tableHeaderCell, { flex: 2.2 }]}>DRIVER</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.4, textAlign: 'right' }]}>−20% Δ EBITDA</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.4, textAlign: 'right' }]}>+20% Δ EBITDA</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.4, textAlign: 'right' }]}>−20% Δ Op. Profit</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.4, textAlign: 'right' }]}>+20% Δ Op. Profit</Text>
           <Text style={[styles.tableHeaderCell, { flex: 0.9, textAlign: 'right' }]}>SWING</Text>
         </View>
         {sensitivity.map((s, i) => {

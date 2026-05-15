@@ -9,8 +9,9 @@ import { fmtINR } from '../../../../components/calc/primitives';
 //   - right bar shows the impact of a +20% flex (same colour rule)
 //   - the bar's value is rendered IN ₹ inside the bar (or alongside when
 //     too narrow), with a ±% swing column on the right
-// User toggles between EBITDA and PAT at the top right. The most-impacting
-// driver gets a TOP badge. An insight footer explains what to focus on.
+// User toggles between Operating Profit and PAT at the top right. The
+// most-impacting driver gets a TOP badge. An insight footer explains
+// what to focus on.
 export default function Tornado({ input, calc }) {
   const [metric, setMetric] = useState('ebitda');
   const flexPct = 20;
@@ -45,7 +46,7 @@ export default function Tornado({ input, calc }) {
     ? Math.max(Math.abs(second[deltaLowKey]), Math.abs(second[deltaHighKey]))
     : 0;
   const dominates = secondImpact > 0 && topImpact > secondImpact * 1.5;
-  const metricLabel = metric === 'ebitda' ? 'EBITDA' : 'PAT';
+  const metricLabel = metric === 'ebitda' ? 'Operating Profit' : 'PAT';
   const insightText = dominates
     ? `${top.label} dominates risk on ${metricLabel} — focus contracts and hedges there. Bottom drivers are safe to lock as standing assumptions.`
     : `${top.label} has the largest swing on ${metricLabel}, with ${second?.label ?? '—'} a close second. Both deserve scenario testing.`;
@@ -62,7 +63,7 @@ export default function Tornado({ input, calc }) {
         </div>
         <div className="calc-whatif-toggle" role="tablist" aria-label="Metric">
           {[
-            ['ebitda', 'EBITDA'],
+            ['ebitda', 'Operating Profit'],
             ['pat',    'PAT'],
           ].map(([id, lbl]) => (
             <button

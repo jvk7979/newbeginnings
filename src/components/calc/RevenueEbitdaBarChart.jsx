@@ -46,7 +46,7 @@ export default function RevenueEbitdaBarChart({ rows, startYear, windowYears = 5
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', maxWidth: W }}
-         role="img" aria-label="Revenue and EBITDA by year">
+         role="img" aria-label="Revenue and Operating Profit by year">
       {/* Zero / axis line — chart-axis (warm-brown) at 1.2px reads as
           inked rule rather than wireframe */}
       <line x1={padLeft} y1={axisY} x2={W - padRight} y2={axisY} stroke={C.chartAxis} strokeWidth="1.2" />
@@ -100,7 +100,7 @@ export default function RevenueEbitdaBarChart({ rows, startYear, windowYears = 5
               fontFamily="'DM Sans', sans-serif" fill={C.fg2}>Revenue</text>
         <rect x="92" y="-9" width="11" height="11" fill={C.chartPositive} rx={2} />
         <text x="108" y="0" fontSize={FS_LEGEND} fontWeight="500"
-              fontFamily="'DM Sans', sans-serif" fill={C.fg2}>EBITDA</text>
+              fontFamily="'DM Sans', sans-serif" fill={C.fg2}>Operating Profit</text>
       </g>
     </svg>
   );
