@@ -32,6 +32,26 @@ export default function AssumptionsPanel({
     if (snap != null) setRow(field, rowId, 'price', snap);
   };
 
+  // Products use the name field itself as a "pick from Mandi or type" combobox
+  // (via <datalist>). If the typed/picked name exactly matches a commodity
+  // (case-insensitive), bind the row and snapshot the price; otherwise clear
+  // any prior binding.
+  const setProductName = (rowId, name) => {
+    setRow('revenueRows', rowId, 'name', name);
+    const match = commodities.find(c => c.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const row = input.revenueRows.find(r => r.id === rowId);
+    const wasBoundTo = row?.commodityId;
+    if (match) {
+      if (wasBoundTo !== match.id) {
+        setRow('revenueRows', rowId, 'commodityId', match.id);
+        const snap = currentPrice(match.history);
+        if (snap != null) setRow('revenueRows', rowId, 'price', snap);
+      }
+    } else if (wasBoundTo) {
+      setRow('revenueRows', rowId, 'commodityId', null);
+    }
+  };
+
   // Re-snapshot every bound row's price (variable costs + products) from its
   // commodity's current price.
   const refreshFromMarkets = () => {
@@ -112,31 +132,29 @@ export default function AssumptionsPanel({
       <Section id="products" label="Products & Pricing"
         summary={`${fmtINR(calc.revenue)}/yr`}
         open={openSections.includes('products')} onToggle={toggleSection}>
-        <Hint>List everything you sell. Price × Qty at 100% capacity; the slider scales them.</Hint>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr 0.9fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
-          {['Product', 'Unit', 'Price ₹', 'Qty/yr', 'Mandi', ''].map((h, i) => (
+        <Hint>List everything you sell. Type a product name or pick one from your Mandi list — picking a Mandi name snapshots its current price.</Hint>
+        <datalist id="mandi-products-list">
+          {commodities.map(c => <option key={c.id} value={c.name} />)}
+        </datalist>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
+          {['Product', 'Unit', 'Price ₹', 'Qty/yr', ''].map((h, i) => (
             <div key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, paddingLeft: i === 0 ? 14 : 0 }}>{h}</div>
           ))}
         </div>
         {input.revenueRows.map((row, i) => (
-          <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr 0.9fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+          <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: PRODUCT_COLORS[i % PRODUCT_COLORS.length], flexShrink: 0 }} />
-              <input value={row.name} placeholder="Product" onChange={e => setRow('revenueRows', row.id, 'name', e.target.value)} style={{ ...IS, flex: 1 }} />
+              <input value={row.name} placeholder="Product or pick mandi" list="mandi-products-list"
+                onChange={e => setProductName(row.id, e.target.value)} style={{ ...IS, flex: 1, minWidth: 0 }} />
+              {row.commodityId && (
+                <span title="Linked to a Markets commodity — price syncs from there"
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 600, padding: '2px 5px', borderRadius: 4, background: alpha(C.accent, 18), color: C.accent, letterSpacing: '0.05em', flexShrink: 0 }}>MANDI</span>
+              )}
             </div>
             <input value={row.unit} placeholder="kg" onChange={e => setRow('revenueRows', row.id, 'unit', e.target.value)} style={IS} />
             <input type="number" value={row.price} min={0} onChange={e => setRow('revenueRows', row.id, 'price', e.target.value)} style={IS} />
             <input type="number" value={row.qty} min={0} onChange={e => setRow('revenueRows', row.id, 'qty', e.target.value)} style={IS} />
-            <select
-              value={row.commodityId ?? ''}
-              onChange={e => bindCommodity('revenueRows', row.id, e.target.value)}
-              style={{ ...IS, fontSize: 11, padding: '5px 4px', cursor: 'pointer' }}
-              aria-label="Linked Markets commodity">
-              <option value="">— manual —</option>
-              {commodities.map(com => (
-                <option key={com.id} value={com.id}>{com.name}</option>
-              ))}
-            </select>
             <button onClick={() => delRow('revenueRows', row.id)} disabled={input.revenueRows.length === 1}
               style={{ background: 'none', border: 'none', cursor: input.revenueRows.length === 1 ? 'default' : 'pointer', color: input.revenueRows.length === 1 ? C.fg3 : '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
           </div>
