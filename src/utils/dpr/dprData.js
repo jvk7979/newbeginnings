@@ -4,7 +4,7 @@
 // just data transformation. Keeps the PDF document component focused
 // on layout.
 
-import { runSensitivity } from '../calcEngine';
+import { runSensitivity, unitMult } from '../calcEngine';
 
 // Indian-format numeric formatter — distinct from fmtINR/fmtShort so we
 // can present "₹1,40,00,000" style numbers in tables. The web app uses
@@ -98,24 +98,27 @@ export function buildDPRData({ input, calc, project }) {
   };
 
   // Project configuration
+  // `unit` is the *price* unit ('kg' = ₹/kg, 'ton' = ₹/tonne); `qty` is
+  // always annual tonnes. annualValue applies the kg→tonne 1000× factor
+  // when needed so the DPR's table totals match the dashboard.
   const products = (input.revenueRows || [])
     .filter(r => r.enabled !== false && Number(r.qty) > 0 && Number(r.price) > 0)
     .map((r, i) => ({
       name: r.name || `Product ${i + 1}`,
-      unit: r.unit || '',
+      unit: r.unit === 'ton' ? 'ton' : 'kg',
       price: Number(r.price),
       qty: Number(r.qty),
-      annualValue: Number(r.price) * Number(r.qty) * (ceiling / 100),
+      annualValue: Number(r.price) * Number(r.qty) * unitMult(r) * (ceiling / 100),
     }));
 
   const variableCosts = (input.varRows || [])
     .filter(r => r.enabled !== false && Number(r.qty) > 0 && Number(r.price) > 0)
     .map((r, i) => ({
       name: r.name || `Variable ${i + 1}`,
-      unit: r.unit || '',
+      unit: r.unit === 'ton' ? 'ton' : 'kg',
       price: Number(r.price),
       qty: Number(r.qty),
-      annualValue: Number(r.price) * Number(r.qty) * (ceiling / 100),
+      annualValue: Number(r.price) * Number(r.qty) * unitMult(r) * (ceiling / 100),
       productId: r.productId ?? null,
     }));
 

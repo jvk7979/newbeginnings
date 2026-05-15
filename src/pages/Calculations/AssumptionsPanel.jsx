@@ -132,12 +132,12 @@ export default function AssumptionsPanel({
       <Section id="products" label="Products & Pricing"
         summary={`${fmtINR(calc.revenue)}/yr`}
         open={openSections.includes('products')} onToggle={toggleSection}>
-        <Hint>List everything you sell. Type a product name or pick one from your Mandi list — picking a Mandi name snapshots its current price.</Hint>
+        <Hint>List everything you sell. Pick the price unit (₹/kg or ₹/ton); annual quantity is always in tonnes. Type a product name or pick one from your Mandi list — picking a Mandi name snapshots its current price.</Hint>
         <datalist id="mandi-products-list">
           {commodities.map(c => <option key={c.id} value={c.name} />)}
         </datalist>
         <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 4, alignItems: 'center' }}>
-          {['Product', 'Unit', 'Price ₹', 'Qty/yr', ''].map((h, i) => (
+          {['Product', 'Unit', 'Price ₹', 'Tonnes/yr', ''].map((h, i) => (
             <div key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, paddingLeft: i === 0 ? 14 : 0 }}>{h}</div>
           ))}
         </div>
@@ -152,16 +152,20 @@ export default function AssumptionsPanel({
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 600, padding: '2px 5px', borderRadius: 4, background: alpha(C.accent, 18), color: C.accent, letterSpacing: '0.05em', flexShrink: 0 }}>MANDI</span>
               )}
             </div>
-            <input value={row.unit} placeholder="kg" onChange={e => setRow('revenueRows', row.id, 'unit', e.target.value)} style={IS} />
+            <select value={row.unit} onChange={e => setRow('revenueRows', row.id, 'unit', e.target.value)}
+              style={{ ...IS, cursor: 'pointer' }} aria-label="Price unit">
+              <option value="kg">Kg</option>
+              <option value="ton">Ton</option>
+            </select>
             <input type="number" value={row.price} min={0} onChange={e => setRow('revenueRows', row.id, 'price', e.target.value)} style={IS} />
-            <input type="number" value={row.qty} min={0} onChange={e => setRow('revenueRows', row.id, 'qty', e.target.value)} style={IS} />
+            <input type="number" value={row.qty} min={0} step="0.01" onChange={e => setRow('revenueRows', row.id, 'qty', e.target.value)} style={IS} />
             <button onClick={() => delRow('revenueRows', row.id)} disabled={input.revenueRows.length === 1}
               style={{ background: 'none', border: 'none', cursor: input.revenueRows.length === 1 ? 'default' : 'pointer', color: input.revenueRows.length === 1 ? C.fg3 : '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
           </div>
         ))}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, gap: 8, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => addRow('revenueRows', { name: '', unit: '', price: 0, qty: 0, enabled: true, commodityId: null })}
+            <button onClick={() => addRow('revenueRows', { name: '', unit: 'kg', price: 0, qty: 0, enabled: true, commodityId: null })}
               style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add product</button>
             {anyBound && (
               <button onClick={refreshFromMarkets}
@@ -204,7 +208,7 @@ export default function AssumptionsPanel({
         </div>
         {costTab === 'variable' ? (
           <>
-            <Hint>Variable costs scale with output. Link a row to a product so it auto-drops when that product is toggled off in Quick Estimate; leave it global to count regardless.</Hint>
+            <Hint>Variable costs scale with output. Pick the cost unit (₹/kg or ₹/ton); annual quantity is always in tonnes. Link a row to a product so it auto-drops when that product is toggled off in Quick Estimate; leave it global to count regardless.</Hint>
             {input.varRows.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 8 }}>No variable costs yet.</div>}
             {input.varRows.map((row, i) => {
               // Build the dropdown options once per row render — cheap; the
@@ -216,11 +220,15 @@ export default function AssumptionsPanel({
               }));
               return (
                 <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.5fr 0.5fr 0.5fr 0.9fr 0.9fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
-                  {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Qty/yr', 'Linked', 'Mandi', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
+                  {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Tonnes/yr', 'Linked', 'Mandi', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
                   <input value={row.name} placeholder="Material" onChange={e => setRow('varRows', row.id, 'name', e.target.value)} style={IS} />
-                  <input value={row.unit} placeholder="kg" onChange={e => setRow('varRows', row.id, 'unit', e.target.value)} style={IS} />
+                  <select value={row.unit} onChange={e => setRow('varRows', row.id, 'unit', e.target.value)}
+                    style={{ ...IS, cursor: 'pointer' }} aria-label="Cost unit">
+                    <option value="kg">Kg</option>
+                    <option value="ton">Ton</option>
+                  </select>
                   <input type="number" value={row.price} min={0} onChange={e => setRow('varRows', row.id, 'price', e.target.value)} style={IS} />
-                  <input type="number" value={row.qty} min={0} onChange={e => setRow('varRows', row.id, 'qty', e.target.value)} style={IS} />
+                  <input type="number" value={row.qty} min={0} step="0.01" onChange={e => setRow('varRows', row.id, 'qty', e.target.value)} style={IS} />
                   <select
                     value={row.productId ?? ''}
                     onChange={e => setRow('varRows', row.id, 'productId', e.target.value === '' ? null : Number(e.target.value))}
@@ -247,7 +255,7 @@ export default function AssumptionsPanel({
             })}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 8, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                <button onClick={() => addRow('varRows', { name: '', unit: '', price: 0, qty: 0, enabled: true, productId: null, commodityId: null })}
+                <button onClick={() => addRow('varRows', { name: '', unit: 'kg', price: 0, qty: 0, enabled: true, productId: null, commodityId: null })}
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
                 {anyBound && (
                   <button onClick={refreshFromMarkets}

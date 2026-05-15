@@ -384,7 +384,7 @@ function ProjectConfiguration({ products, variableCosts, fixedCosts, capexRows, 
               <Text style={[styles.tableHeaderCell, { flex: 2.2 }]}>PRODUCT</Text>
               <Text style={[styles.tableHeaderCell, { flex: 0.7 }]}>UNIT</Text>
               <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>PRICE</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>QTY/YR</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>TONNES/YR</Text>
               <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right' }]}>ANNUAL</Text>
             </View>
             {products.map((p, i) => (
@@ -409,7 +409,7 @@ function ProjectConfiguration({ products, variableCosts, fixedCosts, capexRows, 
               <Text style={[styles.tableHeaderCell, { flex: 2.2 }]}>ITEM</Text>
               <Text style={[styles.tableHeaderCell, { flex: 0.7 }]}>UNIT</Text>
               <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>COST</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>QTY/YR</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>TONNES/YR</Text>
               <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right' }]}>ANNUAL</Text>
             </View>
             {variableCosts.map((v, i) => (

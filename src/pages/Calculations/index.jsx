@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
 import { C } from '../../tokens';
 import { usePlans } from '../../context/AppContext';
-import { runCalc, DEFAULT_CALC_INPUT } from '../../utils/calcEngine';
+import { runCalc, DEFAULT_CALC_INPUT, normalizeCalcInput } from '../../utils/calcEngine';
 import { useAutosave } from '../../utils/useAutosave';
 import ConfirmModal from '../../components/ConfirmModal';
 
@@ -71,8 +71,13 @@ export default function CalculationsPage({ onNavigate }) {
   useEffect(() => {
     if (!selectedProject) return;
     const saved = selectedProject.calc;
-    const next = saved && typeof saved === 'object' ? { ...DEFAULT_CALC_INPUT, ...saved } : DEFAULT_CALC_INPUT;
-    setInput(next);
+    // Normalize BEFORE merging with defaults so the migration check sees
+    // whether `saved` itself has `unitsMigrated: true` — without this, the
+    // flag from DEFAULT_CALC_INPUT would mask legacy inputs and skip the
+    // qty reset.
+    const normalized = normalizeCalcInput(saved);
+    const merged = normalized && typeof normalized === 'object' ? { ...DEFAULT_CALC_INPUT, ...normalized } : DEFAULT_CALC_INPUT;
+    setInput(merged);
   }, [selectedProject?.id]);
 
   // Stable setter identities. Without useCallback these would be new
@@ -89,7 +94,8 @@ export default function CalculationsPage({ onNavigate }) {
   // over DEFAULT_CALC_INPUT so a snapshot saved before a new field
   // existed still renders cleanly. Used by the Scenarios tab.
   const loadScenario = useCallback((nextInput) => {
-    setInput({ ...DEFAULT_CALC_INPUT, ...nextInput });
+    const normalized = normalizeCalcInput(nextInput);
+    setInput({ ...DEFAULT_CALC_INPUT, ...normalized });
   }, []);
 
   const toggleSection = (id) => setOpenSections(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);

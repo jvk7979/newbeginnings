@@ -1,6 +1,6 @@
 import { C } from '../../../tokens';
 import { fmtINR } from '../../../components/calc/primitives';
-import { PRODUCT_COLORS_EXPORT as PRODUCT_COLORS } from '../../../utils/calcEngine';
+import { PRODUCT_COLORS_EXPORT as PRODUCT_COLORS, unitMult } from '../../../utils/calcEngine';
 
 // Cost-segment palette for the Money Flow stacked bar. Adjacent slots
 // are 100°+ apart on the hue wheel — primary triad (red/green/blue)
@@ -78,7 +78,7 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
   // from the calc too, so users get a heads-up before they click.
   const productCards = input.revenueRows.map((r, i) => {
     const enabled = r.enabled !== false;
-    const value = enabled ? Number(r.price || 0) * Number(r.qty || 0) * (ceiling / 100) : 0;
+    const value = enabled ? Number(r.price || 0) * Number(r.qty || 0) * unitMult(r) * (ceiling / 100) : 0;
     const pct = calc.revenue > 0 ? (value / calc.revenue) * 100 : 0;
     const linkedVarCount = (input.varRows || []).filter(v => v.productId === r.id).length;
     return { ...r, enabled, value, pct, linkedVarCount, color: PRODUCT_COLORS[i % PRODUCT_COLORS.length], rowIndex: i };
@@ -188,7 +188,7 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
                       </button>
                     </div>
                     <div className="calc-quick-product-meta">
-                      ₹{Number(p.price || 0)}{p.unit ? `/${p.unit}` : ''} · {Number(p.qty || 0)}{p.unit ? ` ${p.unit}` : ''}/yr
+                      ₹{Number(p.price || 0)}/{p.unit === 'ton' ? 'ton' : 'kg'} · {Number(p.qty || 0)} t/yr
                       {p.linkedVarCount > 0 && <> · <em style={{ fontStyle: 'normal', color: C.accent }}>{p.linkedVarCount} linked cost{p.linkedVarCount > 1 ? 's' : ''}</em></>}
                     </div>
                     <div className="calc-quick-product-revenue">

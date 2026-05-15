@@ -18,6 +18,39 @@ const num = v => {
   return Number.isFinite(n) ? n : 0;
 };
 
+// Unit model for revenue / variable-cost rows. Qty is always entered in
+// tonnes/year; the row's `unit` field selects what the *price* is quoted
+// in — 'kg' (₹/kg, multiply qty×1000) or 'ton' (₹/tonne, no conversion).
+// Anything else returns 1 (legacy fallback — see normalizeCalcInput).
+export const unitMult = (row) => row?.unit === 'kg' ? 1000 : 1;
+
+// One-time migration applied at input-hydration time (project load + scenario
+// load). Inputs saved before the kg/ton unit model didn't carry the
+// `unitsMigrated` flag — their row qty values were in whatever free-text
+// unit the user had typed (most commonly 'kg'). Silently treating those
+// qty values as tonnes would scale revenue/costs 1000×, so we instead
+// reset qty to 0 on every revenue/variable-cost row and coerce unit='kg',
+// forcing the user to re-enter quantities in tonnes (the new model).
+// Inputs already on the new model just get defensive cleanup of any bad
+// unit strings and pass through otherwise unchanged.
+const VALID_UNITS = new Set(['kg', 'ton']);
+export function normalizeCalcInput(saved) {
+  if (!saved || typeof saved !== 'object') return saved;
+  const isNewModel = saved.unitsMigrated === true;
+  const mapRow = (r) => {
+    const u = String(r?.unit || '').toLowerCase().trim();
+    const validUnit = VALID_UNITS.has(u) ? u : 'kg';
+    if (isNewModel) return { ...r, unit: validUnit };
+    return { ...r, unit: 'kg', qty: 0 };
+  };
+  return {
+    ...saved,
+    revenueRows: Array.isArray(saved.revenueRows) ? saved.revenueRows.map(mapRow) : [],
+    varRows:     Array.isArray(saved.varRows)     ? saved.varRows.map(mapRow)     : [],
+    unitsMigrated: true,
+  };
+}
+
 /** Newton-Raphson IRR. Returns IRR as a percentage, or null when the
     cash-flow stream has no negative-then-positive flip (degenerate). */
 export function calcIRR(cashFlows) {
@@ -133,9 +166,9 @@ export function runCalc(input) {
   );
   const isVarLinkedToDisabled = (r) =>
     r.productId != null && disabledProductIds.has(r.productId);
-  const fullRevenue       = revenueRows.reduce((s, r) => isOn(r) ? s + num(r.price) * num(r.qty) : s, 0);
+  const fullRevenue       = revenueRows.reduce((s, r) => isOn(r) ? s + num(r.price) * num(r.qty) * unitMult(r) : s, 0);
   const fullVariableCosts = varRows.reduce((s, r) =>
-    (isOn(r) && !isVarLinkedToDisabled(r)) ? s + num(r.price) * num(r.qty) : s, 0);
+    (isOn(r) && !isVarLinkedToDisabled(r)) ? s + num(r.price) * num(r.qty) * unitMult(r) : s, 0);
   const fixedCosts        = fixedRows.reduce((s, r) => isOn(r) ? s + num(r.amount) : s, 0);
 
   const revenue       = fullRevenue * capCeilFrac;
@@ -216,7 +249,7 @@ export function runCalc(input) {
 
   const revenueByProduct = revenueRows.map((row, i) => ({
     name: row.name || `Product ${i + 1}`,
-    value: isOn(row) ? num(row.price) * num(row.qty) * capCeilFrac : 0,
+    value: isOn(row) ? num(row.price) * num(row.qty) * unitMult(row) * capCeilFrac : 0,
     color: PRODUCT_COLORS[i % PRODUCT_COLORS.length],
   })).filter(s => s.value > 0);
 
@@ -447,9 +480,12 @@ export const DEFAULT_CALC_INPUT = {
   pmegpPct: 25,
   citusEnabled: false,
   apmsmeEnabled: false,
-  revenueRows: [{ id: 1, name: '', unit: '', price: 0, qty: 0, enabled: true }],
+  revenueRows: [{ id: 1, name: '', unit: 'kg', price: 0, qty: 0, enabled: true }],
   varRows: [],
   fixedRows: [{ id: 1, name: '', amount: 0, enabled: true }],
+  // Flag indicating this input is on the kg/ton unit model. Legacy inputs
+  // lack the flag and have their qty values reset on first hydration.
+  unitsMigrated: true,
   capexRows: [],
   revenueInflationPct: 0,
   costInflationPct: 0,
