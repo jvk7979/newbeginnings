@@ -16,22 +16,6 @@ export default function AssumptionsPanel({
   const [costTab, setCostTab] = useState('fixed');
   const { commodities } = useCommodities();
 
-  // Bind a row (field = 'varRows' for costs, 'revenueRows' for products) to a
-  // Markets commodity, or unbind with ''. Binding snapshots the commodity's
-  // current price into the row; the price stays editable afterwards —
-  // "Refresh from Markets" re-pulls it.
-  const bindCommodity = (field, rowId, value) => {
-    if (value === '') {
-      setRow(field, rowId, 'commodityId', null);
-      return;
-    }
-    const cid = Number(value);
-    setRow(field, rowId, 'commodityId', cid);
-    const com = commodities.find(c => c.id == cid);
-    const snap = com ? currentPrice(com.history) : null;
-    if (snap != null) setRow(field, rowId, 'price', snap);
-  };
-
   // Products use the name field itself as a "pick from Mandi or type" combobox
   // (via <datalist>). If the typed/picked name exactly matches a commodity
   // (case-insensitive), bind the row and snapshot the price; otherwise clear
@@ -52,8 +36,8 @@ export default function AssumptionsPanel({
     }
   };
 
-  // Re-snapshot every bound row's price (variable costs + products) from its
-  // commodity's current price.
+  // Re-snapshot every bound product row's price from its commodity's current
+  // price. Only revenue rows can be Mandi-linked (via the name combobox).
   const refreshFromMarkets = () => {
     const resnap = (rows) => rows.map(r => {
       if (!r.commodityId) return r;
@@ -61,10 +45,10 @@ export default function AssumptionsPanel({
       const snap = com ? currentPrice(com.history) : null;
       return snap != null ? { ...r, price: snap } : r;
     });
-    setI({ varRows: resnap(input.varRows), revenueRows: resnap(input.revenueRows) });
+    setI({ revenueRows: resnap(input.revenueRows) });
   };
 
-  const anyBound = input.varRows.some(r => r.commodityId) || input.revenueRows.some(r => r.commodityId);
+  const anyBound = input.revenueRows.some(r => r.commodityId);
 
   return (
     <div className="calc-left calc-assumptions" style={style}>
@@ -208,59 +192,30 @@ export default function AssumptionsPanel({
         </div>
         {costTab === 'variable' ? (
           <>
-            <Hint>Variable costs scale with output. Pick the cost unit (₹/kg or ₹/ton); annual quantity is always in tonnes. Link a row to a product so it auto-drops when that product is toggled off in Quick Estimate; leave it global to count regardless.</Hint>
+            <Hint>Variable costs scale with output. Pick the cost unit (₹/kg or ₹/ton); annual quantity is always in tonnes.</Hint>
             {input.varRows.length === 0 && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginBottom: 8 }}>No variable costs yet.</div>}
-            {input.varRows.map((row, i) => {
-              // Build the dropdown options once per row render — cheap; the
-              // list is small. Each option's value is the productId
-              // (revenueRow.id) as a string; "" maps back to null (global).
-              const productOptions = input.revenueRows.map((p, pi) => ({
-                id: p.id,
-                label: p.name || `Product ${pi + 1}`,
-              }));
-              return (
-                <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.5fr 0.5fr 0.5fr 0.9fr 0.9fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
-                  {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Tonnes/yr', 'Linked', 'Mandi', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
-                  <input value={row.name} placeholder="Material" onChange={e => setRow('varRows', row.id, 'name', e.target.value)} style={IS} />
-                  <select value={row.unit} onChange={e => setRow('varRows', row.id, 'unit', e.target.value)}
-                    style={{ ...IS, cursor: 'pointer' }} aria-label="Cost unit">
-                    <option value="kg">Kg</option>
-                    <option value="ton">Ton</option>
-                  </select>
-                  <input type="number" value={row.price} min={0} onChange={e => setRow('varRows', row.id, 'price', e.target.value)} style={IS} />
-                  <input type="number" value={row.qty} min={0} step="0.01" onChange={e => setRow('varRows', row.id, 'qty', e.target.value)} style={IS} />
-                  <select
-                    value={row.productId ?? ''}
-                    onChange={e => setRow('varRows', row.id, 'productId', e.target.value === '' ? null : Number(e.target.value))}
-                    style={{ ...IS, fontSize: 11, padding: '5px 4px', cursor: 'pointer' }}
-                    aria-label="Linked product">
-                    <option value="">— global —</option>
-                    {productOptions.map(p => (
-                      <option key={p.id} value={p.id}>{p.label}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={row.commodityId ?? ''}
-                    onChange={e => bindCommodity('varRows', row.id, e.target.value)}
-                    style={{ ...IS, fontSize: 11, padding: '5px 4px', cursor: 'pointer' }}
-                    aria-label="Linked Markets commodity">
-                    <option value="">— manual —</option>
-                    {commodities.map(com => (
-                      <option key={com.id} value={com.id}>{com.name}</option>
-                    ))}
-                  </select>
-                  <button onClick={() => delRow('varRows', row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
-                </div>
-              );
-            })}
+            {input.varRows.map((row, i) => (
+              <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '2fr 0.7fr 0.7fr 0.7fr auto', gap: 4, marginBottom: 5, alignItems: 'center' }}>
+                {i === 0 && ['Item', 'Unit', 'Cost ₹', 'Tonnes/yr', ''].map((h, j) => <div key={j} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3 }}>{h}</div>)}
+                <input value={row.name} placeholder="Material" onChange={e => setRow('varRows', row.id, 'name', e.target.value)} style={IS} />
+                <select value={row.unit} onChange={e => setRow('varRows', row.id, 'unit', e.target.value)}
+                  style={{ ...IS, cursor: 'pointer' }} aria-label="Cost unit">
+                  <option value="kg">Kg</option>
+                  <option value="ton">Ton</option>
+                </select>
+                <input type="number" value={row.price} min={0} onChange={e => setRow('varRows', row.id, 'price', e.target.value)} style={IS} />
+                <input type="number" value={row.qty} min={0} step="0.01" onChange={e => setRow('varRows', row.id, 'qty', e.target.value)} style={IS} />
+                <button onClick={() => delRow('varRows', row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+              </div>
+            ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 8, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                <button onClick={() => addRow('varRows', { name: '', unit: 'kg', price: 0, qty: 0, enabled: true, productId: null, commodityId: null })}
+                <button onClick={() => addRow('varRows', { name: '', unit: 'kg', price: 0, qty: 0, enabled: true })}
                   style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent, background: 'none', border: `1px dashed ${alpha(C.accent, 66)}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}>+ Add</button>
                 {anyBound && (
                   <button onClick={refreshFromMarkets}
                     style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg2, background: 'none', border: `1px solid ${C.border}`, borderRadius: 5, padding: '3px 10px', cursor: 'pointer' }}
-                    title="Re-pull the current Markets price into every bound row">↻ Refresh from Markets</button>
+                    title="Re-pull the current Markets price into every bound product row">↻ Refresh from Markets</button>
                 )}
               </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg2 }}>{fmtINR(calc.variableCosts)}/yr</span>
