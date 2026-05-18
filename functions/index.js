@@ -282,6 +282,57 @@ const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 const istHourOf = (ms) => new Date(ms + IST_OFFSET_MS).getUTCHours();
 const istDayOf  = (ms) => Math.floor((ms + IST_OFFSET_MS) / 86400000);
 
+// Core per-commodity fetch loop. Shared by the scheduled cron AND the
+// manual "Sync Now" callable so the actual work lives in exactly one
+// place. Doesn't read the config doc — callers decide when to invoke
+// (scheduler gates on hour/frequency; manual call bypasses).
+async function runAgmarknetSync(apiKey) {
+  const snap = await db.collection('sharedCommodities').get();
+  const mapped = snap.docs.filter(d => d.data()?.agmarknet?.name);
+
+  const weekTs = startOfWeek();
+  const weekDate = agmarknetDateLabel();
+
+  let ok = 0, noData = 0, errors = 0;
+  for (const docSnap of mapped) {
+    const commodity = docSnap.data();
+    const ref = docSnap.ref;
+    try {
+      const price = await fetchAgmarknetPrice(apiKey, commodity.agmarknet.name);
+      if (price == null) {
+        await ref.update({
+          sync: { at: Date.now(), status: 'no-data', message: 'No Andhra Pradesh market data this week.' },
+        });
+        noData++;
+        continue;
+      }
+      const rounded = Math.round(price * 100) / 100;
+      // One point per ISO week, updated in place: drop any existing
+      // agmarknet point for this week, append the fresh one, re-sort.
+      const history = Array.isArray(commodity.history) ? commodity.history : [];
+      const kept = history.filter(p => !(p.source === 'agmarknet' && p.ts === weekTs));
+      kept.push({ ts: weekTs, date: weekDate, price: rounded, source: 'agmarknet' });
+      kept.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      await ref.update({
+        history: kept,
+        sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (AP average).` },
+      });
+      ok++;
+    } catch (err) {
+      console.error('[runAgmarknetSync]', commodity.name, err);
+      errors++;
+      try {
+        await ref.update({
+          sync: { at: Date.now(), status: 'error', message: String(err?.message || err).slice(0, 200) },
+        });
+      } catch (writeErr) {
+        console.error('[runAgmarknetSync] failed to write error status for', commodity.name, writeErr);
+      }
+    }
+  }
+  return { processed: mapped.length, ok, noData, errors };
+}
+
 // Runs hourly. The actual fetch is gated by the marketsConfig/autoFetch doc
 // (UI-controlled from the Markets page): it only runs when not paused, the
 // current IST hour matches the configured hour, and at least `frequencyDays`
@@ -315,47 +366,26 @@ export const syncAgmarknetPrices = onSchedule(
       return;
     }
 
-    const apiKey = DATA_GOV_IN_API_KEY.value();
-    const snap = await db.collection('sharedCommodities').get();
-    const mapped = snap.docs.filter(d => d.data()?.agmarknet?.name);
-
-    const weekTs = startOfWeek();
-    const weekDate = agmarknetDateLabel();
-
-    for (const docSnap of mapped) {
-      const commodity = docSnap.data();
-      const ref = docSnap.ref;
-      try {
-        const price = await fetchAgmarknetPrice(apiKey, commodity.agmarknet.name);
-        if (price == null) {
-          await ref.update({
-            sync: { at: Date.now(), status: 'no-data', message: 'No Andhra Pradesh market data this week.' },
-          });
-          continue;
-        }
-        const rounded = Math.round(price * 100) / 100;
-        // One point per ISO week, updated in place: drop any existing
-        // agmarknet point for this week, append the fresh one, re-sort.
-        const history = Array.isArray(commodity.history) ? commodity.history : [];
-        const kept = history.filter(p => !(p.source === 'agmarknet' && p.ts === weekTs));
-        kept.push({ ts: weekTs, date: weekDate, price: rounded, source: 'agmarknet' });
-        kept.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-        await ref.update({
-          history: kept,
-          sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (AP average).` },
-        });
-      } catch (err) {
-        console.error('[syncAgmarknetPrices]', commodity.name, err);
-        try {
-          await ref.update({
-            sync: { at: Date.now(), status: 'error', message: String(err?.message || err).slice(0, 200) },
-          });
-        } catch (writeErr) {
-          console.error('[syncAgmarknetPrices] failed to write error status for', commodity.name, writeErr);
-        }
-      }
-    }
+    const result = await runAgmarknetSync(DATA_GOV_IN_API_KEY.value());
     await cfgRef.set({ lastRunAt: now }, { merge: true });
-    console.log(`[syncAgmarknetPrices] processed ${mapped.length} mapped commodit${mapped.length === 1 ? 'y' : 'ies'}`);
+    console.log(`[syncAgmarknetPrices] processed=${result.processed} ok=${result.ok} noData=${result.noData} errors=${result.errors}`);
   }
 );
+
+// Manual "Sync Now" trigger from the Markets page. Same auth gate as the
+// AI callables (must be signed in + on the allowlist), bypasses the
+// schedule's hour/frequency/paused checks, and updates lastRunAt so the
+// scheduler's day-counter resets too (no duplicate fetch later in the day).
+const marketsCallOpts = {
+  secrets: [DATA_GOV_IN_API_KEY],
+  timeoutSeconds: 120,
+  memory: '256MiB',
+  cors: ALLOWED_ORIGINS,
+};
+
+export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async () => {
+  const result = await runAgmarknetSync(DATA_GOV_IN_API_KEY.value());
+  await db.doc('marketsConfig/autoFetch').set({ lastRunAt: Date.now() }, { merge: true });
+  console.log(`[runAgmarknetSyncNow] processed=${result.processed} ok=${result.ok} noData=${result.noData} errors=${result.errors}`);
+  return result;
+}));

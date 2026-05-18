@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { C, alpha } from '../../tokens';
-import { db } from '../../firebase';
+import { db, functions } from '../../firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
@@ -44,6 +45,7 @@ export default function AutoFetchSettings() {
   const { showToast } = useToast();
   const [cfg, setCfg] = useState(null);   // null = still loading
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -72,7 +74,33 @@ export default function AutoFetchSettings() {
     }
   };
 
+  // Manual override of the schedule — calls the runAgmarknetSyncNow Cloud
+  // Function, which bypasses the paused / hour / frequency gates. The
+  // function itself updates `lastRunAt` so the "last run" line refreshes
+  // live via the existing onSnapshot.
+  const syncNow = async () => {
+    setSyncing(true);
+    try {
+      const call = httpsCallable(functions, 'runAgmarknetSyncNow');
+      const { data } = await call();
+      const { processed = 0, ok = 0, noData = 0, errors = 0 } = data || {};
+      if (processed === 0) {
+        showToast('No commodities are linked to Agmarknet yet — link one from its detail page first.', 'info');
+      } else if (errors > 0) {
+        showToast(`Synced ${ok}/${processed}. ${errors} failed${noData ? `, ${noData} had no AP data` : ''}.`, 'error');
+      } else {
+        showToast(`Synced ${ok}/${processed} commodit${ok === 1 ? 'y' : 'ies'}${noData ? ` (${noData} had no AP data)` : ''}.`, 'success');
+      }
+    } catch (err) {
+      console.error('[AutoFetchSettings/syncNow]', err);
+      showToast(err?.message || 'Sync failed.', 'error');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const freqLabel = frequencyDays === 1 ? 'every day' : frequencyDays === 7 ? 'weekly' : `every ${frequencyDays} days`;
+  const busy = saving || syncing;
 
   return (
     <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px', marginBottom: 20 }}>
@@ -87,15 +115,28 @@ export default function AutoFetchSettings() {
               : `Runs ${freqLabel} at ${HOUR_OPTIONS[hourIST].label} · last run ${relTime(cfg.lastRunAt)}`}
           </div>
         </div>
-        <button onClick={() => patch({ paused: !paused })} disabled={saving}
-          style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '7px 16px', borderRadius: 6,
-            border: `1px solid ${paused ? alpha(C.accent, 44) : C.border}`,
-            background: paused ? C.accent : 'transparent', color: paused ? '#fff' : C.fg2,
-            cursor: saving ? 'not-allowed' : 'pointer', flexShrink: 0,
-          }}>
-          {paused ? 'Resume' : 'Pause'}
-        </button>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center', flexWrap: 'wrap' }}>
+          <button onClick={syncNow} disabled={busy}
+            title="Fetch the latest prices now, ignoring the schedule"
+            style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '7px 14px', borderRadius: 6,
+              border: `1px solid ${alpha(C.accent, 44)}`,
+              background: C.accent, color: '#fff',
+              cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.6 : 1,
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+            }}>
+            {syncing ? 'Syncing…' : '↻ Sync now'}
+          </button>
+          <button onClick={() => patch({ paused: !paused })} disabled={busy}
+            style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '7px 16px', borderRadius: 6,
+              border: `1px solid ${paused ? alpha(C.accent, 44) : C.border}`,
+              background: paused ? C.accent : 'transparent', color: paused ? '#fff' : C.fg2,
+              cursor: busy ? 'not-allowed' : 'pointer',
+            }}>
+            {paused ? 'Resume' : 'Pause'}
+          </button>
+        </div>
       </div>
 
       {!paused && (
