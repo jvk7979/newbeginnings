@@ -253,27 +253,40 @@ function startOfWeek(now = Date.now()) {
 const agmarknetDateLabel = () =>
   new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-// Fetch the Andhra-Pradesh-averaged modal price for one Agmarknet commodity
-// name. Returns a number, or null when no AP records are available.
+// Fetch the modal price for one Agmarknet commodity, trying states in
+// order until one returns data. We prefer Andhra Pradesh (the user's
+// region) but AP mandi reporting on the data.gov.in feed is patchy, so
+// we fall back to Tamil Nadu → Karnataka → Kerala — together with AP
+// these four cover ~95% of India's coconut/copra trade, so at least one
+// almost always has fresh records. Returns { price, state } on success
+// (state names whichever bucket the data came from, so the sync message
+// can show "Tamil Nadu average — AP had no data"), or null if no state
+// returned any rows.
+const FALLBACK_STATES = ['Andhra Pradesh', 'Tamil Nadu', 'Karnataka', 'Kerala'];
+
 async function fetchAgmarknetPrice(apiKey, commodityName) {
-  const url = new URL(`https://api.data.gov.in/resource/${AGMARKNET_RESOURCE}`);
-  url.searchParams.set('api-key', apiKey);
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', '1000');
-  url.searchParams.set('filters[commodity]', commodityName);
-  url.searchParams.set('filters[state]', 'Andhra Pradesh');
+  for (const state of FALLBACK_STATES) {
+    const url = new URL(`https://api.data.gov.in/resource/${AGMARKNET_RESOURCE}`);
+    url.searchParams.set('api-key', apiKey);
+    url.searchParams.set('format', 'json');
+    url.searchParams.set('limit', '1000');
+    url.searchParams.set('filters[commodity]', commodityName);
+    url.searchParams.set('filters[state]', state);
 
-  const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
-  if (!res.ok) throw new Error(`Agmarknet API responded ${res.status}`);
-  const data = await res.json();
-  const records = Array.isArray(data?.records) ? data.records : [];
+    const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    if (!res.ok) throw new Error(`Agmarknet API responded ${res.status}`);
+    const data = await res.json();
+    const records = Array.isArray(data?.records) ? data.records : [];
 
-  // The modal-price field in the data.gov.in JSON is `modal_price`.
-  const modals = records
-    .map(r => parseFloat(r.modal_price))
-    .filter(n => Number.isFinite(n) && n > 0);
-  if (modals.length === 0) return null;
-  return modals.reduce((a, b) => a + b, 0) / modals.length;
+    // The modal-price field in the data.gov.in JSON is `modal_price`.
+    const modals = records
+      .map(r => parseFloat(r.modal_price))
+      .filter(n => Number.isFinite(n) && n > 0);
+    if (modals.length === 0) continue; // no data for this state — try the next
+    const avg = modals.reduce((a, b) => a + b, 0) / modals.length;
+    return { price: avg, state };
+  }
+  return null;
 }
 
 // IST is UTC+5:30 — derive the IST hour / IST calendar-day directly from the
@@ -298,24 +311,31 @@ async function runAgmarknetSync(apiKey) {
     const commodity = docSnap.data();
     const ref = docSnap.ref;
     try {
-      const price = await fetchAgmarknetPrice(apiKey, commodity.agmarknet.name);
-      if (price == null) {
+      const result = await fetchAgmarknetPrice(apiKey, commodity.agmarknet.name);
+      if (result == null) {
         await ref.update({
-          sync: { at: Date.now(), status: 'no-data', message: 'No Andhra Pradesh market data this week.' },
+          sync: { at: Date.now(), status: 'no-data', message: 'No data from AP, TN, KA or KL for this commodity.' },
         });
         noData++;
         continue;
       }
+      const { price, state } = result;
       const rounded = Math.round(price * 100) / 100;
       // One point per ISO week, updated in place: drop any existing
       // agmarknet point for this week, append the fresh one, re-sort.
       const history = Array.isArray(commodity.history) ? commodity.history : [];
       const kept = history.filter(p => !(p.source === 'agmarknet' && p.ts === weekTs));
-      kept.push({ ts: weekTs, date: weekDate, price: rounded, source: 'agmarknet' });
+      kept.push({ ts: weekTs, date: weekDate, price: rounded, source: 'agmarknet', state });
       kept.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      // Note in the sync message when we had to fall back off Andhra Pradesh
+      // so the user can tell why their "AP-averaged" feature pulled a
+      // Tamil Nadu / Karnataka / Kerala price.
+      const stateNote = state === 'Andhra Pradesh'
+        ? 'AP average'
+        : `${state} average — AP had no data this run`;
       await ref.update({
         history: kept,
-        sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (AP average).` },
+        sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (${stateNote}).` },
       });
       ok++;
     } catch (err) {
