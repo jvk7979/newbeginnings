@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { C } from '../../tokens';
 import { COMMODITY_COLORS } from './commodityColors';
 import { useToast } from '../../context/ToastContext';
-import { AGMARKNET_COMMODITIES } from './agmarknetCommodities';
 
 const inputStyle = { width: '100%', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 12px', outline: 'none', boxSizing: 'border-box' };
 const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -26,7 +25,6 @@ export default function PriceEntryModal({ mode, commodity, onClose, onSubmitPric
   const [mandi, setMandi] = useState(commodity?.mandi || '');
   const [color, setColor] = useState(commodity?.color || COMMODITY_COLORS[0].key);
   const [notes, setNotes] = useState(commodity?.notes || '');
-  const [agmarknetKey, setAgmarknetKey] = useState(commodity?.agmarknet?.key || '');
 
   const priceNum = parseFloat(price);
   const priceValid = price.trim() && Number.isFinite(priceNum) && priceNum > 0;
@@ -42,8 +40,7 @@ export default function PriceEntryModal({ mode, commodity, onClose, onSubmitPric
       if (mode === 'price') {
         await onSubmitPrice({ ts: new Date(date + 'T00:00:00').getTime(), date: fmtDate(date), price: priceNum });
       } else {
-        const ag = AGMARKNET_COMMODITIES.find(c => c.key === agmarknetKey);
-        await onSubmitEdit({ name: name.trim(), unit: unit.trim(), mandi: mandi.trim(), color, notes: notes.trim(), agmarknet: ag ? { key: ag.key, name: ag.name } : null });
+        await onSubmitEdit({ name: name.trim(), unit: unit.trim(), mandi: mandi.trim(), color, notes: notes.trim() });
       }
       onClose();
     } catch (err) {
@@ -100,17 +97,6 @@ export default function PriceEntryModal({ mode, commodity, onClose, onSubmitPric
                       aria-label={c.label} aria-pressed={color === c.key}
                       style={{ width: 30, height: 30, borderRadius: 7, background: c.hex, cursor: 'pointer', border: `2px solid ${color === c.key ? C.fg1 : 'transparent'}` }} />
                   ))}
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Auto-fetch source</label>
-                <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
-                  value={agmarknetKey} onChange={e => setAgmarknetKey(e.target.value)}>
-                  <option value="">Manual only</option>
-                  {AGMARKNET_COMMODITIES.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
-                </select>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 4 }}>
-                  Mapped commodities auto-update weekly from Agmarknet (Andhra Pradesh average).
                 </div>
               </div>
               <div>

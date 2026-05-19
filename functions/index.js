@@ -409,3 +409,35 @@ export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async () => 
   console.log(`[runAgmarknetSyncNow] processed=${result.processed} ok=${result.ok} noData=${result.noData} errors=${result.errors}`);
   return result;
 }));
+
+// Returns the live list of commodity names the Agmarknet feed currently
+// carries — used to populate the searchable multi-select on the Markets
+// page. data.gov.in exposes no "distinct values" endpoint, so we page
+// through recent records and collect unique `commodity` values. A handful
+// of 1000-row pages covers essentially every actively-traded commodity
+// nationwide. Returns `{ commodities: string[] }`, alphabetically sorted.
+export const listAgmarknetCommodities = onCall(marketsCallOpts, withAuth(async () => {
+  const apiKey = DATA_GOV_IN_API_KEY.value();
+  const names = new Set();
+  const PAGE_SIZE = 1000;
+  const MAX_PAGES = 8;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const url = new URL(`https://api.data.gov.in/resource/${AGMARKNET_RESOURCE}`);
+    url.searchParams.set('api-key', apiKey);
+    url.searchParams.set('format', 'json');
+    url.searchParams.set('limit', String(PAGE_SIZE));
+    url.searchParams.set('offset', String(page * PAGE_SIZE));
+    const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    if (!res.ok) throw new HttpsError('unavailable', `Agmarknet API responded ${res.status}`);
+    const data = await res.json();
+    const records = Array.isArray(data?.records) ? data.records : [];
+    for (const r of records) {
+      const c = r?.commodity;
+      if (c) names.add(String(c).trim());
+    }
+    if (records.length < PAGE_SIZE) break; // reached the last page
+  }
+  const commodities = [...names].filter(Boolean).sort((a, b) => a.localeCompare(b));
+  console.log(`[listAgmarknetCommodities] returned ${commodities.length} distinct commodities`);
+  return { commodities };
+}));

@@ -5,6 +5,7 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import AgmarknetPicker from './AgmarknetPicker';
 
 // Single shared config doc — read live here, written by this panel and by the
 // scheduled Cloud Function (which gates its run on `paused` / `hourIST` /
@@ -157,6 +158,8 @@ export default function AutoFetchSettings() {
           </label>
         </div>
       )}
+
+      <AgmarknetPicker />
     </div>
   );
 }
