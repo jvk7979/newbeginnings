@@ -1,0 +1,47 @@
+name: Deploy Cloud Functions
+
+# Auto-deploys the Firebase Cloud Functions whenever something under
+# functions/ changes on main, so a code change to functions/index.js no
+# longer needs a manual `firebase deploy --only functions`.
+#
+# ONE-TIME SETUP (creates the FIREBASE_TOKEN repo secret this workflow needs):
+#   1. On your machine run:  firebase login:ci
+#      A browser opens; sign in with the Firebase account. The terminal
+#      then prints a token.
+#   2. Copy that token.
+#   3. GitHub repo -> Settings -> Secrets and variables -> Actions ->
+#      "New repository secret". Name it exactly  FIREBASE_TOKEN  and paste
+#      the token as the value.
+# After that, every push that touches functions/ deploys automatically.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/**'
+      - '.github/workflows/deploy-functions.yml'
+  workflow_dispatch:
+
+# Never cancel an in-flight functions deploy — a half-applied deploy is
+# worse than waiting for the previous one to finish.
+concurrency:
+  group: deploy-functions
+  cancel-in-progress: false
+
+jobs:
+  deploy-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install functions dependencies
+        run: npm ci
+        working-directory: functions
+      - name: Deploy Cloud Functions
+        run: npx firebase-tools@15 deploy --only functions --project newbeginnings-b4abe --non-interactive --force
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

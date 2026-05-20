@@ -49,7 +49,7 @@ function todayStr() {
 }
 
 // All data lives in shared top-level collections — visible to every signed-in family member
-const SHARED = { ideas: 'sharedIdeas', projects: 'sharedProjects', plans: 'sharedPlans', commodities: 'sharedCommodities' };
+const SHARED = { ideas: 'sharedIdeas', projects: 'sharedProjects', plans: 'sharedPlans', commodities: 'sharedCommodities', suppliers: 'sharedSuppliers' };
 const sharedCol = (name) => collection(db, SHARED[name]);
 const sharedRef = (name, id) => doc(db, SHARED[name], String(id));
 
@@ -106,6 +106,7 @@ const PlansContext       = createContext(null);
 const ProjectsContext    = createContext(null);
 const BackupContext      = createContext(null);
 const CommoditiesContext = createContext(null);
+const SuppliersContext   = createContext(null);
 
 export function AppProvider({ children }) {
   const { user } = useAuth();
@@ -113,11 +114,12 @@ export function AppProvider({ children }) {
   const [projects,    setProjects]    = useState([]);
   const [plans,       setPlans]       = useState([]);
   const [commodities, setCommodities] = useState([]);
+  const [suppliers,   setSuppliers]   = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const loadedCount = useRef(0);
 
   useEffect(() => {
-    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setCommodities([]); setDataLoading(false); return; }
+    if (!user) { setIdeas([]); setProjects([]); setPlans([]); setCommodities([]); setSuppliers([]); setDataLoading(false); return; }
 
     loadedCount.current = 0;
     setDataLoading(true);
@@ -126,7 +128,7 @@ export function AppProvider({ children }) {
     ensureSharedData(uid);
     ensureCommoditiesSeed();
 
-    const tick = () => { loadedCount.current++; if (loadedCount.current >= 4) setDataLoading(false); };
+    const tick = () => { loadedCount.current++; if (loadedCount.current >= 5) setDataLoading(false); };
     const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
 
     const timeout = setTimeout(() => setDataLoading(false), 5000);
@@ -135,8 +137,9 @@ export function AppProvider({ children }) {
     const u2 = onSnapshot(sharedCol('projects'),    s => { setProjects(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
     const u3 = onSnapshot(sharedCol('plans'),       s => { setPlans(sort(s.docs.map(d => d.data())));       tick(); }, () => tick());
     const u4 = onSnapshot(sharedCol('commodities'), s => { setCommodities(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
+    const u5 = onSnapshot(sharedCol('suppliers'),   s => { setSuppliers(sort(s.docs.map(d => d.data())));   tick(); }, () => tick());
 
-    return () => { u1(); u2(); u3(); u4(); clearTimeout(timeout); };
+    return () => { u1(); u2(); u3(); u4(); u5(); clearTimeout(timeout); };
   }, [user]);
 
   // ── Ideas ────────────────────────────────────────────────────────────────
@@ -250,6 +253,29 @@ export function AppProvider({ children }) {
     await setDoc(sharedRef('commodities', commodity.id), commodity);
   }, [user]);
 
+  // ── Suppliers ────────────────────────────────────────────────────────────
+  const addSupplier = useCallback(async (supplier) => {
+    if (!user) return;
+    const id = Date.now();
+    await setDoc(sharedRef('suppliers', id), {
+      ...supplier,
+      id,
+      createdAt: id,
+      addedBy: user.email || user.uid,
+      projectIds: supplier.projectIds || [],
+    });
+  }, [user]);
+
+  const updateSupplier = useCallback(async (id, patch) => {
+    if (!user) return;
+    await updateDoc(sharedRef('suppliers', id), patch);
+  }, [user]);
+
+  const deleteSupplier = useCallback(async (id) => {
+    if (!user) return;
+    await deleteDoc(sharedRef('suppliers', id));
+  }, [user]);
+
   // ── Bulk import ──────────────────────────────────────────────────────────
   const importData = useCallback(async (data) => {
     if (!user) return;
@@ -284,19 +310,23 @@ export function AppProvider({ children }) {
     [dataLoading, importData]);
   const commoditiesValue = useMemo(() => ({ commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity }),
     [commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity]);
+  const suppliersValue   = useMemo(() => ({ suppliers, addSupplier, updateSupplier, deleteSupplier }),
+    [suppliers, addSupplier, updateSupplier, deleteSupplier]);
 
   return (
-    <CommoditiesContext.Provider value={commoditiesValue}>
-      <ProjectsContext.Provider value={projectsValue}>
-        <PlansContext.Provider value={plansValue}>
-          <IdeasContext.Provider value={ideasValue}>
-            <BackupContext.Provider value={backupValue}>
-              {children}
-            </BackupContext.Provider>
-          </IdeasContext.Provider>
-        </PlansContext.Provider>
-      </ProjectsContext.Provider>
-    </CommoditiesContext.Provider>
+    <SuppliersContext.Provider value={suppliersValue}>
+      <CommoditiesContext.Provider value={commoditiesValue}>
+        <ProjectsContext.Provider value={projectsValue}>
+          <PlansContext.Provider value={plansValue}>
+            <IdeasContext.Provider value={ideasValue}>
+              <BackupContext.Provider value={backupValue}>
+                {children}
+              </BackupContext.Provider>
+            </IdeasContext.Provider>
+          </PlansContext.Provider>
+        </ProjectsContext.Provider>
+      </CommoditiesContext.Provider>
+    </SuppliersContext.Provider>
   );
 }
 
@@ -306,6 +336,7 @@ export function usePlans()       { return useContext(PlansContext); }
 export function useProjects()    { return useContext(ProjectsContext); }
 export function useBackup()      { return useContext(BackupContext); }
 export function useCommodities() { return useContext(CommoditiesContext); }
+export function useSuppliers()   { return useContext(SuppliersContext); }
 
 // Backward-compatible aggregated hook. New code should prefer the focused
 // hooks above; useAppData is retained so existing consumers keep working
@@ -317,5 +348,6 @@ export function useAppData() {
     ...useProjects(),
     ...useBackup(),
     ...useCommodities(),
+    ...useSuppliers(),
   };
 }

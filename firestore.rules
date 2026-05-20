@@ -47,6 +47,12 @@ service cloud.firestore {
     match /sharedCommodities/{doc} {
       allow read, write: if request.auth != null && isAllowed();
     }
+    // Supplier / vendor directory — name, materials, contacts, quoted
+    // price, and the projectIds they're linked to. Same family-shared
+    // access model as the other shared collections.
+    match /sharedSuppliers/{doc} {
+      allow read, write: if request.auth != null && isAllowed();
+    }
     // Markets auto-fetch settings (marketsConfig/autoFetch) — pause flag,
     // frequency, time-of-day. Any allowed user can read/change it; the
     // scheduled Cloud Function reads/writes it via the Admin SDK.
