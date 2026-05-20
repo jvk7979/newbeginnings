@@ -420,17 +420,30 @@ export const listAgmarknetCommodities = onCall(marketsCallOpts, withAuth(async (
   const apiKey = DATA_GOV_IN_API_KEY.value();
   const names = new Set();
   const PAGE_SIZE = 1000;
-  const MAX_PAGES = 8;
+  // 5 pages × 15s = 75s worst case, safely inside the 120s function
+  // timeout (8 × 20s = 160s could be killed mid-loop). 5000 records is
+  // still ample to surface essentially every actively-traded commodity.
+  const MAX_PAGES = 5;
   for (let page = 0; page < MAX_PAGES; page++) {
     const url = new URL(`https://api.data.gov.in/resource/${AGMARKNET_RESOURCE}`);
     url.searchParams.set('api-key', apiKey);
     url.searchParams.set('format', 'json');
     url.searchParams.set('limit', String(PAGE_SIZE));
     url.searchParams.set('offset', String(page * PAGE_SIZE));
-    const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
-    if (!res.ok) throw new HttpsError('unavailable', `Agmarknet API responded ${res.status}`);
-    const data = await res.json();
-    const records = Array.isArray(data?.records) ? data.records : [];
+    let records;
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (!res.ok) throw new Error(`Agmarknet API responded ${res.status}`);
+      const data = await res.json();
+      records = Array.isArray(data?.records) ? data.records : [];
+    } catch (err) {
+      // A later page failed — keep whatever earlier pages collected
+      // rather than discarding everything. Only surface a hard error if
+      // page 0 itself failed (nothing gathered yet).
+      console.warn(`[listAgmarknetCommodities] page ${page} failed:`, err?.message || err);
+      if (page === 0) throw new HttpsError('unavailable', 'Could not reach the Agmarknet API. Try again.');
+      break;
+    }
     for (const r of records) {
       const c = r?.commodity;
       if (c) names.add(String(c).trim());

@@ -61,7 +61,10 @@ export default function AutoFetchSettings() {
 
   const paused        = cfg.paused === true;
   const frequencyDays = Number(cfg.frequencyDays) > 0 ? Number(cfg.frequencyDays) : 1;
-  const hourIST       = Number.isInteger(cfg.hourIST) ? cfg.hourIST : 6;
+  // Range-checked, not just integer-checked: hourIST indexes HOUR_OPTIONS
+  // (0–23), so an out-of-range value in the config doc would otherwise
+  // make HOUR_OPTIONS[hourIST].label throw and white-screen the panel.
+  const hourIST       = Number.isInteger(cfg.hourIST) && cfg.hourIST >= 0 && cfg.hourIST <= 23 ? cfg.hourIST : 6;
 
   const patch = async (fields) => {
     setSaving(true);

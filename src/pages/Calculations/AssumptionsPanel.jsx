@@ -22,7 +22,13 @@ export default function AssumptionsPanel({
   // any prior binding.
   const setProductName = (rowId, name) => {
     setRow('revenueRows', rowId, 'name', name);
-    const match = commodities.find(c => c.name.trim().toLowerCase() === name.trim().toLowerCase());
+    // Guard `c.name` — a Firestore commodity doc can lack a name; calling
+    // .trim() on undefined would throw on every keystroke. An empty typed
+    // name never binds (target is falsy → no match).
+    const target = name.trim().toLowerCase();
+    const match = target
+      ? commodities.find(c => (c.name || '').trim().toLowerCase() === target)
+      : null;
     const row = input.revenueRows.find(r => r.id === rowId);
     const wasBoundTo = row?.commodityId;
     if (match) {

@@ -49,6 +49,13 @@ export default function AgmarknetPicker() {
       .then(({ data }) => {
         if (cancelled) return;
         const arr = Array.isArray(data?.commodities) ? data.commodities : [];
+        if (arr.length === 0) {
+          // Empty / malformed success response — don't cache it (an empty
+          // `_cachedList` would stick for the whole session) and leave
+          // `list` null so the next time the dropdown opens it retries.
+          showToast('Agmarknet returned an empty commodity list — try again.', 'error');
+          return;
+        }
         _cachedList = arr;
         setList(arr);
       })
