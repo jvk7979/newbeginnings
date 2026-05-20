@@ -239,19 +239,15 @@ export const summariseDocumentText = onCall(callOpts, withAuth(async (req) => {
 
 const AGMARKNET_RESOURCE = '9ef84268-d588-465a-a308-a864a43d0070';
 
-// Monday 00:00 (server-local) of the week containing `now`. Used as the
-// stable `ts` for the current week's auto-fetched point so a daily re-run
-// updates that point in place instead of appending duplicates.
-function startOfWeek(now = Date.now()) {
-  const d = new Date(now);
-  d.setHours(0, 0, 0, 0);
-  const day = (d.getDay() + 6) % 7; // Mon=0 .. Sun=6
-  d.setDate(d.getDate() - day);
-  return d.getTime();
-}
-
-const agmarknetDateLabel = () =>
-  new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+// Human-readable IST date+time label for one sync point. Every sync now
+// records its own point (date + price), so the label includes the time
+// to keep two same-day syncs distinguishable in the entries list.
+const agmarknetDateLabel = (ts) =>
+  new Date(ts).toLocaleString('en-US', {
+    timeZone: 'Asia/Kolkata',
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit',
+  });
 
 // Fetch the modal price for one Agmarknet commodity, trying states in
 // order until one returns data. We prefer Andhra Pradesh (the user's
@@ -299,12 +295,18 @@ const istDayOf  = (ms) => Math.floor((ms + IST_OFFSET_MS) / 86400000);
 // manual "Sync Now" callable so the actual work lives in exactly one
 // place. Doesn't read the config doc — callers decide when to invoke
 // (scheduler gates on hour/frequency; manual call bypasses).
-async function runAgmarknetSync(apiKey) {
+// `trigger` ('auto' | 'manual') is stamped onto every appended point so
+// the entries list can show how each price was pulled.
+const MAX_HISTORY = 2000; // safety cap so the doc can't grow without bound
+
+async function runAgmarknetSync(apiKey, trigger = 'auto') {
   const snap = await db.collection('sharedCommodities').get();
   const mapped = snap.docs.filter(d => d.data()?.agmarknet?.name);
 
-  const weekTs = startOfWeek();
-  const weekDate = agmarknetDateLabel();
+  // One shared timestamp for the whole run — every commodity synced in
+  // this pass shares the same `ts`, which is correct: it IS one sync.
+  const syncTs = Date.now();
+  const syncLabel = agmarknetDateLabel(syncTs);
 
   let ok = 0, noData = 0, errors = 0;
   for (const docSnap of mapped) {
@@ -321,12 +323,13 @@ async function runAgmarknetSync(apiKey) {
       }
       const { price, state } = result;
       const rounded = Math.round(price * 100) / 100;
-      // One point per ISO week, updated in place: drop any existing
-      // agmarknet point for this week, append the fresh one, re-sort.
+      // Every sync appends its own dated point — a full per-sync price
+      // history for trend comparison. Trimmed to the most-recent
+      // MAX_HISTORY points so the Firestore doc stays well under 1 MB.
       const history = Array.isArray(commodity.history) ? commodity.history : [];
-      const kept = history.filter(p => !(p.source === 'agmarknet' && p.ts === weekTs));
-      kept.push({ ts: weekTs, date: weekDate, price: rounded, source: 'agmarknet', state });
-      kept.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      const next = [...history, { ts: syncTs, date: syncLabel, price: rounded, source: 'agmarknet', state, trigger }];
+      next.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      const trimmed = next.length > MAX_HISTORY ? next.slice(next.length - MAX_HISTORY) : next;
       // Note in the sync message when we had to fall back off Andhra Pradesh
       // so the user can tell why their "AP-averaged" feature pulled a
       // Tamil Nadu / Karnataka / Kerala price.
@@ -334,7 +337,7 @@ async function runAgmarknetSync(apiKey) {
         ? 'AP average'
         : `${state} average — AP had no data this run`;
       await ref.update({
-        history: kept,
+        history: trimmed,
         sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (${stateNote}).` },
       });
       ok++;
@@ -386,7 +389,7 @@ export const syncAgmarknetPrices = onSchedule(
       return;
     }
 
-    const result = await runAgmarknetSync(DATA_GOV_IN_API_KEY.value());
+    const result = await runAgmarknetSync(DATA_GOV_IN_API_KEY.value(), 'auto');
     await cfgRef.set({ lastRunAt: now }, { merge: true });
     console.log(`[syncAgmarknetPrices] processed=${result.processed} ok=${result.ok} noData=${result.noData} errors=${result.errors}`);
   }
@@ -404,7 +407,7 @@ const marketsCallOpts = {
 };
 
 export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async () => {
-  const result = await runAgmarknetSync(DATA_GOV_IN_API_KEY.value());
+  const result = await runAgmarknetSync(DATA_GOV_IN_API_KEY.value(), 'manual');
   await db.doc('marketsConfig/autoFetch').set({ lastRunAt: Date.now() }, { merge: true });
   console.log(`[runAgmarknetSyncNow] processed=${result.processed} ok=${result.ok} noData=${result.noData} errors=${result.errors}`);
   return result;

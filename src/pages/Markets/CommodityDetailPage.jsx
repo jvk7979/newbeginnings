@@ -153,7 +153,9 @@ export default function CommodityDetailPage({ commodity, onNavigate }) {
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, display: 'flex', alignItems: 'center', gap: 6 }}>
                   {e.date}
                   {e.source === 'agmarknet' && (
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.accent, background: alpha(C.accent, 11), border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 3, padding: '1px 5px' }}>auto</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.accent, background: alpha(C.accent, 11), border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 3, padding: '1px 5px' }}>
+                      {e.trigger === 'manual' ? 'manual sync' : 'auto sync'}
+                    </span>
                   )}
                 </span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg1 }}>₹{fmtPrice(e.price)}</span>
