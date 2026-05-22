@@ -61,12 +61,6 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
          {...z.svgHandlers}
          style={{ width: '100%', height: '100%', display: 'block', ...z.svgHandlers.style }}>
       <defs>
-        <pattern id="atlas-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M40 0H0V40" fill="none" stroke={C.bg3} strokeWidth="0.5" opacity="0.55"/>
-        </pattern>
-        <pattern id="atlas-grid-fine" width="10" height="10" patternUnits="userSpaceOnUse">
-          <path d="M10 0H0V10" fill="none" stroke={C.border} strokeWidth="0.4" opacity="0.45"/>
-        </pattern>
         <radialGradient id="atlas-vignette" cx="50%" cy="50%" r="70%">
           <stop offset="60%" stopColor="rgba(246,241,231,0)"/>
           <stop offset="100%" stopColor="rgba(47,107,79,0.06)"/>
@@ -78,30 +72,6 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
       </defs>
 
       <rect x="0" y="0" width={W} height={H} fill={C.bg0}/>
-      <rect x="0" y="0" width={W} height={H} fill="url(#atlas-grid-fine)"/>
-      <rect x="0" y="0" width={W} height={H} fill="url(#atlas-grid)"/>
-
-      {/* Coordinate ticks */}
-      <g opacity="0.55">
-        {[...Array(11)].map((_, i) => (
-          <g key={`tx${i}`}>
-            <line x1={i * 100} y1="0" x2={i * 100} y2="8" stroke={C.fg3} strokeWidth="0.5"/>
-            <text x={i * 100} y="20" fill={C.fg3} fontSize="9"
-                  fontFamily="'JetBrains Mono', monospace" textAnchor="middle" opacity="0.85">
-              {(68 + i).toFixed(0)}°E
-            </text>
-          </g>
-        ))}
-        {[...Array(11)].map((_, i) => (
-          <g key={`ty${i}`}>
-            <line x1="0" y1={100 + i * 100} x2="8" y2={100 + i * 100} stroke={C.fg3} strokeWidth="0.5"/>
-            <text x="12" y={104 + i * 100} fill={C.fg3} fontSize="9"
-                  fontFamily="'JetBrains Mono', monospace" opacity="0.85">
-              {(36 - i * 2).toFixed(0)}°N
-            </text>
-          </g>
-        ))}
-      </g>
 
       {/* Title overlay */}
       <g transform="translate(40, 60)">
@@ -134,7 +104,7 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
       )}
 
       {/* Zoom/pan layer — wraps every geographic element so +/−/wheel/drag
-          scale the map while the grid, ticks and chrome stay fixed. */}
+          scale the map while the title and compass chrome stay fixed. */}
       <g transform={z.transform}>
         {status === 'ok' && pathGen && geo.features.map((f, i) => {
           const name = stateNameOf(f.properties);

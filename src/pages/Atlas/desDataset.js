@@ -3,10 +3,10 @@
 // Bridges real government crop data into the shape the Atlas components
 // already consume.
 //
-//  - State-level Yearly data now comes from APEDA (apedaData.json), a much
-//    broader dataset (99 crops incl. all horticulture/livestock) — see
-//    buildApedaStates below.
-//  - AP district drill-down still uses DES (Directorate of Economics &
+//  - State-level Yearly data comes from APEDA (apedaData.json), a broad
+//    dataset (99 crops incl. all horticulture/livestock) for production —
+//    see buildUnifiedStates below. Sown-area is merged in from DES.
+//  - AP district drill-down uses DES (Directorate of Economics &
 //    Statistics) data — desData.json — because APEDA has no district data.
 //
 // The components expect STATES / AP_DISTRICTS objects whose crop rows are
@@ -22,18 +22,25 @@ import { STATES, AP_DISTRICTS } from './cropData';
 
 const CROP_CATEGORY = desData.cropCategory;
 
-// buildApedaStates(year) — the APEDA-driven equivalent of cropData's STATES,
-// for one financial year. Each state keeps its curated metadata (capital,
-// code, raw streams, note, districtKey) where one exists; crop rows are
-// rebuilt from APEDA production for the chosen year.
+// A few APEDA crop names differ from the DES spelling — map them so the
+// DES area lookup resolves for the field crops that exist in both sets.
+const DES_ALIAS = { 'Soyabean': 'Soybean', 'Tur (Arhar)': 'Tur', 'Lentil (Masur)': 'Lentil' };
+
+// buildUnifiedStates(year) — the year-driven equivalent of cropData's
+// STATES, for one financial year. Each state keeps its curated metadata
+// (capital, code, raw streams, note, districtKey) where one exists; crop
+// rows are rebuilt from APEDA production for the chosen year, with sown
+// area merged in from the DES state dataset.
 //
-// APEDA has no area and no yield, so each crop row is
-//   [name, category, production, 0, sharePct]
-// (area is 0; share is the stored national-share %).
+// APEDA carries production only, so area comes from DES (real year-wise
+// area for the field crops). Each crop row is
+//   [name, category, production, area, sharePct]
+// (area is 0 where DES has no figure for that crop/state/year — e.g. the
+// 2020-21 APEDA year, which DES does not cover).
 //
-// Memoised per year — buildApedaStates is called from index.jsx's render.
+// Memoised per year — buildUnifiedStates is called from index.jsx's render.
 const _statesCache = {};
-export function buildApedaStates(year) {
+export function buildUnifiedStates(year) {
   if (_statesCache[year]) return _statesCache[year];
 
   const out = {};
@@ -45,7 +52,10 @@ export function buildApedaStates(year) {
       if (!rec) continue;
       const [prod, share] = rec;              // apedaData order: [production, sharePct]
       const category = apedaData.cropCategory[crop] || 'cereal';
-      crops.push([crop, category, prod, 0, share]);
+      // DES area lookup — DES crop-year values are [area_kha, prod_kt, yield].
+      const desName = DES_ALIAS[crop] || crop;
+      const area = desData.states?.[name]?.[desName]?.[year]?.[0] ?? 0;
+      crops.push([crop, category, prod, area, share]);
     }
     out[name] = { ...meta, crops };
   }
@@ -71,7 +81,7 @@ function desDistrictCrops(districtName) {
 
 // buildDesApDistricts() — the 26 AP districts, each curated raw-materials
 // metadata merged with DES district crop rows. Identical to mergedApDistricts
-// below; kept as a named builder for symmetry with buildDesStates.
+// below; kept as a named builder for symmetry with buildUnifiedStates.
 export function buildDesApDistricts() {
   const out = {};
   for (const [name, meta] of Object.entries(AP_DISTRICTS)) {
@@ -81,7 +91,6 @@ export function buildDesApDistricts() {
 }
 
 // mergedApDistricts — the 26 AP districts with DES crop rows attached.
-// District crops are always DES (there is no curated district crop data),
-// so this single object is used as the `apDistricts` dataset in BOTH the
-// Snapshot and Yearly·DES modes. Built once at module load.
+// District crops are always DES (there is no curated district crop data).
+// Built once at module load.
 export const mergedApDistricts = buildDesApDistricts();

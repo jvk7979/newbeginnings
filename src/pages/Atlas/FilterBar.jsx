@@ -1,40 +1,27 @@
 // src/pages/Atlas/FilterBar.jsx
 import { C } from '../../tokens';
-import { CATEGORIES, ALL_CROPS } from './cropData';
 import apedaData from './apedaData.json';
 import CropSelect from './CropSelect';
 
+// Metric toggle — Production (APEDA) and Area (DES sown area, merged in).
 const METRICS = [
   ['production', 'Production'],
   ['area',       'Area'],
-  ['share',      "Nat'l Share"],
-];
-
-// Atlas data modes — Snapshot is the curated cropData; Yearly·APEDA drives
-// the maps from real APEDA AgriExchange data by year. The mode *key* stays
-// 'des' for back-compat; only the visible label names the APEDA source.
-const MODES = [
-  ['snapshot', 'Snapshot'],
-  ['des',      'Yearly · APEDA'],
 ];
 
 // Selectable financial years — APEDA has state data for all five years
 // 2020-21…2024-25 (no incomplete year to exclude).
 const YEAR_OPTIONS = apedaData.meta.years;
 
-// Crop dropdown lists — curated crops in Snapshot mode, the real APEDA crops
-// in Yearly mode so a picked crop always resolves to data on the map.
+// Crop dropdown list — the real APEDA crops, so a picked crop always
+// resolves to data on the map.
 const APEDA_CROPS = Object.keys(apedaData.cropCategory).sort();
 
 export default function FilterBar({
   filter, setFilter, view, onBack, searchValue, setSearch, onSearchSelect,
-  states, apDistricts, mode, setMode, year, setYear,
+  states, apDistricts, year, setYear,
 }) {
-  const cats = [['all', 'All']].concat(Object.entries(CATEGORIES).map(([k, v]) => [k, v.label]));
   const results = computeSearchResults(searchValue, view, states, apDistricts);
-  // Metric toggle — Snapshot shows all three; Yearly·APEDA drops Area
-  // because APEDA has no area data, leaving only Production and Nat'l Share.
-  const metrics = mode === 'snapshot' ? METRICS : METRICS.filter(([k]) => k !== 'area');
 
   return (
     <div className="atlas-filterbar" style={{
@@ -115,61 +102,9 @@ export default function FilterBar({
 
       <div className="atlas-fb-divider" style={{ width: 1, height: 24, background: C.border }}/>
 
-      {/* Category pills */}
-      <div className="atlas-fb-group atlas-fb-cats" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 6 }}>Category</span>
-        {cats.map(([k, label]) => {
-          const active = filter.category === k;
-          const cat = CATEGORIES[k];
-          return (
-            <button key={k}
-              onClick={() => setFilter((f) => ({ ...f, category: k }))}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                padding: '5px 11px', borderRadius: 999,
-                background: active ? C.accentBg : 'transparent',
-                color: active ? C.accent : C.fg2,
-                border: `1px solid ${active ? 'var(--c-border-accent, #C4A060)' : C.border}`,
-                fontFamily: "'DM Sans', sans-serif", fontSize: 11,
-                fontWeight: active ? 600 : 500, cursor: 'pointer', whiteSpace: 'nowrap',
-                transition: 'all 120ms',
-              }}>
-              {cat && <span style={{ width: 6, height: 6, borderRadius: '50%', background: cat.color }}/>}
-              {label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="atlas-fb-divider" style={{ width: 1, height: 24, background: C.border }}/>
-
-      {/* Mode toggle — Snapshot (curated) vs Yearly · DES (real govt data) */}
-      <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 6 }}>Mode</span>
-        <div style={{ display: 'flex', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: 2 }}>
-          {MODES.map(([k, label]) => {
-            const active = mode === k;
-            return (
-              <button key={k}
-                onClick={() => setMode?.(k)}
-                style={{
-                  padding: '5px 11px', border: 'none', borderRadius: 4,
-                  background: active ? C.bg3 : 'transparent',
-                  color: active ? C.fg1 : C.fg3,
-                  fontFamily: "'DM Sans', sans-serif", fontSize: 11,
-                  fontWeight: active ? 600 : 500, cursor: 'pointer',
-                  transition: 'all 120ms', whiteSpace: 'nowrap',
-                }}>
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Financial-Year selector — only in DES mode, and hidden once drilled
+      {/* Financial-Year selector — shown at India level; hidden once drilled
           into AP districts (district data is DES 2024-25 only). */}
-      {mode === 'des' && view.level === 'india' && (
+      {view.level === 'india' && (
         <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 2 }}>Year</span>
           <select
@@ -190,10 +125,10 @@ export default function FilterBar({
 
       <div className="atlas-fb-spacer" style={{ flex: 1 }}/>
 
-      {/* Recolour the whole map by one crop (or "Any crop" for category colouring) */}
+      {/* Recolour the whole map by one crop (or "Any crop" for the all-crops aggregate) */}
       <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 2 }}>Crop</span>
-        <CropSelect crop={filter.crop} crops={mode === 'des' ? APEDA_CROPS : ALL_CROPS}
+        <CropSelect crop={filter.crop} crops={APEDA_CROPS}
                     onChange={(c) => setFilter((f) => ({ ...f, crop: c }))} />
       </div>
 
@@ -201,7 +136,7 @@ export default function FilterBar({
       <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 6 }}>Metric</span>
         <div style={{ display: 'flex', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: 2 }}>
-          {metrics.map(([k, label]) => {
+          {METRICS.map(([k, label]) => {
             const active = filter.metric === k;
             return (
               <button key={k}
@@ -224,8 +159,8 @@ export default function FilterBar({
   );
 }
 
-// Search over the *active* dataset (Snapshot or DES) — `states` /
-// `apDistricts` are passed in from index.jsx so search tracks the mode.
+// Search over the active dataset — `states` / `apDistricts` are passed in
+// from index.jsx so search tracks the selected financial year.
 function computeSearchResults(query, view, states, apDistricts) {
   if (!query) return [];
   const q = query.toLowerCase().trim();

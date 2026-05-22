@@ -2,13 +2,12 @@
 //
 // Searchable single-crop dropdown. Picking a crop recolours the whole map
 // by that crop; "Any crop" (the default, null) returns the map to the
-// category-aggregate colouring.
+// all-crops aggregate colouring.
 
 import { useState, useRef, useEffect } from 'react';
 import { C } from '../../tokens';
 
-// `crops` is the list of selectable crop names for the active mode —
-// curated crops in Snapshot mode, real DES crops in Yearly mode.
+// `crops` is the list of selectable crop names — the real APEDA crops.
 export default function CropSelect({ crop, crops, onChange }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
@@ -61,7 +60,7 @@ export default function CropSelect({ crop, crops, onChange }) {
                 borderRadius: 5, padding: '6px 9px', cursor: 'pointer', fontStyle: 'italic',
                 fontFamily: "'DM Sans', sans-serif", fontSize: 13, marginBottom: 2,
               }}>
-              — Any crop (category colouring) —
+              — Any crop (all-crops colouring) —
             </button>
             {filtered.length === 0 && (
               <div style={{ padding: '8px 9px', fontSize: 12, color: C.fg3, fontStyle: 'italic' }}>No matches.</div>

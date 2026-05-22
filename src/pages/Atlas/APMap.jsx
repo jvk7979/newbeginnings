@@ -49,9 +49,6 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
          {...z.svgHandlers}
          style={{ width: '100%', height: '100%', display: 'block', ...z.svgHandlers.style }}>
       <defs>
-        <pattern id="apgrid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M40 0H0V40" fill="none" stroke={C.bg3} strokeWidth="0.5" opacity="0.55"/>
-        </pattern>
         <radialGradient id="apvignette" cx="50%" cy="50%" r="70%">
           <stop offset="60%" stopColor="rgba(246,241,231,0)"/>
           <stop offset="100%" stopColor="rgba(47,107,79,0.06)"/>
@@ -63,7 +60,6 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
       </defs>
 
       <rect x="0" y="0" width={W} height={H} fill={C.bg0}/>
-      <rect x="0" y="0" width={W} height={H} fill="url(#apgrid)"/>
 
       <text x="900" y="780" fill="var(--c-h-river)" fontSize="11"
             fontFamily="'Cormorant Garamond', 'Playfair Display', Georgia, serif"

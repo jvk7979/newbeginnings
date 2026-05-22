@@ -5,9 +5,11 @@
 // flourish, DM Sans subhead, then the working surface.
 //
 // India state choropleth → click a gold-dotted state to drill into its
-// districts. Filter by crop category, OR pick one crop from the Crop
-// dropdown to recolour the whole country by it. Layout: 60/40 split
-// between map (centre) and detail panel (right).
+// districts. Pick one crop from the Crop dropdown to recolour the whole
+// country by it, switch the metric between Production and Area, and choose
+// the financial year. Layout: 60/40 split between map (centre) and detail
+// panel (right). All state data is APEDA-backed (production) with DES sown
+// area merged in.
 
 import { useMemo, useState } from 'react';
 import { C } from '../../tokens';
@@ -18,47 +20,27 @@ import DetailPanel from './DetailPanel';
 import RankingPanel from './RankingPanel';
 import HoverTip from './HoverTip';
 import Legend from './Legend';
-import { STATES } from './cropData';
-import { buildApedaStates, mergedApDistricts } from './desDataset';
+import { buildUnifiedStates, mergedApDistricts } from './desDataset';
 
 // eslint-disable-next-line no-unused-vars
 export default function AtlasPage({ onNavigate }) {
-  // `crop` null = no crop picked → maps colour by the category aggregate.
+  // `crop` null = no crop picked → maps colour by the all-crops aggregate.
+  // `category` is fixed at 'all' (the category filter UI was removed) so the
+  // compute helpers in geoHelpers keep working unchanged.
   const [filter, setFilter] = useState({ category: 'all', metric: 'production', crop: null });
   const [view, setView] = useState({ level: 'india', state: null });
   const [hover, setHover] = useState(null);                       // { name, x, y }
   const [selected, setSelected] = useState(null);                 // null → ranking table
   const [districtSelected, setDistrictSelected] = useState(null); // null → ranking table
   const [search, setSearch] = useState('');
-  // Data mode — 'snapshot' = curated cropData (default, byte-identical to
-  // the original Atlas); 'des' = real APEDA data driven by the chosen year
-  // (the mode key stays 'des' for back-compat; the data source is APEDA).
-  const [mode, setMode] = useState('snapshot');
   const [year, setYear] = useState('2024-25');
 
-  // The active datasets handed down to every component. In Snapshot mode the
-  // states are the curated STATES; in Yearly mode they are built from real
-  // APEDA data for the year. AP district crops are always DES (there is no
-  // curated/APEDA district crop data), so mergedApDistricts is used in both
-  // modes.
-  const activeStates = useMemo(
-    () => (mode === 'des' ? buildApedaStates(year) : STATES),
-    [mode, year],
-  );
+  // The active state dataset handed down to every component — always the
+  // year-driven unified dataset (APEDA production + DES sown area). AP
+  // district crops are always DES (there is no district-level APEDA data).
+  const activeStates = useMemo(() => buildUnifiedStates(year), [year]);
   const activeApDistricts = mergedApDistricts;
 
-  // Switching mode/year invalidates any focused region — drop back to the
-  // ranking table so the panel never shows a stale or absent region.
-  const handleSetMode = (m) => {
-    setMode(m);
-    setSelected(null);
-    setDistrictSelected(null);
-    // Snapshot and APEDA carry different crop sets — clear any crop/category
-    // filter so a stale pick (e.g. a curated crop) doesn't blank the map.
-    // Yearly mode drops the Area metric, so reset metric to production too —
-    // a stale metric:'area' must not carry over into a mode that lacks it.
-    setFilter((f) => ({ ...f, category: 'all', crop: null, metric: 'production' }));
-  };
   const handleSetYear = (y) => {
     setYear(y);
     setSelected(null);
@@ -107,6 +89,13 @@ export default function AtlasPage({ onNavigate }) {
   const focused = view.level === 'india' ? selected : districtSelected;
   const clearFocus = view.level === 'india' ? () => setSelected(null) : () => setDistrictSelected(null);
 
+  // The metric toggle is now just Production / Area. Defend against any
+  // stale 'share' value (the Nat'l Share metric was removed) so the choro-
+  // pleth and panels never colour by a metric the UI can no longer pick.
+  const safeFilter = filter.metric === 'share'
+    ? { ...filter, metric: 'production' }
+    : filter;
+
   return (
     <div className="page-pad atlas-root" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
       {/* Page header (mirrors Markets/index.jsx) */}
@@ -125,7 +114,7 @@ export default function AtlasPage({ onNavigate }) {
             </h1>
             <div className="atlas-subhead" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 6, lineHeight: 1.45, maxWidth: 760 }}>
               {view.level === 'india'
-                ? 'Choropleth of agri-production across India. Filter by category or recolour the whole map by a single crop, switch metric, hover to inspect — click states with a gold dot to drill into districts.'
+                ? 'Real state-wise crop production across India by financial year — pick a crop to recolour the map, switch metric, click a state with a gold dot to drill into its districts.'
                 : 'District-level breakdown of crops and downstream raw-material streams for venture exploration.'}
             </div>
           </div>
@@ -133,12 +122,11 @@ export default function AtlasPage({ onNavigate }) {
       </div>
 
       <FilterBar
-        filter={filter} setFilter={setFilter}
+        filter={safeFilter} setFilter={setFilter}
         view={view} onBack={handleBack}
         searchValue={search} setSearch={setSearch}
         onSearchSelect={handleSearchSelect}
         states={activeStates} apDistricts={activeApDistricts}
-        mode={mode} setMode={handleSetMode}
         year={year} setYear={handleSetYear}
       />
 
@@ -146,7 +134,7 @@ export default function AtlasPage({ onNavigate }) {
         {/* Map area */}
         <div className="atlas-map" style={{ flex: 1, position: 'relative', minWidth: 0, background: C.bg0 }}>
           {view.level === 'india' && (
-            <IndiaMap filter={filter}
+            <IndiaMap filter={safeFilter}
                       states={activeStates}
                       hovered={hover?.name}
                       selected={selected}
@@ -155,14 +143,14 @@ export default function AtlasPage({ onNavigate }) {
                       onDrillDown={handleDrillDown}/>
           )}
           {view.level === 'state' && (
-            <APMap filter={filter}
+            <APMap filter={safeFilter}
                    apDistricts={activeApDistricts}
                    hovered={hover?.name}
                    selected={districtSelected}
                    onHover={handleHover}
                    onSelect={handleSelect}/>
           )}
-          <Legend filter={filter} view={view} mode={mode} year={year}/>
+          <Legend filter={safeFilter} view={view} year={year}/>
 
           {view.level === 'india' && (
             <div style={{
@@ -173,7 +161,7 @@ export default function AtlasPage({ onNavigate }) {
               boxShadow: '0 8px 24px rgba(45,42,38,0.12)',
               fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg2, maxWidth: 240,
             }}>
-              <div style={{ fontSize: 9, color: C.fg3, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>India · snapshot</div>
+              <div style={{ fontSize: 9, color: C.fg3, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>India · overview</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
                 <SnapStat value="140 M" label="HA NET SOWN"/>
                 <SnapStat value="146 M" label="FARM HHS" accent/>
@@ -188,14 +176,14 @@ export default function AtlasPage({ onNavigate }) {
         <div className="atlas-side" style={{ width: 360, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
           {focused ? (
             <DetailPanel
-              name={focused} level={view.level} filter={filter}
+              name={focused} level={view.level} filter={safeFilter}
               states={activeStates} apDistricts={activeApDistricts}
               onDrillDown={handleDrillDown}
               onClear={clearFocus}
             />
           ) : (
             <RankingPanel
-              level={view.level} filter={filter}
+              level={view.level} filter={safeFilter}
               states={activeStates} apDistricts={activeApDistricts}
               hovered={hover?.name}
               onHover={handleHover}
@@ -208,7 +196,7 @@ export default function AtlasPage({ onNavigate }) {
       {/* Floating hover tooltip — map hovers only, never over the focused region */}
       {hover && hover.tip && hover.name !== focused && (
         <HoverTip name={hover.name} level={view.level} x={hover.x} y={hover.y}
-                  filter={filter} states={activeStates} apDistricts={activeApDistricts}/>
+                  filter={safeFilter} states={activeStates} apDistricts={activeApDistricts}/>
       )}
     </div>
   );
