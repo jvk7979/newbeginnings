@@ -2,6 +2,9 @@ node_modules/
 dist/
 .claude/
 .superpowers/
+# Raw source data (large govt shapefiles/CSVs). The Atlas GeoJSON is
+# generated from these into public/atlas/ by scripts/build-atlas-geojson.mjs.
+data-raw/
 # Playwright outputs (keep e2e/ source, ignore test artifacts)
 playwright-report/
 test-results/

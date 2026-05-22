@@ -116,10 +116,16 @@ export async function fetchGeoJSON(urls, timeoutMs = 6000) {
   return null;
 }
 
-// India states GeoJSON sources, tried in order. Current 28-state / 8-UT
-// boundaries first (datta07 — post-Telangana, post-Ladakh-UT), with older
-// community sources as fallbacks.
+// Bundled-asset base — respects any Vite `base` config for sub-path deploys.
+const ATLAS_ASSETS = `${import.meta.env.BASE_URL}atlas/`;
+
+// India states GeoJSON sources, tried in order. Official Survey of India
+// 1:1M administrative boundaries — bundled locally, generated from the
+// SoI shapefiles by scripts/build-atlas-geojson.mjs — are primary: they
+// carry the legally correct external boundaries. Community CDN sources
+// (datta07, post-Telangana / post-Ladakh-UT) remain as fallbacks.
 export const STATE_GEOJSON_URLS = [
+  `${ATLAS_ASSETS}india-states.geojson`,
   'https://cdn.jsdelivr.net/gh/datta07/INDIAN-SHAPEFILES@master/INDIA/INDIA_STATES.geojson',
   'https://raw.githubusercontent.com/datta07/INDIAN-SHAPEFILES/master/INDIA/INDIA_STATES.geojson',
   'https://cdn.jsdelivr.net/gh/Subhash9325/GeoJson-Data-of-Indian-States@master/Indian_States',
@@ -127,11 +133,13 @@ export const STATE_GEOJSON_URLS = [
   'https://cdn.jsdelivr.net/gh/geohacker/india@master/state/india_telengana.geojson',
 ];
 
-// Andhra Pradesh district GeoJSON. The udit-001 per-state file carries the
-// current 26-district (2022 reorganisation) boundaries — simplified, CDN-
-// served, and reliable. districtNameOf collapses the 26 names back onto our
-// 12 priority-district keys.
+// Andhra Pradesh district GeoJSON. Official Survey of India district
+// boundaries (bundled locally) are primary; the udit-001 per-state CDN
+// file is the fallback. Both carry the current 26-district (2022
+// reorganisation) layout — districtNameOf collapses the 26 names back onto
+// our 12 priority-district keys.
 export const AP_GEOJSON_URLS = [
+  `${ATLAS_ASSETS}ap-districts.geojson`,
   'https://cdn.jsdelivr.net/gh/udit-001/india-maps-data@main/geojson/states/andhra-pradesh.geojson',
   'https://raw.githubusercontent.com/udit-001/india-maps-data/main/geojson/states/andhra-pradesh.geojson',
 ];
@@ -170,8 +178,12 @@ export const districtNameOf = (props) => {
   const raw = props.dtname || props.DISTRICT || props.District ||
               props.NAME_2 || props.district || props.name || '';
   const norm = String(raw).replace(/\s+/g, ' ').trim();
+  // Spellings cover both the Survey of India source (primary) and the
+  // udit-001 CDN fallback, which differ slightly — e.g. SoI writes
+  // "Sitarama" / "Ananthapuramu" / "B.R.", udit-001 the other variants.
   const aliases = {
     'Dr. B. R. Ambedkar Konaseema': 'Konaseema',
+    'Dr. B.R. Ambedkar Konaseema': 'Konaseema',
     'Ambedkar Konaseema': 'Konaseema',
     'Eluru': 'West Godavari',
     'Kakinada': 'East Godavari',
@@ -179,11 +191,13 @@ export const districtNameOf = (props) => {
     'Bapatla': 'Guntur',
     'Palnadu': 'Guntur',
     'Anantapuramu': 'Anantapur',
+    'Ananthapuramu': 'Anantapur',
     'Sri Sathya Sai': 'Anantapur',
     'Annamayya': 'Chittoor',
     'Tirupati': 'Chittoor',
     'Nandyal': 'Kurnool',
     'Alluri Sitharama Raju': 'Visakhapatnam',
+    'Alluri Sitarama Raju': 'Visakhapatnam',
     'Anakapalli': 'Visakhapatnam',
     'Parvathipuram Manyam': 'Srikakulam',
     'Vizianagaram': 'Srikakulam',
