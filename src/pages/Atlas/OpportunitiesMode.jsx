@@ -59,12 +59,12 @@ export default function OpportunitiesMode({ states }) {
         <span className="legend">Tier filter</span>
         <TierChip on={filter === 'all'} onClick={() => setFilter('all')} label={`All · ${ranked.length}`}/>
         {['S', 'A', 'B', 'C'].map((t) => (
-          <TierChip key={t} on={filter === t} onClick={() => setFilter(t)} label={`Tier ${t} · ${tierCount[t]}`}/>
+          <TierChip key={t} tier={t} on={filter === t} onClick={() => setFilter(t)} label={`Tier ${t} · ${tierCount[t]}`}/>
         ))}
         <span style={{ flex: 1 }}/>
         <span className="legend">Sort</span>
-        {[['score', 'composite'], ['volume', 'volume'], ['conc', 'concentration']].map(([k, lbl]) => (
-          <TierChip key={k} on={sort === k} onClick={() => setSort(k)} label={lbl}/>
+        {[['score', 'composite', 'return'], ['volume', 'volume', 'return'], ['conc', 'concentration', 'coverage']].map(([k, lbl, role]) => (
+          <TierChip key={k} sortRole={role} on={sort === k} onClick={() => setSort(k)} label={lbl}/>
         ))}
       </div>
 
@@ -87,9 +87,13 @@ export default function OpportunitiesMode({ states }) {
   );
 }
 
-function TierChip({ on, onClick, label }) {
+function TierChip({ on, onClick, label, tier, sortRole }) {
   return (
-    <button className={`chip ${on ? 'on' : ''}`} onClick={onClick}>{label}</button>
+    <button
+      className={`chip ${on ? 'on' : ''}`}
+      data-tier={tier}
+      data-sort-role={sortRole}
+      onClick={onClick}>{label}</button>
   );
 }
 

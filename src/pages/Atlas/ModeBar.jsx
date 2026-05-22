@@ -16,6 +16,7 @@ export default function ModeBar({ tab, setTab }) {
       {TABS.map((t, i) => (
         <button key={t.id}
                 className={`tab${tab === t.id ? ' active' : ''}`}
+                data-mode={t.id}
                 onClick={() => setTab(t.id)}>
           <span className="idx">0{i+1}</span>
           <span>{t.label}</span>

@@ -56,10 +56,10 @@ export default function CompareMode({ states }) {
               <div className="ckicker">{s.capital} · flagship: {s.flagship}</div>
 
               <div className="stats">
-                <Stat v={`${s.farmers}M`} l="Farmers"/>
-                <Stat v={`${(s.netSown_kha / 1000).toFixed(1)}M`} l="Ha sown"/>
-                <Stat v={`${s.irrigated_pct}%`} l="Irrigated"/>
-                <Stat v={String(s.raw?.length || 0)} l="Raw streams"/>
+                <Stat v={`${s.farmers}M`} l="Farmers" role="time"/>
+                <Stat v={`${(s.netSown_kha / 1000).toFixed(1)}M`} l="Ha sown" role="return"/>
+                <Stat v={`${s.irrigated_pct}%`} l="Irrigated" role="coverage"/>
+                <Stat v={String(s.raw?.length || 0)} l="Raw streams" role="category"/>
               </div>
 
               <div className="cgroup">Top crops by production</div>
@@ -89,9 +89,9 @@ export default function CompareMode({ states }) {
   );
 }
 
-function Stat({ v, l }) {
+function Stat({ v, l, role }) {
   return (
-    <div className="stat">
+    <div className="stat" data-role={role || 'return'}>
       <div className="v">{v}</div>
       <div className="l">{l}</div>
     </div>

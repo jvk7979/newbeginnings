@@ -2,32 +2,39 @@ import { C } from '../../../tokens';
 import { fmtINR } from '../../../components/calc/primitives';
 import { PRODUCT_COLORS_EXPORT as PRODUCT_COLORS, unitMult } from '../../../utils/calcEngine';
 
-// Cost-segment palette for the Money Flow stacked bar. Adjacent slots
-// are 100°+ apart on the hue wheel — primary triad (red/green/blue)
-// interleaved with secondary triad (orange/violet/yellow) — so two
-// neighbouring segments always have a strong colour-wheel separation
-// even at small widths. Independent from PRODUCT_COLORS so revenue and
-// cost segments don't collide.
+// Cost-segment palette for the Money Flow stacked bar — sourced from
+// theme tokens so each segment carries a data-role colour:
+//   1st segment (always Variable Cost) → danger (the burn)
+//   2nd                                → warning (Time/payroll cadence)
+//   3rd                                → info    (Coverage/overhead)
+//   4th                                → accent-2 (categorical — varies per theme)
+//   5th                                → accent-3 (categorical)
+//   6th                                → accent-4 (categorical)
+//   7th                                → fg2     (neutral / catch-all)
+// Resolves to var(--c-*) so every theme picks its own RGBs.
 const COST_COLORS = [
-  '#dc2626', // red-600
-  '#16a34a', // green-600
-  '#0ea5e9', // sky-500
-  '#ea580c', // orange-600
-  '#7c3aed', // violet-600
-  '#eab308', // yellow-500
-  '#0f172a', // slate-900
+  C.danger,
+  C.warning,
+  C.info,
+  C.accent2,
+  C.accent3,
+  C.accent4,
+  C.fg2,
 ];
 
 // Three preset patches users can apply with one click. Each `apply()`
 // returns a partial input object that gets merged via setI(). Conservative
 // stress-tests the project; Aggressive Growth flatters it; No-Subsidy
 // Baseline strips every grant so users see what the project earns on
-// its own merits.
+// its own merits. `role` drives a 3px left-stripe per the data-color
+// system: coverage (info) for the cautious preset, return (accent) for
+// the upside preset, neutral (fg3) for the unflattered baseline.
 const PRESETS = [
   {
     id: 'conservative',
     label: 'Conservative',
     sub: '40% ceiling · 30% Y1 · no subsidy · no subvention',
+    role: 'coverage',
     apply: () => ({
       capacityCeilingPct: 40,
       capacityPct: 40,
@@ -43,6 +50,7 @@ const PRESETS = [
     id: 'aggressive',
     label: 'Aggressive Growth',
     sub: '95% ceiling · 60% Y1 · all subsidies · 3% subvention',
+    role: 'return',
     apply: () => ({
       capacityCeilingPct: 95,
       capacityPct: 95,
@@ -59,6 +67,7 @@ const PRESETS = [
     id: 'baseline',
     label: 'No-Subsidy Baseline',
     sub: 'all subsidies off · current ramp & costs',
+    role: 'neutral',
     apply: () => ({
       pmegpEnabled: false,
       citusEnabled: false,
@@ -128,15 +137,15 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
             name: 'LOSS',
             barPct: denominator > 0 ? (Math.abs(calc.ebitda) / denominator) * 100 : 0,
             revPct: (Math.abs(calc.ebitda) / calc.revenue) * 100,
-            background: '#fde0e0',
-            textColor: '#c0392b',
+            background: C.dangerBg,
+            textColor: C.danger,
           }
         : {
             key: 'profit',
             name: 'PROFIT',
             barPct: denominator > 0 ? (calc.ebitda / denominator) * 100 : 0,
             revPct: (calc.ebitda / calc.revenue) * 100,
-            background: '#2a7d3c',
+            background: C.success,
             textColor: '#fff',
           })
     : null;
@@ -266,16 +275,19 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
             </div>
           )}
 
-          {/* KPI tiles */}
+          {/* KPI tiles — values colour-coded by sentiment via theme tokens.
+              Revenue stays in fg1 (factual baseline); cost rows take the
+              danger hue (--c-danger); profits flip success ↔ danger by
+              sign. Role-stripe data-role drives a 3px left border in CSS. */}
           <div className="calc-quick-kpis">
             {[
-              { label: 'Revenue',         value: fmtINR(calc.revenue),                                          color: C.fg1 },
-              { label: 'Variable',        value: '−' + fmtINR(calc.variableCosts),                              color: '#c0392b' },
-              { label: 'Operating Costs', value: '−' + fmtINR(calc.variableCosts + calc.fixedCosts),            color: '#c0392b' },
-              { label: 'Operating Profit', value: fmtINR(calc.ebitda),                                          color: calc.ebitda >= 0 ? '#2a7d3c' : '#c0392b' },
-              { label: 'Net Profit (Y1)',  value: fmtINR(calc.netProfitY1 ?? 0),                                color: (calc.netProfitY1 ?? 0) >= 0 ? '#2a7d3c' : '#c0392b' },
+              { label: 'Revenue',          value: fmtINR(calc.revenue),                                          color: C.fg1,    role: 'return' },
+              { label: 'Variable',         value: '−' + fmtINR(calc.variableCosts),                              color: C.danger, role: 'cost'   },
+              { label: 'Operating Costs',  value: '−' + fmtINR(calc.variableCosts + calc.fixedCosts),            color: C.danger, role: 'cost'   },
+              { label: 'Operating Profit', value: fmtINR(calc.ebitda),                                           color: calc.ebitda >= 0 ? C.success : C.danger,            role: 'return' },
+              { label: 'Net Profit (Y1)',  value: fmtINR(calc.netProfitY1 ?? 0),                                 color: (calc.netProfitY1 ?? 0) >= 0 ? C.success : C.danger, role: 'return' },
             ].map(t => (
-              <div key={t.label} className="calc-quick-kpi-tile">
+              <div key={t.label} className="calc-quick-kpi-tile" data-role={t.role}>
                 <div className="calc-quick-kpi-label">{t.label}</div>
                 <div className="calc-quick-kpi-value" style={{ color: t.color }}>{t.value}</div>
               </div>
@@ -327,6 +339,7 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
                   key={p.id}
                   type="button"
                   className="calc-quick-preset"
+                  data-role={p.role}
                   onClick={() => setI(p.apply())}>
                   <strong>{p.label}</strong>
                   <span>{p.sub}</span>

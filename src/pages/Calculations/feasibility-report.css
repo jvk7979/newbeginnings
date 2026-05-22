@@ -115,16 +115,33 @@
 }
 .fr-deck b { font-style: normal; color: var(--c-fg1); font-weight: 600; }
 
-/* ─── KPI row ───────────────────────────────────────────────── */
+/* ─── KPI row ───────────────────────────────────────────────────
+   Each KPI card carries TWO orthogonal cues:
+     1. data-role  → 3px left-stripe in the role's theme token
+                     (return = accent, coverage = info, time = warning,
+                     cost = danger). Lets the eye group "this is a returns
+                     metric" vs "this is a coverage ratio" without
+                     changing surface colour.
+     2. .fr-kpi-{positive|warn|danger|neutral} → sentiment tint on the
+                     value text + sparkline. Driven by threshold rules in
+                     FeasibilityReport.jsx.
+   The two cues are intentionally independent: a Coverage-role card
+   (DSCR) can carry any of 4 sentiments without changing its role.       */
 .fr-kpi-row {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
 }
 .fr-kpi {
   background: var(--c-bg1); border: 1px solid var(--c-border);
-  border-radius: 8px; padding: 14px 16px;
+  border-radius: 8px; padding: 14px 16px 14px 19px;
   display: flex; flex-direction: column; gap: 6px;
   position: relative; overflow: hidden;
+  /* 3px role stripe — default Return */
+  border-left: 3px solid var(--c-accent);
 }
+.fr-kpi[data-role="return"]   { border-left-color: var(--c-accent); }
+.fr-kpi[data-role="coverage"] { border-left-color: var(--c-info); }
+.fr-kpi[data-role="time"]     { border-left-color: var(--c-warning); }
+.fr-kpi[data-role="cost"]     { border-left-color: var(--c-danger); }
 .fr-kpi-label {
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--c-fg3);
@@ -134,21 +151,29 @@
   font-size: 26px; font-weight: 600; color: var(--c-fg1);
   letter-spacing: -0.01em; line-height: 1;
 }
-.fr-kpi-positive .fr-kpi-value { color: var(--c-accent-dim); }
+.fr-kpi-positive .fr-kpi-value { color: var(--c-success); }
 .fr-kpi-warn     .fr-kpi-value { color: var(--c-warning); }
+.fr-kpi-danger   .fr-kpi-value { color: var(--c-danger); }
+.fr-kpi-neutral  .fr-kpi-value { color: var(--c-fg2); }
 .fr-kpi-sub {
   font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--c-fg3); line-height: 1.4;
 }
 .fr-kpi-chart { margin-top: 6px; }
 
+/* Break-even bar — fill colour follows the sentiment of the KPI card it
+   lives in, so a healthy break-even reads green, borderline reads gold,
+   over-ceiling reads terracotta. */
 .fr-be-bar {
   position: relative; height: 6px;
   background: var(--c-bg2); border-radius: 3px; overflow: hidden;
 }
 .fr-be-fill {
-  display: block; height: 100%; background: var(--c-accent);
+  display: block; height: 100%; background: var(--c-success);
   border-radius: 3px;
 }
+.fr-be-bar[data-tone="warn"]    .fr-be-fill { background: var(--c-warning); }
+.fr-be-bar[data-tone="danger"]  .fr-be-fill { background: var(--c-danger); }
+.fr-be-bar[data-tone="neutral"] .fr-be-fill { background: var(--c-fg3); }
 
 /* ─── Charts row ────────────────────────────────────────────── */
 .fr-charts-row {

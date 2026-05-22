@@ -148,7 +148,11 @@ export default function FeasibilityReport({ selectedProject, input, calc, insigh
         </div>
       </header>
 
-      {/* ── KPI row ─────────────────────────────────────────────── */}
+      {/* ── KPI row ─────────────────────────────────────────────────
+          Each KPI carries a role (return / coverage) and a sentiment
+          (positive / warn / danger). The role drives a 3px left-stripe
+          in CSS; the sentiment colours the sparkline so the chart
+          tells the same story the value does. */}
       <div className="fr-kpi-row">
         <KpiCard
           label={`NPV @ ${dr}%`}
@@ -156,36 +160,41 @@ export default function FeasibilityReport({ selectedProject, input, calc, insigh
           sub={isFinite(npv)
             ? (npv > 0 ? `+${fmtINR(npv)} over hurdle` : `${fmtINR(Math.abs(npv))} below hurdle`)
             : '—'}
-          tone={isFinite(npv) && npv > 0 ? 'positive' : 'warn'}
-          chart={<NPVBar value={npv} scale={calc.effectiveCapex || 1} color={isFinite(npv) && npv > 0 ? C.accent : C.danger} width={120}/>}
+          role="return"
+          tone={isFinite(npv) && npv > 0 ? 'positive' : 'danger'}
+          chart={<NPVBar value={npv} scale={calc.effectiveCapex || 1} color={isFinite(npv) && npv > 0 ? C.success : C.danger} width={120}/>}
         />
         <KpiCard
           label="Net Profit · Year 1"
           value={fmtINR(netY1)}
           sub="after interest, tax, principal"
-          tone={netY1 > 0 ? 'positive' : 'warn'}
-          chart={<Sparkline values={calc.rows.map(r => r.netProfit ?? 0)} color={netY1 > 0 ? C.accent : C.danger} width={120} height={26}/>}
+          role="return"
+          tone={netY1 > 0 ? 'positive' : 'danger'}
+          chart={<Sparkline values={calc.rows.map(r => r.netProfit ?? 0)} color={netY1 > 0 ? C.success : C.danger} width={120} height={26}/>}
         />
         <KpiCard
           label="EBITDA · Year 1"
           value={fmtINR(ebitdaY1)}
           sub={`${ebitdaY1Margin}% margin · at ${cpY1}% util.`}
-          tone="positive"
-          chart={<Sparkline values={calc.rows.map(r => r.ebitda)} color={C.accent} width={120} height={26}/>}
+          role="return"
+          tone={ebitdaY1 > 0 ? 'positive' : 'danger'}
+          chart={<Sparkline values={calc.rows.map(r => r.ebitda)} color={ebitdaY1 > 0 ? C.success : C.danger} width={120} height={26}/>}
         />
         <KpiCard
           label="DSCR · Year 1"
           value={dscrY1 != null ? `${dscrY1.toFixed(2)}×` : '—'}
           sub="covenant: ≥ 1.25×"
-          tone={dscrY1 != null && dscrY1 >= 1.25 ? 'positive' : 'warn'}
-          chart={<Sparkline values={calc.rows.map(r => r.dscr ?? 0)} color={dscrY1 != null && dscrY1 >= 1.25 ? C.accent : C.warning} width={120} height={26}/>}
+          role="coverage"
+          tone={dscrY1 == null ? 'neutral' : dscrY1 >= 1.5 ? 'positive' : dscrY1 >= 1.25 ? 'warn' : 'danger'}
+          chart={<Sparkline values={calc.rows.map(r => r.dscr ?? 0)} color={dscrY1 == null ? C.fg2 : dscrY1 >= 1.5 ? C.success : dscrY1 >= 1.25 ? C.warning : C.danger} width={120} height={26}/>}
         />
         <KpiCard
           label="Break-even capacity"
           value={be != null ? `${Math.round(be)}%` : '—'}
           sub={beVsCeiling != null ? `of ${cpCeil}% ceiling · ${beNarrow}` : 'enter inputs'}
-          tone={beVsCeiling != null && beVsCeiling < 80 ? 'positive' : 'warn'}
-          chart={<BreakEvenBar pct={be} ceiling={cpCeil}/>}
+          role="coverage"
+          tone={beVsCeiling == null ? 'neutral' : beVsCeiling < 80 ? 'positive' : beVsCeiling <= 100 ? 'warn' : 'danger'}
+          chart={<BreakEvenBar pct={be} ceiling={cpCeil} tone={beVsCeiling == null ? 'neutral' : beVsCeiling < 80 ? 'positive' : beVsCeiling <= 100 ? 'warn' : 'danger'}/>}
         />
       </div>
 
@@ -292,9 +301,9 @@ function SectorBar({ value, min, max, label }) {
   );
 }
 
-function KpiCard({ label, value, sub, tone, chart }) {
+function KpiCard({ label, value, sub, role, tone, chart }) {
   return (
-    <div className={`fr-kpi fr-kpi-${tone || 'neutral'}`}>
+    <div className={`fr-kpi fr-kpi-${tone || 'neutral'}`} data-role={role || 'return'}>
       <div className="fr-kpi-label">{label}</div>
       <div className="fr-kpi-value">{value}</div>
       {sub && <div className="fr-kpi-sub">{sub}</div>}
@@ -303,11 +312,11 @@ function KpiCard({ label, value, sub, tone, chart }) {
   );
 }
 
-function BreakEvenBar({ pct, ceiling }) {
+function BreakEvenBar({ pct, ceiling, tone }) {
   if (pct == null || !ceiling || ceiling <= 0) return null;
   const w = Math.max(0, Math.min(100, (pct / ceiling) * 100));
   return (
-    <div className="fr-be-bar">
+    <div className="fr-be-bar" data-tone={tone || 'positive'}>
       <span className="fr-be-fill" style={{ width: `${w}%` }}/>
     </div>
   );

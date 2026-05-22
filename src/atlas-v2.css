@@ -96,6 +96,15 @@
   letter-spacing: 0.1em; color: var(--c-fg3);
 }
 .atlas-modebar .tab.active .idx { color: var(--c-accent); }
+/* Per-mode role colour on the active underline + index — keeps the three
+ * Atlas modes visually distinct without re-skinning each surface:
+ *   Atlas      → accent   (default — explore)
+ *   Compare    → info     (coverage / side-by-side reasoning)
+ *   Opps       → accent-2 (categorical — the "new" venture lens)        */
+.atlas-modebar .tab[data-mode="compare"].active        { border-bottom-color: var(--c-info); }
+.atlas-modebar .tab[data-mode="compare"].active .idx   { color: var(--c-info); }
+.atlas-modebar .tab[data-mode="opps"].active           { border-bottom-color: var(--c-accent-2); }
+.atlas-modebar .tab[data-mode="opps"].active .idx      { color: var(--c-accent-2); }
 .atlas-modebar .tab .badge {
   font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 1px 6px;
   background: var(--c-danger-bg); color: var(--c-danger); border-radius: 2px;
@@ -150,6 +159,15 @@
   background: var(--c-accent); color: var(--c-bg1);
   border-color: var(--c-accent-dim);
 }
+/* Active tier-filter chip echoes the tier card's stripe colour so a
+ * user knows clicking "Tier B" filters to the gold-stripe cards. */
+.atlas-mode-pane .chip.on[data-tier="S"] { background: var(--c-accent);       border-color: var(--c-accent-dim); }
+.atlas-mode-pane .chip.on[data-tier="A"] { background: var(--c-accent-light); border-color: var(--c-accent); }
+.atlas-mode-pane .chip.on[data-tier="B"] { background: var(--c-warning);      border-color: var(--c-warning); }
+.atlas-mode-pane .chip.on[data-tier="C"] { background: var(--c-fg3);          border-color: var(--c-fg3); }
+/* Active sort chip uses the role its axis lives on. */
+.atlas-mode-pane .chip.on[data-sort-role="coverage"] { background: var(--c-info);    border-color: var(--c-info); }
+.atlas-mode-pane .chip.on[data-sort-role="time"]     { background: var(--c-warning); border-color: var(--c-warning); }
 .atlas-mode-pane .chip .x { opacity: 0.7; font-family: 'JetBrains Mono', monospace; }
 
 /* ─── COMPARE ───────────────────────────────────────────────── */
@@ -187,10 +205,19 @@
 .compare-card .stats {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0;
 }
+/* Compare stat tile — a 3px top-stripe in the stat's data-role colour.
+ * The four roles run across the row so a glance shows Ha sown (return)
+ * vs Irrigated (coverage) vs Farmers (time) vs Raw streams (category)
+ * as four distinct axes, not four interchangeable numbers.            */
 .compare-card .stat {
   background: var(--c-bg0); border: 1px solid var(--c-border);
+  border-top: 3px solid var(--c-accent);
   padding: 8px 11px; border-radius: 3px;
 }
+.compare-card .stat[data-role="return"]   { border-top-color: var(--c-accent); }
+.compare-card .stat[data-role="coverage"] { border-top-color: var(--c-info); }
+.compare-card .stat[data-role="time"]     { border-top-color: var(--c-warning); }
+.compare-card .stat[data-role="category"] { border-top-color: var(--c-accent-2); }
 .compare-card .stat .v {
   font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 700; color: var(--c-fg1);
 }
@@ -233,8 +260,19 @@
   display: grid; gap: 14px;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 }
+/* Opportunity tier cards — S/A/B/C is an ORDINAL ladder, so we use a
+ * single-hue intensity ramp on the left-stripe + a stepped score-strip
+ * background. The eye reads "S is the most saturated, C is the calmest"
+ * without learning four arbitrary hues:
+ *   S → accent (deep)
+ *   A → accent-light (one notch lighter)
+ *   B → warning (gold caveat — still a candidate, but with reservations)
+ *   C → fg3 (neutral grey — for completeness, not for action)
+ * The stripe stays anchored to one role token per theme, so palette
+ * changes (heritage → midnight, etc.) keep the ladder coherent.        */
 .opp-card {
   background: var(--c-bg1); border: 1px solid var(--c-border); border-radius: 6px;
+  border-left: 3px solid var(--c-accent);
   padding: 18px 20px; position: relative; overflow: hidden;
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
@@ -242,16 +280,20 @@
   transform: translateY(-2px);
   box-shadow: 0 12px 28px -18px rgba(0,0,0,0.20);
 }
+.opp-card.tier-S { border-left-color: var(--c-accent); }
+.opp-card.tier-A { border-left-color: var(--c-accent-light); }
+.opp-card.tier-B { border-left-color: var(--c-warning); }
+.opp-card.tier-C { border-left-color: var(--c-fg3); }
 .opp-card .score-strip {
   position: absolute; top: 0; right: 0; padding: 4px 10px;
   background: var(--c-fg1); color: var(--c-bg0);
   font-family: 'JetBrains Mono', monospace; font-size: 11px;
   letter-spacing: 0.1em; border-radius: 0 6px 0 4px;
 }
-.opp-card.tier-S .score-strip { background: var(--c-danger); }
-.opp-card.tier-A .score-strip { background: var(--c-warning); }
-.opp-card.tier-B .score-strip { background: var(--c-accent); }
-.opp-card.tier-C .score-strip { background: var(--c-info); }
+.opp-card.tier-S .score-strip { background: var(--c-accent); }
+.opp-card.tier-A .score-strip { background: var(--c-accent-light); }
+.opp-card.tier-B .score-strip { background: var(--c-warning); }
+.opp-card.tier-C .score-strip { background: var(--c-fg3); }
 .opp-card .nm {
   font-family: 'Playfair Display', Georgia, serif; font-size: 22px;
   font-weight: 600; line-height: 1.1; color: var(--c-fg1); padding-right: 90px;
@@ -279,9 +321,13 @@
   height: 6px; background: var(--c-bg2); border-radius: 2px; overflow: hidden;
 }
 .opp-card .meter .bar > span { display: block; height: 100%; background: var(--c-accent); }
-.opp-card .meter.volume .bar > span { background: var(--c-danger); }
-.opp-card .meter.conc .bar > span   { background: var(--c-warning); }
-.opp-card .meter.access .bar > span { background: var(--c-info); }
+/* Semantic axis mapping — each axis = one data role:
+ *   Volume        → Return   (--c-accent)  — bigger volume = bigger upside
+ *   Concentration → Coverage (--c-info)    — sourcing safety
+ *   Access        → Time     (--c-warning) — proxy for time-to-launch  */
+.opp-card .meter.volume .bar > span { background: var(--c-accent); }
+.opp-card .meter.conc .bar > span   { background: var(--c-info); }
+.opp-card .meter.access .bar > span { background: var(--c-warning); }
 .opp-card .meter .v { color: var(--c-fg1); text-align: right; }
 
 /* ─── ATLAS TAB · 3-column working surface ──────────────────── */

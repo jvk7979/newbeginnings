@@ -86,6 +86,29 @@
   --c-h-terracotta:  #C97435; /* warm icon-circle fills on KPI tiles */
   --c-h-terracotta-bg: #F8E8D8;
 
+  /* Secondary categorical palette — same role the other themes expose as
+   * --c-accent-2/3/4. Heritage walks its narrow editorial palette
+   * carefully: each categorical hue is visually distinct from the four
+   * status hues above (accent / info / warning / danger), so a stripe
+   * or chip painted in --c-accent-2 reads as its own colour, not as a
+   * blue-coverage signal or a green-accent signal. The trio:
+   *   --c-accent-2 — lighter sage (#4A8F70) — same family as accent,
+   *                  but enough lighter to register as separate. Used
+   *                  on Scenarios pill, Compare-card categorical stat.
+   *   --c-accent-3 — warm terracotta-orange (#C97435) — heritage's
+   *                  KPI-icon-circle hue, fully outside the four
+   *                  status hues' colour wheel.
+   *   --c-accent-4 — gold (#B88A3B) — re-uses warning's brand hue at
+   *                  full chroma. Position 4 in cost segments is rare,
+   *                  so the gold-on-gold edge case almost never lands
+   *                  next to a warning sentiment. */
+  --c-accent-2:    #4A8F70;
+  --c-accent-2-bg: #E2EEE6;
+  --c-accent-3:    #C97435;
+  --c-accent-3-bg: #F8E8D8;
+  --c-accent-4:    #B88A3B;
+  --c-accent-4-bg: #F8F0DD;
+
   /* Chart palette — five roles consumed by Calculations + Dashboard SVG
      charts. Each theme picks colours that sit on its own background. */
   --c-chart-positive: #5C8A52; /* sage — upward trends, positive EBITDA */
@@ -2365,14 +2388,40 @@ textarea:focus-visible,
 .calc-page-redesign .calc-pill:hover {
   background: var(--c-bg2);
 }
+/* Per-role active background — each pill carries data-role so the active
+   state echoes the role-stripe vocabulary used on KPI cards:
+     return   → accent  (returns / verdict)
+     coverage → info    (P&L coverage detail)
+     time     → warning (sensitivity over time)
+     category → accent-2 (compare across scenarios)                       */
 .calc-page-redesign .calc-pill[data-active="true"] {
   background: var(--c-accent);
   color: #fff;
   border-color: var(--c-accent);
 }
+.calc-page-redesign .calc-pill[data-active="true"][data-role="coverage"] {
+  background: var(--c-info);
+  border-color: var(--c-info);
+}
+.calc-page-redesign .calc-pill[data-active="true"][data-role="time"] {
+  background: var(--c-warning);
+  border-color: var(--c-warning);
+}
+.calc-page-redesign .calc-pill[data-active="true"][data-role="category"] {
+  background: var(--c-accent-2);
+  border-color: var(--c-accent-2);
+}
 .calc-page-redesign .calc-pill[data-active="true"] .calc-pill-sub {
   color: rgb(255 255 255 / 0.78);
 }
+/* Inactive pills get a thin role-tinted bottom hair when hovered, so a
+   user discovers the tab→role mapping by mousing over. */
+.calc-page-redesign .calc-pill:not([data-active="true"]):hover {
+  border-color: rgb(var(--c-accent-rgb) / 0.4);
+}
+.calc-page-redesign .calc-pill:not([data-active="true"])[data-role="coverage"]:hover { border-color: color-mix(in srgb, var(--c-info) 50%, transparent); }
+.calc-page-redesign .calc-pill:not([data-active="true"])[data-role="time"]:hover     { border-color: color-mix(in srgb, var(--c-warning) 50%, transparent); }
+.calc-page-redesign .calc-pill:not([data-active="true"])[data-role="category"]:hover { border-color: color-mix(in srgb, var(--c-accent-2) 50%, transparent); }
 
 /* ── Assumptions left rail — editorial typographic groups ────────────── */
 .calc-page-redesign .calc-assumptions {
@@ -3083,6 +3132,10 @@ textarea:focus-visible,
 }
 
 /* Verdict strip — compact single-row callout */
+/* Verdict strip — colours sourced from theme tokens. Negative state uses
+   --c-danger; positive flips to --c-accent. Border tints derived via
+   rgb(var(--c-danger-rgb) / α) so every theme paints the strip with its
+   own danger / accent ramp. */
 .calc-quick-verdict {
   display: flex;
   align-items: center;
@@ -3091,9 +3144,9 @@ textarea:focus-visible,
   border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
-  background: rgb(192 57 43 / 0.05);
-  border: 1px solid rgb(192 57 43 / 0.18);
-  border-left: 3px solid #c0392b;
+  background: rgb(var(--c-danger-rgb) / 0.05);
+  border: 1px solid rgb(var(--c-danger-rgb) / 0.18);
+  border-left: 3px solid var(--c-danger);
   color: var(--c-fg2);
   line-height: 1.5;
 }
@@ -3104,14 +3157,14 @@ textarea:focus-visible,
 }
 .calc-quick-verdict svg {
   flex-shrink: 0;
-  color: #c0392b;
+  color: var(--c-danger);
 }
 .calc-quick-verdict[data-positive="true"] svg {
   color: var(--c-accent);
 }
 .calc-quick-verdict strong {
   font-weight: 700;
-  color: #c0392b;
+  color: var(--c-danger);
 }
 .calc-quick-verdict[data-positive="true"] strong {
   color: var(--c-accent);
@@ -3322,9 +3375,14 @@ textarea:focus-visible,
 .calc-quick-kpi-tile {
   background: var(--c-bg1);
   border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 10px 12px 10px 13px;
 }
+.calc-quick-kpi-tile[data-role="return"] { border-left-color: var(--c-accent); }
+.calc-quick-kpi-tile[data-role="cost"]   { border-left-color: var(--c-danger); }
+.calc-quick-kpi-tile[data-role="time"]   { border-left-color: var(--c-warning); }
+.calc-quick-kpi-tile[data-role="coverage"] { border-left-color: var(--c-info); }
 .calc-quick-kpi-label {
   font-family: 'DM Sans', sans-serif;
   font-size: 9px;
@@ -3388,18 +3446,27 @@ textarea:focus-visible,
   text-align: left;
   background: var(--c-bg2);
   border: 1px solid var(--c-border);
+  /* 3px role-stripe — coverage (cautious), return (upside), neutral (baseline) */
+  border-left: 3px solid var(--c-fg3);
   border-radius: 8px;
-  padding: 9px 12px;
+  padding: 9px 12px 9px 11px;
   cursor: pointer;
   transition: all 120ms;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+.calc-quick-preset[data-role="coverage"] { border-left-color: var(--c-info); }
+.calc-quick-preset[data-role="return"]   { border-left-color: var(--c-accent); }
+.calc-quick-preset[data-role="neutral"]  { border-left-color: var(--c-fg3); }
 .calc-quick-preset:hover {
   border-color: rgb(var(--c-accent-rgb) / 0.5);
   background: rgb(var(--c-accent-rgb) / 0.04);
 }
+/* Hover preserves the role-stripe; the rest of the border lights up. */
+.calc-quick-preset[data-role="coverage"]:hover { border-left-color: var(--c-info); }
+.calc-quick-preset[data-role="return"]:hover   { border-left-color: var(--c-accent); }
+.calc-quick-preset[data-role="neutral"]:hover  { border-left-color: var(--c-fg3); }
 .calc-quick-preset strong {
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;

@@ -142,18 +142,17 @@ export default function CalculationsPage({ onNavigate }) {
 
   // Color helpers — gate on actual signal so an empty/zero project doesn't
   // flash all-red. The thresholds only kick in once meaningful values exist.
+  // Sentiment maps to theme tokens (success/warning/danger) so every status
+  // tier follows the active palette across all 8 themes.
   const dr = Number(input.discountRate) || 0;
   const tn = Number(input.tenure) || 1;
   const hasData = calc.revenue > 0 || calc.effectiveCapex > 0;
-  const irrColor     = !hasData || calc.irr === null ? C.fg2 : calc.irr > dr + 3 ? '#2a7d3c' : calc.irr > dr - 3 ? '#b06000' : '#c0392b';
-  const npvColor     = !hasData || !isFinite(calc.npv) ? C.fg2 : calc.npv > 0 ? '#2a7d3c' : '#c0392b';
-  const paybackColor = !hasData || calc.payback === null ? C.fg2 : calc.payback < tn * 0.6 ? '#2a7d3c' : calc.payback < tn * 0.8 ? '#b06000' : '#c0392b';
-  const dscrColor    = !hasData || calc.dscrY1 === null ? C.fg2 : calc.dscrY1 >= 1.5 ? '#2a7d3c' : calc.dscrY1 >= 1.25 ? '#b06000' : '#c0392b';
-  const ebitdaColor  = !hasData ? C.fg2 : calc.ebitda > 0 ? '#2a7d3c' : '#c0392b';
-  // Net Profit (Y1, after interest+tax+principal) — same green/red rule as
-  // EBITDA. A negative Y1 net profit isn't fatal (later years usually
-  // recover as capacity ramps + loan balance falls), but it's a flag.
-  const netProfitColor = !hasData ? C.fg2 : (calc.netProfitY1 ?? 0) > 0 ? '#2a7d3c' : '#c0392b';
+  const irrColor     = !hasData || calc.irr === null ? C.fg2 : calc.irr > dr + 3 ? C.success : calc.irr > dr - 3 ? C.warning : C.danger;
+  const npvColor     = !hasData || !isFinite(calc.npv) ? C.fg2 : calc.npv > 0 ? C.success : C.danger;
+  const paybackColor = !hasData || calc.payback === null ? C.fg2 : calc.payback < tn * 0.6 ? C.success : calc.payback < tn * 0.8 ? C.warning : C.danger;
+  const dscrColor    = !hasData || calc.dscrY1 === null ? C.fg2 : calc.dscrY1 >= 1.5 ? C.success : calc.dscrY1 >= 1.25 ? C.warning : C.danger;
+  const ebitdaColor  = !hasData ? C.fg2 : calc.ebitda > 0 ? C.success : C.danger;
+  const netProfitColor = !hasData ? C.fg2 : (calc.netProfitY1 ?? 0) > 0 ? C.success : C.danger;
 
   const sliderMin = 10, sliderMax = 100;
   const bePct  = calc.breakEvenCapacity !== null ? Math.min(sliderMax, Math.max(sliderMin, calc.breakEvenCapacity)) : null;
@@ -212,13 +211,14 @@ export default function CalculationsPage({ onNavigate }) {
         <div className="calc-right">
           <div className="calc-pill-tabs">
             {[
-              ['quick',     'Quick Estimate', 'Verdict at a glance'],
-              ['deep',      'Deep Dive',      'P&L · Capex · Projection'],
-              ['whatif',    'What-If Lab',    'Sensitivity tornado'],
-              ['scenarios', 'Scenarios',      'Compare projects'],
-            ].map(([id, lbl, sub]) => (
+              ['quick',     'Quick Estimate', 'Verdict at a glance',         'return'],
+              ['deep',      'Deep Dive',      'P&L · Capex · Projection',    'coverage'],
+              ['whatif',    'What-If Lab',    'Sensitivity tornado',         'time'],
+              ['scenarios', 'Scenarios',      'Compare projects',            'category'],
+            ].map(([id, lbl, sub, role]) => (
               <button key={id} onClick={() => setRightTab(id)}
                 className="calc-pill"
+                data-role={role}
                 data-active={rightTab === id ? 'true' : 'false'}>
                 <span className="calc-pill-label">{lbl}</span>
                 <span className="calc-pill-sub">{sub}</span>
