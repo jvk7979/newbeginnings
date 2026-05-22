@@ -6965,13 +6965,13 @@ textarea.form-input {
     min-height: 260px;
   }
   .atlas-header {
-    padding: 16px 16px 14px !important;
+    padding: 18px 16px 14px !important;
   }
   .atlas-title {
-    font-size: 24px !important;
+    font-size: 26px !important;
   }
   .atlas-subhead {
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     margin-top: 4px !important;
   }
   .atlas-side {
@@ -6994,13 +6994,18 @@ textarea.form-input {
 
 /* ── Crop Atlas — header overview stat strip ────────────────────────────── */
 /* The strip wraps under the title on narrow screens (flex-wrap on the header
-   row). On very narrow phones its 4 cells wrap to 2×2 — the segmented right
-   borders still read fine because the strip clips to a rounded box. */
-@media (max-width: 380px) {
+   row). On phones its 4 cells lay out as a clean 2×2 grid — the segmented
+   right borders still read fine because the strip clips to a rounded box.
+   A 4-up flex row only fits comfortably on tablet+, so anything ≤699px
+   (mobile) gets the grid to avoid an uneven 3+1 wrap. */
+@media (max-width: 699px) {
   .atlas-overview {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
   }
+  .atlas-overview > div:nth-child(2) { border-right: none; }
+  .atlas-overview > div:nth-child(1),
+  .atlas-overview > div:nth-child(2) { border-bottom: 1px solid var(--c-border); }
 }
 
 /* ── FilterBar — keep every control reachable on small screens ──────────── */
@@ -7009,35 +7014,16 @@ textarea.form-input {
      and wrap onto as many rows as needed. */
   .atlas-filterbar .atlas-fb-divider,
   .atlas-filterbar .atlas-fb-spacer { display: none !important; }
-  .atlas-filterbar { gap: 10px !important; padding: 12px 16px !important; }
+  .atlas-filterbar { gap: 12px !important; padding: 12px 16px !important; }
   /* Search box flexes to fill its row instead of a rigid 240px. */
-  .atlas-filterbar .atlas-fb-search { flex: 1 1 220px; min-width: 200px; }
+  .atlas-filterbar .atlas-fb-search { flex: 1 1 240px; min-width: 200px; }
 }
 
 @media (max-width: 699px) {
-  .atlas-filterbar { gap: 8px !important; padding: 10px 12px !important; }
+  .atlas-filterbar { gap: 10px !important; padding: 12px 14px !important; }
   /* Search box takes a full row on phones. */
   .atlas-filterbar .atlas-fb-search { flex: 1 1 100%; min-width: 0; }
-  /* Category pills scroll horizontally rather than stacking many rows —
-     nothing clipped, the row just scrolls. */
-  .atlas-filterbar .atlas-fb-cats {
-    flex-wrap: nowrap !important;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100%;
-    padding-bottom: 2px;
-    scrollbar-width: thin;
-  }
-  /* In the nowrap scroller, stop the label + pills from being squeezed
-     (the "Category" label would otherwise wrap one letter per line). */
-  .atlas-filterbar .atlas-fb-cats > * {
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-  .atlas-filterbar .atlas-fb-cats::-webkit-scrollbar { height: 4px; }
-  .atlas-filterbar .atlas-fb-cats::-webkit-scrollbar-thumb {
-    background: var(--c-fg3); border-radius: 2px;
-  }
-  /* Each remaining control group can take a full row if it needs to. */
+  /* Each remaining control group can take a full row if it needs to so the
+     label + control never gets squeezed against a neighbour. */
   .atlas-filterbar .atlas-fb-group { flex: 1 1 auto; }
 }

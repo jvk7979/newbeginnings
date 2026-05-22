@@ -29,21 +29,21 @@ export default function CropSelect({ crop, crops, onChange }) {
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           background: active ? C.accentBg : C.bg1,
-          border: `1px solid ${active ? 'var(--c-border-accent, #C4A060)' : C.border}`,
-          borderRadius: 6, padding: '5px 11px', cursor: 'pointer',
-          fontFamily: "'DM Sans', sans-serif", fontSize: 11,
-          fontWeight: active ? 600 : 500, color: active ? C.accent : C.fg2, minWidth: 120,
+          border: `1px solid ${active ? C.accent : C.border}`,
+          borderRadius: 6, padding: '8px 12px', cursor: 'pointer',
+          fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+          fontWeight: active ? 600 : 500, color: active ? C.accent : C.fg2, minWidth: 130,
         }}>
         <span style={{ flex: 1, textAlign: 'left' }}>{crop || 'Any crop'}</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       {open && (
         <div style={{
-          position: 'absolute', top: 'calc(100% + 6px)', left: 0, width: 220, zIndex: 60,
-          background: C.bg0, border: `1px solid ${C.borderLight}`, borderRadius: 8,
-          boxShadow: '0 12px 40px rgba(45,42,38,0.18)', padding: 8,
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0, width: 230, zIndex: 60,
+          background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10,
+          boxShadow: '0 12px 32px rgba(0,0,0,0.16)', padding: 8,
         }}>
           <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search crops…"
             style={{

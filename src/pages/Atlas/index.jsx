@@ -98,29 +98,30 @@ export default function AtlasPage({ onNavigate }) {
 
   return (
     <div className="page-pad atlas-root" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
-      {/* Page header (mirrors Markets/index.jsx) — compacted so the map row
-          below reclaims the height; the aspect-locked map grows with it. */}
-      <div className="atlas-header" style={{ padding: '12px 32px 10px', borderBottom: `1px solid ${C.border}`, background: C.bg0 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>
+      {/* Page header — matches the app-wide pattern (Markets / Suppliers /
+          Portfolio): JetBrains Mono eyebrow → Playfair title → DM Sans
+          subhead. The map row below reclaims height via .atlas-header CSS. */}
+      <div className="atlas-header" style={{ padding: '20px 32px 16px', borderBottom: `1px solid ${C.border}`, background: C.bg0 }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
           Atlas · {view.level === 'india' ? 'India' : view.state}
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 320px', minWidth: 260 }}>
-            <h1 className="page-title atlas-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 25, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.12, letterSpacing: '-0.01em' }}>
+            <h1 className="page-title atlas-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15, letterSpacing: '-0.01em' }}>
               {view.level === 'india' ? 'Crops & Raw Materials' : view.state}
               {' '}
               <span style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 600, color: C.accent }}>
                 {view.level === 'india' ? 'Atlas' : '· Districts'}
               </span>
             </h1>
-            <div className="atlas-subhead" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: C.fg3, marginTop: 3, lineHeight: 1.4, maxWidth: 720 }}>
+            <div className="atlas-subhead" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 4, lineHeight: 1.5, maxWidth: 720 }}>
               {view.level === 'india'
                 ? 'State-wise crop production by financial year — pick a crop to recolour the map, or click a gold-dotted state to drill into its districts.'
                 : 'District-level breakdown of crops and downstream raw-material streams for venture exploration.'}
             </div>
           </div>
 
-          {/* Compact stat strip — moved out of the map area so nothing
+          {/* India overview stat strip — moved out of the map area so nothing
               floats over India. India view only; wraps below the title on
               narrow screens. */}
           {view.level === 'india' && (
@@ -213,17 +214,18 @@ export default function AtlasPage({ onNavigate }) {
 }
 
 // One cell of the header overview strip. Cells are separated by a hairline
-// right border (the strip itself owns the outer rounded border).
+// right border (the strip itself owns the outer rounded border). Sizing
+// mirrors the app's KPI-tile convention (11px uppercase label, mono value).
 function SnapStat({ value, label, accent, last }) {
   return (
     <div style={{
-      padding: '5px 13px',
+      padding: '10px 16px',
       borderRight: last ? 'none' : `1px solid ${C.border}`,
       fontFamily: "'DM Sans', sans-serif",
       whiteSpace: 'nowrap',
     }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: accent ? C.accent : C.fg1, lineHeight: 1.2 }}>{value}</div>
-      <div style={{ fontSize: 9, color: C.fg3, letterSpacing: '0.08em', marginTop: 1 }}>{label}</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: accent ? C.accent : C.fg1, lineHeight: 1.15 }}>{value}</div>
+      <div style={{ fontSize: 10, fontWeight: 600, color: C.fg3, letterSpacing: '0.08em', marginTop: 3 }}>{label}</div>
     </div>
   );
 }

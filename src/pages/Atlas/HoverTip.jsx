@@ -22,17 +22,17 @@ export default function HoverTip({ name, level, x, y, filter, states, apDistrict
   return (
     <div style={{
       position: 'fixed', left, top: top_, width: W,
-      background: 'rgba(253,250,242,0.97)',
-      border: `1px solid var(--c-border-accent, #C4A060)`,
+      background: C.bg1,
+      border: `1px solid ${C.border}`,
       borderRadius: 10, padding: '14px 16px', pointerEvents: 'none',
-      boxShadow: '0 16px 48px rgba(45,42,38,0.18), 0 2px 6px rgba(45,42,38,0.08), 0 0 0 1px rgba(184,138,59,0.15)',
-      backdropFilter: 'blur(8px)', zIndex: 1000,
+      boxShadow: '0 16px 40px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)',
+      zIndex: 1000,
       fontFamily: "'DM Sans', sans-serif",
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 500, color: C.fg1, letterSpacing: '-0.01em', lineHeight: 1.15 }}>{name}</div>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 600, color: C.fg1, letterSpacing: '-0.01em', lineHeight: 1.15 }}>{name}</div>
         {isState && data.code && (
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.accent, letterSpacing: '0.08em', padding: '2px 6px', background: C.accentBg, borderRadius: 3, border: `1px solid var(--c-border-accent, #C4A060)` }}>{data.code}</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: '0.08em', padding: '2px 7px', background: C.accentBg, borderRadius: 4, border: `1px solid ${C.border}` }}>{data.code}</span>
         )}
       </div>
 

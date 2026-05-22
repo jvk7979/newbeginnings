@@ -71,38 +71,38 @@ export default function RankingPanel({ level, filter, states, apDistricts, hover
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
-      <div style={{ padding: '20px 14px 12px', flexShrink: 0 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+      <div style={{ padding: '20px 20px 14px', flexShrink: 0 }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           {isIndia ? 'All states · ranked' : 'Andhra Pradesh · districts'}
         </div>
-        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 24, fontWeight: 600, color: C.fg1, lineHeight: 1.15, letterSpacing: '-0.02em', margin: '3px 0 2px' }}>
+        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 24, fontWeight: 600, color: C.fg1, lineHeight: 1.15, letterSpacing: '-0.02em', margin: '5px 0 3px' }}>
           {scopeLabel}
         </h2>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>
           {sorted.length} {isIndia ? 'states' : 'districts'} by {metricLabel.toLowerCase()} · click to inspect
         </div>
       </div>
 
       {/* Column header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, background: C.bg2, flexShrink: 0 }}>
-        <HeadCell width={16}>#</HeadCell>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 20px', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, background: C.bg2, flexShrink: 0 }}>
+        <HeadCell width={18}>#</HeadCell>
         <HeadCell flex onClick={() => toggleSort('name')}>{isIndia ? 'STATE' : 'DISTRICT'}{arrow('name')}</HeadCell>
-        <HeadCell width={66} align="right" onClick={() => toggleSort('value')}>{metricLabel.toUpperCase()}{arrow('value')}</HeadCell>
-        <HeadCell width={42} align="right" onClick={() => toggleSort('share')}>SHARE{arrow('share')}</HeadCell>
-        {showTopCrop && <HeadCell width={72} onClick={() => toggleSort('topCrop')}>TOP CROP{arrow('topCrop')}</HeadCell>}
+        <HeadCell width={70} align="right" onClick={() => toggleSort('value')}>{metricLabel.toUpperCase()}{arrow('value')}</HeadCell>
+        <HeadCell width={46} align="right" onClick={() => toggleSort('share')}>SHARE{arrow('share')}</HeadCell>
+        {showTopCrop && <HeadCell width={76} onClick={() => toggleSort('topCrop')}>TOP CROP{arrow('topCrop')}</HeadCell>}
       </div>
 
       {/* Ranked rows */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {!hasData && (
-          <div style={{ padding: '32px 22px', textAlign: 'center' }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.5 }}>
+          <div style={{ padding: '40px 24px', textAlign: 'center' }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg2, lineHeight: 1.5 }}>
               {!isIndia && filter.crop
                 ? `${filter.crop} isn't tracked at district level.`
                 : 'No data for this selection.'}
             </div>
             {!isIndia && filter.crop && (
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 8, lineHeight: 1.55 }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 8, lineHeight: 1.6 }}>
                 District figures cover food grains — cereals &amp; pulses — only; DES does not publish {filter.crop.toLowerCase()} by district. Use the all-India view for it.
               </div>
             )}
@@ -117,19 +117,19 @@ export default function RankingPanel({ level, filter, states, apDistricts, hover
                  onMouseEnter={() => onHover?.(r.name)}
                  onMouseLeave={() => onHover?.(null)}
                  style={{
-                   display: 'flex', alignItems: 'center', gap: 6,
-                   padding: '8px 14px',
+                   display: 'flex', alignItems: 'center', gap: 8,
+                   padding: '9px 20px',
                    borderBottom: `1px solid ${C.border}`,
                    borderLeft: `2px solid ${isHome ? 'var(--c-h-gold)' : 'transparent'}`,
                    background: isHover ? C.accentBg : 'transparent',
                    cursor: 'pointer', transition: 'background 100ms',
                  }}>
-              <span style={{ width: 16, flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3 }}>{i + 1}</span>
-              <span style={{ flex: 1, minWidth: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: C.fg1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</span>
-              <span style={{ width: 66, flexShrink: 0, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg1 }}>{formatVal(r.value, effectiveMetric)}</span>
-              <span style={{ width: 42, flexShrink: 0, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: r.value > 0 ? C.accent : C.fg3 }}>{r.value > 0 ? `${r.share.toFixed(1)}%` : '—'}</span>
+              <span style={{ width: 18, flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{i + 1}</span>
+              <span style={{ flex: 1, minWidth: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</span>
+              <span style={{ width: 70, flexShrink: 0, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg1 }}>{formatVal(r.value, effectiveMetric)}</span>
+              <span style={{ width: 46, flexShrink: 0, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: r.value > 0 ? C.accent : C.fg3 }}>{r.value > 0 ? `${r.share.toFixed(1)}%` : '—'}</span>
               {showTopCrop && (
-                <span style={{ width: 72, flexShrink: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.topCrop || '—'}</span>
+                <span style={{ width: 76, flexShrink: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.topCrop || '—'}</span>
               )}
             </div>
           );
@@ -147,7 +147,7 @@ function HeadCell({ children, width, flex, align, onClick }) {
           style={{
             width, flex: flex ? 1 : undefined, flexShrink: 0,
             textAlign: align || 'left',
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
             color: C.fg3, letterSpacing: '0.06em',
             whiteSpace: 'nowrap', overflow: 'hidden',
             cursor: onClick ? 'pointer' : 'default', userSelect: 'none',

@@ -1,5 +1,5 @@
 // src/pages/Atlas/DetailPanel.jsx
-import { C } from '../../tokens';
+import { C, alpha } from '../../tokens';
 import { CATEGORIES } from './cropData';
 import { intensityColor } from './geoHelpers';
 
@@ -17,36 +17,36 @@ export default function DetailPanel({ name, level, filter, states, apDistricts, 
   const monopolies = isState ? data.crops.filter((c) => (c[4] || 0) >= 30) : [];
 
   return (
-    <div style={{ padding: '22px 22px 40px', overflowY: 'auto', height: '100%' }}>
+    <div style={{ padding: '22px 20px 40px', overflowY: 'auto', height: '100%' }}>
       {onClear && (
         <button onClick={onClear}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
-                  background: 'transparent', border: 'none', padding: 0,
+                  background: 'transparent', border: 'none', padding: '4px 0',
                   marginBottom: 12, cursor: 'pointer',
-                  fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent,
+                  fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: C.accent,
                 }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
           Back to ranking
         </button>
       )}
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>
         {isState ? 'STATE' : 'DISTRICT · ANDHRA PRADESH'}
       </div>
-      <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 600, color: C.fg1, lineHeight: 1.1, letterSpacing: '-0.02em', margin: '0 0 4px' }}>{name}</h2>
+      <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 600, color: C.fg1, lineHeight: 1.12, letterSpacing: '-0.02em', margin: '0 0 5px' }}>{name}</h2>
       {isState && (data.capital || data.area_sqkm) && (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>
           {[data.capital, data.area_sqkm ? `${data.area_sqkm.toLocaleString('en-IN')} km²` : null].filter(Boolean).join(' · ')}
         </div>
       )}
       {!isState && (
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>
           Andhra Pradesh · DES 2024-25
         </div>
       )}
 
       {data.highlight && (
-        <div style={{ marginTop: 10, padding: '6px 10px', background: C.accentBg, border: `1px solid var(--c-border-accent, #C4A060)`, borderRadius: 4, fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: 'var(--c-h-gold)', letterSpacing: '0.08em', display: 'inline-block', fontWeight: 700 }}>
+        <div style={{ marginTop: 12, padding: '5px 10px', background: 'var(--c-h-gold-bg)', border: `1px solid var(--c-h-gold-light)`, borderRadius: 6, fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: 'var(--c-h-gold)', letterSpacing: '0.08em', display: 'inline-block', fontWeight: 700 }}>
           ★ MY HOME DISTRICT
         </div>
       )}
@@ -56,21 +56,24 @@ export default function DetailPanel({ name, level, filter, states, apDistricts, 
                 style={{
                   marginTop: 16, width: '100%',
                   padding: '11px 14px',
-                  border: `1px solid var(--c-border-accent, #C4A060)`,
+                  border: `1px solid ${C.accent}`,
                   background: C.accentBg, color: C.accent,
                   borderRadius: 6, cursor: 'pointer',
-                  fontFamily: "'DM Sans', sans-serif", fontSize: 12,
-                  fontWeight: 700, letterSpacing: '0.04em',
+                  fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+                  fontWeight: 600, letterSpacing: '0.02em',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 21l-5-5"/><circle cx="11" cy="11" r="8"/><path d="M11 8v6M8 11h6"/></svg>
+                  transition: 'background 120ms',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = alpha(C.accent, 22); }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = C.accentBg; }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M21 21l-5-5"/><circle cx="11" cy="11" r="8"/><path d="M11 8v6M8 11h6"/></svg>
           Drill into {Object.keys(apDistricts).length} districts →
         </button>
       )}
 
       {data.note && (
-        <div style={{ marginTop: 16, padding: '11px 14px', background: C.bg2, borderLeft: `2px solid ${C.accent}`, borderRadius: 3 }}>
-          <div style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif", fontSize: 14, color: C.fg2, lineHeight: 1.55, fontStyle: 'italic' }}>"{data.note}"</div>
+        <div style={{ marginTop: 16, padding: '12px 14px', background: C.bg2, borderLeft: `3px solid ${C.accent}`, borderRadius: '0 6px 6px 0' }}>
+          <div style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif", fontSize: 15, color: C.fg2, lineHeight: 1.55, fontStyle: 'italic' }}>"{data.note}"</div>
         </div>
       )}
 
@@ -89,9 +92,9 @@ export default function DetailPanel({ name, level, filter, states, apDistricts, 
       )}
 
       <SectionHead title="Crops & Production" meta={`${sortedCrops.length} of ${data.crops.length}`}/>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {sortedCrops.length === 0 && (
-          <div style={{ padding: 14, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.fg3, textAlign: 'center' }}>
+          <div style={{ padding: 16, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 10, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, textAlign: 'center' }}>
             No crops in selected category.
           </div>
         )}
@@ -131,7 +134,7 @@ export default function DetailPanel({ name, level, filter, states, apDistricts, 
                   )}
                 </div>
                 {isState && fifth >= 20 && (
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, padding: '2px 6px', background: C.accentBg, color: 'var(--c-h-gold)', border: `1px solid var(--c-border-accent, #C4A060)`, borderRadius: 3, letterSpacing: '0.06em', fontWeight: 700 }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, padding: '2px 7px', background: 'var(--c-h-gold-bg)', color: 'var(--c-h-gold)', border: `1px solid var(--c-h-gold-light)`, borderRadius: 4, letterSpacing: '0.06em', fontWeight: 700 }}>
                     MONOPOLY
                   </span>
                 )}
@@ -159,7 +162,7 @@ export default function DetailPanel({ name, level, filter, states, apDistricts, 
         </>
       )}
 
-      <div style={{ marginTop: 28, padding: '10px 0', borderTop: `1px solid ${C.border}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.fg3, letterSpacing: '0.08em' }}>
+      <div style={{ marginTop: 28, padding: '12px 0 0', borderTop: `1px solid ${C.border}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, letterSpacing: '0.08em' }}>
         SOURCES · APEDA · COIR BOARD · SPICES BOARD · STATE HORTICULTURE 22–24
       </div>
     </div>
@@ -168,17 +171,17 @@ export default function DetailPanel({ name, level, filter, states, apDistricts, 
 
 function EmptyState() {
   return (
-    <div style={{ padding: 22 }}>
-      <div style={{ fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>No selection</div>
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 500, color: C.fg1, lineHeight: 1.2, letterSpacing: '-0.01em' }}>
+    <div style={{ padding: '22px 20px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>No selection</div>
+      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, lineHeight: 1.2, letterSpacing: '-0.01em' }}>
         Hover any region to inspect.
       </div>
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, marginTop: 10, lineHeight: 1.55 }}>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, marginTop: 10, lineHeight: 1.6 }}>
         Click a state to lock its detail panel. States with a gold dot have district-level drill-down.
       </div>
-      <div style={{ marginTop: 28, padding: 14, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 8 }}>
-        <div style={{ fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>Reading the map</div>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 12, color: C.fg2, lineHeight: 1.7 }}>
+      <div style={{ marginTop: 24, padding: 16, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Reading the map</div>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.9 }}>
           <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ width: 14, height: 6, background: intensityColor(0.15), borderRadius: 2 }}/> Low intensity
           </li>
@@ -196,18 +199,18 @@ function EmptyState() {
 
 function Stat({ label, value, accent }) {
   return (
-    <div style={{ padding: '10px 12px', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6 }}>
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>{label}</div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, color: accent ? C.accent : C.fg1, lineHeight: 1.1 }}>{value}</div>
+    <div style={{ padding: '11px 14px', background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, color: C.fg3, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>{label}</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 17, fontWeight: 700, color: accent ? C.accent : C.fg1, lineHeight: 1.15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</div>
     </div>
   );
 }
 
 function SectionHead({ title, meta }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, margin: '24px 0 10px' }}>
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>{title}</div>
-      {meta && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3 }}>{meta}</div>}
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, margin: '24px 0 12px' }}>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>{title}</div>
+      {meta && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{meta}</div>}
     </div>
   );
 }

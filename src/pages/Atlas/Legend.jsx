@@ -21,16 +21,16 @@ export default function Legend({ filter, view, year }) {
 
   return (
     <div className="atlas-legend-strip" style={{
-      display: 'flex', alignItems: 'center', gap: 14,
-      padding: '0 14px', height: 38,
+      display: 'flex', alignItems: 'center', gap: 16,
+      padding: '0 16px', height: 40,
       background: C.bg1,
       borderTop: `1px solid ${C.border}`,
       fontFamily: "'DM Sans', sans-serif",
     }}>
       {/* Metric / crop / year label — may ellipsis on a very narrow strip */}
       <div className="atlas-legend-label" style={{
-        fontSize: 9, color: C.fg3, letterSpacing: '0.14em',
-        textTransform: 'uppercase', fontWeight: 700,
+        fontSize: 10, color: C.fg3, letterSpacing: '0.1em',
+        textTransform: 'uppercase', fontWeight: 600,
         whiteSpace: 'nowrap', flexShrink: 1,
         overflow: 'hidden', textOverflow: 'ellipsis',
       }}>
@@ -38,27 +38,26 @@ export default function Legend({ filter, view, year }) {
       </div>
 
       {/* Colour ramp with low/high captions, flexes to fill the strip */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 80 }}>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.fg3, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 80 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, flexShrink: 0 }}>
           low
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 60, borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 60, borderRadius: 4, overflow: 'hidden', border: `1px solid ${C.border}` }}>
           {STOPS.map((t, i) => (
             <div key={i} style={{
               flex: 1, height: 10,
               background: intensityColor(t),
-              borderRight: i === STOPS.length - 1 ? 'none' : `1px solid ${C.bg1}`,
             }}/>
           ))}
         </div>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.fg3, flexShrink: 0 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, flexShrink: 0 }}>
           high
         </span>
       </div>
 
       {/* Region count — hidden on narrow strips where space is tight */}
       <div className="atlas-legend-count" style={{
-        fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
         color: C.fg3, letterSpacing: '0.04em',
         whiteSpace: 'nowrap', flexShrink: 0,
       }}>

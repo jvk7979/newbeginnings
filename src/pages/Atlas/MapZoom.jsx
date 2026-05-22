@@ -174,19 +174,19 @@ export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
 export function ZoomControls({ onZoomIn, onZoomOut, onReset, canZoomIn = true, canZoomOut = true, isZoomed = false }) {
   return (
     <div style={{
-      position: 'absolute', bottom: 18, right: 18, zIndex: 8,
+      position: 'absolute', bottom: 16, right: 16, zIndex: 8,
       display: 'flex', flexDirection: 'column', gap: 1,
-      background: 'rgba(253,250,242,0.94)',
+      background: C.bg1,
       border: `1px solid ${C.border}`, borderRadius: 10,
-      overflow: 'hidden', backdropFilter: 'blur(8px)',
-      boxShadow: '0 8px 24px rgba(45,42,38,0.12)',
+      overflow: 'hidden',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
     }}>
       <ZoomButton label="Zoom in"  onClick={onZoomIn}  disabled={!canZoomIn}>+</ZoomButton>
       <div style={{ height: 1, background: C.border }}/>
       <ZoomButton label="Zoom out" onClick={onZoomOut} disabled={!canZoomOut}>−</ZoomButton>
       <div style={{ height: 1, background: C.border }}/>
       <ZoomButton label="Reset view" onClick={onReset} disabled={!isZoomed} small>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 12a9 9 0 1 0 9-9 9 9 0 0 0-7 3.3"/>
           <path d="M3 4v4h4"/>
@@ -207,14 +207,14 @@ function ZoomButton({ children, onClick, label, disabled, small }) {
       // Stop the SVG's pan-drag from starting when the user presses a button.
       onPointerDown={(e) => e.stopPropagation()}
       style={{
-        width: 34, height: small ? 30 : 34,
+        width: 40, height: small ? 36 : 40,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'transparent', border: 'none', padding: 0,
         cursor: disabled ? 'default' : 'pointer',
         color: disabled ? C.fg3 : C.fg1,
         opacity: disabled ? 0.45 : 1,
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: small ? 13 : 19, lineHeight: 1, fontWeight: 500,
+        fontSize: small ? 14 : 20, lineHeight: 1, fontWeight: 500,
         transition: 'background 120ms',
       }}
       onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = C.bg2; }}
