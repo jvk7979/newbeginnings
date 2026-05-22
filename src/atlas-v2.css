@@ -1,0 +1,308 @@
+/* src/atlas-v2.css
+ *
+ * Crop Atlas v2 styles. All colours are sourced from the app's --c-*
+ * tokens defined in styles.css, so the editorial design follows every
+ * one of your eight themes (heritage / prism / citrus / midnight /
+ * coastal / plum / terracotta / mono).
+ *
+ * The font families are the editorial brand stack already imported by
+ * the app (Playfair / Cormorant / DM Sans / JetBrains Mono). No new
+ * @import or @font-face declarations are introduced.
+ *
+ * Class names are all scoped under .atlas-root / .atlas-* so they
+ * cannot collide with other pages.
+ */
+
+.atlas-root {
+  background:
+    radial-gradient(1200px 800px at 10% 0%, color-mix(in srgb, var(--c-warning) 8%, transparent), transparent 60%),
+    radial-gradient(1000px 700px at 95% 15%, color-mix(in srgb, var(--c-info) 6%, transparent), transparent 60%),
+    var(--c-bg0) !important;
+}
+
+/* ─── SCROLL REGION ─────────────────────────────────────────── */
+/* The single scrolling surface: header + mode tabs + active mode.
+ * The header scrolls away with the content; the mode tabs (.atlas-
+ * modebar) are sticky so they stay reachable. The footer sits below,
+ * outside this region. */
+.atlas-scroll {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── HEADER ────────────────────────────────────────────────── */
+/* Compact page header — matches the app-wide pattern used by Markets,
+ * Suppliers and Portfolio: mono eyebrow → Playfair title with a
+ * Cormorant italic flourish → DM Sans subhead. Scrolls away with the
+ * content. Reuses the .atlas-header / .atlas-title / .atlas-subhead
+ * class names so the existing mobile rules in styles.css still apply. */
+.atlas-header {
+  flex: none;
+  padding: 20px 36px 16px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg0);
+}
+.atlas-header .atlas-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--c-fg3); letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.atlas-header .atlas-title {
+  font-family: 'Playfair Display', Georgia, serif; font-size: 34px;
+  font-weight: 600; color: var(--c-fg1); margin: 0;
+  line-height: 1.15; letter-spacing: -0.01em;
+}
+.atlas-header .atlas-title .atlas-title-it {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic; font-weight: 600; color: var(--c-accent);
+}
+.atlas-header .atlas-subhead {
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--c-fg3);
+  margin-top: 4px; line-height: 1.5; max-width: 720px;
+}
+
+/* ─── MODE TABS ─────────────────────────────────────────────── */
+/* Sticky under the scroll region's top edge: the header scrolls past
+ * it, the tabs stay pinned. Needs an opaque background so scrolled
+ * content does not bleed through. */
+.atlas-modebar {
+  flex: none;
+  position: sticky; top: 0; z-index: 6;
+  display: flex; align-items: stretch; gap: 0;
+  padding: 0 36px; border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg0);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.atlas-modebar::-webkit-scrollbar { display: none; }
+.atlas-modebar .tab {
+  padding: 14px 22px 14px 0; margin-right: 30px;
+  font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500;
+  color: var(--c-fg3); letter-spacing: 0.02em;
+  border-bottom: 2px solid transparent;
+  border-top: 0; border-left: 0; border-right: 0;
+  background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 10px;
+  transition: color 140ms ease, border-color 140ms ease;
+  white-space: nowrap;
+}
+.atlas-modebar .tab:hover { color: var(--c-fg1); }
+.atlas-modebar .tab.active { color: var(--c-fg1); border-bottom-color: var(--c-accent); }
+.atlas-modebar .tab .idx {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; color: var(--c-fg3);
+}
+.atlas-modebar .tab.active .idx { color: var(--c-accent); }
+.atlas-modebar .tab .badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 1px 6px;
+  background: var(--c-danger-bg); color: var(--c-danger); border-radius: 2px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* ─── COMMON PANE HEAD ──────────────────────────────────────── */
+/* The four content modes. The outer .atlas-scroll owns the scroll, so
+ * the pane just grows to fill it (short content) or past it (tall
+ * content → the scroll region scrolls). */
+.atlas-mode-pane {
+  flex: 1 0 auto;
+  padding: 28px 36px 60px;
+}
+.atlas-mode-pane .pane-head { margin-bottom: 24px; max-width: 820px; }
+.atlas-mode-pane .pane-head .kicker {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--c-accent);
+}
+.atlas-mode-pane .pane-head h2 {
+  font-family: 'Playfair Display', Georgia, serif; font-size: 40px; font-weight: 600;
+  margin: 8px 0 0; letter-spacing: -0.02em; line-height: 1.15;
+  color: var(--c-fg1);
+}
+.atlas-mode-pane .pane-head h2 .it {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic; color: var(--c-accent); font-weight: 500;
+}
+.atlas-mode-pane .pane-head .sub {
+  font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--c-fg2);
+  margin-top: 18px; line-height: 1.6;
+}
+.atlas-mode-pane .pane-head .sub b { color: var(--c-fg1); font-weight: 600; }
+
+/* ─── CHIPS / TOOLBARS ──────────────────────────────────────── */
+.opp-toolbar {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 22px; flex-wrap: wrap;
+}
+.opp-toolbar .legend {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-fg3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.atlas-mode-pane .chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 18px;
+  font-family: 'DM Sans', sans-serif; font-size: 12.5px;
+  border: 1px solid var(--c-border); background: var(--c-bg1); color: var(--c-fg2);
+  cursor: pointer; transition: all 140ms;
+}
+.atlas-mode-pane .chip:hover { border-color: var(--c-accent); color: var(--c-fg1); }
+.atlas-mode-pane .chip.on {
+  background: var(--c-accent); color: var(--c-bg1);
+  border-color: var(--c-accent-dim);
+}
+.atlas-mode-pane .chip .x { opacity: 0.7; font-family: 'JetBrains Mono', monospace; }
+
+/* ─── COMPARE ───────────────────────────────────────────────── */
+.compare-pickers {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px;
+  padding: 14px; background: var(--c-bg1);
+  border: 1px solid var(--c-border); border-radius: 6px;
+}
+.compare-pickers label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--c-fg3); margin-right: 12px; align-self: center;
+}
+.compare-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+}
+.compare-card {
+  background: var(--c-bg1); border: 1px solid var(--c-border); border-radius: 6px;
+  padding: 20px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03), 0 12px 28px -18px rgba(0,0,0,0.12);
+}
+.compare-card .h {
+  font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 600;
+  margin: 0; letter-spacing: -0.015em; color: var(--c-fg1);
+}
+.compare-card .h .code {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-warning);
+  letter-spacing: 0.1em; margin-left: 6px;
+}
+.compare-card .ckicker {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--c-fg3);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px;
+}
+.compare-card .stats {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0;
+}
+.compare-card .stat {
+  background: var(--c-bg0); border: 1px solid var(--c-border);
+  padding: 8px 11px; border-radius: 3px;
+}
+.compare-card .stat .v {
+  font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 700; color: var(--c-fg1);
+}
+.compare-card .stat .l {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--c-fg3); margin-top: 2px;
+}
+.compare-card .cgroup {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--c-fg3);
+  margin: 4px 0 6px;
+}
+.compare-card .crops-mini .row {
+  display: grid; grid-template-columns: 1fr 60px 70px; gap: 8px;
+  padding: 5px 0; border-bottom: 1px dotted var(--c-border);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; align-items: center;
+}
+.compare-card .crops-mini .row:last-child { border-bottom: none; }
+.compare-card .crops-mini .row .nm { color: var(--c-fg1); }
+.compare-card .crops-mini .row .cat {
+  color: var(--c-fg3); font-size: 10px; margin-left: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.compare-card .crops-mini .row .barwrap {
+  background: var(--c-bg2); height: 5px; border-radius: 2px; overflow: hidden;
+}
+.compare-card .crops-mini .row .barwrap > span { display: block; height: 100%; }
+.compare-card .crops-mini .row .v {
+  text-align: right; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--c-fg2);
+}
+.compare-card .cnote {
+  margin-top: 14px; font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic; font-size: 14px; color: var(--c-fg2);
+  line-height: 1.45; border-top: 1px dashed var(--c-border); padding-top: 10px;
+}
+
+/* ─── OPPORTUNITIES ─────────────────────────────────────────── */
+.opp-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+}
+.opp-card {
+  background: var(--c-bg1); border: 1px solid var(--c-border); border-radius: 6px;
+  padding: 18px 20px; position: relative; overflow: hidden;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.opp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -18px rgba(0,0,0,0.20);
+}
+.opp-card .score-strip {
+  position: absolute; top: 0; right: 0; padding: 4px 10px;
+  background: var(--c-fg1); color: var(--c-bg0);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.1em; border-radius: 0 6px 0 4px;
+}
+.opp-card.tier-S .score-strip { background: var(--c-danger); }
+.opp-card.tier-A .score-strip { background: var(--c-warning); }
+.opp-card.tier-B .score-strip { background: var(--c-accent); }
+.opp-card.tier-C .score-strip { background: var(--c-info); }
+.opp-card .nm {
+  font-family: 'Playfair Display', Georgia, serif; font-size: 22px;
+  font-weight: 600; line-height: 1.1; color: var(--c-fg1); padding-right: 90px;
+}
+.opp-card .nm .it {
+  font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic;
+  color: var(--c-accent); font-weight: 500; margin-left: 6px;
+}
+.opp-card .where {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-fg3);
+  letter-spacing: 0.06em; margin-top: 4px;
+}
+.opp-card .use {
+  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--c-fg2);
+  margin: 10px 0 14px; line-height: 1.5;
+}
+.opp-card .meters { display: flex; flex-direction: column; gap: 6px; }
+.opp-card .meter {
+  display: grid; grid-template-columns: 70px 1fr 50px;
+  gap: 10px; align-items: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.06em; color: var(--c-fg3); text-transform: uppercase;
+}
+.opp-card .meter .bar {
+  height: 6px; background: var(--c-bg2); border-radius: 2px; overflow: hidden;
+}
+.opp-card .meter .bar > span { display: block; height: 100%; background: var(--c-accent); }
+.opp-card .meter.volume .bar > span { background: var(--c-danger); }
+.opp-card .meter.conc .bar > span   { background: var(--c-warning); }
+.opp-card .meter.access .bar > span { background: var(--c-info); }
+.opp-card .meter .v { color: var(--c-fg1); text-align: right; }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────── */
+/* Tablet + phone (iPad portrait, phones). The Atlas map mode stacks
+ * the map over the panel (see styles.css); inside the scroll region
+ * the .atlas-body must size to that stacked content rather than being
+ * squeezed by flex:1 — otherwise the map/panel get clipped and cannot
+ * be scrolled to. */
+@media (max-width: 1099px) {
+  .atlas-body { flex: 0 0 auto !important; }
+}
+
+@media (max-width: 900px) {
+  .atlas-header { padding: 18px 20px 14px; }
+  .atlas-mode-pane { padding: 22px 20px 50px; }
+  .atlas-modebar { padding: 0 20px; }
+  .atlas-mode-pane .pane-head h2 { font-size: 30px; }
+}
+
+@media (max-width: 560px) {
+  .atlas-header .atlas-title { font-size: 26px; }
+  .atlas-mode-pane .pane-head h2 { font-size: 25px; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .opp-grid { grid-template-columns: 1fr; }
+}
