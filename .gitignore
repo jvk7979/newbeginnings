@@ -21,3 +21,4 @@ test-*.png
 test-*.jpeg
 status-colors.html
 e2e-test.mjs
+data-raw/
