@@ -1,6 +1,6 @@
 // src/pages/Atlas/FilterBar.jsx
 import { C } from '../../tokens';
-import { CATEGORIES } from './cropData';
+import { CATEGORIES, ALL_CROPS } from './cropData';
 import desData from './desData.json';
 import CropSelect from './CropSelect';
 
@@ -20,6 +20,10 @@ const MODES = [
 // Selectable financial years — DES has state data 2021-22…2025-26, but
 // 2025-26 is incomplete so it is omitted from the picker.
 const YEAR_OPTIONS = desData.meta.stateYears.filter((y) => y !== '2025-26');
+
+// Crop dropdown lists — curated crops in Snapshot mode, the real DES crops
+// in Yearly mode so a picked crop always resolves to data on the map.
+const DES_CROPS = Object.keys(desData.cropCategory).sort();
 
 export default function FilterBar({
   filter, setFilter, view, onBack, searchValue, setSearch, onSearchSelect,
@@ -182,7 +186,8 @@ export default function FilterBar({
       {/* Recolour the whole map by one crop (or "Any crop" for category colouring) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 2 }}>Crop</span>
-        <CropSelect crop={filter.crop} onChange={(c) => setFilter((f) => ({ ...f, crop: c }))} />
+        <CropSelect crop={filter.crop} crops={mode === 'des' ? DES_CROPS : ALL_CROPS}
+                    onChange={(c) => setFilter((f) => ({ ...f, crop: c }))} />
       </div>
 
       {/* Metric toggle */}

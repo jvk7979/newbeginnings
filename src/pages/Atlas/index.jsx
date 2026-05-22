@@ -51,6 +51,9 @@ export default function AtlasPage({ onNavigate }) {
     setMode(m);
     setSelected(null);
     setDistrictSelected(null);
+    // Snapshot and DES carry different crop sets — clear any crop/category
+    // filter so a stale pick (e.g. a curated crop) doesn't blank the map.
+    setFilter((f) => ({ ...f, category: 'all', crop: null }));
   };
   const handleSetYear = (y) => {
     setYear(y);
@@ -122,10 +125,6 @@ export default function AtlasPage({ onNavigate }) {
                 : 'District-level breakdown of crops and downstream raw-material streams for venture exploration.'}
             </div>
           </div>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--c-h-gold)', padding: '6px 12px', background: 'var(--c-h-gold-bg)', border: `1px solid ${C.borderLight}`, borderRadius: 999, letterSpacing: '0.04em' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--c-h-gold)' }}/>
-            DATA · FY 22–24
-          </span>
         </div>
       </div>
 

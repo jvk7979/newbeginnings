@@ -6,9 +6,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { C } from '../../tokens';
-import { ALL_CROPS } from './cropData';
 
-export default function CropSelect({ crop, onChange }) {
+// `crops` is the list of selectable crop names for the active mode —
+// curated crops in Snapshot mode, real DES crops in Yearly mode.
+export default function CropSelect({ crop, crops, onChange }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const ref = useRef(null);
@@ -20,7 +21,7 @@ export default function CropSelect({ crop, onChange }) {
     return () => document.removeEventListener('mousedown', onDown);
   }, [open]);
 
-  const filtered = ALL_CROPS.filter((c) => c.toLowerCase().includes(q.trim().toLowerCase()));
+  const filtered = crops.filter((c) => c.toLowerCase().includes(q.trim().toLowerCase()));
   const active = !!crop;
 
   return (
@@ -41,7 +42,7 @@ export default function CropSelect({ crop, onChange }) {
       </button>
       {open && (
         <div style={{
-          position: 'absolute', top: 'calc(100% + 6px)', right: 0, width: 220, zIndex: 60,
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0, width: 220, zIndex: 60,
           background: C.bg0, border: `1px solid ${C.borderLight}`, borderRadius: 8,
           boxShadow: '0 12px 40px rgba(45,42,38,0.18)', padding: 8,
         }}>
