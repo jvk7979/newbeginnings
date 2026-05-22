@@ -15,6 +15,7 @@ import IndiaMap from './IndiaMap';
 import APMap from './APMap';
 import FilterBar from './FilterBar';
 import DetailPanel from './DetailPanel';
+import RankingPanel from './RankingPanel';
 import HoverTip from './HoverTip';
 import Legend from './Legend';
 import { STATES, AP_DISTRICTS } from './cropData';
@@ -25,13 +26,15 @@ export default function AtlasPage({ onNavigate }) {
   const [filter, setFilter] = useState({ category: 'all', metric: 'production', crop: null });
   const [view, setView] = useState({ level: 'india', state: null });
   const [hover, setHover] = useState(null);                       // { name, x, y }
-  const [selected, setSelected] = useState('Andhra Pradesh');     // user's home state
-  const [districtSelected, setDistrictSelected] = useState('Konaseema');
+  const [selected, setSelected] = useState(null);                 // null → ranking table
+  const [districtSelected, setDistrictSelected] = useState(null); // null → ranking table
   const [search, setSearch] = useState('');
 
   const handleHover = (name, e) => {
     if (!name) { setHover(null); return; }
-    setHover({ name, x: e?.clientX || 0, y: e?.clientY || 0 });
+    // `tip` drives the floating HoverTip — set for map hovers (which carry a
+    // mouse event) but not ranking-table row hovers, which only highlight.
+    setHover({ name, x: e?.clientX || 0, y: e?.clientY || 0, tip: !!e });
   };
 
   const handleSelect = (name) => {
@@ -42,12 +45,14 @@ export default function AtlasPage({ onNavigate }) {
   const handleDrillDown = (stateName) => {
     if (STATES[stateName]?.districtKey) {
       setView({ level: 'state', state: stateName });
+      setDistrictSelected(null);   // open the district ranking, not a stale detail
       setHover(null);
     }
   };
 
   const handleBack = () => {
     setView({ level: 'india', state: null });
+    setSelected(null);             // return to the India ranking
     setHover(null);
   };
 
@@ -61,8 +66,11 @@ export default function AtlasPage({ onNavigate }) {
     }
   };
 
-  const panelName  = view.level === 'india' ? (hover?.name || selected) : (hover?.name || districtSelected);
-  const panelLevel = view.level;
+  // The right pane shows the ranked table until a region is focused
+  // (clicked); then it shows that region's detail. Hover only highlights —
+  // it no longer swaps the pane.
+  const focused = view.level === 'india' ? selected : districtSelected;
+  const clearFocus = view.level === 'india' ? () => setSelected(null) : () => setDistrictSelected(null);
 
   return (
     <div className="page-pad" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
@@ -140,20 +148,27 @@ export default function AtlasPage({ onNavigate }) {
           )}
         </div>
 
-        {/* Detail panel */}
+        {/* Right pane — ranked table by default, region detail once focused */}
         <div style={{ width: 360, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
-          <DetailPanel
-            name={panelName} level={panelLevel} filter={filter}
-            onDrillDown={handleDrillDown}
-            onClear={view.level === 'india'
-              ? () => setSelected(null)
-              : () => setDistrictSelected(null)}
-          />
+          {focused ? (
+            <DetailPanel
+              name={focused} level={view.level} filter={filter}
+              onDrillDown={handleDrillDown}
+              onClear={clearFocus}
+            />
+          ) : (
+            <RankingPanel
+              level={view.level} filter={filter}
+              hovered={hover?.name}
+              onHover={handleHover}
+              onSelect={handleSelect}
+            />
+          )}
         </div>
       </div>
 
-      {/* Floating hover tooltip */}
-      {hover && hover.name !== (view.level === 'india' ? selected : districtSelected) && (
+      {/* Floating hover tooltip — map hovers only, never over the focused region */}
+      {hover && hover.tip && hover.name !== focused && (
         <HoverTip name={hover.name} level={view.level} x={hover.x} y={hover.y} filter={filter}/>
       )}
     </div>

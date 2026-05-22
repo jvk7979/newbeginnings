@@ -267,6 +267,34 @@ export function computeStateMetric(stateData, filter) {
   return { value, topCrop };
 }
 
+// District-level twin of computeStateMetric. District crop rows are
+// [name, category, prod_kt, area_kha, note] — they carry no national-share
+// column, so under the 'share' metric callers fall back to production.
+export function computeDistrictMetric(districtData, filter) {
+  if (!districtData) return { value: 0, topCrop: null };
+
+  // Single-crop mode — value & top crop are that one crop.
+  if (filter.crop) {
+    const row = districtData.crops.find((c) => c[0] === filter.crop);
+    if (!row) return { value: 0, topCrop: null };
+    return { value: (filter.metric === 'area' ? row[3] : row[2]) || 0, topCrop: row };
+  }
+
+  const crops = filter.category === 'all'
+    ? districtData.crops
+    : districtData.crops.filter((c) => c[1] === filter.category);
+  if (crops.length === 0) return { value: 0, topCrop: null };
+
+  let value = 0;
+  let topCrop = crops[0];
+  for (const c of crops) {
+    const v = filter.metric === 'area' ? c[3] : c[2];
+    value += v;
+    if (v > (filter.metric === 'area' ? topCrop[3] : topCrop[2])) topCrop = c;
+  }
+  return { value, topCrop };
+}
+
 export function formatVal(v, metric) {
   if (v == null || isNaN(v) || v === 0) return '—';
   if (metric === 'area')  return v >= 1000 ? `${(v / 1000).toFixed(1)} M ha` : `${Math.round(v)} K ha`;

@@ -4,12 +4,6 @@ import { STATES, AP_DISTRICTS, CATEGORIES } from './cropData';
 import { intensityColor } from './geoHelpers';
 
 export default function DetailPanel({ name, level, filter, onDrillDown, onClear }) {
-  // Crop-overview mode: when a crop is picked on the India view, the panel
-  // shows that crop's figures across every state instead of one state's
-  // detail. (District drill-down keeps the per-district detail.)
-  if (filter.crop && level === 'india') {
-    return <CropOverview crop={filter.crop} metric={filter.metric} />;
-  }
   if (!name) return <EmptyState/>;
   const isState = level === 'india';
   const data = isState ? STATES[name] : AP_DISTRICTS[name];
@@ -24,16 +18,20 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
 
   return (
     <div style={{ padding: '22px 22px 40px', overflowY: 'auto', height: '100%' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-          {isState ? 'STATE' : 'DISTRICT · ANDHRA PRADESH'}
-        </div>
-        {onClear && (
-          <button onClick={onClear} aria-label="Clear selection"
-                  style={{ background: 'transparent', border: 'none', color: C.fg3, cursor: 'pointer', padding: 0 }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-        )}
+      {onClear && (
+        <button onClick={onClear}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'transparent', border: 'none', padding: 0,
+                  marginBottom: 12, cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.accent,
+                }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to ranking
+        </button>
+      )}
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
+        {isState ? 'STATE' : 'DISTRICT · ANDHRA PRADESH'}
       </div>
       <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 600, color: C.fg1, lineHeight: 1.1, letterSpacing: '-0.02em', margin: '0 0 4px' }}>{name}</h2>
       {isState && (
@@ -160,76 +158,6 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
           </div>
         </>
       )}
-
-      <div style={{ marginTop: 28, padding: '10px 0', borderTop: `1px solid ${C.border}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.fg3, letterSpacing: '0.08em' }}>
-        SOURCES · APEDA · COIR BOARD · SPICES BOARD · STATE HORTICULTURE 22–24
-      </div>
-    </div>
-  );
-}
-
-// Crop-overview panel — shown when a crop is selected from the filter bar.
-// Ranks every state by that crop under the active metric.
-function CropOverview({ crop, metric }) {
-  const metricLabel = metric === 'area' ? 'Sown area' : metric === 'share' ? "Nat'l share" : 'Production';
-  const rows = Object.entries(STATES)
-    .map(([stName, s]) => {
-      const c = s.crops.find((x) => x[0] === crop);
-      return c ? { state: stName, cat: c[1], prod: c[2], area: c[3], share: c[4] } : null;
-    })
-    .filter(Boolean);
-  const key = metric === 'area' ? 'area' : metric === 'share' ? 'share' : 'prod';
-  rows.sort((a, b) => (b[key] || 0) - (a[key] || 0));
-  const totalProd = rows.reduce((s, r) => s + r.prod, 0);
-  const totalArea = rows.reduce((s, r) => s + r.area, 0);
-  const topVal = rows[0] ? (rows[0][key] || 0) : 0;
-  const catMeta = rows[0] ? CATEGORIES[rows[0].cat] : null;
-
-  return (
-    <div style={{ padding: '22px 22px 40px', overflowY: 'auto', height: '100%' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-        Crop · across India
-      </div>
-      <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 600, color: C.fg1, lineHeight: 1.1, letterSpacing: '-0.02em', margin: '0 0 4px' }}>{crop}</h2>
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
-        Grown across {rows.length} state{rows.length === 1 ? '' : 's'} · the map is recoloured by this crop
-      </div>
-
-      {rows.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 18 }}>
-          <Stat label="Total production" value={totalProd >= 1000 ? `${(totalProd / 1000).toFixed(1)} MT` : `${Math.round(totalProd)} KT`}/>
-          <Stat label="Total area" value={totalArea >= 1000 ? `${(totalArea / 1000).toFixed(2)} M ha` : `${Math.round(totalArea)} K ha`} accent/>
-        </div>
-      )}
-
-      <SectionHead title={`States by ${metricLabel}`} meta={`${rows.length} ranked`}/>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {rows.length === 0 && (
-          <div style={{ padding: 14, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.fg3, textAlign: 'center' }}>
-            No state-level data for {crop}.
-          </div>
-        )}
-        {rows.map((r, i) => {
-          const v = key === 'area' ? r.area : key === 'share' ? r.share : r.prod;
-          const w = topVal > 0 ? (v / topVal) * 100 : 0;
-          const disp = metric === 'area' ? `${r.area} K ha`
-            : metric === 'share' ? `${r.share}% IN`
-            : r.prod >= 1000 ? `${(r.prod / 1000).toFixed(2)} MT` : `${r.prod} KT`;
-          return (
-            <div key={i} style={{ padding: '10px 12px', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, position: 'relative', overflow: 'hidden' }}>
-              <div style={{
-                position: 'absolute', left: 0, top: 0, bottom: 0, width: `${w}%`,
-                background: `linear-gradient(90deg, ${catMeta ? catMeta.color + '22' : C.bg2}, transparent)`,
-              }}/>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, width: 16, flexShrink: 0 }}>{i + 1}</span>
-                <span style={{ flex: 1, fontSize: 13, color: C.fg1, fontWeight: 500 }}>{r.state}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.accent, whiteSpace: 'nowrap' }}>{disp}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
 
       <div style={{ marginTop: 28, padding: '10px 0', borderTop: `1px solid ${C.border}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.fg3, letterSpacing: '0.08em' }}>
         SOURCES · APEDA · COIR BOARD · SPICES BOARD · STATE HORTICULTURE 22–24

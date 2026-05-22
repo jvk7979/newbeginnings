@@ -4,7 +4,7 @@ import { C } from '../../tokens';
 import { AP_DISTRICTS, AP_DISTRICT_CENTROIDS } from './cropData';
 import {
   buildPathGen, fetchGeoJSON, AP_GEOJSON_URLS,
-  districtNameOf, intensityColor,
+  districtNameOf, intensityColor, computeDistrictMetric,
 } from './geoHelpers';
 
 const W = 1000, H = 1000;
@@ -23,18 +23,9 @@ export default function APMap({ filter, hovered, selected, onHover, onSelect }) 
     return () => { cancelled = true; };
   }, []);
 
-  const districtMetric = (name) => {
-    const d = AP_DISTRICTS[name];
-    if (!d) return 0;
-    // Single-crop mode — colour by the chosen crop alone. District rows
-    // carry no national-share column, so 'share' falls back to production.
-    if (filter.crop) {
-      const row = d.crops.find((c) => c[0] === filter.crop);
-      return row ? (filter.metric === 'area' ? row[3] : row[2]) : 0;
-    }
-    const crops = filter.category === 'all' ? d.crops : d.crops.filter((c) => c[1] === filter.category);
-    return crops.reduce((s, c) => s + (filter.metric === 'area' ? c[3] : c[2]), 0);
-  };
+  // Colour-intensity value per district — the metric logic is shared with
+  // RankingPanel through computeDistrictMetric in geoHelpers.
+  const districtMetric = (name) => computeDistrictMetric(AP_DISTRICTS[name], filter).value;
 
   const maxV = Math.max(...Object.keys(AP_DISTRICTS).map(districtMetric), 1);
   const intensityFor = (name) => {
