@@ -30,8 +30,9 @@ const MarketsPage         = lazy(() => import('./pages/Markets'));
 const CommodityDetailPage = lazy(() => import('./pages/Markets/CommodityDetailPage'));
 const SuppliersPage       = lazy(() => import('./pages/SuppliersPage'));
 const PortfolioPage       = lazy(() => import('./pages/PortfolioPage'));
+const AtlasPage           = lazy(() => import('./pages/Atlas'));
 
-const LINKABLE = ['dashboard', 'ideas', 'projects', 'suppliers', 'markets', 'about', 'access', 'calculations', 'scenarios', 'portfolio', 'settings'];
+const LINKABLE = ['dashboard', 'ideas', 'projects', 'suppliers', 'markets', 'atlas', 'about', 'access', 'calculations', 'scenarios', 'portfolio', 'settings'];
 const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'research', 'commodity-detail'];
 
 const parseHash = () => {
@@ -255,6 +256,7 @@ export default function App() {
       case 'scenarios':      return <ScenariosPage onNavigate={navigate} />;
       case 'suppliers':      return <SuppliersPage onNavigate={navigate} />;
       case 'portfolio':      return <PortfolioPage onNavigate={navigate} />;
+      case 'atlas':          return <AtlasPage onNavigate={navigate} />;
       case 'settings':       return <SettingsPage />;
       default:               return <Dashboard onNavigate={navigate} />;
     }
