@@ -6869,10 +6869,32 @@ textarea.form-input {
    height layout; below 1100px we flip it to overflow-y:auto so the stacked
    page can scroll. */
 
-/* Desktop default — map + panel share one non-scrolling row (set inline). */
-.atlas-body { flex-direction: row; }
+/* Desktop default — map + panel share one non-scrolling row (set inline).
+   The map area is sized to the India SVG's own viewBox aspect ratio
+   (1000×1100) off the row height, so the map fills it edge-to-edge with no
+   wide cream letterbox gaps and nothing is ever clipped. The whole
+   map+panel group is centred so any leftover slack splits evenly instead of
+   pooling on one side. A max-width caps it on short, very wide windows. */
+.atlas-body { flex-direction: row; justify-content: center; }
+.atlas-map  {
+  flex: none;
+  height: 100%;
+  width: auto;
+  /* India's projected landmass aspect (~0.9) — the map area is sized to it
+     off the row height so India fills it with no side letterbox. */
+  aspect-ratio: 9 / 10;
+  max-width: 900px;
+}
 
 @media (max-width: 1099px) {
+  /* Reset the desktop sizing/centring — the stacked layout fills full
+     width with a fixed-height map slice (set further below). */
+  .atlas-body { justify-content: flex-start; }
+  .atlas-map  {
+    aspect-ratio: auto !important;
+    max-width: none !important;
+  }
+
   /* Flip the root from a fixed-height pane to a scrolling page. */
   .atlas-root {
     overflow-y: auto !important;

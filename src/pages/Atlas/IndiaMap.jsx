@@ -53,6 +53,9 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
 
   // Zoom + pan. `resetKey` is constant here ('india'); switching to the AP
   // view unmounts this component, so a fresh mount already resets state.
+  // The map area is CSS-capped to the viewBox's own aspect ratio, so at the
+  // default 1× zoom India already fills the area with no letterbox and
+  // nothing is clipped; the user can still zoom/pan in from there.
   const z = useMapZoom({ viewW: W, viewH: H, resetKey: 'india' });
 
   return (

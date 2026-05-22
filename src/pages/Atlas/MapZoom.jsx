@@ -26,16 +26,26 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 // pointer position (in client px) into viewBox coordinates so wheel-zoom
 // stays anchored under the cursor and pan distances map 1:1.
 export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
+  // The default/reset pan keeps a >1 defaultZoom centred on the viewBox
+  // (content scales from the SVG origin, so without this offset a zoomed
+  // default would slide the map off the bottom-right and clip it).
+  const defaultPan = {
+    x: -((viewW || 0) * (defaultZoom - 1)) / 2,
+    y: -((viewH || 0) * (defaultZoom - 1)) / 2,
+  };
   const [zoom, setZoom] = useState(defaultZoom);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [pan, setPan] = useState(defaultPan);
   const svgRef = useRef(null);
   const drag = useRef(null);    // { startX, startY, panX, panY, moved }
 
   // Reset whenever the caller's resetKey changes (India ↔ AP switch).
   useEffect(() => {
     setZoom(defaultZoom);
-    setPan({ x: 0, y: 0 });
-  }, [resetKey, defaultZoom]);
+    setPan({
+      x: -((viewW || 0) * (defaultZoom - 1)) / 2,
+      y: -((viewH || 0) * (defaultZoom - 1)) / 2,
+    });
+  }, [resetKey, defaultZoom, viewW, viewH]);
 
   // Clamp the pan so the scaled content can't be dragged entirely off the
   // canvas — keeps at least the full viewBox reachable at any zoom.
@@ -66,7 +76,13 @@ export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
 
   const zoomIn  = useCallback(() => zoomTo(zoom * ZOOM_STEP), [zoom, zoomTo]);
   const zoomOut = useCallback(() => zoomTo(zoom / ZOOM_STEP), [zoom, zoomTo]);
-  const reset   = useCallback(() => { setZoom(defaultZoom); setPan({ x: 0, y: 0 }); }, [defaultZoom]);
+  const reset   = useCallback(() => {
+    setZoom(defaultZoom);
+    setPan({
+      x: -((viewW || 0) * (defaultZoom - 1)) / 2,
+      y: -((viewH || 0) * (defaultZoom - 1)) / 2,
+    });
+  }, [defaultZoom, viewW, viewH]);
 
   // Convert a pointer event to viewBox coordinates using the SVG's
   // on-screen rect (the viewBox is fit with xMidYMid meet).
@@ -136,10 +152,18 @@ export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
     style: { cursor: drag.current?.moved ? 'grabbing' : 'grab' },
   };
 
+  // "Zoomed" / "can zoom out" are measured against the default view (which
+  // may itself be a centred defaultZoom > 1), so Reset is only enabled once
+  // the user has actually moved away from that default.
+  const atDefault =
+    Math.abs(zoom - defaultZoom) < 0.001 &&
+    Math.abs(pan.x - defaultPan.x) < 0.5 &&
+    Math.abs(pan.y - defaultPan.y) < 0.5;
+
   return {
     zoom, panX: pan.x, panY: pan.y, transform,
     svgHandlers, zoomIn, zoomOut, reset,
-    isZoomed: zoom > MIN_ZOOM + 0.001 || pan.x !== 0 || pan.y !== 0,
+    isZoomed: !atDefault,
     canZoomIn: zoom < MAX_ZOOM - 0.001,
     canZoomOut: zoom > MIN_ZOOM + 0.001,
   };

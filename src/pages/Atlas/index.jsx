@@ -131,8 +131,12 @@ export default function AtlasPage({ onNavigate }) {
       />
 
       <div className="atlas-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-        {/* Map area */}
-        <div className="atlas-map" style={{ flex: 1, position: 'relative', minWidth: 0, background: C.bg0 }}>
+        {/* Map area — sizing is owned by .atlas-map in styles.css: on desktop
+            it is sized to India's aspect ratio off the row height so it never
+            stretches into wide cream letterbox gaps (the map+panel group is
+            centred via .atlas-body); below 1100px it becomes a full-width
+            fixed-height slice. */}
+        <div className="atlas-map" style={{ position: 'relative', background: C.bg0 }}>
           {view.level === 'india' && (
             <IndiaMap filter={safeFilter}
                       states={activeStates}
@@ -172,8 +176,11 @@ export default function AtlasPage({ onNavigate }) {
           )}
         </div>
 
-        {/* Right pane — ranked table by default, region detail once focused */}
-        <div className="atlas-side" style={{ width: 360, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+        {/* Right pane — ranked table by default, region detail once focused.
+            Widened to 520px: the RankingPanel table and DetailPanel stat
+            grids genuinely use the extra room, and it helps the map+panel
+            group fill wide screens without large empty cream gaps. */}
+        <div className="atlas-side" style={{ width: 520, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
           {focused ? (
             <DetailPanel
               name={focused} level={view.level} filter={safeFilter}
