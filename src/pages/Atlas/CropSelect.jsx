@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import { C } from '../../tokens';
 
 // `crops` is the list of selectable crop names — the real APEDA crops.
-export default function CropSelect({ crop, crops, onChange }) {
+export default function CropSelect({ crop, crops, onChange, emptyLabel = 'Any crop' }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const ref = useRef(null);
@@ -34,7 +34,7 @@ export default function CropSelect({ crop, crops, onChange }) {
           fontFamily: "'DM Sans', sans-serif", fontSize: 13,
           fontWeight: active ? 600 : 500, color: active ? C.accent : C.fg2, minWidth: 130,
         }}>
-        <span style={{ flex: 1, textAlign: 'left' }}>{crop || 'Any crop'}</span>
+        <span style={{ flex: 1, textAlign: 'left' }}>{crop || emptyLabel}</span>
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="6 9 12 15 18 9" />
         </svg>

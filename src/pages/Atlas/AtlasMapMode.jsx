@@ -1,18 +1,19 @@
 // src/pages/Atlas/AtlasMapMode.jsx
 //
-// Wraps your original Atlas layout — FilterBar + 60/40 split with
-// IndiaMap / APMap on the left and RankingPanel / DetailPanel on the
-// right — as a mode of the v2 router. The existing components in this
-// folder are not modified; this file just composes them.
+// Atlas tab — the three-column working surface:
+//   AtlasSidebar (intensity key + category filter)
+//   │ IndiaMap / APMap
+//   │ RankingPanel / DetailPanel
+// Composes the existing map and panel components; the v2 router mounts
+// this for the 'atlas' tab.
 
-import { C } from '../../tokens';
 import IndiaMap from './IndiaMap';
 import APMap from './APMap';
 import FilterBar from './FilterBar';
+import AtlasSidebar from './AtlasSidebar';
 import DetailPanel from './DetailPanel';
 import RankingPanel from './RankingPanel';
 import HoverTip from './HoverTip';
-import Legend from './Legend';
 
 export default function AtlasMapMode({
   filter, setFilter, view, setView,
@@ -69,48 +70,36 @@ export default function AtlasMapMode({
         year={year} setYear={setYear}
       />
 
-      <div className="atlas-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-        <div className="atlas-map-col" style={{ display: 'flex', flexDirection: 'column', background: C.bg0 }}>
-          <div className="atlas-map" style={{ position: 'relative', background: C.bg0 }}>
-            {view.level === 'india' && (
-              <IndiaMap filter={filter}
-                        states={states}
-                        hovered={hover?.name}
-                        selected={selected}
-                        onHover={handleHover}
-                        onSelect={handleSelect}
-                        onDrillDown={handleDrillDown}/>
-            )}
-            {view.level === 'state' && (
-              <APMap filter={filter}
-                     apDistricts={apDistricts}
-                     hovered={hover?.name}
-                     selected={districtSelected}
-                     onHover={handleHover}
-                     onSelect={handleSelect}/>
-            )}
-          </div>
-          <Legend filter={filter} view={view} year={year}/>
+      <div className="atlasv2-body">
+        <AtlasSidebar filter={filter} setFilter={setFilter} states={states}/>
+
+        <div className="atlasv2-map">
+          {view.level === 'india' && (
+            <IndiaMap filter={filter} states={states} year={year}
+                      hovered={hover?.name} selected={selected}
+                      onHover={handleHover} onSelect={handleSelect}
+                      onDrillDown={handleDrillDown}/>
+          )}
+          {view.level === 'state' && (
+            <APMap filter={filter} apDistricts={apDistricts}
+                   hovered={hover?.name} selected={districtSelected}
+                   onHover={handleHover} onSelect={handleSelect}/>
+          )}
         </div>
 
-        <div className="atlas-side" style={{
-          width: 600, background: C.bg1, borderLeft: `1px solid ${C.border}`,
-          flexShrink: 0, overflow: 'hidden',
-        }}>
+        <div className="atlasv2-panel">
           {focused ? (
             <DetailPanel
               name={focused} level={view.level} filter={filter}
               states={states} apDistricts={apDistricts}
-              onDrillDown={handleDrillDown}
-              onClear={clearFocus}
+              onDrillDown={handleDrillDown} onClear={clearFocus}
             />
           ) : (
             <RankingPanel
               level={view.level} filter={filter}
               states={states} apDistricts={apDistricts}
               hovered={hover?.name}
-              onHover={handleHover}
-              onSelect={handleSelect}
+              onHover={handleHover} onSelect={handleSelect}
             />
           )}
         </div>

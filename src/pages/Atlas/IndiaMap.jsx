@@ -10,7 +10,7 @@ import {
 
 const W = 1000, H = 1100;
 
-export default function IndiaMap({ filter, states, hovered, selected, onHover, onSelect, onDrillDown }) {
+export default function IndiaMap({ filter, states, hovered, selected, onHover, onSelect, onDrillDown, year }) {
   const [geo, setGeo] = useState(null);
   const [status, setStatus] = useState('loading'); // loading | ok | fallback
 
@@ -77,12 +77,16 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
       <rect x="0" y="0" width={W} height={H} fill={C.bg0}/>
 
       {/* Title overlay */}
-      <g transform="translate(40, 60)">
+      <g transform="translate(40, 56)">
         <text fill={C.fg2} fontSize="11" fontFamily="'DM Sans', sans-serif"
               fontWeight="700" letterSpacing="0.2em">INDIA · STATE ATLAS</text>
-        <text y="22" fill={C.fg3} fontSize="9"
+        <text y="20" fill={C.fg3} fontSize="9" letterSpacing="0.08em"
               fontFamily="'JetBrains Mono', monospace" opacity="0.95">
-          28 states · 8 UTs · ~700 districts
+          28 STATES · 8 UTS · 29 REGIONS
+        </text>
+        <text y="34" fill={C.fg3} fontSize="9" letterSpacing="0.08em"
+              fontFamily="'JetBrains Mono', monospace" opacity="0.8">
+          FY {year || '2024-25'} · APEDA-ALIGNED
         </text>
       </g>
 
