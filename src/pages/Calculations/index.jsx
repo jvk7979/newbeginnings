@@ -7,7 +7,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 
 import { EmptyNoEligible, EmptyNoSelection } from './EmptyStates';
 import Hero from './Hero';
-import MetricDashboard from './MetricDashboard';
+import FeasibilityReport from './FeasibilityReport';
 import AssumptionsPanel from './AssumptionsPanel';
 import Splitter from '../../components/calc/Splitter';
 
@@ -171,10 +171,8 @@ export default function CalculationsPage({ onNavigate }) {
         selectedProjectId={selectedProjectId}
         eligible={eligible}
         onSelectProject={setSelectedProjectId}
-        insight={insight}
         input={input}
         calc={calc}
-        setI={setI}
         autosaveStatus={autosaveStatus}
         lastSavedAt={lastSavedAt}
         retryAutosave={retryAutosave}
@@ -183,16 +181,11 @@ export default function CalculationsPage({ onNavigate }) {
         onReset={handleResetToDefaults}
       />
 
-      <MetricDashboard
-        calc={calc}
+      <FeasibilityReport
+        selectedProject={selectedProject}
         input={input}
-        dr={dr}
-        tn={tn}
-        irrColor={irrColor}
-        npvColor={npvColor}
-        paybackColor={paybackColor}
-        ebitdaColor={ebitdaColor}
-        netProfitColor={netProfitColor}
+        calc={calc}
+        insight={insight}
       />
 
       <div className="calc-panels">
