@@ -13,11 +13,12 @@
  * cannot collide with other pages.
  */
 
+/* Atlas surface uses the shared theme-aware backdrop token (defined at
+ * :root in styles.css) so every page in the app shares one ambient
+ * gradient and the user gets the same warmth top to bottom. */
 .atlas-root {
-  background:
-    radial-gradient(1200px 800px at 10% 0%, color-mix(in srgb, var(--c-warning) 8%, transparent), transparent 60%),
-    radial-gradient(1000px 700px at 95% 15%, color-mix(in srgb, var(--c-info) 6%, transparent), transparent 60%),
-    var(--c-bg0) !important;
+  background: var(--c-bg-texture) var(--c-bg0) !important;
+  background-attachment: fixed !important;
 }
 
 /* ─── SCROLL REGION ─────────────────────────────────────────── */

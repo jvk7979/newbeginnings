@@ -45,6 +45,14 @@
   --c-bg1: #FDFAF2;          /* card surface — slightly warmer than pure white */
   --c-bg2: #EDE5D2;          /* deeper warm cream — secondary surfaces */
   --c-bg3: #DDD0B5;          /* deepest warm cream — borders/dividers */
+  /* Theme-aware backdrop gradient — three soft radial pools composed
+   * from this theme's own --c-warning / --c-info / --c-accent, so every
+   * theme gets its own flavour of an ambient ground. Apply with
+   * `background: var(--c-bg-texture) var(--c-bg0); background-attachment: fixed;`. */
+  --c-bg-texture:
+    radial-gradient(1000px 700px at 8% 10%,  color-mix(in srgb, var(--c-warning) 7%, transparent), transparent 60%),
+    radial-gradient(1100px 800px at 96% 4%,  color-mix(in srgb, var(--c-info)    6%, transparent), transparent 62%),
+    radial-gradient(900px 900px at 60% 100%, color-mix(in srgb, var(--c-accent)  5%, transparent), transparent 65%);
   --c-fg1: #2D2A26;          /* dark warm-brown text */
   --c-fg2: #5C5648;          /* muted body text */
   --c-fg3: #8E8470;          /* tertiary / labels */
@@ -1794,7 +1802,13 @@ textarea:focus-visible,
   min-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--c-bg0);
+  /* Theme-aware ambient backdrop (defined at :root as --c-bg-texture) —
+     the gradient is fixed to the viewport so the warm/cool/accent
+     tinting reads consistently between the report (top) and the
+     assumptions/tabs (bottom) instead of just the masthead carrying
+     all the colour. */
+  background: var(--c-bg-texture) var(--c-bg0);
+  background-attachment: fixed;
 }
 .calc-topbar {
   flex-shrink: 0;
