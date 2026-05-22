@@ -108,22 +108,22 @@ export default function AtlasPage({ onNavigate }) {
   const clearFocus = view.level === 'india' ? () => setSelected(null) : () => setDistrictSelected(null);
 
   return (
-    <div className="page-pad" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
+    <div className="page-pad atlas-root" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
       {/* Page header (mirrors Markets/index.jsx) */}
-      <div style={{ padding: '24px 32px 20px', borderBottom: `1px solid ${C.border}`, background: C.bg0 }}>
+      <div className="atlas-header" style={{ padding: '24px 32px 20px', borderBottom: `1px solid ${C.border}`, background: C.bg0 }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
           Atlas · {view.level === 'india' ? 'India' : view.state}
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <h1 className="page-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15, letterSpacing: '-0.01em' }}>
+            <h1 className="page-title atlas-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15, letterSpacing: '-0.01em' }}>
               {view.level === 'india' ? 'Crops & Raw Materials' : view.state}
               {' '}
               <span style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 600, color: C.accent }}>
                 {view.level === 'india' ? 'Atlas' : '· Districts'}
               </span>
             </h1>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 6, lineHeight: 1.45, maxWidth: 760 }}>
+            <div className="atlas-subhead" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 6, lineHeight: 1.45, maxWidth: 760 }}>
               {view.level === 'india'
                 ? 'Choropleth of agri-production across India. Filter by category or recolour the whole map by a single crop, switch metric, hover to inspect — click states with a gold dot to drill into districts.'
                 : 'District-level breakdown of crops and downstream raw-material streams for venture exploration.'}
@@ -142,9 +142,9 @@ export default function AtlasPage({ onNavigate }) {
         year={year} setYear={handleSetYear}
       />
 
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+      <div className="atlas-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
         {/* Map area */}
-        <div style={{ flex: 1, position: 'relative', minWidth: 0, background: C.bg0 }}>
+        <div className="atlas-map" style={{ flex: 1, position: 'relative', minWidth: 0, background: C.bg0 }}>
           {view.level === 'india' && (
             <IndiaMap filter={filter}
                       states={activeStates}
@@ -185,7 +185,7 @@ export default function AtlasPage({ onNavigate }) {
         </div>
 
         {/* Right pane — ranked table by default, region detail once focused */}
-        <div style={{ width: 360, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+        <div className="atlas-side" style={{ width: 360, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
           {focused ? (
             <DetailPanel
               name={focused} level={view.level} filter={filter}

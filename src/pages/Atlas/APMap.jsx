@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { C } from '../../tokens';
 import { AP_DISTRICT_CENTROIDS } from './cropData';
+import { useMapZoom, ZoomControls } from './MapZoom';
 import {
   buildPathGen, fetchGeoJSON, AP_GEOJSON_URLS,
   districtNameOf, intensityColor, computeDistrictMetric,
@@ -35,11 +36,18 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
     return Math.log(v + 1) / Math.log(maxV + 1);
   };
 
-  const pathGen = useMemo(() => (geo ? buildPathGen(geo, W, H, 60) : null), [geo]);
+  // Smaller padding → AP fills more of the canvas (less cream margin).
+  const pathGen = useMemo(() => (geo ? buildPathGen(geo, W, H, 12) : null), [geo]);
+
+  // Zoom + pan. This component only mounts in the AP view, so a fresh
+  // mount already starts at the reset state.
+  const z = useMapZoom({ viewW: W, viewH: H, resetKey: 'ap' });
 
   return (
+    <>
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet"
-         style={{ width: '100%', height: '100%', display: 'block' }}>
+         {...z.svgHandlers}
+         style={{ width: '100%', height: '100%', display: 'block', ...z.svgHandlers.style }}>
       <defs>
         <pattern id="apgrid" width="40" height="40" patternUnits="userSpaceOnUse">
           <path d="M40 0H0V40" fill="none" stroke={C.bg3} strokeWidth="0.5" opacity="0.55"/>
@@ -79,6 +87,8 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
         </text>
       )}
 
+      {/* Zoom/pan layer — wraps every geographic element. */}
+      <g transform={z.transform}>
       {status === 'ok' && pathGen && geo.features.map((f, i) => {
         const name = districtNameOf(f.properties);
         const hasData = !!apDistricts[name];
@@ -91,8 +101,8 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
                 d={pathGen.path(f)}
                 fill={hasData ? intensityColor(t) : C.bg2}
                 stroke={isSel ? 'var(--c-accent-dim)' : isHome ? 'var(--c-h-gold)' : isHover ? C.accent : C.borderLight}
-                strokeWidth={isSel ? 1.75 : isHome ? 1.6 : isHover ? 1.1 : 0.6}
-                strokeDasharray={isHome && !isSel ? '4 2' : '0'}
+                strokeWidth={(isSel ? 1.75 : isHome ? 1.6 : isHover ? 1.1 : 0.6) / z.zoom}
+                strokeDasharray={isHome && !isSel ? `${4 / z.zoom} ${2 / z.zoom}` : '0'}
                 style={{
                   cursor: hasData ? 'pointer' : 'default',
                   transition: 'stroke 120ms',
@@ -156,8 +166,13 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
           </g>
         );
       })}
+      </g>
 
       <rect x="0" y="0" width={W} height={H} fill="url(#apvignette)" pointerEvents="none"/>
     </svg>
+    <ZoomControls
+      onZoomIn={z.zoomIn} onZoomOut={z.zoomOut} onReset={z.reset}
+      canZoomIn={z.canZoomIn} canZoomOut={z.canZoomOut} isZoomed={z.isZoomed}/>
+    </>
   );
 }

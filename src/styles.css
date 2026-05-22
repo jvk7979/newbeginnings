@@ -6858,3 +6858,106 @@ textarea.form-input {
   background: rgba(17, 17, 17, 0.06);
   border-color: var(--c-accent-dim); color: var(--c-accent-dim);
 }
+
+/* ── Crop Atlas — responsive layout ──────────────────────────────────────
+   Breakpoints (reuse the project convention):
+     ≥1100px  — desktop: header + filter bar + side-by-side [map | panel].
+     <1100px  — iPad / stacked: map on top, panel full-width below; page
+                scrolls instead of the inner row.
+     <700px   — mobile: tighter map height, scaled-down header + filter bar.
+   The Atlas root carries inline overflow:hidden for the desktop fixed-
+   height layout; below 1100px we flip it to overflow-y:auto so the stacked
+   page can scroll. */
+
+/* Desktop default — map + panel share one non-scrolling row (set inline). */
+.atlas-body { flex-direction: row; }
+
+@media (max-width: 1099px) {
+  /* Flip the root from a fixed-height pane to a scrolling page. */
+  .atlas-root {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  /* Stack map over panel; let the column grow with content. */
+  .atlas-body {
+    flex-direction: column !important;
+    overflow: visible !important;
+    min-height: 0;
+  }
+  /* Map gets a fixed slice of the viewport so it stays usable. */
+  .atlas-map {
+    flex: 0 0 auto !important;
+    width: 100%;
+    height: 55vh;
+    min-height: 320px;
+  }
+  /* Panel goes full-width below the map and flows in the page scroll. */
+  .atlas-side {
+    width: 100% !important;
+    flex: 1 1 auto !important;
+    border-left: none !important;
+    border-top: 1px solid var(--c-border);
+    overflow: visible !important;
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 699px) {
+  /* Mobile — shorter map, header + filter bar scale down. */
+  .atlas-map {
+    height: 45vh;
+    min-height: 260px;
+  }
+  .atlas-header {
+    padding: 16px 16px 14px !important;
+  }
+  .atlas-title {
+    font-size: 24px !important;
+  }
+  .atlas-subhead {
+    font-size: 12.5px !important;
+    margin-top: 4px !important;
+  }
+  .atlas-side {
+    min-height: 380px;
+  }
+}
+
+/* ── FilterBar — keep every control reachable on small screens ──────────── */
+@media (max-width: 1099px) {
+  /* Drop the vertical dividers + the flex spacer so groups pack tightly
+     and wrap onto as many rows as needed. */
+  .atlas-filterbar .atlas-fb-divider,
+  .atlas-filterbar .atlas-fb-spacer { display: none !important; }
+  .atlas-filterbar { gap: 10px !important; padding: 12px 16px !important; }
+  /* Search box flexes to fill its row instead of a rigid 240px. */
+  .atlas-filterbar .atlas-fb-search { flex: 1 1 220px; min-width: 200px; }
+}
+
+@media (max-width: 699px) {
+  .atlas-filterbar { gap: 8px !important; padding: 10px 12px !important; }
+  /* Search box takes a full row on phones. */
+  .atlas-filterbar .atlas-fb-search { flex: 1 1 100%; min-width: 0; }
+  /* Category pills scroll horizontally rather than stacking many rows —
+     nothing clipped, the row just scrolls. */
+  .atlas-filterbar .atlas-fb-cats {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+  /* In the nowrap scroller, stop the label + pills from being squeezed
+     (the "Category" label would otherwise wrap one letter per line). */
+  .atlas-filterbar .atlas-fb-cats > * {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .atlas-filterbar .atlas-fb-cats::-webkit-scrollbar { height: 4px; }
+  .atlas-filterbar .atlas-fb-cats::-webkit-scrollbar-thumb {
+    background: var(--c-fg3); border-radius: 2px;
+  }
+  /* Each remaining control group can take a full row if it needs to. */
+  .atlas-filterbar .atlas-fb-group { flex: 1 1 auto; }
+}

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { C } from '../../tokens';
 import { STATE_CENTROIDS } from './cropData';
+import { useMapZoom, ZoomControls } from './MapZoom';
 import {
   buildPathGen, fetchGeoJSON, STATE_GEOJSON_URLS,
   stateNameOf, intensityColor, computeStateMetric,
@@ -47,11 +48,18 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
     return Math.max(0, Math.min(1, t));
   };
 
-  const pathGen = useMemo(() => (geo ? buildPathGen(geo, W, H, 20) : null), [geo]);
+  // Smaller padding → India fills more of the canvas (less cream margin).
+  const pathGen = useMemo(() => (geo ? buildPathGen(geo, W, H, 6) : null), [geo]);
+
+  // Zoom + pan. `resetKey` is constant here ('india'); switching to the AP
+  // view unmounts this component, so a fresh mount already resets state.
+  const z = useMapZoom({ viewW: W, viewH: H, resetKey: 'india' });
 
   return (
+    <>
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet"
-         style={{ width: '100%', height: '100%', display: 'block' }}>
+         {...z.svgHandlers}
+         style={{ width: '100%', height: '100%', display: 'block', ...z.svgHandlers.style }}>
       <defs>
         <pattern id="atlas-grid" width="40" height="40" patternUnits="userSpaceOnUse">
           <path d="M40 0H0V40" fill="none" stroke={C.bg3} strokeWidth="0.5" opacity="0.55"/>
@@ -125,73 +133,81 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
         </g>
       )}
 
-      {status === 'ok' && pathGen && geo.features.map((f, i) => {
-        const name = stateNameOf(f.properties);
-        const isHover = hovered === name;
-        const isSel = selected === name;
-        const t = intensityFor(name);
-        return (
-          <path key={i}
-                d={pathGen.path(f)}
-                fill={intensityColor(t)}
-                stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}
-                strokeWidth={isSel ? 1.75 : isHover ? 1.2 : 0.6}
-                style={{
-                  cursor: 'pointer',
-                  transition: 'stroke 120ms, stroke-width 120ms',
-                  filter: isSel ? 'url(#atlas-glow)' : 'none',
-                }}
-                onMouseEnter={(e) => onHover?.(name, e)}
-                onMouseMove={(e) => onHover?.(name, e)}
-                onMouseLeave={() => onHover?.(null)}
-                onClick={() => {
-                  onSelect?.(name);
-                  if (states[name]?.districtKey) onDrillDown?.(name);
-                }}
-          />
-        );
-      })}
-
-      {/* Drill-down indicator dots */}
-      {status === 'ok' && pathGen && Object.keys(states)
-        .filter((n) => states[n].districtKey)
-        .map((n, i) => {
-          const feat = geo.features.find((f) => stateNameOf(f.properties) === n);
-          if (!feat) return null;
-          const [cx, cy] = pathGen.centroid(feat);
+      {/* Zoom/pan layer — wraps every geographic element so +/−/wheel/drag
+          scale the map while the grid, ticks and chrome stay fixed. */}
+      <g transform={z.transform}>
+        {status === 'ok' && pathGen && geo.features.map((f, i) => {
+          const name = stateNameOf(f.properties);
+          const isHover = hovered === name;
+          const isSel = selected === name;
+          const t = intensityFor(name);
           return (
-            <g key={i} transform={`translate(${cx},${cy})`} style={{ pointerEvents: 'none' }}>
-              <circle r="5" fill="var(--c-h-gold)" stroke={C.bg1} strokeWidth="1.5"/>
-              <circle r="8" fill="none" stroke="var(--c-h-gold)" strokeWidth="0.75" opacity="0.5"/>
-            </g>
+            <path key={i}
+                  d={pathGen.path(f)}
+                  fill={intensityColor(t)}
+                  stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}
+                  strokeWidth={(isSel ? 1.75 : isHover ? 1.2 : 0.6) / z.zoom}
+                  style={{
+                    cursor: 'pointer',
+                    transition: 'stroke 120ms',
+                    filter: isSel ? 'url(#atlas-glow)' : 'none',
+                  }}
+                  onMouseEnter={(e) => onHover?.(name, e)}
+                  onMouseMove={(e) => onHover?.(name, e)}
+                  onMouseLeave={() => onHover?.(null)}
+                  onClick={() => {
+                    onSelect?.(name);
+                    if (states[name]?.districtKey) onDrillDown?.(name);
+                  }}
+            />
           );
         })}
 
-      {/* Fallback: proportional-symbol map */}
-      {status === 'fallback' && Object.entries(STATE_CENTROIDS).map(([name, [cx, cy]]) => {
-        const t = intensityFor(name);
-        const r = 8 + t * 36;
-        const isHover = hovered === name;
-        const isSel = selected === name;
-        return (
-          <g key={name} style={{ cursor: 'pointer' }}
-             onMouseEnter={(e) => onHover?.(name, e)}
-             onMouseMove={(e) => onHover?.(name, e)}
-             onMouseLeave={() => onHover?.(null)}
-             onClick={() => onSelect?.(name)}>
-            <circle cx={cx} cy={cy} r={r + 4} fill={intensityColor(t)} opacity="0.22"/>
-            <circle cx={cx} cy={cy} r={r} fill={intensityColor(t)}
-                    stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}
-                    strokeWidth={isSel ? 1.75 : 1}/>
-            <text x={cx} y={cy + r + 12} fill={C.fg2} fontSize="9"
-                  fontFamily="'JetBrains Mono', monospace" textAnchor="middle" opacity="0.95">
-              {name}
-            </text>
-          </g>
-        );
-      })}
+        {/* Drill-down indicator dots */}
+        {status === 'ok' && pathGen && Object.keys(states)
+          .filter((n) => states[n].districtKey)
+          .map((n, i) => {
+            const feat = geo.features.find((f) => stateNameOf(f.properties) === n);
+            if (!feat) return null;
+            const [cx, cy] = pathGen.centroid(feat);
+            return (
+              <g key={i} transform={`translate(${cx},${cy}) scale(${1 / z.zoom})`} style={{ pointerEvents: 'none' }}>
+                <circle r="5" fill="var(--c-h-gold)" stroke={C.bg1} strokeWidth="1.5"/>
+                <circle r="8" fill="none" stroke="var(--c-h-gold)" strokeWidth="0.75" opacity="0.5"/>
+              </g>
+            );
+          })}
+
+        {/* Fallback: proportional-symbol map */}
+        {status === 'fallback' && Object.entries(STATE_CENTROIDS).map(([name, [cx, cy]]) => {
+          const t = intensityFor(name);
+          const r = 8 + t * 36;
+          const isHover = hovered === name;
+          const isSel = selected === name;
+          return (
+            <g key={name} style={{ cursor: 'pointer' }}
+               onMouseEnter={(e) => onHover?.(name, e)}
+               onMouseMove={(e) => onHover?.(name, e)}
+               onMouseLeave={() => onHover?.(null)}
+               onClick={() => onSelect?.(name)}>
+              <circle cx={cx} cy={cy} r={r + 4} fill={intensityColor(t)} opacity="0.22"/>
+              <circle cx={cx} cy={cy} r={r} fill={intensityColor(t)}
+                      stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}
+                      strokeWidth={(isSel ? 1.75 : 1) / z.zoom}/>
+              <text x={cx} y={cy + r + 12} fill={C.fg2} fontSize={9 / z.zoom}
+                    fontFamily="'JetBrains Mono', monospace" textAnchor="middle" opacity="0.95">
+                {name}
+              </text>
+            </g>
+          );
+        })}
+      </g>
 
       <rect x="0" y="0" width={W} height={H} fill="url(#atlas-vignette)" pointerEvents="none"/>
     </svg>
+    <ZoomControls
+      onZoomIn={z.zoomIn} onZoomOut={z.zoomOut} onReset={z.reset}
+      canZoomIn={z.canZoomIn} canZoomOut={z.canZoomOut} isZoomed={z.isZoomed}/>
+    </>
   );
 }

@@ -37,7 +37,7 @@ export default function FilterBar({
   const metrics = mode === 'snapshot' ? METRICS : METRICS.filter(([k]) => k !== 'area');
 
   return (
-    <div style={{
+    <div className="atlas-filterbar" style={{
       display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px',
       background: C.bg0, borderBottom: `1px solid ${C.border}`,
       position: 'relative', zIndex: 20, flexWrap: 'wrap',
@@ -55,15 +55,16 @@ export default function FilterBar({
       )}
 
       {/* Search (with dropdown) */}
-      <div style={{ position: 'relative' }}>
+      <div className="atlas-fb-search" style={{ position: 'relative' }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,
           background: C.bg1,
           border: `1px solid ${searchValue ? 'var(--c-border-accent, #C4A060)' : C.border}`,
-          borderRadius: 6, padding: '6px 12px', minWidth: 240,
+          borderRadius: 6, padding: '6px 12px', minWidth: 200,
           transition: 'border-color 120ms',
         }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5"
+               style={{ flexShrink: 0 }}>
             <circle cx="11" cy="11" r="8"/><path d="M21 21l-5-5"/>
           </svg>
           <input
@@ -72,7 +73,8 @@ export default function FilterBar({
             placeholder={view.level === 'india' ? 'Search state or crop…' : 'Search district…'}
             style={{
               background: 'transparent', border: 'none', outline: 'none',
-              color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13, width: 200,
+              color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+              flex: 1, minWidth: 0, width: '100%',
             }}/>
           {searchValue && (
             <button onClick={() => setSearch('')} style={{ background: 'transparent', border: 'none', color: C.fg3, cursor: 'pointer', padding: 0 }}>
@@ -82,7 +84,8 @@ export default function FilterBar({
         </div>
         {results.length > 0 && (
           <div style={{
-            position: 'absolute', top: 'calc(100% + 6px)', left: 0, width: 320,
+            position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+            width: 'min(320px, calc(100vw - 48px))',
             background: C.bg1, border: `1px solid ${C.borderLight}`, borderRadius: 8,
             boxShadow: '0 12px 40px rgba(45,42,38,0.18)', zIndex: 50,
             maxHeight: 340, overflowY: 'auto',
@@ -110,10 +113,10 @@ export default function FilterBar({
         )}
       </div>
 
-      <div style={{ width: 1, height: 24, background: C.border }}/>
+      <div className="atlas-fb-divider" style={{ width: 1, height: 24, background: C.border }}/>
 
       {/* Category pills */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+      <div className="atlas-fb-group atlas-fb-cats" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 6 }}>Category</span>
         {cats.map(([k, label]) => {
           const active = filter.category === k;
@@ -138,10 +141,10 @@ export default function FilterBar({
         })}
       </div>
 
-      <div style={{ width: 1, height: 24, background: C.border }}/>
+      <div className="atlas-fb-divider" style={{ width: 1, height: 24, background: C.border }}/>
 
       {/* Mode toggle — Snapshot (curated) vs Yearly · DES (real govt data) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 6 }}>Mode</span>
         <div style={{ display: 'flex', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: 2 }}>
           {MODES.map(([k, label]) => {
@@ -167,7 +170,7 @@ export default function FilterBar({
       {/* Financial-Year selector — only in DES mode, and hidden once drilled
           into AP districts (district data is DES 2024-25 only). */}
       {mode === 'des' && view.level === 'india' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 2 }}>Year</span>
           <select
             value={year}
@@ -185,17 +188,17 @@ export default function FilterBar({
         </div>
       )}
 
-      <div style={{ flex: 1 }}/>
+      <div className="atlas-fb-spacer" style={{ flex: 1 }}/>
 
       {/* Recolour the whole map by one crop (or "Any crop" for category colouring) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 2 }}>Crop</span>
         <CropSelect crop={filter.crop} crops={mode === 'des' ? APEDA_CROPS : ALL_CROPS}
                     onChange={(c) => setFilter((f) => ({ ...f, crop: c }))} />
       </div>
 
       {/* Metric toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div className="atlas-fb-group" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 6 }}>Metric</span>
         <div style={{ display: 'flex', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: 2 }}>
           {metrics.map(([k, label]) => {
