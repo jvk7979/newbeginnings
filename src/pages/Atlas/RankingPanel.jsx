@@ -64,6 +64,10 @@ export default function RankingPanel({ level, filter, states, apDistricts, hover
   const scopeLabel = filter.crop
     || (filter.category === 'all' ? 'All crops' : CATEGORIES[filter.category]?.label || 'All crops');
 
+  // District data (DES) covers food grains only — picking a non-food-grain
+  // crop here yields an all-zero table; show an explainer instead.
+  const hasData = sorted.some((r) => r.value > 0);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
@@ -90,7 +94,21 @@ export default function RankingPanel({ level, filter, states, apDistricts, hover
 
       {/* Ranked rows */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        {sorted.map((r, i) => {
+        {!hasData && (
+          <div style={{ padding: '32px 22px', textAlign: 'center' }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg2, lineHeight: 1.5 }}>
+              {!isIndia && filter.crop
+                ? `${filter.crop} isn't tracked at district level.`
+                : 'No data for this selection.'}
+            </div>
+            {!isIndia && filter.crop && (
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, marginTop: 8, lineHeight: 1.55 }}>
+                District figures cover food grains — cereals &amp; pulses — only; DES does not publish {filter.crop.toLowerCase()} by district. Use the all-India view for it.
+              </div>
+            )}
+          </div>
+        )}
+        {hasData && sorted.map((r, i) => {
           const isHover = hovered === r.name;
           const isHome = r.name === HOME_DISTRICT;   // user's home district
           return (
