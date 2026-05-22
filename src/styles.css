@@ -6869,30 +6869,63 @@ textarea.form-input {
    height layout; below 1100px we flip it to overflow-y:auto so the stacked
    page can scroll. */
 
-/* Desktop default — map + panel share one non-scrolling row (set inline).
-   The map area is sized to the India SVG's own viewBox aspect ratio
-   (1000×1100) off the row height, so the map fills it edge-to-edge with no
-   wide cream letterbox gaps and nothing is ever clipped. The whole
-   map+panel group is centred so any leftover slack splits evenly instead of
-   pooling on one side. A max-width caps it on short, very wide windows. */
-.atlas-body { flex-direction: row; justify-content: center; }
-.atlas-map  {
+/* Desktop default — map column + panel share one non-scrolling row (set
+   inline). The map COLUMN is sized to the India SVG's own viewBox aspect
+   ratio off the row height, so the map fills it edge-to-edge with no wide
+   cream letterbox gaps and nothing is ever clipped. The column stacks the
+   map over a slim legend strip; the map flex-grows to fill whatever height
+   the strip leaves. The group is LEFT-ALIGNED (not centred) so the map sits
+   flush against the page edge — no empty cream gap to its left; any leftover
+   slack on a very wide screen falls past the right panel at the far edge.
+   A generous max-width lets the aspect-locked map grow tall on big windows. */
+.atlas-body { flex-direction: row; justify-content: flex-start; }
+.atlas-map-col {
   flex: none;
   height: 100%;
   width: auto;
-  /* India's projected landmass aspect (~0.9) — the map area is sized to it
-     off the row height so India fills it with no side letterbox. */
+  /* India's projected landmass aspect (~0.9) applied to the column — the
+     ~38px legend strip is a small extra slice below, so the map itself is
+     a touch shorter than this ratio, which is acceptable. */
   aspect-ratio: 9 / 10;
-  max-width: 900px;
+  max-width: 1200px;
+}
+.atlas-map {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+/* Legend strip — fixed slim height, never shrinks under the map. */
+.atlas-legend-strip {
+  flex: 0 0 38px;
+}
+
+/* Compact the FilterBar's vertical padding on desktop so the map row gets
+   a little more height (horizontal padding unchanged). */
+@media (min-width: 1100px) {
+  .atlas-filterbar { padding-top: 10px !important; padding-bottom: 10px !important; }
+}
+
+/* Very wide screens — widen the right panel further so the leftover slack is
+   absorbed and the screen stays essentially full at 1920px. The ranking table
+   and detail panel use the extra width well; the aspect-locked map is capped
+   by the row height so the panel is what takes up the remaining width. */
+@media (min-width: 1600px) {
+  .atlas-side { width: 720px !important; }
+}
+@media (min-width: 1850px) {
+  .atlas-side { width: 780px !important; }
 }
 
 @media (max-width: 1099px) {
   /* Reset the desktop sizing/centring — the stacked layout fills full
      width with a fixed-height map slice (set further below). */
   .atlas-body { justify-content: flex-start; }
-  .atlas-map  {
+  .atlas-map-col {
     aspect-ratio: auto !important;
     max-width: none !important;
+    flex: 0 0 auto !important;
+    width: 100%;
+    height: auto !important;
   }
 
   /* Flip the root from a fixed-height pane to a scrolling page. */
@@ -6906,7 +6939,8 @@ textarea.form-input {
     overflow: visible !important;
     min-height: 0;
   }
-  /* Map gets a fixed slice of the viewport so it stays usable. */
+  /* Map gets a fixed slice of the viewport so it stays usable; the legend
+     strip sits below it inside the column. */
   .atlas-map {
     flex: 0 0 auto !important;
     width: 100%;
@@ -6942,6 +6976,30 @@ textarea.form-input {
   }
   .atlas-side {
     min-height: 380px;
+  }
+  /* Overview stat strip — wraps below the title; let it span the row and
+     allow its cells to wrap so nothing overflows on a narrow phone. */
+  .atlas-overview {
+    width: 100%;
+  }
+  /* Legend strip — on a narrow phone drop the region count and tighten the
+     gaps so the metric label + ramp + captions never overflow the row. */
+  .atlas-legend-strip {
+    gap: 10px !important;
+  }
+  .atlas-legend-count {
+    display: none !important;
+  }
+}
+
+/* ── Crop Atlas — header overview stat strip ────────────────────────────── */
+/* The strip wraps under the title on narrow screens (flex-wrap on the header
+   row). On very narrow phones its 4 cells wrap to 2×2 — the segmented right
+   borders still read fine because the strip clips to a rounded box. */
+@media (max-width: 380px) {
+  .atlas-overview {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
   }
 }
 

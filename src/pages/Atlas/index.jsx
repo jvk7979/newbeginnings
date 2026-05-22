@@ -98,26 +98,44 @@ export default function AtlasPage({ onNavigate }) {
 
   return (
     <div className="page-pad atlas-root" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
-      {/* Page header (mirrors Markets/index.jsx) */}
-      <div className="atlas-header" style={{ padding: '24px 32px 20px', borderBottom: `1px solid ${C.border}`, background: C.bg0 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
+      {/* Page header (mirrors Markets/index.jsx) — compacted so the map row
+          below reclaims the height; the aspect-locked map grows with it. */}
+      <div className="atlas-header" style={{ padding: '12px 32px 10px', borderBottom: `1px solid ${C.border}`, background: C.bg0 }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>
           Atlas · {view.level === 'india' ? 'India' : view.state}
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <h1 className="page-title atlas-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15, letterSpacing: '-0.01em' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 320px', minWidth: 260 }}>
+            <h1 className="page-title atlas-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 25, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.12, letterSpacing: '-0.01em' }}>
               {view.level === 'india' ? 'Crops & Raw Materials' : view.state}
               {' '}
               <span style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 600, color: C.accent }}>
                 {view.level === 'india' ? 'Atlas' : '· Districts'}
               </span>
             </h1>
-            <div className="atlas-subhead" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 6, lineHeight: 1.45, maxWidth: 760 }}>
+            <div className="atlas-subhead" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: C.fg3, marginTop: 3, lineHeight: 1.4, maxWidth: 720 }}>
               {view.level === 'india'
-                ? 'Real state-wise crop production across India by financial year — pick a crop to recolour the map, switch metric, click a state with a gold dot to drill into its districts.'
+                ? 'State-wise crop production by financial year — pick a crop to recolour the map, or click a gold-dotted state to drill into its districts.'
                 : 'District-level breakdown of crops and downstream raw-material streams for venture exploration.'}
             </div>
           </div>
+
+          {/* Compact stat strip — moved out of the map area so nothing
+              floats over India. India view only; wraps below the title on
+              narrow screens. */}
+          {view.level === 'india' && (
+            <div className="atlas-overview" style={{
+              display: 'flex', alignItems: 'stretch', flexWrap: 'wrap',
+              gap: 0, flexShrink: 0,
+              border: `1px solid ${C.border}`, borderRadius: 10,
+              background: C.bg1, overflow: 'hidden',
+            }}>
+              <SnapStat value="140 M" label="HA NET SOWN"/>
+              <SnapStat value="146 M" label="FARM HHS" accent/>
+              <SnapStat value="22.7 MT" label="COCONUT"/>
+              <SnapStat value="138 MT" label="RICE" last/>
+            </div>
+          )}
         </div>
       </div>
 
@@ -131,56 +149,41 @@ export default function AtlasPage({ onNavigate }) {
       />
 
       <div className="atlas-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-        {/* Map area — sizing is owned by .atlas-map in styles.css: on desktop
-            it is sized to India's aspect ratio off the row height so it never
-            stretches into wide cream letterbox gaps (the map+panel group is
+        {/* Map column — sizing is owned by .atlas-map-col in styles.css: on
+            desktop it is sized to India's aspect ratio off the row height so
+            it never stretches into wide cream letterbox gaps (the group is
             centred via .atlas-body); below 1100px it becomes a full-width
-            fixed-height slice. */}
-        <div className="atlas-map" style={{ position: 'relative', background: C.bg0 }}>
-          {view.level === 'india' && (
-            <IndiaMap filter={safeFilter}
-                      states={activeStates}
-                      hovered={hover?.name}
-                      selected={selected}
-                      onHover={handleHover}
-                      onSelect={handleSelect}
-                      onDrillDown={handleDrillDown}/>
-          )}
-          {view.level === 'state' && (
-            <APMap filter={safeFilter}
-                   apDistricts={activeApDistricts}
-                   hovered={hover?.name}
-                   selected={districtSelected}
-                   onHover={handleHover}
-                   onSelect={handleSelect}/>
-          )}
+            fixed-height slice. The column stacks [ map ][ legend strip ] so
+            the legend reads clearly below the landmass instead of over it. */}
+        <div className="atlas-map-col" style={{ display: 'flex', flexDirection: 'column', background: C.bg0 }}>
+          <div className="atlas-map" style={{ position: 'relative', background: C.bg0 }}>
+            {view.level === 'india' && (
+              <IndiaMap filter={safeFilter}
+                        states={activeStates}
+                        hovered={hover?.name}
+                        selected={selected}
+                        onHover={handleHover}
+                        onSelect={handleSelect}
+                        onDrillDown={handleDrillDown}/>
+            )}
+            {view.level === 'state' && (
+              <APMap filter={safeFilter}
+                     apDistricts={activeApDistricts}
+                     hovered={hover?.name}
+                     selected={districtSelected}
+                     onHover={handleHover}
+                     onSelect={handleSelect}/>
+            )}
+          </div>
+          {/* Legend — a slim strip below the map, spanning its width. */}
           <Legend filter={safeFilter} view={view} year={year}/>
-
-          {view.level === 'india' && (
-            <div style={{
-              position: 'absolute', top: 18, right: 18,
-              background: 'rgba(253,250,242,0.94)',
-              border: `1px solid ${C.border}`, borderRadius: 10,
-              padding: '12px 16px', backdropFilter: 'blur(8px)',
-              boxShadow: '0 8px 24px rgba(45,42,38,0.12)',
-              fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg2, maxWidth: 240,
-            }}>
-              <div style={{ fontSize: 9, color: C.fg3, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>India · overview</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
-                <SnapStat value="140 M" label="HA NET SOWN"/>
-                <SnapStat value="146 M" label="FARM HHS" accent/>
-                <SnapStat value="22.7 MT" label="COCONUT"/>
-                <SnapStat value="138 MT" label="RICE"/>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Right pane — ranked table by default, region detail once focused.
-            Widened to 520px: the RankingPanel table and DetailPanel stat
-            grids genuinely use the extra room, and it helps the map+panel
-            group fill wide screens without large empty cream gaps. */}
-        <div className="atlas-side" style={{ width: 520, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+            Widened to 600px: the RankingPanel table and DetailPanel stat
+            grids genuinely use the extra room, and — with the map column now
+            flush-left — it absorbs wide-screen slack so the screen fills. */}
+        <div className="atlas-side" style={{ width: 600, background: C.bg1, borderLeft: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
           {focused ? (
             <DetailPanel
               name={focused} level={view.level} filter={safeFilter}
@@ -209,11 +212,18 @@ export default function AtlasPage({ onNavigate }) {
   );
 }
 
-function SnapStat({ value, label, accent }) {
+// One cell of the header overview strip. Cells are separated by a hairline
+// right border (the strip itself owns the outer rounded border).
+function SnapStat({ value, label, accent, last }) {
   return (
-    <div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: accent ? C.accent : C.fg1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: C.fg3, letterSpacing: '0.08em' }}>{label}</div>
+    <div style={{
+      padding: '5px 13px',
+      borderRight: last ? 'none' : `1px solid ${C.border}`,
+      fontFamily: "'DM Sans', sans-serif",
+      whiteSpace: 'nowrap',
+    }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: accent ? C.accent : C.fg1, lineHeight: 1.2 }}>{value}</div>
+      <div style={{ fontSize: 9, color: C.fg3, letterSpacing: '0.08em', marginTop: 1 }}>{label}</div>
     </div>
   );
 }
