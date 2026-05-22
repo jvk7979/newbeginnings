@@ -19,7 +19,7 @@ import RankingPanel from './RankingPanel';
 import HoverTip from './HoverTip';
 import Legend from './Legend';
 import { STATES } from './cropData';
-import { buildDesStates, mergedApDistricts } from './desDataset';
+import { buildApedaStates, mergedApDistricts } from './desDataset';
 
 // eslint-disable-next-line no-unused-vars
 export default function AtlasPage({ onNavigate }) {
@@ -31,16 +31,18 @@ export default function AtlasPage({ onNavigate }) {
   const [districtSelected, setDistrictSelected] = useState(null); // null → ranking table
   const [search, setSearch] = useState('');
   // Data mode — 'snapshot' = curated cropData (default, byte-identical to
-  // the original Atlas); 'des' = real DES data driven by the chosen year.
+  // the original Atlas); 'des' = real APEDA data driven by the chosen year
+  // (the mode key stays 'des' for back-compat; the data source is APEDA).
   const [mode, setMode] = useState('snapshot');
   const [year, setYear] = useState('2024-25');
 
   // The active datasets handed down to every component. In Snapshot mode the
-  // states are the curated STATES; in DES mode they are built from real DES
-  // data for the year. AP district crops are always DES (there is no curated
-  // district crop data), so mergedApDistricts is used in both modes.
+  // states are the curated STATES; in Yearly mode they are built from real
+  // APEDA data for the year. AP district crops are always DES (there is no
+  // curated/APEDA district crop data), so mergedApDistricts is used in both
+  // modes.
   const activeStates = useMemo(
-    () => (mode === 'des' ? buildDesStates(year) : STATES),
+    () => (mode === 'des' ? buildApedaStates(year) : STATES),
     [mode, year],
   );
   const activeApDistricts = mergedApDistricts;
@@ -51,9 +53,11 @@ export default function AtlasPage({ onNavigate }) {
     setMode(m);
     setSelected(null);
     setDistrictSelected(null);
-    // Snapshot and DES carry different crop sets — clear any crop/category
+    // Snapshot and APEDA carry different crop sets — clear any crop/category
     // filter so a stale pick (e.g. a curated crop) doesn't blank the map.
-    setFilter((f) => ({ ...f, category: 'all', crop: null }));
+    // Yearly mode drops the Area metric, so reset metric to production too —
+    // a stale metric:'area' must not carry over into a mode that lacks it.
+    setFilter((f) => ({ ...f, category: 'all', crop: null, metric: 'production' }));
   };
   const handleSetYear = (y) => {
     setYear(y);

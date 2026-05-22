@@ -26,6 +26,7 @@ export const CATEGORIES = {
   fiber:      { label: 'Fiber',        color: '#7FA9B8', short: 'FBR' },
   sugar:      { label: 'Sugarcane',    color: '#4A8F70', short: 'SGR' },
   horti:      { label: 'Horticulture', color: '#D5A85A', short: 'HRT' },
+  livestock:  { label: 'Livestock',    color: '#A6584B', short: 'LVS' },
   residue:    { label: 'Raw Material', color: '#8E8470', short: 'RAW' },
 };
 

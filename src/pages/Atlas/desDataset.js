@@ -1,52 +1,51 @@
 // src/pages/Atlas/desDataset.js
 //
-// Bridges real DES (Directorate of Economics & Statistics) crop data —
-// desData.json — into the shape the Atlas components already consume.
+// Bridges real government crop data into the shape the Atlas components
+// already consume.
+//
+//  - State-level Yearly data now comes from APEDA (apedaData.json), a much
+//    broader dataset (99 crops incl. all horticulture/livestock) — see
+//    buildApedaStates below.
+//  - AP district drill-down still uses DES (Directorate of Economics &
+//    Statistics) data — desData.json — because APEDA has no district data.
 //
 // The components expect STATES / AP_DISTRICTS objects whose crop rows are
 //   [name, category, prod_kt, area_kha, share_pct, yield_kgha?]
 // so computeStateMetric / computeDistrictMetric in geoHelpers work
-// unchanged. The builders below produce exactly that shape from DES data.
+// unchanged. The builders below produce exactly that shape.
 //
 // desData.json field order is [area_kha, prod_kt, yield_kgha].
 
 import desData from './desData.json';
+import apedaData from './apedaData.json';
 import { STATES, AP_DISTRICTS } from './cropData';
 
 const CROP_CATEGORY = desData.cropCategory;
 
-// buildDesStates(year) — the DES-driven equivalent of cropData's STATES,
+// buildApedaStates(year) — the APEDA-driven equivalent of cropData's STATES,
 // for one financial year. Each state keeps its curated metadata (capital,
 // code, raw streams, note, districtKey) where one exists; crop rows are
-// rebuilt from DES production/area/yield for the chosen year.
+// rebuilt from APEDA production for the chosen year.
 //
-// Memoised per year — buildDesStates is called from index.jsx's render.
+// APEDA has no area and no yield, so each crop row is
+//   [name, category, production, 0, sharePct]
+// (area is 0; share is the stored national-share %).
+//
+// Memoised per year — buildApedaStates is called from index.jsx's render.
 const _statesCache = {};
-export function buildDesStates(year) {
+export function buildApedaStates(year) {
   if (_statesCache[year]) return _statesCache[year];
 
-  // National production per crop for the year — denominator of the share %.
-  const nationalProd = {};
-  for (const stateData of Object.values(desData.states)) {
-    for (const [crop, byYear] of Object.entries(stateData)) {
-      const rec = byYear[year];
-      if (!rec) continue;
-      nationalProd[crop] = (nationalProd[crop] || 0) + (rec[1] || 0);
-    }
-  }
-
   const out = {};
-  for (const [name, stateData] of Object.entries(desData.states)) {
+  for (const [name, stateData] of Object.entries(apedaData.states)) {
     const meta = STATES[name] || { code: '', capital: '', crops: [] };
     const crops = [];
     for (const [crop, byYear] of Object.entries(stateData)) {
       const rec = byYear[year];
       if (!rec) continue;
-      const [area, prod, yld] = rec;          // desData order: [area, prod, yield]
-      const category = CROP_CATEGORY[crop] || 'cereal';
-      const denom = nationalProd[crop] || 0;
-      const share = denom > 0 ? Math.round((prod / denom) * 1000) / 10 : 0;
-      crops.push([crop, category, prod, area, share, yld]);
+      const [prod, share] = rec;              // apedaData order: [production, sharePct]
+      const category = apedaData.cropCategory[crop] || 'cereal';
+      crops.push([crop, category, prod, 0, share]);
     }
     out[name] = { ...meta, crops };
   }

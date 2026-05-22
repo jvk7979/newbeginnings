@@ -1,7 +1,7 @@
 // src/pages/Atlas/FilterBar.jsx
 import { C } from '../../tokens';
 import { CATEGORIES, ALL_CROPS } from './cropData';
-import desData from './desData.json';
+import apedaData from './apedaData.json';
 import CropSelect from './CropSelect';
 
 const METRICS = [
@@ -10,20 +10,21 @@ const METRICS = [
   ['share',      "Nat'l Share"],
 ];
 
-// Atlas data modes — Snapshot is the curated cropData; Yearly·DES drives the
-// maps from real Directorate of Economics & Statistics data by year.
+// Atlas data modes — Snapshot is the curated cropData; Yearly·APEDA drives
+// the maps from real APEDA AgriExchange data by year. The mode *key* stays
+// 'des' for back-compat; only the visible label names the APEDA source.
 const MODES = [
   ['snapshot', 'Snapshot'],
-  ['des',      'Yearly · DES'],
+  ['des',      'Yearly · APEDA'],
 ];
 
-// Selectable financial years — DES has state data 2021-22…2025-26, but
-// 2025-26 is incomplete so it is omitted from the picker.
-const YEAR_OPTIONS = desData.meta.stateYears.filter((y) => y !== '2025-26');
+// Selectable financial years — APEDA has state data for all five years
+// 2020-21…2024-25 (no incomplete year to exclude).
+const YEAR_OPTIONS = apedaData.meta.years;
 
-// Crop dropdown lists — curated crops in Snapshot mode, the real DES crops
+// Crop dropdown lists — curated crops in Snapshot mode, the real APEDA crops
 // in Yearly mode so a picked crop always resolves to data on the map.
-const DES_CROPS = Object.keys(desData.cropCategory).sort();
+const APEDA_CROPS = Object.keys(apedaData.cropCategory).sort();
 
 export default function FilterBar({
   filter, setFilter, view, onBack, searchValue, setSearch, onSearchSelect,
@@ -31,6 +32,9 @@ export default function FilterBar({
 }) {
   const cats = [['all', 'All']].concat(Object.entries(CATEGORIES).map(([k, v]) => [k, v.label]));
   const results = computeSearchResults(searchValue, view, states, apDistricts);
+  // Metric toggle — Snapshot shows all three; Yearly·APEDA drops Area
+  // because APEDA has no area data, leaving only Production and Nat'l Share.
+  const metrics = mode === 'snapshot' ? METRICS : METRICS.filter(([k]) => k !== 'area');
 
   return (
     <div style={{
@@ -186,7 +190,7 @@ export default function FilterBar({
       {/* Recolour the whole map by one crop (or "Any crop" for category colouring) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 2 }}>Crop</span>
-        <CropSelect crop={filter.crop} crops={mode === 'des' ? DES_CROPS : ALL_CROPS}
+        <CropSelect crop={filter.crop} crops={mode === 'des' ? APEDA_CROPS : ALL_CROPS}
                     onChange={(c) => setFilter((f) => ({ ...f, crop: c }))} />
       </div>
 
@@ -194,7 +198,7 @@ export default function FilterBar({
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 6 }}>Metric</span>
         <div style={{ display: 'flex', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, padding: 2 }}>
-          {METRICS.map(([k, label]) => {
+          {metrics.map(([k, label]) => {
             const active = filter.metric === k;
             return (
               <button key={k}

@@ -14,10 +14,11 @@ export default function Legend({ filter, view, mode, year }) {
   const catLabel = filter.crop
     ? filter.crop
     : filter.category === 'all' ? 'All crops' : CATEGORIES[filter.category].label;
-  // In DES mode the legend also names the financial year being shown. Once
-  // drilled into AP districts the data is always DES 2024-25, so the
-  // district view names that fixed year; the India view names the chosen
-  // year. Snapshot mode is left unchanged (no year).
+  // In Yearly·APEDA mode the legend also names the financial year being
+  // shown. Once drilled into AP districts the data is always DES 2024-25
+  // (district drill-down still uses DES), so the district view names that
+  // fixed year; the India view names the chosen APEDA year. Snapshot mode
+  // is left unchanged (no year).
   const yearLabel = mode !== 'des' ? null
                   : view.level === 'state' ? '2024-25'
                   : year;
