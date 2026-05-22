@@ -1,158 +1,91 @@
 // src/pages/Atlas/RankingPanel.jsx
 //
-// Ranked-region table — the default right pane of the Crop Atlas. APEDA
-// AgriExchange style: every state (or, once drilled into Andhra Pradesh,
-// every district) ranked by the active metric, with its share of the
-// ranked total and its top crop.
-//
-// Click a row to open that region's DetailPanel; hover to highlight it on
-// the map. The `hover` state lives in index.jsx and is shared with the
-// map, so map ↔ table highlighting works both ways.
+// Default right pane of the Atlas tab — an editorial ranking: every
+// state (or, drilled into Andhra Pradesh, every district) as a card,
+// ranked by the active metric, showing its top crop and a magnitude
+// bar. Click a card to open that region's chapter (DetailPanel); hover
+// to highlight it on the map.
 
-import { useMemo, useState } from 'react';
-import { C } from '../../tokens';
+import { useMemo } from 'react';
 import { CATEGORIES } from './cropData';
 import { computeStateMetric, computeDistrictMetric, formatVal } from './geoHelpers';
 
-const METRIC_LABEL = { production: 'Production', area: 'Area', share: 'Share' };
 const HOME_DISTRICT = 'Dr. B.R. Ambedkar Konaseema';
 
 export default function RankingPanel({ level, filter, states, apDistricts, hovered, onHover, onSelect }) {
   const isIndia = level === 'india';
-  // Default sort: highest value first. Clicking a column header re-sorts.
-  const [sort, setSort] = useState({ key: 'value', dir: 'desc' });
-
   // Districts carry no national-share column, so 'share' falls back to
-  // production for them — reflect that in the value column + its label.
+  // production for them.
   const effectiveMetric = (!isIndia && filter.metric === 'share') ? 'production' : filter.metric;
-  const metricLabel = METRIC_LABEL[effectiveMetric] || 'Production';
-  // In single-crop mode every row's top crop is the chosen crop — redundant.
-  const showTopCrop = !filter.crop;
 
-  // Build the ranked rows for the current filter: metric value, share of
-  // the ranked total, and the region's top crop.
+  // Build + rank the rows for the current filter, highest value first.
   const rows = useMemo(() => {
     const src = isIndia ? states : apDistricts;
     const metricOf = isIndia ? computeStateMetric : computeDistrictMetric;
-    const list = Object.keys(src).map((name) => {
-      const { value, topCrop } = metricOf(src[name], filter);
-      return { name, value: value || 0, topCrop: topCrop ? topCrop[0] : null };
-    });
-    const total = list.reduce((sum, r) => sum + r.value, 0);
-    list.forEach((r) => { r.share = total > 0 ? (r.value / total) * 100 : 0; });
-    return list;
+    return Object.keys(src)
+      .map((name) => {
+        const { value, topCrop } = metricOf(src[name], filter);
+        return { name, value: value || 0, topCrop };
+      })
+      .sort((a, b) => b.value - a.value);
   }, [isIndia, filter, states, apDistricts]);
 
-  const sorted = useMemo(() => {
-    const { key, dir } = sort;
-    const cmp = (a, b) => {
-      const d = (key === 'name' || key === 'topCrop')
-        ? String(a[key] || '').localeCompare(String(b[key] || ''))
-        : (a[key] || 0) - (b[key] || 0);
-      return dir === 'asc' ? d : -d;
-    };
-    return [...rows].sort(cmp);
-  }, [rows, sort]);
+  const ranked = rows.filter((r) => r.value > 0);
+  const max = ranked[0]?.value || 1;
 
-  const toggleSort = (key) => setSort((s) => (
-    s.key === key
-      ? { key, dir: s.dir === 'desc' ? 'asc' : 'desc' }
-      : { key, dir: (key === 'name' || key === 'topCrop') ? 'asc' : 'desc' }
-  ));
-  const arrow = (key) => (sort.key === key ? (sort.dir === 'desc' ? ' ▾' : ' ▴') : '');
-
-  const scopeLabel = filter.crop
-    || (filter.category === 'all' ? 'All crops' : CATEGORIES[filter.category]?.label || 'All crops');
-
-  // District data (DES) covers food grains only — picking a non-food-grain
-  // crop here yields an all-zero table; show an explainer instead.
-  const hasData = sorted.some((r) => r.value > 0);
+  const scope = filter.crop
+    || (filter.category && filter.category !== 'all'
+        ? (CATEGORIES[filter.category]?.label || 'all crops')
+        : 'all crops');
+  const metricWord = effectiveMetric === 'area' ? 'area' : 'production';
+  const unit = isIndia ? 'states' : 'districts';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 14px', flexShrink: 0 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          {isIndia ? 'All states · ranked' : 'Andhra Pradesh · districts'}
-        </div>
-        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 24, fontWeight: 600, color: C.fg1, lineHeight: 1.15, letterSpacing: '-0.02em', margin: '5px 0 3px' }}>
-          {scopeLabel}
+    <div className="rank-pane">
+      <div className="rank-head">
+        <div className="rk-eyebrow">Ranking · {String(scope).toUpperCase()}</div>
+        <h2 className="rk-title">
+          Top {unit} for <span className="it">{String(scope).toLowerCase()}</span>
         </h2>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3 }}>
-          {sorted.length} {isIndia ? 'states' : 'districts'} by {metricLabel.toLowerCase()} · click to inspect
+        <div className="rk-sub">
+          {ranked.length > 0
+            ? `${ranked.length} ${unit} ranked by ${metricWord}. Click a row to open the chapter.`
+            : 'No data for this selection.'}
         </div>
       </div>
 
-      {/* Column header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 20px', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, background: C.bg2, flexShrink: 0 }}>
-        <HeadCell width={18}>#</HeadCell>
-        <HeadCell flex onClick={() => toggleSort('name')}>{isIndia ? 'STATE' : 'DISTRICT'}{arrow('name')}</HeadCell>
-        <HeadCell width={70} align="right" onClick={() => toggleSort('value')}>{metricLabel.toUpperCase()}{arrow('value')}</HeadCell>
-        <HeadCell width={46} align="right" onClick={() => toggleSort('share')}>SHARE{arrow('share')}</HeadCell>
-        {showTopCrop && <HeadCell width={76} onClick={() => toggleSort('topCrop')}>TOP CROP{arrow('topCrop')}</HeadCell>}
-      </div>
-
-      {/* Ranked rows */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        {!hasData && (
-          <div style={{ padding: '40px 24px', textAlign: 'center' }}>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: C.fg2, lineHeight: 1.5 }}>
-              {!isIndia && filter.crop
-                ? `${filter.crop} isn't tracked at district level.`
-                : 'No data for this selection.'}
-            </div>
-            {!isIndia && filter.crop && (
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.fg3, marginTop: 8, lineHeight: 1.6 }}>
-                District figures cover food grains — cereals &amp; pulses — only; DES does not publish {filter.crop.toLowerCase()} by district. Use the all-India view for it.
-              </div>
-            )}
+      <div className="rank-list">
+        {ranked.length === 0 && (
+          <div className="rank-empty">
+            {!isIndia && filter.crop
+              ? `${filter.crop} isn't tracked at district level — district figures cover food grains only.`
+              : 'Nothing to rank for this selection.'}
           </div>
         )}
-        {hasData && sorted.map((r, i) => {
-          const isHover = hovered === r.name;
-          const isHome = r.name === HOME_DISTRICT;   // user's home district
+        {ranked.map((r, i) => {
+          const tc = r.topCrop;
+          const w = Math.max(3, (r.value / max) * 100);
           return (
-            <div key={r.name}
-                 onClick={() => onSelect?.(r.name)}
-                 onMouseEnter={() => onHover?.(r.name)}
-                 onMouseLeave={() => onHover?.(null)}
-                 style={{
-                   display: 'flex', alignItems: 'center', gap: 8,
-                   padding: '9px 20px',
-                   borderBottom: `1px solid ${C.border}`,
-                   borderLeft: `2px solid ${isHome ? 'var(--c-h-gold)' : 'transparent'}`,
-                   background: isHover ? C.accentBg : 'transparent',
-                   cursor: 'pointer', transition: 'background 100ms',
-                 }}>
-              <span style={{ width: 18, flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{i + 1}</span>
-              <span style={{ flex: 1, minWidth: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</span>
-              <span style={{ width: 70, flexShrink: 0, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg1 }}>{formatVal(r.value, effectiveMetric)}</span>
-              <span style={{ width: 46, flexShrink: 0, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: r.value > 0 ? C.accent : C.fg3 }}>{r.value > 0 ? `${r.share.toFixed(1)}%` : '—'}</span>
-              {showTopCrop && (
-                <span style={{ width: 76, flexShrink: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: C.fg3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.topCrop || '—'}</span>
-              )}
-            </div>
+            <button key={r.name} type="button"
+              className={`rank-card${hovered === r.name ? ' hover' : ''}${r.name === HOME_DISTRICT ? ' home' : ''}`}
+              onClick={() => onSelect?.(r.name)}
+              onMouseEnter={() => onHover?.(r.name)}
+              onMouseLeave={() => onHover?.(null)}>
+              <span className="rk-num">{String(i + 1).padStart(2, '0')}</span>
+              <span className="rk-body">
+                <span className="rk-name">{r.name}</span>
+                {tc && (
+                  <span className="rk-crop">
+                    {String(tc[0]).toUpperCase()} · {String(tc[1]).toUpperCase()}
+                  </span>
+                )}
+              </span>
+              <span className="rk-val">{formatVal(r.value, effectiveMetric)}</span>
+              <span className="rk-bar"><span style={{ width: `${w}%` }}/></span>
+            </button>
           );
         })}
       </div>
     </div>
-  );
-}
-
-// One sortable column header. `flex` makes it fill remaining width; a fixed
-// `width` otherwise. Mirrors the row cell metrics so columns line up.
-function HeadCell({ children, width, flex, align, onClick }) {
-  return (
-    <span onClick={onClick}
-          style={{
-            width, flex: flex ? 1 : undefined, flexShrink: 0,
-            textAlign: align || 'left',
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
-            color: C.fg3, letterSpacing: '0.06em',
-            whiteSpace: 'nowrap', overflow: 'hidden',
-            cursor: onClick ? 'pointer' : 'default', userSelect: 'none',
-          }}>
-      {children}
-    </span>
   );
 }
