@@ -1,15 +1,16 @@
 // src/pages/Atlas/APMap.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { C } from '../../tokens';
-import { AP_DISTRICTS, AP_DISTRICT_CENTROIDS } from './cropData';
+import { AP_DISTRICT_CENTROIDS } from './cropData';
 import {
   buildPathGen, fetchGeoJSON, AP_GEOJSON_URLS,
   districtNameOf, intensityColor, computeDistrictMetric,
 } from './geoHelpers';
 
 const W = 1000, H = 1000;
+const HOME_DISTRICT = 'Dr. B.R. Ambedkar Konaseema';
 
-export default function APMap({ filter, hovered, selected, onHover, onSelect }) {
+export default function APMap({ filter, apDistricts, hovered, selected, onHover, onSelect }) {
   const [geo, setGeo] = useState(null);
   const [status, setStatus] = useState('loading');
 
@@ -25,9 +26,9 @@ export default function APMap({ filter, hovered, selected, onHover, onSelect }) 
 
   // Colour-intensity value per district — the metric logic is shared with
   // RankingPanel through computeDistrictMetric in geoHelpers.
-  const districtMetric = (name) => computeDistrictMetric(AP_DISTRICTS[name], filter).value;
+  const districtMetric = (name) => computeDistrictMetric(apDistricts[name], filter).value;
 
-  const maxV = Math.max(...Object.keys(AP_DISTRICTS).map(districtMetric), 1);
+  const maxV = Math.max(...Object.keys(apDistricts).map(districtMetric), 1);
   const intensityFor = (name) => {
     const v = districtMetric(name);
     if (v === 0) return 0;
@@ -67,7 +68,7 @@ export default function APMap({ filter, hovered, selected, onHover, onSelect }) 
               fontWeight="700" letterSpacing="0.2em">ANDHRA PRADESH · DISTRICTS</text>
         <text y="22" fill={C.fg3} fontSize="9"
               fontFamily="'JetBrains Mono', monospace" opacity="0.95">
-          12 priority districts shown · Godavari belt highlighted
+          26 official districts · Godavari belt highlighted
         </text>
       </g>
 
@@ -80,11 +81,11 @@ export default function APMap({ filter, hovered, selected, onHover, onSelect }) 
 
       {status === 'ok' && pathGen && geo.features.map((f, i) => {
         const name = districtNameOf(f.properties);
-        const hasData = !!AP_DISTRICTS[name];
+        const hasData = !!apDistricts[name];
         const t = hasData ? intensityFor(name) : 0;
         const isHover = hovered === name;
         const isSel = selected === name;
-        const isHome = name === 'Konaseema';
+        const isHome = name === HOME_DISTRICT;
         return (
           <path key={i}
                 d={pathGen.path(f)}
@@ -126,7 +127,7 @@ export default function APMap({ filter, hovered, selected, onHover, onSelect }) 
       {status === 'fallback' && Object.entries(AP_DISTRICT_CENTROIDS).map(([name, [cx, cy]]) => {
         const t = intensityFor(name);
         const r = 14 + t * 32;
-        const isHome = name === 'Konaseema';
+        const isHome = name === HOME_DISTRICT;
         const isHover = hovered === name;
         const isSel = selected === name;
         return (

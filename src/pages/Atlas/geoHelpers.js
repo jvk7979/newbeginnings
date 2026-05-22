@@ -136,8 +136,8 @@ export const STATE_GEOJSON_URLS = [
 // Andhra Pradesh district GeoJSON. Official Survey of India district
 // boundaries (bundled locally) are primary; the udit-001 per-state CDN
 // file is the fallback. Both carry the current 26-district (2022
-// reorganisation) layout — districtNameOf collapses the 26 names back onto
-// our 12 priority-district keys.
+// reorganisation) layout — districtNameOf maps each SoI name 1:1 onto our
+// 26 canonical district keys (which match desData.json / cropData).
 export const AP_GEOJSON_URLS = [
   `${ATLAS_ASSETS}ap-districts.geojson`,
   'https://cdn.jsdelivr.net/gh/udit-001/india-maps-data@main/geojson/states/andhra-pradesh.geojson',
@@ -172,36 +172,23 @@ export const stateNameOf = (props) => {
   return aliases[norm] || norm;
 };
 
-// Resolve AP district name; collapses sub-divisions back into our 12 keys
+// Resolve AP district name 1:1 onto our 26 canonical keys (which match
+// desData.json / cropData's AP_DISTRICTS). Districts are no longer
+// collapsed — each SoI polygon is its own district. Only the handful of
+// SoI spellings that differ from the canonical key need an alias.
 export const districtNameOf = (props) => {
   if (!props) return '';
   const raw = props.dtname || props.DISTRICT || props.District ||
               props.NAME_2 || props.district || props.name || '';
   const norm = String(raw).replace(/\s+/g, ' ').trim();
-  // Spellings cover both the Survey of India source (primary) and the
-  // udit-001 CDN fallback, which differ slightly — e.g. SoI writes
-  // "Sitarama" / "Ananthapuramu" / "B.R.", udit-001 the other variants.
+  // The SoI geojson writes a few names slightly differently from the
+  // desData/cropData keys — the other 23 names already match exactly.
   const aliases = {
-    'Dr. B. R. Ambedkar Konaseema': 'Konaseema',
-    'Dr. B.R. Ambedkar Konaseema': 'Konaseema',
-    'Ambedkar Konaseema': 'Konaseema',
-    'Eluru': 'West Godavari',
-    'Kakinada': 'East Godavari',
-    'NTR': 'Krishna',
-    'Bapatla': 'Guntur',
-    'Palnadu': 'Guntur',
-    'Anantapuramu': 'Anantapur',
-    'Ananthapuramu': 'Anantapur',
-    'Sri Sathya Sai': 'Anantapur',
-    'Annamayya': 'Chittoor',
-    'Tirupati': 'Chittoor',
-    'Nandyal': 'Kurnool',
-    'Alluri Sitharama Raju': 'Visakhapatnam',
-    'Alluri Sitarama Raju': 'Visakhapatnam',
-    'Anakapalli': 'Visakhapatnam',
-    'Parvathipuram Manyam': 'Srikakulam',
-    'Vizianagaram': 'Srikakulam',
-    'Sri Potti Sriramulu Nellore': 'Nellore',
+    'Alluri Sitarama Raju': 'Alluri Sitharama Raju',
+    'NTR': 'Ntr',
+    'Y.S.R.': 'Y.S.R. Kadapa',
+    // udit-001 CDN fallback variant of the Konaseema spelling
+    'Dr. B. R. Ambedkar Konaseema': 'Dr. B.R. Ambedkar Konaseema',
   };
   return aliases[norm] || norm;
 };
@@ -268,8 +255,9 @@ export function computeStateMetric(stateData, filter) {
 }
 
 // District-level twin of computeStateMetric. District crop rows are
-// [name, category, prod_kt, area_kha, note] — they carry no national-share
-// column, so under the 'share' metric callers fall back to production.
+// [name, category, prod_kt, area_kha, 0, yield_kgha] — they carry no
+// national-share column (the 5th element is 0), so under the 'share'
+// metric callers fall back to production.
 export function computeDistrictMetric(districtData, filter) {
   if (!districtData) return { value: 0, topCrop: null };
 

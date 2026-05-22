@@ -10,9 +10,12 @@
 //                    irrigated_pct, crops: [[name, category, prod_kt,
 //                    area_kha, share_pct], ...], raw: [[name, use, vol,
 //                    location], ...], note, flagship, districtKey? }
-//   AP_DISTRICTS[name] = { population, area_sqkm, crops: [[name, category,
-//                    prod_kt, area_kha, note], ...], raw, flagshipMaterial,
-//                    highlight? }
+//   AP_DISTRICTS[name] = { raw: [[name, use, note], ...], flagshipMaterial,
+//                    note, highlight? }
+//   District crops are no longer curated here — they come from DES data
+//   (desData.json) and are attached by desDataset.js's mergedApDistricts.
+//   The 26 keys below match the official 2022-reorganisation districts and
+//   desData.json / the Survey of India geojson exactly.
 
 export const CATEGORIES = {
   plantation: { label: 'Plantation',   color: '#2F6B4F', short: 'PLN' },
@@ -595,194 +598,248 @@ export const STATES = {
   },
 };
 
+// 26 official Andhra Pradesh districts (2022 reorganisation). Each carries
+// only curated raw-materials metadata — district crop rows now come from
+// DES data via desDataset.js. The `raw`/`flagshipMaterial`/`note` of each
+// pre-2022 district is carried onto its modern sub-districts.
 export const AP_DISTRICTS = {
+  // old East Godavari → East Godavari, Kakinada
   "East Godavari": {
-    population: '1.4M', area_sqkm: 2742,
-    crops: [
-      ['Coconut',   'plantation', 480, 42, 'Konaseema belt — main coconut zone'],
-      ['Rice',      'cereal',    1820,168, 'Twin delta — Godavari left bank'],
-      ['Banana',    'horti',      820, 21, 'Local + Chennai/Hyd dispatch'],
-      ['Sugarcane', 'sugar',     1100, 15, 'Two sugar mills'],
-      ['Aqua',      'horti',      180, 22, 'Brackish prawn farming'],
-    ],
     raw: [
       ['Coconut husk','420M husks/yr — ₹0.60–1.20/pc','cheapest in India'],
       ['Rice husk',   '440 KT/yr — boiler fuel pool', 'aggregated by traders'],
       ['Bagasse',     '320 KT/yr',                    'sugar mill captive'],
     ],
     flagshipMaterial: 'coconut husk',
+    note: 'Godavari left-bank delta — coconut husk is the cheapest in India.',
   },
-  "West Godavari": {
-    population: '1.7M', area_sqkm: 7742,
-    crops: [
-      ['Rice',      'cereal',    2050, 195, 'Godavari right bank — main rice basket'],
-      ['Coconut',   'plantation', 380,  35, 'Tanuku, Bhimavaram, Palakollu belts'],
-      ['Aqua',      'horti',      280,  38, "India's shrimp capital"],
-      ['Banana',    'horti',      460,  14, 'Cavendish + Chakkarakeli'],
-      ['Sugarcane', 'sugar',      980,  13, 'Tanuku mill'],
-      ['Oil Palm',  'plantation', 220,  34, 'Largest in India'],
-    ],
+  "Kakinada": {
     raw: [
-      ['Coconut husk', '340M husks/yr',           'Tanuku-Bhimavaram axis'],
-      ['Shrimp waste', '60 KT/yr — chitin pool',  'unique processing opp'],
-      ['Palm bunches', 'EFB residue',             'oil palm mill region'],
+      ['Coconut husk','420M husks/yr — ₹0.60–1.20/pc','cheapest in India'],
+      ['Rice husk',   '440 KT/yr — boiler fuel pool', 'aggregated by traders'],
+      ['Bagasse',     '320 KT/yr',                    'sugar mill captive'],
     ],
     flagshipMaterial: 'coconut husk',
+    note: 'Godavari delta port district — coconut husk and rice-husk pool.',
   },
-  "Konaseema": {
-    population: '1.7M', area_sqkm: 2083,
-    crops: [
-      ['Coconut',  'plantation', 620, 58, "India's densest coconut belt"],
-      ['Rice',     'cereal',    1340,132, 'Delta paddy'],
-      ['Aqua',     'horti',      220, 28, 'Brackish water'],
-      ['Banana',   'horti',      150,  7, 'Karpooravalli, Robusta'],
-    ],
+  // old Konaseema → Dr. B.R. Ambedkar Konaseema (highlight)
+  "Dr. B.R. Ambedkar Konaseema": {
     raw: [
       ['Coconut husk', '520M husks/yr — densest cluster','₹0.60–1.50/pc — cheapest'],
       ['Coconut shell','190 KT/yr',                      'charcoal-grade'],
       ['Coir pith',    'untapped — feedstock available', 'venture opportunity'],
     ],
     flagshipMaterial: 'coconut husk',
+    note: "India's densest coconut belt — Konaseema husk is the cheapest in India.",
     highlight: true, // user's home district
   },
-  "Krishna": {
-    population: '1.9M', area_sqkm: 5775,
-    crops: [
-      ['Rice',     'cereal',    2280,218, 'Krishna delta'],
-      ['Mango',    'horti',      920,102, 'Banganapalli, Suvarnarekha varieties'],
-      ['Sugarcane','sugar',     1600, 22, 'Lakshmi mill'],
-      ['Coconut',  'plantation',  60,  6, 'Minor'],
-      ['Cotton',   'fiber',       80, 65, 'Black soil pockets'],
+  // old West Godavari → West Godavari, Eluru
+  "West Godavari": {
+    raw: [
+      ['Coconut husk', '340M husks/yr',           'Tanuku-Bhimavaram axis'],
+      ['Shrimp waste', '60 KT/yr — chitin pool',  'unique processing opp'],
+      ['Palm bunches', 'EFB residue',             'oil palm mill region'],
     ],
+    flagshipMaterial: 'coconut husk',
+    note: 'Godavari right-bank rice basket — shrimp and oil-palm cluster.',
+  },
+  "Eluru": {
+    raw: [
+      ['Coconut husk', '340M husks/yr',           'Tanuku-Bhimavaram axis'],
+      ['Shrimp waste', '60 KT/yr — chitin pool',  'unique processing opp'],
+      ['Palm bunches', 'EFB residue',             'oil palm mill region'],
+    ],
+    flagshipMaterial: 'coconut husk',
+    note: 'Inland Godavari district — aqua and oil-palm processing belt.',
+  },
+  // old Krishna → Krishna, Ntr
+  "Krishna": {
     raw: [
       ['Mango stones','60 KT/yr — kernel fat opp','Nuzvid, Tiruvuru'],
       ['Rice husk',   '510 KT/yr',                 'large mill cluster'],
       ['Bagasse',     '420 KT/yr',                 'Lakshmi mill captive'],
     ],
     flagshipMaterial: 'mango',
+    note: 'Krishna delta — mango kernel-fat and large rice-mill cluster.',
   },
-  "Guntur": {
-    population: '2.2M', area_sqkm: 11391,
-    crops: [
-      ['Chili',    'spice',  420, 96, "India's chili capital — Guntur red"],
-      ['Tobacco',  'horti',   85, 62, 'Virginia FCV — exports'],
-      ['Cotton',   'fiber',  220,175, 'Black cotton soil'],
-      ['Rice',     'cereal', 580, 88, 'Krishna delta tail'],
-      ['Turmeric', 'spice',   18,  4, 'Tenali belt'],
+  "Ntr": {
+    raw: [
+      ['Mango stones','60 KT/yr — kernel fat opp','Nuzvid, Tiruvuru'],
+      ['Rice husk',   '510 KT/yr',                 'large mill cluster'],
+      ['Bagasse',     '420 KT/yr',                 'Lakshmi mill captive'],
     ],
+    flagshipMaterial: 'mango',
+    note: 'Vijayawada region — mango kernel-fat and rice-mill cluster.',
+  },
+  // old Guntur → Guntur, Bapatla, Palnadu
+  "Guntur": {
     raw: [
       ['Chili stems',   '32 KT/yr — capsaicin extraction','Guntur mandi'],
       ['Tobacco scrap', '12 KT/yr — nicotine extract',    'export-controlled'],
       ['Cotton stalks', '270 KT/yr',                       'particle board feed'],
     ],
     flagshipMaterial: 'chili',
+    note: "India's chili capital — Guntur red and FCV tobacco belt.",
   },
-  "Chittoor": {
-    population: '1.5M', area_sqkm: 6855,
-    crops: [
-      ['Mango',    'horti',  1180,165, 'Totapuri pulp — Coca-Cola/Pepsi belt'],
-      ['Tomato',   'horti',   580, 24, "India's 3rd tomato hub"],
-      ['Groundnut','oilseed', 420,380, 'Rayalaseema dry belt'],
-      ['Sugarcane','sugar',  1800, 28, 'Tirupati region'],
-      ['Rice',     'cereal',  320, 38, 'Tank-fed'],
+  "Bapatla": {
+    raw: [
+      ['Chili stems',   '32 KT/yr — capsaicin extraction','Guntur mandi'],
+      ['Tobacco scrap', '12 KT/yr — nicotine extract',    'export-controlled'],
+      ['Cotton stalks', '270 KT/yr',                       'particle board feed'],
     ],
+    flagshipMaterial: 'chili',
+    note: 'Coastal Guntur belt — chili, tobacco and cotton-stalk pool.',
+  },
+  "Palnadu": {
+    raw: [
+      ['Chili stems',   '32 KT/yr — capsaicin extraction','Guntur mandi'],
+      ['Tobacco scrap', '12 KT/yr — nicotine extract',    'export-controlled'],
+      ['Cotton stalks', '270 KT/yr',                       'particle board feed'],
+    ],
+    flagshipMaterial: 'chili',
+    note: 'Inland Guntur belt — chili and cotton on black cotton soil.',
+  },
+  // old Chittoor → Chittoor, Tirupati, Annamayya
+  "Chittoor": {
     raw: [
       ['Mango stones','180 KT/yr — kernel fat',     'pulp processing cluster'],
       ['Tomato waste','60 KT/yr — pectin / lycopene','Madanapalle, Punganur'],
       ['Bagasse',     '480 KT/yr',                   'Renigunta sugar mill'],
     ],
     flagshipMaterial: 'mango',
+    note: 'Totapuri mango pulp belt — Coca-Cola/Pepsi sourcing region.',
   },
-  "Kurnool": {
-    population: '2.0M', area_sqkm: 7980,
-    crops: [
-      ['Cotton',    'fiber',   380, 230, 'Rayalaseema cotton'],
-      ['Groundnut', 'oilseed', 410, 320, 'Major oilseed pool'],
-      ['Onion',     'horti',   280,  18, 'Nandyal cluster'],
-      ['Sunflower', 'oilseed', 120,  95, 'Black soil pockets'],
-      ['Sorghum',   'cereal',  280, 220, 'Dryland'],
+  "Tirupati": {
+    raw: [
+      ['Mango stones','180 KT/yr — kernel fat',     'pulp processing cluster'],
+      ['Tomato waste','60 KT/yr — pectin / lycopene','Madanapalle, Punganur'],
+      ['Bagasse',     '480 KT/yr',                   'Renigunta sugar mill'],
     ],
+    flagshipMaterial: 'mango',
+    note: 'Coastal Rayalaseema district — mango pulp and Renigunta sugar mill.',
+  },
+  "Annamayya": {
+    raw: [
+      ['Mango stones','180 KT/yr — kernel fat',     'pulp processing cluster'],
+      ['Tomato waste','60 KT/yr — pectin / lycopene','Madanapalle, Punganur'],
+      ['Bagasse',     '480 KT/yr',                   'Renigunta sugar mill'],
+    ],
+    flagshipMaterial: 'mango',
+    note: 'Madanapalle tomato hub — mango pulp and horticulture belt.',
+  },
+  // old Kurnool → Kurnool, Nandyal
+  "Kurnool": {
     raw: [
       ['Cotton stalks',   '420 KT/yr','particle board / briquettes'],
       ['Groundnut shells','280 KT/yr','Banaganapalle, Adoni clusters'],
       ['Sunflower hulls', '85 KT/yr', 'oil mill residue'],
     ],
     flagshipMaterial: 'cotton',
+    note: 'Rayalaseema cotton and oilseed pool — Adoni ginning cluster.',
   },
-  "Anantapur": {
-    population: '2.2M', area_sqkm: 19130,
-    crops: [
-      ['Groundnut', 'oilseed', 860, 750, "India's #1 groundnut district"],
-      ['Sunflower', 'oilseed',  95,  80, 'Dry pockets'],
-      ['Sorghum',   'cereal',  220, 180, 'Famine-belt cereal'],
-      ['Sweet Lime','horti',   180,  28, 'Mosambi orchards'],
-      ['Watermelon','horti',   320,  22, 'Pasturage land'],
+  "Nandyal": {
+    raw: [
+      ['Cotton stalks',   '420 KT/yr','particle board / briquettes'],
+      ['Groundnut shells','280 KT/yr','Banaganapalle, Adoni clusters'],
+      ['Sunflower hulls', '85 KT/yr', 'oil mill residue'],
     ],
+    flagshipMaterial: 'cotton',
+    note: 'Nandyal cluster — cotton, groundnut and onion belt.',
+  },
+  // old Anantapur → Ananthapuramu, Sri Sathya Sai
+  "Ananthapuramu": {
     raw: [
       ['Groundnut shells','780 KT/yr — silica + briquettes',"India's largest pool"],
       ['Groundnut haulms','420 KT/yr — fodder',              'export to dairy belts'],
     ],
     flagshipMaterial: 'groundnut',
+    note: "India's #1 groundnut district — largest shell pool nationally.",
   },
-  "Visakhapatnam": {
-    population: '1.9M', area_sqkm: 1048,
-    crops: [
-      ['Coconut',  'plantation',  96, 11, 'North coastal belt'],
-      ['Rice',     'cereal',     280, 35, 'Tribal + plains'],
-      ['Cashew',   'plantation',  22, 28, 'Northern hills'],
-      ['Sugarcane','sugar',      480,  6, 'Anakapalle mill'],
-      ['Tobacco',  'horti',        8,  5, 'Minor'],
+  "Sri Sathya Sai": {
+    raw: [
+      ['Groundnut shells','780 KT/yr — silica + briquettes',"India's largest pool"],
+      ['Groundnut haulms','420 KT/yr — fodder',              'export to dairy belts'],
     ],
+    flagshipMaterial: 'groundnut',
+    note: 'Rayalaseema dryland — groundnut shell and haulm pool.',
+  },
+  // old Visakhapatnam → Visakhapatnam, Anakapalli, Alluri Sitharama Raju
+  "Visakhapatnam": {
     raw: [
       ['Cashew shells', '7 KT/yr — CNSL feedstock','Anakapalle, Yelamanchili'],
       ['Coconut shell', '32 KT/yr',                'minor charcoal'],
       ['Port logistics','Vizag port — gateway',    'export-grade hub'],
     ],
     flagshipMaterial: 'mixed',
+    note: 'North coastal hub — Vizag port gateway for agri-exports.',
   },
-  "Nellore": {
-    population: '2.6M', area_sqkm: 13076,
-    crops: [
-      ['Rice',     'cereal',    720,110, 'Penna delta'],
-      ['Aqua',     'horti',     340, 58, 'Shrimp + freshwater'],
-      ['Lemon',    'horti',     185, 18, 'Nellore lemon GI'],
-      ['Coconut',  'plantation', 38,  4, 'Coastal villages'],
+  "Anakapalli": {
+    raw: [
+      ['Cashew shells', '7 KT/yr — CNSL feedstock','Anakapalle, Yelamanchili'],
+      ['Coconut shell', '32 KT/yr',                'minor charcoal'],
+      ['Port logistics','Vizag port — gateway',    'export-grade hub'],
     ],
+    flagshipMaterial: 'mixed',
+    note: 'Anakapalle sugar belt — cashew CNSL and coconut shell.',
+  },
+  "Alluri Sitharama Raju": {
+    raw: [
+      ['Cashew shells', '7 KT/yr — CNSL feedstock','Anakapalle, Yelamanchili'],
+      ['Coconut shell', '32 KT/yr',                'minor charcoal'],
+      ['Port logistics','Vizag port — gateway',    'export-grade hub'],
+    ],
+    flagshipMaterial: 'mixed',
+    note: 'Tribal Eastern Ghats district — NTFP-rich uplands.',
+  },
+  // old Nellore → Sri Potti Sriramulu Nellore
+  "Sri Potti Sriramulu Nellore": {
     raw: [
       ['Shrimp shells','85 KT/yr — chitin / chitosan','export pharma'],
       ['Rice husk',    '180 KT/yr',                   'boiler pool'],
       ['Lemon peel',   '12 KT/yr — pectin / oil',     'untapped'],
     ],
     flagshipMaterial: 'aqua',
+    note: 'Penna delta — shrimp chitin pool and Nellore lemon GI.',
   },
+  // old Prakasam → Prakasam
   "Prakasam": {
-    population: '2.4M', area_sqkm: 17626,
-    crops: [
-      ['Tobacco',  'horti',   42, 30, 'FCV exports'],
-      ['Chili',    'spice',  120, 38, 'Ondrarayudu pungent'],
-      ['Cotton',   'fiber',  180,145, 'Black soil pockets'],
-      ['Sorghum',  'cereal',  95, 85, 'Dry tract'],
-      ['Rice',     'cereal', 280, 38, 'Tank-fed'],
-    ],
     raw: [
       ['Cotton stalks','210 KT/yr','particle board feed'],
       ['Chili stems',  '8 KT/yr',  'capsaicin opp'],
     ],
     flagshipMaterial: 'mixed',
+    note: 'Dry tract — FCV tobacco, chili and cotton on black soil.',
   },
+  // old Srikakulam → Srikakulam, Parvathipuram Manyam, Vizianagaram
   "Srikakulam": {
-    population: '2.7M', area_sqkm: 5837,
-    crops: [
-      ['Rice',     'cereal',    640,130, 'North coastal'],
-      ['Cashew',   'plantation', 28, 38, 'Northern coastal'],
-      ['Sugarcane','sugar',     320,  4, 'Naupada mill'],
-      ['Coconut',  'plantation', 22,  3, 'Minor'],
-    ],
     raw: [
       ['Cashew shells','9 KT/yr', 'Tekkali, Palasa clusters'],
       ['Rice husk',    '155 KT/yr','boiler pool'],
     ],
     flagshipMaterial: 'cashew',
+    note: 'North coastal — Tekkali/Palasa cashew clusters.',
+  },
+  "Parvathipuram Manyam": {
+    raw: [
+      ['Cashew shells','9 KT/yr', 'Tekkali, Palasa clusters'],
+      ['Rice husk',    '155 KT/yr','boiler pool'],
+    ],
+    flagshipMaterial: 'cashew',
+    note: 'Tribal Manyam uplands — cashew and rice-husk pool.',
+  },
+  "Vizianagaram": {
+    raw: [
+      ['Cashew shells','9 KT/yr', 'Tekkali, Palasa clusters'],
+      ['Rice husk',    '155 KT/yr','boiler pool'],
+    ],
+    flagshipMaterial: 'cashew',
+    note: 'North coastal plains — cashew and paddy belt.',
+  },
+  // Y.S.R. Kadapa — no curated predecessor
+  "Y.S.R. Kadapa": {
+    raw: [],
+    flagshipMaterial: 'mixed',
+    note: 'Rayalaseema dryland district — groundnut and pulses belt.',
   },
 };
 
@@ -800,19 +857,31 @@ export const STATE_CENTROIDS = {
   "Kerala": [410, 800], "Tamil Nadu": [495, 770],
 };
 
-// AP district centroids on 1000×1000 zoomed canvas
+// AP district centroids on 1000×1000 zoomed canvas — used only by the
+// fallback bubble map. Keyed by the 26 official district names; positions
+// are approximate, grouped roughly by their pre-2022 parent district.
 export const AP_DISTRICT_CENTROIDS = {
-  "Srikakulam":    [820, 130], "Visakhapatnam":  [700, 220], "East Godavari": [600, 340],
-  "Konaseema":     [690, 420], "West Godavari":  [500, 380], "Krishna":       [430, 470],
-  "Guntur":        [370, 560], "Prakasam":       [430, 670], "Nellore":       [490, 790],
-  "Chittoor":      [330, 870], "Anantapur":      [200, 770], "Kurnool":       [240, 620],
+  "Srikakulam":                  [840, 110], "Parvathipuram Manyam":  [770, 150],
+  "Vizianagaram":                [780, 210], "Visakhapatnam":         [700, 230],
+  "Anakapalli":                  [620, 270], "Alluri Sitharama Raju": [600, 180],
+  "Kakinada":                    [640, 350], "East Godavari":         [560, 360],
+  "Dr. B.R. Ambedkar Konaseema": [680, 430], "West Godavari":         [490, 380],
+  "Eluru":                       [430, 330], "Krishna":               [440, 470],
+  "Ntr":                         [360, 430], "Guntur":                [380, 550],
+  "Palnadu":                     [300, 510], "Bapatla":               [420, 620],
+  "Prakasam":                    [400, 680], "Sri Potti Sriramulu Nellore": [470, 790],
+  "Tirupati":                    [400, 880], "Chittoor":              [300, 880],
+  "Annamayya":                   [310, 790], "Y.S.R. Kadapa":         [310, 700],
+  "Ananthapuramu":               [180, 800], "Sri Sathya Sai":        [180, 690],
+  "Kurnool":                     [250, 600], "Nandyal":               [300, 640],
 };
 
-// Every distinct crop name across all states and AP districts — powers the
-// "recolour the map by one crop" dropdown in the filter bar.
+// Every distinct crop name across all curated states — powers the
+// "recolour the map by one crop" dropdown in the filter bar. AP districts
+// no longer carry curated crops (their rows come from DES data), so only
+// the curated STATES are scanned here.
 export const ALL_CROPS = (() => {
   const set = new Set();
   for (const s of Object.values(STATES)) for (const c of s.crops) set.add(c[0]);
-  for (const d of Object.values(AP_DISTRICTS)) for (const c of d.crops) set.add(c[0]);
   return [...set].sort((a, b) => a.localeCompare(b));
 })();

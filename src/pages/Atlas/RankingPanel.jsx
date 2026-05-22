@@ -11,12 +11,13 @@
 
 import { useMemo, useState } from 'react';
 import { C } from '../../tokens';
-import { STATES, AP_DISTRICTS, CATEGORIES } from './cropData';
+import { CATEGORIES } from './cropData';
 import { computeStateMetric, computeDistrictMetric, formatVal } from './geoHelpers';
 
 const METRIC_LABEL = { production: 'Production', area: 'Area', share: 'Share' };
+const HOME_DISTRICT = 'Dr. B.R. Ambedkar Konaseema';
 
-export default function RankingPanel({ level, filter, hovered, onHover, onSelect }) {
+export default function RankingPanel({ level, filter, states, apDistricts, hovered, onHover, onSelect }) {
   const isIndia = level === 'india';
   // Default sort: highest value first. Clicking a column header re-sorts.
   const [sort, setSort] = useState({ key: 'value', dir: 'desc' });
@@ -31,7 +32,7 @@ export default function RankingPanel({ level, filter, hovered, onHover, onSelect
   // Build the ranked rows for the current filter: metric value, share of
   // the ranked total, and the region's top crop.
   const rows = useMemo(() => {
-    const src = isIndia ? STATES : AP_DISTRICTS;
+    const src = isIndia ? states : apDistricts;
     const metricOf = isIndia ? computeStateMetric : computeDistrictMetric;
     const list = Object.keys(src).map((name) => {
       const { value, topCrop } = metricOf(src[name], filter);
@@ -40,7 +41,7 @@ export default function RankingPanel({ level, filter, hovered, onHover, onSelect
     const total = list.reduce((sum, r) => sum + r.value, 0);
     list.forEach((r) => { r.share = total > 0 ? (r.value / total) * 100 : 0; });
     return list;
-  }, [isIndia, filter]);
+  }, [isIndia, filter, states, apDistricts]);
 
   const sorted = useMemo(() => {
     const { key, dir } = sort;
@@ -91,7 +92,7 @@ export default function RankingPanel({ level, filter, hovered, onHover, onSelect
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {sorted.map((r, i) => {
           const isHover = hovered === r.name;
-          const isHome = r.name === 'Konaseema';   // user's home district
+          const isHome = r.name === HOME_DISTRICT;   // user's home district
           return (
             <div key={r.name}
                  onClick={() => onSelect?.(r.name)}

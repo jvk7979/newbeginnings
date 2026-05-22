@@ -1,13 +1,13 @@
 // src/pages/Atlas/HoverTip.jsx
 import { C } from '../../tokens';
-import { STATES, AP_DISTRICTS, CATEGORIES } from './cropData';
+import { CATEGORIES } from './cropData';
 
 const W = 280;
 
-export default function HoverTip({ name, level, x, y, filter }) {
+export default function HoverTip({ name, level, x, y, filter, states, apDistricts }) {
   if (!name) return null;
   const isState = level === 'india';
-  const data = isState ? STATES[name] : AP_DISTRICTS[name];
+  const data = isState ? states?.[name] : apDistricts?.[name];
   if (!data) return null;
 
   const crops = filter.category === 'all'
@@ -36,11 +36,11 @@ export default function HoverTip({ name, level, x, y, filter }) {
         )}
       </div>
 
-      {isState && (
+      {isState && data.netSown_kha != null && (
         <div style={{ display: 'flex', gap: 12, marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${C.border}` }}>
           <Stat label="Sown"    value={`${(data.netSown_kha/1000).toFixed(1)} M ha`}/>
-          <Stat label="Irrig."  value={`${data.irrigated_pct}%`}/>
-          <Stat label="Farmers" value={`${data.farmers} M`}/>
+          <Stat label="Irrig."  value={data.irrigated_pct != null ? `${data.irrigated_pct}%` : '—'}/>
+          <Stat label="Farmers" value={data.farmers != null ? `${data.farmers} M` : '—'}/>
         </div>
       )}
 
@@ -62,7 +62,7 @@ export default function HoverTip({ name, level, x, y, filter }) {
         );
       })}
 
-      {STATES[name]?.districtKey && (
+      {isState && data.districtKey && (
         <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${C.border}`, fontSize: 10, color: 'var(--c-h-gold)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', fontWeight: 700 }}>
           ▸ CLICK TO DRILL DOWN INTO DISTRICTS
         </div>

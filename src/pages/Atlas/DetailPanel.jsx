@@ -1,12 +1,12 @@
 // src/pages/Atlas/DetailPanel.jsx
 import { C } from '../../tokens';
-import { STATES, AP_DISTRICTS, CATEGORIES } from './cropData';
+import { CATEGORIES } from './cropData';
 import { intensityColor } from './geoHelpers';
 
-export default function DetailPanel({ name, level, filter, onDrillDown, onClear }) {
+export default function DetailPanel({ name, level, filter, states, apDistricts, onDrillDown, onClear }) {
   if (!name) return <EmptyState/>;
   const isState = level === 'india';
-  const data = isState ? STATES[name] : AP_DISTRICTS[name];
+  const data = isState ? states[name] : apDistricts[name];
   if (!data) return <EmptyState/>;
 
   const crops = filter.category === 'all'
@@ -34,14 +34,14 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
         {isState ? 'STATE' : 'DISTRICT · ANDHRA PRADESH'}
       </div>
       <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 600, color: C.fg1, lineHeight: 1.1, letterSpacing: '-0.02em', margin: '0 0 4px' }}>{name}</h2>
-      {isState && (
+      {isState && (data.capital || data.area_sqkm) && (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
-          {data.capital} · {data.area_sqkm.toLocaleString('en-IN')} km²
+          {[data.capital, data.area_sqkm ? `${data.area_sqkm.toLocaleString('en-IN')} km²` : null].filter(Boolean).join(' · ')}
         </div>
       )}
       {!isState && (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
-          Pop. {data.population} · {data.area_sqkm.toLocaleString('en-IN')} km²
+          Andhra Pradesh · DES 2024-25
         </div>
       )}
 
@@ -51,7 +51,7 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
         </div>
       )}
 
-      {isState && STATES[name].districtKey && (
+      {isState && data.districtKey && (
         <button onClick={() => onDrillDown?.(name)}
                 style={{
                   marginTop: 16, width: '100%',
@@ -64,7 +64,7 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 21l-5-5"/><circle cx="11" cy="11" r="8"/><path d="M11 8v6M8 11h6"/></svg>
-          Drill into {Object.keys(AP_DISTRICTS).length} districts →
+          Drill into {Object.keys(apDistricts).length} districts →
         </button>
       )}
 
@@ -76,14 +76,14 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
 
       {isState ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 18 }}>
-          <Stat label="Net sown" value={`${(data.netSown_kha/1000).toFixed(2)} M ha`}/>
-          <Stat label="Irrigated" value={`${data.irrigated_pct}%`}/>
-          <Stat label="Farmers" value={`${data.farmers} M`}/>
+          <Stat label="Net sown" value={data.netSown_kha != null ? `${(data.netSown_kha/1000).toFixed(2)} M ha` : '—'}/>
+          <Stat label="Irrigated" value={data.irrigated_pct != null ? `${data.irrigated_pct}%` : '—'}/>
+          <Stat label="Farmers" value={data.farmers != null ? `${data.farmers} M` : '—'}/>
           <Stat label="Monopolies" value={`${monopolies.length}`} accent/>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 18 }}>
-          <Stat label="Main crop" value={data.crops[0][0]}/>
+          <Stat label="Main crop" value={data.crops[0]?.[0] || '—'}/>
           <Stat label="Material" value={data.flagshipMaterial} accent/>
         </div>
       )}
@@ -96,12 +96,15 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
           </div>
         )}
         {sortedCrops.map((c, i) => {
-          const [crop, cat, prod, area, fifth] = c;
+          // Row shape: [name, category, prod_kt, area_kha, share_pct, yield_kgha?]
+          const [crop, cat, prod, area, fifth, sixth] = c;
           const catMeta = CATEGORIES[cat];
           const top = sortedCrops[0];
           const topVal = filter.metric === 'area' ? top[3] : filter.metric === 'share' ? top[4] : top[2];
           const myVal = filter.metric === 'area' ? area : filter.metric === 'share' ? fifth : prod;
           const w = topVal > 0 ? (myVal / topVal) * 100 : 0;
+          // 6th element, when present, is the DES yield in kg/ha.
+          const yieldKgHa = typeof sixth === 'number' && sixth > 0 ? sixth : null;
 
           return (
             <div key={i} style={{ padding: '10px 12px', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, position: 'relative', overflow: 'hidden' }}>
@@ -117,17 +120,14 @@ export default function DetailPanel({ name, level, filter, onDrillDown, onClear 
                   {isState && (
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, marginTop: 1 }}>
                       {prod >= 1000 ? `${(prod/1000).toFixed(2)} MT` : `${prod} KT`} · {area} K ha · {fifth}% IN
+                      {yieldKgHa != null && ` · ${yieldKgHa} kg/ha`}
                     </div>
                   )}
                   {!isState && (
-                    <>
-                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, marginTop: 1 }}>
-                        {prod} KT · {area} K ha · {area > 0 ? (prod / area).toFixed(1) : '—'} t/ha yield
-                      </div>
-                      {fifth && (
-                        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: C.fg3, fontStyle: 'italic', marginTop: 1 }}>{fifth}</div>
-                      )}
-                    </>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, marginTop: 1 }}>
+                      {prod >= 1000 ? `${(prod/1000).toFixed(2)} MT` : `${prod} KT`} · {area} K ha
+                      {yieldKgHa != null && ` · ${yieldKgHa} kg/ha`}
+                    </div>
                   )}
                 </div>
                 {isState && fifth >= 20 && (

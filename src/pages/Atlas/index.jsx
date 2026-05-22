@@ -9,7 +9,7 @@
 // dropdown to recolour the whole country by it. Layout: 60/40 split
 // between map (centre) and detail panel (right).
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { C } from '../../tokens';
 import IndiaMap from './IndiaMap';
 import APMap from './APMap';
@@ -18,7 +18,8 @@ import DetailPanel from './DetailPanel';
 import RankingPanel from './RankingPanel';
 import HoverTip from './HoverTip';
 import Legend from './Legend';
-import { STATES, AP_DISTRICTS } from './cropData';
+import { STATES } from './cropData';
+import { buildDesStates, mergedApDistricts } from './desDataset';
 
 // eslint-disable-next-line no-unused-vars
 export default function AtlasPage({ onNavigate }) {
@@ -29,6 +30,33 @@ export default function AtlasPage({ onNavigate }) {
   const [selected, setSelected] = useState(null);                 // null → ranking table
   const [districtSelected, setDistrictSelected] = useState(null); // null → ranking table
   const [search, setSearch] = useState('');
+  // Data mode — 'snapshot' = curated cropData (default, byte-identical to
+  // the original Atlas); 'des' = real DES data driven by the chosen year.
+  const [mode, setMode] = useState('snapshot');
+  const [year, setYear] = useState('2024-25');
+
+  // The active datasets handed down to every component. In Snapshot mode the
+  // states are the curated STATES; in DES mode they are built from real DES
+  // data for the year. AP district crops are always DES (there is no curated
+  // district crop data), so mergedApDistricts is used in both modes.
+  const activeStates = useMemo(
+    () => (mode === 'des' ? buildDesStates(year) : STATES),
+    [mode, year],
+  );
+  const activeApDistricts = mergedApDistricts;
+
+  // Switching mode/year invalidates any focused region — drop back to the
+  // ranking table so the panel never shows a stale or absent region.
+  const handleSetMode = (m) => {
+    setMode(m);
+    setSelected(null);
+    setDistrictSelected(null);
+  };
+  const handleSetYear = (y) => {
+    setYear(y);
+    setSelected(null);
+    setDistrictSelected(null);
+  };
 
   const handleHover = (name, e) => {
     if (!name) { setHover(null); return; }
@@ -43,7 +71,7 @@ export default function AtlasPage({ onNavigate }) {
   };
 
   const handleDrillDown = (stateName) => {
-    if (STATES[stateName]?.districtKey) {
+    if (activeStates[stateName]?.districtKey) {
       setView({ level: 'state', state: stateName });
       setDistrictSelected(null);   // open the district ranking, not a stale detail
       setHover(null);
@@ -106,6 +134,9 @@ export default function AtlasPage({ onNavigate }) {
         view={view} onBack={handleBack}
         searchValue={search} setSearch={setSearch}
         onSearchSelect={handleSearchSelect}
+        states={activeStates} apDistricts={activeApDistricts}
+        mode={mode} setMode={handleSetMode}
+        year={year} setYear={handleSetYear}
       />
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
@@ -113,6 +144,7 @@ export default function AtlasPage({ onNavigate }) {
         <div style={{ flex: 1, position: 'relative', minWidth: 0, background: C.bg0 }}>
           {view.level === 'india' && (
             <IndiaMap filter={filter}
+                      states={activeStates}
                       hovered={hover?.name}
                       selected={selected}
                       onHover={handleHover}
@@ -121,12 +153,13 @@ export default function AtlasPage({ onNavigate }) {
           )}
           {view.level === 'state' && (
             <APMap filter={filter}
+                   apDistricts={activeApDistricts}
                    hovered={hover?.name}
                    selected={districtSelected}
                    onHover={handleHover}
                    onSelect={handleSelect}/>
           )}
-          <Legend filter={filter} view={view}/>
+          <Legend filter={filter} view={view} mode={mode} year={year}/>
 
           {view.level === 'india' && (
             <div style={{
@@ -153,12 +186,14 @@ export default function AtlasPage({ onNavigate }) {
           {focused ? (
             <DetailPanel
               name={focused} level={view.level} filter={filter}
+              states={activeStates} apDistricts={activeApDistricts}
               onDrillDown={handleDrillDown}
               onClear={clearFocus}
             />
           ) : (
             <RankingPanel
               level={view.level} filter={filter}
+              states={activeStates} apDistricts={activeApDistricts}
               hovered={hover?.name}
               onHover={handleHover}
               onSelect={handleSelect}
@@ -169,7 +204,8 @@ export default function AtlasPage({ onNavigate }) {
 
       {/* Floating hover tooltip — map hovers only, never over the focused region */}
       {hover && hover.tip && hover.name !== focused && (
-        <HoverTip name={hover.name} level={view.level} x={hover.x} y={hover.y} filter={filter}/>
+        <HoverTip name={hover.name} level={view.level} x={hover.x} y={hover.y}
+                  filter={filter} states={activeStates} apDistricts={activeApDistricts}/>
       )}
     </div>
   );

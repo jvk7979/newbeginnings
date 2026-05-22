@@ -5,7 +5,7 @@ import { intensityColor } from './geoHelpers';
 
 const STOPS = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
 
-export default function Legend({ filter, view }) {
+export default function Legend({ filter, view, mode, year }) {
   const metricLabel = filter.metric === 'area' ? 'Sown area'
                     : filter.metric === 'share' ? 'National share'
                     : 'Production';
@@ -14,6 +14,13 @@ export default function Legend({ filter, view }) {
   const catLabel = filter.crop
     ? filter.crop
     : filter.category === 'all' ? 'All crops' : CATEGORIES[filter.category].label;
+  // In DES mode the legend also names the financial year being shown. Once
+  // drilled into AP districts the data is always DES 2024-25, so the
+  // district view names that fixed year; the India view names the chosen
+  // year. Snapshot mode is left unchanged (no year).
+  const yearLabel = mode !== 'des' ? null
+                  : view.level === 'state' ? '2024-25'
+                  : year;
 
   return (
     <div style={{
@@ -26,10 +33,10 @@ export default function Legend({ filter, view }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: C.fg3, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>
-          {metricLabel} · {catLabel}
+          {metricLabel} · {catLabel}{yearLabel ? ` · ${yearLabel}` : ''}
         </div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.fg3, letterSpacing: '0.04em' }}>
-          {view.level === 'india' ? '28 states' : '12 districts'}
+          {view.level === 'india' ? '28 states' : '26 districts'}
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>

@@ -1,7 +1,7 @@
 // src/pages/Atlas/IndiaMap.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { C } from '../../tokens';
-import { STATES, STATE_CENTROIDS } from './cropData';
+import { STATE_CENTROIDS } from './cropData';
 import {
   buildPathGen, fetchGeoJSON, STATE_GEOJSON_URLS,
   stateNameOf, intensityColor, computeStateMetric,
@@ -9,7 +9,7 @@ import {
 
 const W = 1000, H = 1100;
 
-export default function IndiaMap({ filter, hovered, selected, onHover, onSelect, onDrillDown }) {
+export default function IndiaMap({ filter, states, hovered, selected, onHover, onSelect, onDrillDown }) {
   const [geo, setGeo] = useState(null);
   const [status, setStatus] = useState('loading'); // loading | ok | fallback
 
@@ -26,8 +26,8 @@ export default function IndiaMap({ filter, hovered, selected, onHover, onSelect,
   const { metricRange, stateMetrics } = useMemo(() => {
     const all = {};
     let min = Infinity, max = -Infinity;
-    for (const name of Object.keys(STATES)) {
-      const m = computeStateMetric(STATES[name], filter);
+    for (const name of Object.keys(states)) {
+      const m = computeStateMetric(states[name], filter);
       all[name] = m;
       if (m.value > 0) {
         if (m.value < min) min = m.value;
@@ -36,7 +36,7 @@ export default function IndiaMap({ filter, hovered, selected, onHover, onSelect,
     }
     if (min === Infinity) { min = 0; max = 1; }
     return { metricRange: [min, max], stateMetrics: all };
-  }, [filter]);
+  }, [filter, states]);
 
   const intensityFor = (name) => {
     const m = stateMetrics[name];
@@ -146,15 +146,15 @@ export default function IndiaMap({ filter, hovered, selected, onHover, onSelect,
                 onMouseLeave={() => onHover?.(null)}
                 onClick={() => {
                   onSelect?.(name);
-                  if (STATES[name]?.districtKey) onDrillDown?.(name);
+                  if (states[name]?.districtKey) onDrillDown?.(name);
                 }}
           />
         );
       })}
 
       {/* Drill-down indicator dots */}
-      {status === 'ok' && pathGen && Object.keys(STATES)
-        .filter((n) => STATES[n].districtKey)
+      {status === 'ok' && pathGen && Object.keys(states)
+        .filter((n) => states[n].districtKey)
         .map((n, i) => {
           const feat = geo.features.find((f) => stateNameOf(f.properties) === n);
           if (!feat) return null;
