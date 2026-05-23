@@ -42,9 +42,17 @@ test('#/commodity-detail with no id renders Not Found', async ({ page }) => {
   await expect(page.locator('text=/not found/i').first()).toBeVisible();
 });
 
-test('add-commodity modal has the auto-fetch source field', async ({ page }) => {
+test('add-commodity modal has core fields (Name, Unit, Mandi, Colour, Price)', async ({ page }) => {
+  // The "Auto-fetch source" field was removed when Markets gained a separate
+  // Agmarknet picker surface (AutoFetchSettings.jsx). The Track-a-Commodity
+  // modal now collects only the manual-tracking essentials.
   await goto(page, 'markets');
   await page.locator('button').filter({ hasText: /Track/ }).first().click();
   await page.waitForTimeout(200);
-  await expect(page.locator('text=Auto-fetch source').first()).toBeVisible();
+  await expect(page.locator('text=Track a Commodity').first()).toBeVisible();
+  await expect(page.locator('label').filter({ hasText: /^Name$/i }).first()).toBeVisible();
+  await expect(page.locator('label').filter({ hasText: /^Unit$/i }).first()).toBeVisible();
+  await expect(page.locator('label').filter({ hasText: /Mandi/i }).first()).toBeVisible();
+  await expect(page.locator('label').filter({ hasText: /Colour/i }).first()).toBeVisible();
+  await expect(page.locator('label').filter({ hasText: /Current price/i }).first()).toBeVisible();
 });

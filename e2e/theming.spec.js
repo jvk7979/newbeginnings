@@ -1,7 +1,9 @@
 /**
- * Theme system tests — covers the five-palette set (heritage / aura / prism /
- * citrus / lemon), the Settings picker, persistence to localStorage, legacy
- * id migration, and SideNav per-theme active-state chrome.
+ * Theme system tests — covers the eight-palette set (rev-6, 2026-05-11):
+ * heritage / prism / citrus / midnight / coastal / plum / terracotta / mono.
+ * Earlier palettes (aura / lemon / jade / sprout / forest / amber / field /
+ * vellum / linen / oxford / burgundy) are silently migrated to heritage via
+ * LEGACY_THEME_MAP in ThemeContext; legacy-id migration is exercised below.
  *
  * The Settings picker buttons carry aria-label="Use <Label> theme" so we can
  * locate each one by accessible name. Theme switching is read off
@@ -12,13 +14,19 @@ import { test, expect } from '@playwright/test';
 import { goto } from './helpers.js';
 
 const THEME_LABELS = {
-  heritage: 'Heritage',
-  aura:     'Aura',
-  prism:    'Prism',
-  citrus:   'Citrus',
-  lemon:    'Lemon',
+  heritage:   'Heritage',
+  prism:      'Prism',
+  citrus:     'Citrus',
+  midnight:   'Midnight',
+  coastal:    'Coastal',
+  plum:       'Plum',
+  terracotta: 'Terracotta',
+  mono:       'Mono',
 };
-const VIBRANT_THEMES = ['prism', 'citrus', 'lemon'];
+// Vibrant themes paint the active sidenav item with a linear-gradient
+// (see styles.css per-theme overrides). Heritage + the editorial themes
+// (terracotta / mono) stay on the flat accent-bg.
+const VIBRANT_THEMES = ['prism', 'citrus', 'coastal', 'plum'];
 
 test.describe('Theme system — picker + switching + persistence', () => {
 
@@ -35,7 +43,7 @@ test.describe('Theme system — picker + switching + persistence', () => {
     expect(theme).toBe('heritage');
   });
 
-  test('Settings picker shows all five theme cards', async ({ page }) => {
+  test('Settings picker shows all eight theme cards', async ({ page }) => {
     await goto(page, 'settings');
     for (const id of Object.keys(THEME_LABELS)) {
       const label = THEME_LABELS[id];
@@ -67,12 +75,38 @@ test.describe('Theme system — picker + switching + persistence', () => {
     expect(theme).toBe('citrus');
   });
 
-  test('Lemon theme can be selected and is reflected on dataset', async ({ page }) => {
+  test('Midnight (first-class dark) theme can be selected and reflected on dataset', async ({ page }) => {
     await goto(page, 'settings');
-    await page.getByRole('button', { name: /^Use Lemon theme$/i }).click();
+    await page.getByRole('button', { name: /^Use Midnight theme$/i }).click();
     await page.waitForTimeout(250);
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
-    expect(theme).toBe('lemon');
+    expect(theme).toBe('midnight');
+  });
+
+  test('Mono (editorial newspaper) theme can be selected and reflected on dataset', async ({ page }) => {
+    await goto(page, 'settings');
+    await page.getByRole('button', { name: /^Use Mono theme$/i }).click();
+    await page.waitForTimeout(250);
+    const theme = await page.evaluate(() => document.documentElement.dataset.theme);
+    expect(theme).toBe('mono');
+  });
+
+  test('legacy theme id (aura) silently migrates to heritage on load', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('nb_theme', 'aura'));
+    await page.reload();
+    await page.waitForTimeout(800);
+    const theme = await page.evaluate(() => document.documentElement.dataset.theme);
+    const stored = await page.evaluate(() => localStorage.getItem('nb_theme'));
+    expect(theme).toBe('heritage');
+    expect(stored).toBe('heritage');
+  });
+
+  test('legacy theme id (lemon) silently migrates to heritage on load', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('nb_theme', 'lemon'));
+    await page.reload();
+    await page.waitForTimeout(800);
+    const theme = await page.evaluate(() => document.documentElement.dataset.theme);
+    expect(theme).toBe('heritage');
   });
 
   test('legacy theme id (forest) silently migrates to heritage on load', async ({ page }) => {

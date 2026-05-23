@@ -13,6 +13,11 @@ const PAGES = [
   { hash: 'new-project',  label: 'New Project' },
   { hash: 'markets',      label: 'Markets' },
   { hash: 'calculations', label: 'Calculations' },
+  { hash: 'scenarios',    label: 'Scenarios' },
+  { hash: 'suppliers',    label: 'Suppliers' },
+  { hash: 'portfolio',    label: 'Portfolio' },
+  { hash: 'atlas',        label: 'Crop Atlas' },
+  { hash: 'settings',     label: 'Settings' },
   { hash: 'about',        label: 'About' },
 ];
 
