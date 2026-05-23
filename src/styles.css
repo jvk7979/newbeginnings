@@ -98,16 +98,19 @@
    *   --c-accent-3 — warm terracotta-orange (#C97435) — heritage's
    *                  KPI-icon-circle hue, fully outside the four
    *                  status hues' colour wheel.
-   *   --c-accent-4 — gold (#B88A3B) — re-uses warning's brand hue at
-   *                  full chroma. Position 4 in cost segments is rare,
-   *                  so the gold-on-gold edge case almost never lands
-   *                  next to a warning sentiment. */
+   *   --c-accent-4 — muted teal (#5C8A8B) — a cool counterpoint that
+   *                  introduces a NEW hue to Heritage's otherwise
+   *                  warm palette. Distinct from --c-info (river blue
+   *                  #7FA9B8 is warmer + lighter) and from --c-warning
+   *                  (gold). Resolves the previous gold/gold collision
+   *                  where a categorical slot rendered identical pixels
+   *                  to the warning sentiment in 6+ row Money Flow bars. */
   --c-accent-2:    #4A8F70;
   --c-accent-2-bg: #E2EEE6;
   --c-accent-3:    #C97435;
   --c-accent-3-bg: #F8E8D8;
-  --c-accent-4:    #B88A3B;
-  --c-accent-4-bg: #F8F0DD;
+  --c-accent-4:    #5C8A8B;
+  --c-accent-4-bg: #DEEAEA;
 
   /* Chart palette — five roles consumed by Calculations + Dashboard SVG
      charts. Each theme picks colours that sit on its own background. */

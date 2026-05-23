@@ -160,11 +160,35 @@
   border-color: var(--c-accent-dim);
 }
 /* Active tier-filter chip echoes the tier card's stripe colour so a
- * user knows clicking "Tier B" filters to the gold-stripe cards. */
-.atlas-mode-pane .chip.on[data-tier="S"] { background: var(--c-accent);       border-color: var(--c-accent-dim); }
-.atlas-mode-pane .chip.on[data-tier="A"] { background: var(--c-accent-light); border-color: var(--c-accent); }
-.atlas-mode-pane .chip.on[data-tier="B"] { background: var(--c-warning);      border-color: var(--c-warning); }
-.atlas-mode-pane .chip.on[data-tier="C"] { background: var(--c-fg3);          border-color: var(--c-fg3); }
+ * user knows clicking "Tier B" filters to the gold-stripe cards.
+ *
+ * Contrast: the base .chip.on rule uses `color: var(--c-bg1)` (cream
+ * in light themes, dark slate in Midnight). That pairs cleanly with
+ * tier-S/A (sage/lighter sage are dark on light themes, brass is
+ * light on Midnight) but fell short on tier-B (mid-luminance gold)
+ * and tier-C (mid-luminance grey) — cream-on-gold and cream-on-grey
+ * land around 2.5-3:1 in light themes, failing WCAG AA Normal.
+ *
+ * Fix: darken the bg via color-mix toward --c-fg1 (the theme's
+ * deepest text) for B and A, and use --c-fg2 outright for C. Chip
+ * text becomes --c-bg0 so it auto-flips polarity per theme:
+ *   light themes → cream chip text on darkened saturated bg
+ *   Midnight     → dark slate chip text on the (now darker) bg
+ * All four chips clear AA Normal in every theme. */
+.atlas-mode-pane .chip.on[data-tier="S"] {
+  background: var(--c-accent); color: var(--c-bg0); border-color: var(--c-accent-dim);
+}
+.atlas-mode-pane .chip.on[data-tier="A"] {
+  background: color-mix(in srgb, var(--c-accent-light) 60%, var(--c-accent-dim));
+  color: var(--c-bg0); border-color: var(--c-accent);
+}
+.atlas-mode-pane .chip.on[data-tier="B"] {
+  background: color-mix(in srgb, var(--c-warning) 78%, var(--c-fg1));
+  color: var(--c-bg0); border-color: var(--c-warning);
+}
+.atlas-mode-pane .chip.on[data-tier="C"] {
+  background: var(--c-fg2); color: var(--c-bg0); border-color: var(--c-fg2);
+}
 /* Active sort chip uses the role its axis lives on. */
 .atlas-mode-pane .chip.on[data-sort-role="coverage"] { background: var(--c-info);    border-color: var(--c-info); }
 .atlas-mode-pane .chip.on[data-sort-role="time"]     { background: var(--c-warning); border-color: var(--c-warning); }

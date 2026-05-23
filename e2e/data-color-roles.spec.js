@@ -56,7 +56,9 @@ test.describe('Data colour roles — theme token surface', () => {
 
   test('Categorical secondary tokens are visually distinct from status tokens (Heritage)', async ({ page }) => {
     // The four status hues and the three categorical hues should each be
-    // their own colour — no accent-2 == info collisions.
+    // their own colour — no accent-2 == info collisions, no accent-4 ==
+    // warning collisions, etc. Heritage's editorial palette is narrow,
+    // so we explicitly assert the seven role hues are pairwise distinct.
     const tokens = {
       accent:   await readToken(page, '--c-accent'),
       info:     await readToken(page, '--c-info'),
@@ -69,6 +71,9 @@ test.describe('Data colour roles — theme token surface', () => {
     // accent-2 must differ from info (the most likely collision after the
     // rev-6 secondary-palette tightening).
     expect(tokens.accent2).not.toBe(tokens.info);
+    // accent-4 must differ from warning (regression-guarded after fix in
+    // commit dee9dfb introduced the collision; resolved in the follow-up).
+    expect(tokens.accent4).not.toBe(tokens.warning);
     // No two categorical tokens should be identical either.
     expect(new Set([tokens.accent2, tokens.accent3, tokens.accent4]).size).toBe(3);
   });
@@ -254,6 +259,34 @@ test.describe('Crop Atlas — tier-filter chips paint by tier when active', () =
     await expect(chip).toHaveClass(/on/);
     const bg = await rgbOf(page, chip);
     expect(bg).not.toBe('rgba(0, 0, 0, 0)');
+  });
+
+  // Regression guard for the contrast fix in commit b81701f: tier-B and
+  // tier-C active chips paint cream/parchment text on darkened bgs so
+  // WCAG AA Normal is met across every theme. We don't compute the exact
+  // ratio here (cheap colour-distance proxy), but we DO confirm the chip
+  // text colour is NOT the same as the chip background colour (catches
+  // a future refactor that accidentally renders invisible text). And we
+  // confirm tier-C background is fg2, not the lighter fg3 of the
+  // pre-fix code.
+  test('Tier C active chip uses --c-fg2 (the darker neutral) not --c-fg3', async ({ page }) => {
+    const chip = page.locator('.atlas-mode-pane .chip[data-tier="C"]').first();
+    if (await chip.count() === 0) test.skip(true, 'No Tier C chip in current dataset');
+    await chip.click();
+    await page.waitForTimeout(120);
+    const bg    = await rgbOf(page, chip);
+    const text  = await rgbOf(page, chip, 'color');
+    const fg3   = await readToken(page, '--c-fg3');
+    const fg2   = await readToken(page, '--c-fg2');
+    // Text must NOT collapse to background (would be invisible).
+    expect(bg).not.toBe(text);
+    // Background must NOT be the pre-fix mid-luminance neutral.
+    // Convert fg3 hex to rgb for comparison against the computed bg.
+    const fg3Rgb = `rgb(${parseInt(fg3.slice(1,3),16)}, ${parseInt(fg3.slice(3,5),16)}, ${parseInt(fg3.slice(5,7),16)})`;
+    expect(bg).not.toBe(fg3Rgb);
+    // Confirm fg2 was used instead.
+    const fg2Rgb = `rgb(${parseInt(fg2.slice(1,3),16)}, ${parseInt(fg2.slice(3,5),16)}, ${parseInt(fg2.slice(5,7),16)})`;
+    expect(bg).toBe(fg2Rgb);
   });
 
   test('sort chips paint by axis role when active', async ({ page }) => {

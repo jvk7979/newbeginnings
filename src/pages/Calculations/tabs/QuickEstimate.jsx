@@ -11,14 +11,18 @@ import { PRODUCT_COLORS_EXPORT as PRODUCT_COLORS, unitMult } from '../../../util
 //   5th                                → accent-3 (categorical)
 //   6th                                → accent-4 (categorical)
 //   7th                                → fg2     (neutral / catch-all)
-// Resolves to var(--c-*) so every theme picks its own RGBs.
+// Bracket-key access is required for accent-2/3/4: the C Proxy's
+// camelCase→kebab transform only inserts a hyphen before UPPERCASE
+// letters, so C.accent2 would resolve to var(--c-accent2) — which is
+// undefined. C['accent-2'] passes the literal key through unchanged
+// and produces var(--c-accent-2) (the actually-defined token).
 const COST_COLORS = [
   C.danger,
   C.warning,
   C.info,
-  C.accent2,
-  C.accent3,
-  C.accent4,
+  C['accent-2'],
+  C['accent-3'],
+  C['accent-4'],
   C.fg2,
 ];
 
@@ -146,7 +150,10 @@ export default function QuickEstimate({ input, calc, insight, setI, setRow, slid
             barPct: denominator > 0 ? (calc.ebitda / denominator) * 100 : 0,
             revPct: (calc.ebitda / calc.revenue) * 100,
             background: C.success,
-            textColor: '#fff',
+            // textColor uses bg0 (not literal #fff) so the slice flips
+            // polarity per theme: cream on dark sage in Heritage, dark
+            // slate on light sage in Midnight — both clear WCAG AA.
+            textColor: C.bg0,
           })
     : null;
 
