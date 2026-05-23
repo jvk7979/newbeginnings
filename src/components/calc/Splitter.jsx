@@ -1,11 +1,23 @@
 import { useRef } from 'react';
 
-// Vertical splitter handle that drags left/right to resize the Assumptions
-// (left) vs Output (right) panels. Reports new left-panel width as a
-// percentage of its parent container. Keyboard arrows nudge ±2 percentage
-// points for accessibility. Pointer-capture means the drag keeps tracking
-// even if the cursor leaves the handle.
-export default function Splitter({ currentWidth, onResize, min = 30, max = 80 }) {
+// Vertical splitter handle that drags left/right to resize whatever panel
+// sits to its LEFT against whatever sits to its right inside the same flex
+// container. Reports the new left-panel width as a percentage of the full
+// parent container (which can include fixed-width siblings — callers
+// translate the reported pct into a layout however suits them).
+//
+// Keyboard arrows nudge ±2 percentage points for accessibility. Pointer-
+// capture means the drag keeps tracking even if the cursor leaves the
+// handle. The default aria label names the Calculations panels; pass
+// ariaLabel for other surfaces (Atlas map ↔ ranking, etc.).
+export default function Splitter({
+  currentWidth,
+  onResize,
+  min = 30,
+  max = 80,
+  ariaLabel = 'Resize Assumptions / Output panels',
+  className = '',
+}) {
   const ref = useRef(null);
   const dragRef = useRef(false);
 
@@ -42,13 +54,13 @@ export default function Splitter({ currentWidth, onResize, min = 30, max = 80 })
   return (
     <div
       ref={ref}
-      className="calc-splitter"
+      className={`calc-splitter ${className}`.trim()}
       role="separator"
       aria-orientation="vertical"
       aria-valuenow={Math.round(currentWidth)}
       aria-valuemin={min}
       aria-valuemax={max}
-      aria-label="Resize Assumptions / Output panels"
+      aria-label={ariaLabel}
       tabIndex={0}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

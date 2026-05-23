@@ -338,19 +338,34 @@
   flex: 1; min-height: 0;
   display: flex; align-items: stretch; overflow: hidden;
 }
-/* The map column is locked to the India viewBox ratio so the choropleth
- * fills it edge-to-edge — no cream letterbox gaps. The panel flexes to
- * take the remaining width. */
+/* The map column's width is user-controlled via the Splitter handle
+ * (AtlasMapMode.jsx writes --atlas-map-width onto .atlasv2-body as a
+ * percentage of the full container — sidebar included — so the same
+ * value can drive both the map flex-basis here and the splitter's
+ * ARIA valuenow). Default 50%; clamped 30-75% by the Splitter component.
+ * The map SVG inside uses viewBox + preserveAspectRatio so it scales
+ * to fit whatever shape the column takes without distortion. */
 .atlasv2-map {
-  flex: none; width: auto; height: 100%;
-  aspect-ratio: 1000 / 1100; max-width: 56vw;
+  flex: 0 0 var(--atlas-map-width, 50%);
+  width: var(--atlas-map-width, 50%);
+  height: 100%;
   position: relative; background: var(--c-bg0);
+  overflow: hidden;
 }
 .atlasv2-panel {
-  flex: 1 1 auto; min-width: 380px; max-width: 900px;
+  flex: 1 1 auto; min-width: 280px;
   display: flex; flex-direction: column;
   background: var(--c-bg1); border-left: 1px solid var(--c-border);
   overflow: hidden;
+}
+
+/* Atlas-flavoured override on the Splitter handle — slightly thicker grip
+ * so it reads as a primary control on the 3-column working surface,
+ * while still inheriting the base .calc-splitter styling. */
+.calc-splitter.atlas-splitter {
+  border-left: 1px solid var(--c-border);
+  border-right: 1px solid var(--c-border);
+  flex-basis: 6px;
 }
 
 .atlas-sidebar {
@@ -481,14 +496,18 @@
     padding: 16px 20px 18px;
   }
   .atlas-sidebar .as-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  /* Override the user-controlled width when the layout stacks — splitter
+   * is hidden below, so the saved --atlas-map-width must not leak. */
   .atlasv2-map {
-    flex: none; width: 100%; height: 56vh; min-height: 340px;
+    flex: none; width: 100% !important; height: 56vh; min-height: 340px;
     aspect-ratio: auto; max-width: none;
   }
   .atlasv2-panel {
     width: 100%; max-width: none; flex: none; height: 600px;
     border-left: 0; border-top: 1px solid var(--c-border);
   }
+  /* The Splitter handle is meaningless once the layout has stacked. */
+  .calc-splitter.atlas-splitter { display: none; }
 }
 
 @media (max-width: 900px) {
