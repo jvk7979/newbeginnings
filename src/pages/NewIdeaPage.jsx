@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { C, alpha } from '../tokens';
 import { useIdeas } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -12,6 +12,7 @@ import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 export default function NewIdeaPage({ onNavigate }) {
   const { addIdea } = useIdeas();
   const { showToast } = useToast();
+  const fid = useId();
   const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '', sources: [], estimatedCapex: '', estimatedPayback: '' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -66,18 +67,20 @@ export default function NewIdeaPage({ onNavigate }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
-          <label className="form-label">Idea Title *</label>
-          <input className={`form-input${error ? ' has-error' : ''}`} value={form.title}
+          <label className="form-label" htmlFor={`${fid}-title`}>Idea Title *</label>
+          <input id={`${fid}-title`} className={`form-input${error ? ' has-error' : ''}`} value={form.title}
             onChange={e => { setForm({ ...form, title: e.target.value }); setError(''); }}
             placeholder="What's the idea?"
-            maxLength={120} />
-          {error && <div className="form-error">{error}</div>}
+            maxLength={120}
+            aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? `${fid}-title-error` : undefined} />
+          {error && <div id={`${fid}-title-error`} className="form-error">{error}</div>}
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 180 }}>
-            <label className="form-label">Stage</label>
+            <label className="form-label" htmlFor={`${fid}-stage`}>Stage</label>
             <div className="select-wrap">
-              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+              <select id={`${fid}-stage`} className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
                 <option value="draft">Draft</option>
                 <option value="validating">Validating</option>
                 <option value="active">Active</option>
@@ -86,9 +89,9 @@ export default function NewIdeaPage({ onNavigate }) {
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 180 }}>
-            <label className="form-label">Category</label>
+            <label className="form-label" htmlFor={`${fid}-category`}>Category</label>
             <div className="select-wrap">
-              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <select id={`${fid}-category`} className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
                 <option value="">— None —</option>
                 {IDEA_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -97,7 +100,7 @@ export default function NewIdeaPage({ onNavigate }) {
         </div>
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <label className="form-label" style={{ marginBottom: 0 }}>Description</label>
+            <label className="form-label" style={{ marginBottom: 0 }} htmlFor={`${fid}-desc`}>Description</label>
             {form.desc.trim() && (
               <button type="button" onClick={() => setForm(f => ({ ...f, desc: formatText(f.desc) }))}
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 4, cursor: 'pointer', padding: '3px 9px' }}>
@@ -105,20 +108,20 @@ export default function NewIdeaPage({ onNavigate }) {
               </button>
             )}
           </div>
-          <textarea className="form-input" value={form.desc}
+          <textarea id={`${fid}-desc`} className="form-input" value={form.desc}
             onChange={e => setForm({ ...form, desc: e.target.value })}
             placeholder="Describe the problem, target customer, rough mechanics…" />
           <div className="form-helper">{form.desc.length} characters</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <label className="form-label">Project Cost Est. (₹) <span style={{ fontWeight: 400, color: C.fg3, textTransform: 'none', letterSpacing: 0 }}>— optional</span></label>
-            <input type="number" min={0} className="form-input" value={form.estimatedCapex}
+            <label className="form-label" htmlFor={`${fid}-capex`}>Project Cost Est. (₹) <span style={{ fontWeight: 400, color: C.fg3, textTransform: 'none', letterSpacing: 0 }}>— optional</span></label>
+            <input id={`${fid}-capex`} type="number" min={0} className="form-input" value={form.estimatedCapex}
               onChange={e => setForm({ ...form, estimatedCapex: e.target.value })} />
           </div>
           <div>
-            <label className="form-label">Estimated Payback (yrs) <span style={{ fontWeight: 400, color: C.fg3, textTransform: 'none', letterSpacing: 0 }}>— optional</span></label>
-            <input type="number" min={0} step={0.5} className="form-input" value={form.estimatedPayback}
+            <label className="form-label" htmlFor={`${fid}-payback`}>Estimated Payback (yrs) <span style={{ fontWeight: 400, color: C.fg3, textTransform: 'none', letterSpacing: 0 }}>— optional</span></label>
+            <input id={`${fid}-payback`} type="number" min={0} step={0.5} className="form-input" value={form.estimatedPayback}
               onChange={e => setForm({ ...form, estimatedPayback: e.target.value })} />
           </div>
         </div>

@@ -1,2 +1,44 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { overflow: hidden; }
+
+/* Skip-to-content link. Visually hidden until it receives focus (e.g.
+ * the user hits Tab on first page load); then it slides into view in
+ * the top-left so a keyboard / screen-reader user can jump past the
+ * sidebar to the page's main landmark. WCAG 2.4.1 (A).
+ *
+ * The `:focus` state uses fixed positioning so it overlays the sidebar
+ * + topbar, and a high z-index so it stays above modals if one happens
+ * to be opening. Token-driven colours follow whatever theme is active. */
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 9999;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  width: auto;
+  height: auto;
+  padding: 10px 16px;
+  background: var(--c-accent);
+  color: var(--c-bg0);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  outline: 2px solid var(--c-accent-dim);
+  outline-offset: 2px;
+}
+/* Main landmark — when the skip link targets it, we don't want a focus
+ * ring on the entire page-pad. Suppress the outline at focus time;
+ * keyboard users will see their next Tab land on the first focusable
+ * element inside the landmark. */
+main:focus { outline: none; }

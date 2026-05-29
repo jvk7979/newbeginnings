@@ -1,13 +1,16 @@
 import { C } from '../tokens';
+import { useDialogA11y } from '../utils/useDialogA11y';
 
 export default function ConfirmModal({ title, message, confirmLabel = 'Delete', variant = 'danger', onConfirm, onCancel }) {
   const btnColor = variant === 'danger' ? C.danger : C.accent;
+  const { dialogProps, titleId } = useDialogA11y(onCancel);
 
   return (
     <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.55)', zIndex: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
       onClick={e => e.target === e.currentTarget && onCancel()}>
-      <div style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '28px 24px', width: '100%', maxWidth: 420, boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
+      <div {...dialogProps}
+           style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '28px 24px', width: '100%', maxWidth: 420, boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
         {/* Top-right × close. Mobile users muscle-memory expect this; on
             small screens the bottom Cancel button isn't always reachable
             with one thumb. 44×44 meets HIG/WCAG touch-target minimums. */}
@@ -19,7 +22,7 @@ export default function ConfirmModal({ title, message, confirmLabel = 'Delete', 
           onMouseLeave={e => { e.currentTarget.style.color = C.fg3; e.currentTarget.style.background = 'none'; }}>
           ×
         </button>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 19, fontWeight: 700, color: C.fg1, marginBottom: 10, paddingRight: 36 }}>{title}</div>
+        <div id={titleId} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 19, fontWeight: 700, color: C.fg1, marginBottom: 10, paddingRight: 36 }}>{title}</div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.65, marginBottom: 24 }}>{message}</div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button

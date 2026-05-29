@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans, useIdeas } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -24,6 +24,7 @@ export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = usePlans();
   const { ideas } = useIdeas();
   const { showToast } = useToast();
+  const fid = useId();
   const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft', sources: [], linkedIdeaId: '', eligibleForCalc: false });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -87,28 +88,30 @@ export default function NewPlanPage({ onNavigate }) {
 
         {/* Title */}
         <div>
-          <label className="form-label">Project Title *</label>
-          <input className={`form-input${error ? ' has-error' : ''}`} value={form.title}
+          <label className="form-label" htmlFor={`${fid}-title`}>Project Title *</label>
+          <input id={`${fid}-title`} className={`form-input${error ? ' has-error' : ''}`} value={form.title}
             onChange={e => { setForm({ ...form, title: e.target.value }); setError(''); }}
             placeholder="e.g. Coconut Processing Plant — Feasibility Report"
-            maxLength={140} />
-          {error && <div className="form-error">{error}</div>}
+            maxLength={140}
+            aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? `${fid}-title-error` : undefined} />
+          {error && <div id={`${fid}-title-error`} className="form-error">{error}</div>}
         </div>
 
         {/* Category + Status row */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           <div>
-            <label className="form-label">Category</label>
+            <label className="form-label" htmlFor={`${fid}-category`}>Category</label>
             <div className="select-wrap">
-              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <select id={`${fid}-category`} className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
                 {PLAN_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="form-label">Status</label>
+            <label className="form-label" htmlFor={`${fid}-status`}>Status</label>
             <div className="select-wrap">
-              <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+              <select id={`${fid}-status`} className="form-input" style={{ appearance: 'none', cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
                 {PLAN_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
@@ -117,9 +120,9 @@ export default function NewPlanPage({ onNavigate }) {
 
         {/* Link to Idea (optional) */}
         <div>
-          <label className="form-label">Link to Idea (optional)</label>
+          <label className="form-label" htmlFor={`${fid}-linkedIdea`}>Link to Idea (optional)</label>
           <div className="select-wrap">
-            <select className="form-input" style={{ appearance: 'none', cursor: 'pointer' }}
+            <select id={`${fid}-linkedIdea`} className="form-input" style={{ appearance: 'none', cursor: 'pointer' }}
               value={form.linkedIdeaId}
               onChange={e => setForm({ ...form, linkedIdeaId: e.target.value })}>
               <option value="">— None —</option>
@@ -163,7 +166,7 @@ export default function NewPlanPage({ onNavigate }) {
         {/* Executive Summary */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-            <label className="form-label" style={{ marginBottom: 0 }}>Executive Summary</label>
+            <label className="form-label" style={{ marginBottom: 0 }} htmlFor={`${fid}-summary`}>Executive Summary</label>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               {isSummarySupported(selectedFile) && (
                 <button type="button" onClick={handleGenerateSummary} disabled={summarizing}
@@ -181,7 +184,7 @@ export default function NewPlanPage({ onNavigate }) {
               )}
             </div>
           </div>
-          <textarea className="form-input" style={{ minHeight: 100 }} value={form.summary}
+          <textarea id={`${fid}-summary`} className="form-input" style={{ minHeight: 100 }} value={form.summary}
             onChange={e => setForm({ ...form, summary: e.target.value })}
             placeholder={isSummarySupported(selectedFile) ? 'Click ✦ Generate AI Summary above to auto-fill from the attached document…' : 'One-paragraph overview of the project…'} />
           <div className="form-helper">{form.summary.length} characters</div>
@@ -189,8 +192,8 @@ export default function NewPlanPage({ onNavigate }) {
 
         {/* Notes */}
         <div>
-          <label className="form-label">Notes / Additional Description</label>
-          <textarea className="form-input" style={{ minHeight: 80 }} value={form.notes}
+          <label className="form-label" htmlFor={`${fid}-notes`}>Notes / Additional Description</label>
+          <textarea id={`${fid}-notes`} className="form-input" style={{ minHeight: 80 }} value={form.notes}
             onChange={e => setForm({ ...form, notes: e.target.value })}
             placeholder="Internal notes, observations, or additional context…" />
         </div>

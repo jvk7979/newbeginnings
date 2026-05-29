@@ -112,18 +112,31 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
 
       {/* Zoom/pan layer — wraps every geographic element so +/−/wheel/drag
           scale the map while the title and compass chrome stay fixed. */}
-      <g transform={z.transform}>
+      <g role="group" aria-label="India state choropleth — keyboard navigable" transform={z.transform}>
         {status === 'ok' && pathGen && geo.features.map((f, i) => {
           const name = stateNameOf(f.properties);
           const isHover = hovered === name;
           const isSel = selected === name;
           const t = intensityFor(name);
+          const hasDrill = !!states[name]?.districtKey;
+          const onActivate = () => {
+            onSelect?.(name);
+            if (hasDrill) onDrillDown?.(name);
+          };
           return (
             <path key={i}
                   d={pathGen.path(f)}
                   fill={intensityColor(t)}
                   stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}
                   strokeWidth={(isSel ? 1.75 : isHover ? 1.2 : 0.6) / z.zoom}
+                  /* Keyboard a11y: each state is a button reachable with
+                   * Tab; Enter/Space activates it (selects + drills-down
+                   * where available). aria-label gives screen-reader users
+                   * the state name and drill-down hint. Without these, the
+                   * Atlas was a mouse-only surface (WCAG 2.1.1, A). */
+                  role="button"
+                  tabIndex={0}
+                  aria-label={hasDrill ? `${name} — press Enter to drill down to districts` : name}
                   style={{
                     cursor: 'pointer',
                     transition: 'stroke 120ms',
@@ -132,9 +145,14 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
                   onMouseEnter={(e) => onHover?.(name, e)}
                   onMouseMove={(e) => onHover?.(name, e)}
                   onMouseLeave={() => onHover?.(null)}
-                  onClick={() => {
-                    onSelect?.(name);
-                    if (states[name]?.districtKey) onDrillDown?.(name);
+                  onFocus={(e) => onHover?.(name, e)}
+                  onBlur={() => onHover?.(null)}
+                  onClick={onActivate}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onActivate();
+                    }
                   }}
             />
           );
@@ -155,18 +173,28 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
             );
           })}
 
-        {/* Fallback: proportional-symbol map */}
+        {/* Fallback: proportional-symbol map — same keyboard contract as
+            the choropleth above. */}
         {status === 'fallback' && Object.entries(STATE_CENTROIDS).map(([name, [cx, cy]]) => {
           const t = intensityFor(name);
           const r = 8 + t * 36;
           const isHover = hovered === name;
           const isSel = selected === name;
           return (
-            <g key={name} style={{ cursor: 'pointer' }}
+            <g key={name}
+               role="button"
+               tabIndex={0}
+               aria-label={name}
+               style={{ cursor: 'pointer' }}
                onMouseEnter={(e) => onHover?.(name, e)}
                onMouseMove={(e) => onHover?.(name, e)}
                onMouseLeave={() => onHover?.(null)}
-               onClick={() => onSelect?.(name)}>
+               onFocus={(e) => onHover?.(name, e)}
+               onBlur={() => onHover?.(null)}
+               onClick={() => onSelect?.(name)}
+               onKeyDown={(e) => {
+                 if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(name); }
+               }}>
               <circle cx={cx} cy={cy} r={r + 4} fill={intensityColor(t)} opacity="0.22"/>
               <circle cx={cx} cy={cy} r={r} fill={intensityColor(t)}
                       stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}

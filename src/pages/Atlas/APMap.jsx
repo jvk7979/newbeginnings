@@ -84,7 +84,7 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
       )}
 
       {/* Zoom/pan layer — wraps every geographic element. */}
-      <g transform={z.transform}>
+      <g role="group" aria-label="Andhra Pradesh district choropleth — keyboard navigable" transform={z.transform}>
       {status === 'ok' && pathGen && geo.features.map((f, i) => {
         const name = districtNameOf(f.properties);
         const hasData = !!apDistricts[name];
@@ -99,6 +99,12 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
                 stroke={isSel ? 'var(--c-accent-dim)' : isHome ? 'var(--c-h-gold)' : isHover ? C.accent : C.borderLight}
                 strokeWidth={(isSel ? 1.75 : isHome ? 1.6 : isHover ? 1.1 : 0.6) / z.zoom}
                 strokeDasharray={isHome && !isSel ? `${4 / z.zoom} ${2 / z.zoom}` : '0'}
+                /* Keyboard a11y: only districts WITH data are focusable —
+                 * tabIndex omitted on empty districts so users don't tab
+                 * through dozens of inactive paths. WCAG 2.1.1 (A). */
+                role={hasData ? 'button' : undefined}
+                tabIndex={hasData ? 0 : undefined}
+                aria-label={hasData ? (isHome ? `${name} (home district)` : name) : undefined}
                 style={{
                   cursor: hasData ? 'pointer' : 'default',
                   transition: 'stroke 120ms',
@@ -107,7 +113,16 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
                 onMouseEnter={(e) => hasData && onHover?.(name, e)}
                 onMouseMove={(e) => hasData && onHover?.(name, e)}
                 onMouseLeave={() => onHover?.(null)}
+                onFocus={(e) => hasData && onHover?.(name, e)}
+                onBlur={() => onHover?.(null)}
                 onClick={() => hasData && onSelect?.(name)}
+                onKeyDown={(e) => {
+                  if (!hasData) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelect?.(name);
+                  }
+                }}
           />
         );
       })}
