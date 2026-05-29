@@ -12,6 +12,8 @@
     "test:e2e:mobile": "playwright test --project=mobile",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "hooks:install": "git config core.hooksPath .githooks"
   },
   "dependencies": {
@@ -30,6 +32,7 @@
     "sharp": "^0.34.5",
     "vite": "^5.4.8",
     "vite-plugin-pwa": "^1.3.0",
+    "vitest": "^4.1.7",
     "workbox-window": "^7.4.1"
   }
 }

@@ -190,8 +190,20 @@ export function runCalc(input) {
   const revInflFrac  = num(revenueInflationPct) / 100;
   const costInflFrac = num(costInflationPct)    / 100;
 
+  // Working capital cycle in days. Net WC required at any point = (DSO +
+  // DIO − DPO) × revenue / 365. The Y1 outflow funds initial WC; each
+  // subsequent year's outflow is the *delta* as capacity ramps; the
+  // terminal year releases the accumulated WC stock back to the promoter.
+  // Without this, IRR was overstated and payback understated because
+  // banker DPRs always treat WC as a real cash drag.
+  const wcDaysCycle = num(receivableDays) + num(inventoryDays) - num(payableDays);
+
   const rows = [];
-  let wdvBook = capexN;
+  // Depreciation runs on the EFFECTIVE depreciable block (post-subsidy)
+  // per IT Act §43(1) Explanation 10. Previously this used capexN (gross),
+  // which understated tax in every PMEGP / CITUS / APMSME scenario.
+  let wdvBook = effectiveCapex;
+  let wcStock = 0;
   let cumNCF  = -equity;
   for (let t = 1; t <= lifetimeN; t++) {
     // Per-year capacity climbs linearly from Y1 toward the ceiling.
@@ -212,26 +224,46 @@ export function runCalc(input) {
     const loanBalance = Math.max(0, loan - (t - 1) * annualPrincipal);
     const principal   = t <= tenureN ? annualPrincipal : 0;
     const interest    = loanBalance * (interestN / 100);
-    // Government subvention is cash received separately, not an interest
-    // reduction — the bank still charges full interest. So it leaves DSCR
-    // (numerator EBITDA, denominator gross debt service) untouched and
-    // shows up as an additive line in the cash-flow stream.
-    const subvention  = (t <= subventionYrs && loanBalance > 0)
-      ? loanBalance * subventionPct
+    // Government subvention is a cash rebate on INTEREST PAID — the bank
+    // still charges full interest, the government refunds a slice of it.
+    // (Previously this was computed on loanBalance, which scaled with
+    // outstanding principal instead of the interest amount actually paid
+    // — overstating Y1 NCF on long-tenure loans.)
+    const subvention  = (t <= subventionYrs)
+      ? interest * subventionPct
       : 0;
     const ebit        = ebitdaYr - depreciation;
     const ebt         = ebit - interest;
     const tax         = Math.max(0, ebt * (num(taxRate) / 100));
     const pat         = ebt - tax;
-    const ncf         = pat + depreciation - principal + subvention;
+
+    // Working capital: out-flow on year-over-year increase, in-flow on
+    // terminal-year release. revYr=0 means no WC need (project not yet
+    // earning).
+    const wcRequired = revYr > 0 ? wcDaysCycle * revYr / 365 : 0;
+    const deltaWC    = wcRequired - wcStock;
+    wcStock          = wcRequired;
+    const wcRelease  = (t === lifetimeN) ? wcStock : 0;
+
+    const ncf = pat + depreciation - principal + subvention - deltaWC + wcRelease;
     // Net Profit (the user-facing "cash left after operating + debt + tax")
     // = Operating Profit − Interest − Tax − Principal. Differs from PAT in
     // that it excludes the depreciation deduction (depreciation isn't a
     // real rupee outflow) and explicitly subtracts loan principal.
     const netProfit   = ebitdaYr - interest - tax - principal;
     cumNCF += ncf;
-    const dscr = (principal + interest) > 0 ? ebitdaYr / (principal + interest) : null;
-    rows.push({ t, capacityPct: capYr * 100, revenue: revYr, variableCosts: varYr, fixedCosts: fixedYr, ebitda: ebitdaYr, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, netProfit, cumNCF, dscr, loanBalance });
+    // DSCR (Debt-Service Coverage Ratio) — Indian banker convention:
+    //   (PAT + Depreciation + Interest) / (Principal + Interest)
+    // Numerator = Cash Flow Available for Debt Service before debt service.
+    // Subvention is excluded so the project's DSCR reflects its standalone
+    // ability to service debt — bankers want to see this gross of any
+    // government interest rebate. (Previously this used EBITDA / debt
+    // service, which structurally over-states DSCR by ~15-25% in taxable
+    // projects because it ignored depreciation tax shield and tax outflow.)
+    const dscr = (principal + interest) > 0
+      ? (pat + depreciation + interest) / (principal + interest)
+      : null;
+    rows.push({ t, capacityPct: capYr * 100, revenue: revYr, variableCosts: varYr, fixedCosts: fixedYr, ebitda: ebitdaYr, depreciation, interest, subvention, ebt, tax, pat, principal, ncf, netProfit, cumNCF, dscr, loanBalance, wcStock, deltaWC });
   }
 
   const totalSubvention = rows.reduce((s, r) => s + r.subvention, 0);
@@ -300,9 +332,13 @@ export function runSensitivity(input, pct = 20) {
         capacityPct:        Math.min(100, baseCeiling * m),
       }) },
     { key: 'interestRate', label: 'Interest Rate',    patch: (m) => ({ interestRate: num(input.interestRate) * m }) },
-    { key: 'revenueRows',  label: 'Sale Price',       patch: (m) => ({ revenueRows: input.revenueRows.map(r => ({ ...r, price: num(r.price) * m })) }) },
-    { key: 'varRows',      label: 'Variable Cost',    patch: (m) => ({ varRows:     input.varRows.map(r => ({ ...r, price: num(r.price) * m })) }) },
-    { key: 'fixedRows',    label: 'Fixed Cost',       patch: (m) => ({ fixedRows:   input.fixedRows.map(r => ({ ...r, amount: num(r.amount) * m })) }) },
+    // The three row-shaped levers default to [] when missing — a partially-
+    // filled scenario (saved before a row family existed, or hand-edited
+    // localStorage) used to crash What-If Lab on `undefined.map`. Now the
+    // sensitivity row for an empty driver shows a flat ±0 delta.
+    { key: 'revenueRows',  label: 'Sale Price',       patch: (m) => ({ revenueRows: (input.revenueRows ?? []).map(r => ({ ...r, price:  num(r.price)  * m })) }) },
+    { key: 'varRows',      label: 'Variable Cost',    patch: (m) => ({ varRows:     (input.varRows     ?? []).map(r => ({ ...r, price:  num(r.price)  * m })) }) },
+    { key: 'fixedRows',    label: 'Fixed Cost',       patch: (m) => ({ fixedRows:   (input.fixedRows   ?? []).map(r => ({ ...r, amount: num(r.amount) * m })) }) },
   ];
 
   const lowMult  = 1 - pct / 100;
