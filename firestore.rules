@@ -20,6 +20,22 @@ service cloud.firestore {
       return isVerified()
           && (isAdmin() || exists(/databases/$(database)/documents/allowedUsers/$(userEmail())));
     }
+    // Editor gate — strictly stronger than isAllowed(). A user is an editor
+    // iff they're an admin OR they're on the allowlist AND their roster doc
+    // does NOT carry role == 'Viewer'. Without this, a Viewer-invited user
+    // could open DevTools and call setDoc()/deleteDoc() on any shared doc
+    // because the client's read-only chrome was the only thing stopping
+    // them — server-side, read and write shared a single allow rule.
+    // Treating an absent `role` field as editor preserves backward
+    // compatibility with allowedUsers docs created before the role field
+    // existed (the AccessPage UI introduces a Viewer/Editor toggle that
+    // populates the field going forward).
+    function isEditor() {
+      return isVerified()
+          && (isAdmin()
+              || (exists(/databases/$(database)/documents/allowedUsers/$(userEmail()))
+                  && get(/databases/$(database)/documents/allowedUsers/$(userEmail())).data.get('role', 'Editor') != 'Viewer'));
+    }
 
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth.uid == userId && isAllowed();
@@ -35,51 +51,69 @@ service cloud.firestore {
       allow read: if isVerified() && (isAdmin() || email == userEmail());
       allow write: if isAdmin();
     }
+    // Shared collections: all allowed users READ; only editors (non-Viewer
+    // roles) WRITE. Previously read/write shared a single rule, so a
+    // Viewer-invited user could bypass the read-only client chrome and
+    // call setDoc/deleteDoc directly via DevTools. The split below
+    // enforces the role server-side.
     match /sharedIdeas/{doc} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     match /sharedProjects/{doc} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     match /sharedPlans/{doc} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     match /sharedCommodities/{doc} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     // Supplier / vendor directory — name, materials, contacts, quoted
     // price, and the projectIds they're linked to. Same family-shared
     // access model as the other shared collections.
     match /sharedSuppliers/{doc} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     // Markets auto-fetch settings (marketsConfig/autoFetch) — pause flag,
-    // frequency, time-of-day. Any allowed user can read/change it; the
-    // scheduled Cloud Function reads/writes it via the Admin SDK.
+    // frequency, time-of-day. Any allowed user can READ it; only editors
+    // can change it. The scheduled Cloud Function reads/writes via the
+    // Admin SDK, which bypasses rules.
     match /marketsConfig/{doc} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     match /ideaDiscussions/{ideaId}/{document=**} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     match /planDiscussions/{planId}/{document=**} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     // Per-project Research Vault clips — web links, PDFs, quotes, photos
     // collected against a plan. Mirrors the access model of the parent
-    // sharedPlans collection: any signed-in allowed family member.
+    // sharedPlans collection: any signed-in allowed family member reads,
+    // only editors mutate.
     match /sharedPlans/{planId}/clips/{clipId} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     // Step 3: per-idea topic threads. ideaTopics holds the topic metadata
     // (title, category, author); ideaTopicComments holds each topic's
     // comment thread (mirrors the existing ideaDiscussions / planDiscussions
     // structure so the DiscussionThread component can be reused unchanged).
     match /ideaTopics/{ideaId}/{document=**} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
     match /ideaTopicComments/{topicId}/{document=**} {
-      allow read, write: if request.auth != null && isAllowed();
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
     }
   }
 }

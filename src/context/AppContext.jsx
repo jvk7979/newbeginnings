@@ -28,18 +28,23 @@ const SEED_PLANS = [
 
 // Starter commodities seeded on first load — each carries one initial price
 // point so the Markets overview grid renders meaningfully from day one.
+// IDs are deterministic (slug of name) — previously Date.now() + i meant two
+// tabs racing through `ensureCommoditiesSeed` would write distinct doc ids
+// and double-seed the collection. With deterministic ids, a re-seed by the
+// loser of the race silently overwrites identical docs (idempotent).
 const SEED_COMMODITIES = (() => {
   const ts = Date.now();
   const date = new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const slug = (name) => `seed-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
   return [
     { name: 'Coconut Husk',    unit: '₹/piece',   mandi: 'Rajahmundry mandi', color: 'amber', price: 0.95 },
     { name: 'Coir Fiber',      unit: '₹/kg',      mandi: 'Rajahmundry mandi', color: 'sage',  price: 24.5 },
     { name: 'Copra (Milling)', unit: '₹/quintal', mandi: 'Rajahmundry mandi', color: 'clay',  price: 11850 },
     { name: 'Shell Charcoal',  unit: '₹/kg',      mandi: 'Rajahmundry mandi', color: 'rust',  price: 38.0 },
-  ].map((c, i) => ({
-    id: ts + i,
+  ].map((c) => ({
+    id: slug(c.name),
     name: c.name, unit: c.unit, mandi: c.mandi, color: c.color, notes: '',
-    addedBy: 'seed', createdAt: ts + i,
+    addedBy: 'seed', createdAt: ts,
     history: [{ ts, date, price: c.price }],
   }));
 })();
@@ -125,21 +130,46 @@ export function AppProvider({ children }) {
     setDataLoading(true);
 
     const uid = user.uid;
-    ensureSharedData(uid);
-    ensureCommoditiesSeed();
-
-    const tick = () => { loadedCount.current++; if (loadedCount.current >= 5) setDataLoading(false); };
-    const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
-
+    // Await both seed routines BEFORE attaching the live snapshots so:
+    // (1) two tabs racing don't both observe "empty" and double-seed; and
+    // (2) the very first snapshot that fires already includes the seeded
+    //     docs (no "no data" flash followed by a re-render).
+    // `cancelled` guards against the user signing out / `user` changing
+    // while the seed await is in flight — without it, late-arriving
+    // snapshots from a stale session would try to set state on an
+    // unmounted provider.
+    let cancelled = false;
+    let unsubs = [];
     const timeout = setTimeout(() => setDataLoading(false), 5000);
 
-    const u1 = onSnapshot(sharedCol('ideas'),       s => { setIdeas(sort(s.docs.map(d => d.data())));       tick(); }, () => tick());
-    const u2 = onSnapshot(sharedCol('projects'),    s => { setProjects(sort(s.docs.map(d => d.data())));    tick(); }, () => tick());
-    const u3 = onSnapshot(sharedCol('plans'),       s => { setPlans(sort(s.docs.map(d => d.data())));       tick(); }, () => tick());
-    const u4 = onSnapshot(sharedCol('commodities'), s => { setCommodities(sort(s.docs.map(d => d.data()))); tick(); }, () => tick());
-    const u5 = onSnapshot(sharedCol('suppliers'),   s => { setSuppliers(sort(s.docs.map(d => d.data())));   tick(); }, () => tick());
+    (async () => {
+      try {
+        await Promise.all([
+          ensureSharedData(uid),
+          ensureCommoditiesSeed(),
+        ]);
+      } catch (e) {
+        console.warn('[AppProvider] seed failed; will still attach listeners:', e);
+      }
+      if (cancelled) return;
 
-    return () => { u1(); u2(); u3(); u4(); u5(); clearTimeout(timeout); };
+      const tick = () => { loadedCount.current++; if (loadedCount.current >= 5) setDataLoading(false); };
+      const sort = arr => [...arr].sort((a, b) => Number(b.id) - Number(a.id));
+
+      unsubs = [
+        onSnapshot(sharedCol('ideas'),       s => { if (cancelled) return; setIdeas(sort(s.docs.map(d => d.data())));       tick(); }, () => tick()),
+        onSnapshot(sharedCol('projects'),    s => { if (cancelled) return; setProjects(sort(s.docs.map(d => d.data())));    tick(); }, () => tick()),
+        onSnapshot(sharedCol('plans'),       s => { if (cancelled) return; setPlans(sort(s.docs.map(d => d.data())));       tick(); }, () => tick()),
+        onSnapshot(sharedCol('commodities'), s => { if (cancelled) return; setCommodities(sort(s.docs.map(d => d.data()))); tick(); }, () => tick()),
+        onSnapshot(sharedCol('suppliers'),   s => { if (cancelled) return; setSuppliers(sort(s.docs.map(d => d.data())));   tick(); }, () => tick()),
+      ];
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubs.forEach(u => { try { u(); } catch {} });
+      clearTimeout(timeout);
+    };
   }, [user]);
 
   // ── Ideas ────────────────────────────────────────────────────────────────

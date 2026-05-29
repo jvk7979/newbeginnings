@@ -38,9 +38,24 @@ const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'r
 const parseHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
   const [page, idStr] = hash.split('/');
-  const id = idStr ? parseInt(idStr) : null;
+  // parseInt('abc') returns NaN; treat that as "no id" rather than
+  // shipping NaN down to the detail page (where `plans.find(p => p.id == NaN)`
+  // returns undefined and the NotFound page renders with no explanation).
+  // Any DETAIL route hit without a valid id falls back to its list page.
+  const id = idStr ? parseInt(idStr, 10) : null;
+  const validId = Number.isFinite(id) ? id : null;
   if (LINKABLE.includes(page)) return { page, itemId: null };
-  if (DETAIL.includes(page))   return { page, itemId: id };
+  if (DETAIL.includes(page)) {
+    // research/{id} has its own NotFound surface; idStr=='' means user typed
+    // the bare route — let the NotFound page handle it. But idStr non-empty
+    // AND non-numeric (e.g. /idea-detail/abc) is almost always a stale link
+    // or a copy-paste mistake; route to the parent list page directly.
+    if (idStr && validId === null) {
+      const parentFor = { 'idea-detail': 'ideas', 'project-detail': 'projects', 'new-idea': 'ideas', 'new-project': 'projects', 'research': 'projects', 'commodity-detail': 'markets' };
+      return { page: parentFor[page] || 'dashboard', itemId: null };
+    }
+    return { page, itemId: validId };
+  }
   return { page: 'dashboard', itemId: null };
 };
 
@@ -264,9 +279,18 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      {/* Skip-to-content link — visually hidden until focused, lets
+          keyboard / screen-reader users jump past the 12-item sidenav
+          on every page (WCAG 2.4.1, A). The target is the <main>
+          landmark below. */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <SideNav currentPage={page} onNavigate={navigate} />
       <div className="main-with-sidebar" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
+        {/* <main> landmark — gives screen-reader users a navigable region
+            via landmark navigation (NVDA `D`, VoiceOver rotor) and pairs
+            with the skip link above. tabIndex=-1 makes it the target of
+            the skip link without inserting it into the natural tab order. */}
+        <main id="main-content" tabIndex={-1} style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
           <ErrorBoundary>
             <Suspense fallback={<Spinner />}>
               {/* `key={page}` remounts the wrapper on each route change so the
@@ -279,7 +303,7 @@ export default function App() {
               </div>
             </Suspense>
           </ErrorBoundary>
-        </div>
+        </main>
         <Footer />
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onNavigate={navigate} />

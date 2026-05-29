@@ -29,12 +29,23 @@ service firebase.storage {
 
     match /uploads/{blobId} {
       allow read: if isAllowed();
+      // Image types added for Research Vault photo clips (AddClipModal
+      // accepts image/* but production was silently rejecting uploads
+      // because the allowlist only covered PDF + Word). HEIC is the
+      // iPhone-camera default; webp is what modern Android phones save
+      // when shared via the system share-sheet.
       allow create, update: if isAllowed()
         && request.resource.size < 50 * 1024 * 1024
         && request.resource.contentType in [
              'application/pdf',
              'application/msword',
-             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+             'image/jpeg',
+             'image/png',
+             'image/webp',
+             'image/heic',
+             'image/heif',
+             'image/gif'
            ];
       allow delete: if isAllowed();
     }
