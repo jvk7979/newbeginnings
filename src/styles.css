@@ -55,7 +55,8 @@
     radial-gradient(900px 900px at 60% 100%, color-mix(in srgb, var(--c-accent)  5%, transparent), transparent 65%);
   --c-fg1: #2D2A26;          /* dark warm-brown text */
   --c-fg2: #5C5648;          /* muted body text */
-  --c-fg3: #8E8470;          /* tertiary / labels */
+  --c-fg3: #6E6450;          /* tertiary / labels — was #8E8470 (~3.4:1 on bg0, failed AA);
+                                  bumped to ~5.0:1 so form-helpers and pill-subs clear AA Normal. */
   --c-accent: #2F6B4F;       /* deep coconut green — primary accent */
   --c-accent-light: #4A8F70;
   --c-accent-dim: #205139;
@@ -239,22 +240,29 @@
   --c-accent-dim-rgb: 201 152 87;
   --c-border: #2A323F;
   --c-border-light: #3A4453;
-  --c-success: #7CB7A4;      /* dim sage — feels alive on dark */
+  /* Status palette — each role now points at its OWN distinct hex on
+   * dark. Previously success / info / accent-2 all rendered as
+   * #7CB7A4 (the same dim sage) and warning collapsed onto accent
+   * (#E8B97B brass), so the data-color role system delivered only
+   * 2 visible hues out of the 5 it promised. Each role now has its
+   * own register, all chosen to stay readable on bg0 (#0E1116). */
+  --c-success: #7CB7A4;      /* dim sage — life signal */
   --c-success-bg: #1B2A26;
-  --c-warning: #E8B97B;      /* brass doubles as warning */
-  --c-warning-bg: #2E2618;
-  --c-danger: #E07A6B;       /* muted coral-red — fits the brass palette */
+  --c-warning: #D6A05E;      /* deep amber — distinct from accent brass */
+  --c-warning-bg: #2A1F12;
+  --c-danger: #E07A6B;       /* muted coral-red */
   --c-danger-bg: #2C1B17;
   --c-danger-rgb: 224 122 107;
-  --c-info: #7CB7A4;         /* sage as info too — limited cool register */
-  --c-info-bg: #1B2A26;
-  /* Secondary palette — sage / dusty rose / soft amber. */
-  --c-accent-2:    #7CB7A4;  /* dim sage */
-  --c-accent-2-bg: #1B2A26;
+  --c-info: #8AB4D6;         /* dusty slate-blue — cool counterpoint, distinct from sage */
+  --c-info-bg: #1A222C;
+  /* Secondary categorical palette — three new hues, none colliding with
+   * the four status hues above. */
+  --c-accent-2:    #B89BD6;  /* lavender — fully outside warm + cool registers */
+  --c-accent-2-bg: #221A2A;
   --c-accent-3:    #D4A6A0;  /* dusty rose */
   --c-accent-3-bg: #2A1F1F;
-  --c-accent-4:    #F2CC95;  /* soft amber */
-  --c-accent-4-bg: #2E2618;
+  --c-accent-4:    #9FCFA8;  /* pale mint — distinct from --c-success dim sage */
+  --c-accent-4-bg: #18261C;
 
   /* Chart palette — tuned for dark backdrop */
   --c-chart-positive: #7CB7A4; /* sage */
@@ -291,15 +299,19 @@
   --c-danger: #C04A3A;
   --c-danger-bg: #F7E2DE;
   --c-danger-rgb: 192 74 58;
-  --c-info: #5A8AAB;
-  --c-info-bg: #E0EBF2;
-  /* Secondary palette — coral / muted teal / sand. */
+  /* info shifted from #5A8AAB (collided with --c-accent-light) to a
+   * distinct slate-cyan; accent-4 shifted off #D4A04A (collided with
+   * --c-warning sand) onto a new dusty-mauve so all 7 role hues now
+   * paint distinct pixels. */
+  --c-info: #4D7E9E;
+  --c-info-bg: #DEE7EF;
+  /* Secondary palette — coral / muted teal / dusty mauve. */
   --c-accent-2:    #E8896B;  /* sunset coral — gradient pair */
   --c-accent-2-bg: #FBE6DE;
   --c-accent-3:    #4F8A8B;  /* muted teal */
   --c-accent-3-bg: #DCEAEA;
-  --c-accent-4:    #D4A04A;  /* sand */
-  --c-accent-4-bg: #F7EFD9;
+  --c-accent-4:    #A8748A;  /* dusty mauve — replaces the sand collision */
+  --c-accent-4-bg: #F0E4E9;
 
   /* Chart palette */
   --c-chart-positive: #4F8A6E;
@@ -335,15 +347,20 @@
   --c-danger: #B33A5C;       /* berry-red */
   --c-danger-bg: #F8E2EA;
   --c-danger-rgb: 179 58 92;
-  --c-info: #7B4670;         /* lighter aubergine for info */
-  --c-info-bg: #EFE2EC;
-  /* Secondary palette — brass / dusty rose / sage. */
-  --c-accent-2:    #C49A6C;  /* brass — gradient pair */
-  --c-accent-2-bg: #F4ECDF;
+  /* info shifted off #7B4670 (was identical to --c-accent-light); each
+   * categorical now distinct from every status hue. */
+  --c-info: #4D7194;         /* dusty steel-blue */
+  --c-info-bg: #DDE4EC;
+  /* Secondary palette — brass / dusty rose / sage. The brass / sage
+   * shades intentionally hug the warning / success hues but use
+   * shifted lightness so they're not pixel-identical (was the case
+   * for both before — accent-2 == warning, accent-4 == success). */
+  --c-accent-2:    #B58455;  /* deeper bronze — shifted off the warning brass */
+  --c-accent-2-bg: #EDDFD0;
   --c-accent-3:    #D4A6A0;  /* dusty rose */
   --c-accent-3-bg: #F7EAE8;
-  --c-accent-4:    #5C8A52;  /* sage kicker */
-  --c-accent-4-bg: #E6EEDF;
+  --c-accent-4:    #4A7340;  /* deeper sage — shifted off the success sage */
+  --c-accent-4-bg: #DCE7D5;
 
   /* Chart palette */
   --c-chart-positive: #5C8A52;
@@ -382,13 +399,17 @@
   --c-danger-rgb: 168 57 43;
   --c-info: #6B8FA0;         /* dusty blue */
   --c-info-bg: #E0E9EE;
-  /* Secondary palette — sage / deep gold / dusty blue. */
-  --c-accent-2:    #739E7A;  /* sage */
-  --c-accent-2-bg: #E4ECDE;
-  --c-accent-3:    #C9943F;  /* deep gold */
-  --c-accent-3-bg: #F6ECD1;
-  --c-accent-4:    #6B8FA0;  /* dusty blue */
-  --c-accent-4-bg: #E0E9EE;
+  /* Categorical secondary palette — three NEW hues, no aliases of the
+   * status palette. Previously every Terracotta slot mirrored a status
+   * hue (accent-2 == success sage, accent-3 == warning gold, accent-4 ==
+   * info dusty-blue), so charts and stripes in the role system rendered
+   * status pixels even when the role was "category". */
+  --c-accent-2:    #4B7D6D;  /* deeper sage — shifted darker than --c-success */
+  --c-accent-2-bg: #DBE7E1;
+  --c-accent-3:    #A87044;  /* warm umber — distinct from gold + sienna */
+  --c-accent-3-bg: #EBDDCB;
+  --c-accent-4:    #8A6F95;  /* muted plum — adds a cool counter to the warm palette */
+  --c-accent-4-bg: #E6DDEA;
 
   /* Chart palette */
   --c-chart-positive: #739E7A;
@@ -427,13 +448,21 @@
   --c-danger-rgb: 201 48 44;
   --c-info: #2A4F70;         /* deep navy */
   --c-info-bg: #DEE6EE;
-  /* Secondary palette — single red pop / forest / mustard. */
-  --c-accent-2:    #C9302C;  /* red pop */
-  --c-accent-2-bg: #F8E0DF;
-  --c-accent-3:    #2D6A3F;  /* forest */
-  --c-accent-3-bg: #E2EBE3;
-  --c-accent-4:    #8A6D1C;  /* mustard */
-  --c-accent-4-bg: #F0E9D2;
+  /* Mono is intentionally a black + one-red-pop palette, so its
+   * categorical hues lean closer to its status palette than other
+   * themes. Each accent below has its own SHIFTED hex (not a pure
+   * alias) so a 6-row Money Flow bar in Mono still renders 6
+   * visually distinct rectangles, just within a tighter chroma range
+   * than the colour-rich themes.
+   *   accent-2 — warm graphite — distinct from danger pop + ink
+   *   accent-3 — sage-grey — distinct from forest success
+   *   accent-4 — deep umber — distinct from mustard warning */
+  --c-accent-2:    #5D4E4A;
+  --c-accent-2-bg: #E5DEDB;
+  --c-accent-3:    #4C6A55;
+  --c-accent-3-bg: #DEE7E0;
+  --c-accent-4:    #6E5530;
+  --c-accent-4-bg: #E9DFCD;
 
   /* Chart palette */
   --c-chart-positive: #2D6A3F;
