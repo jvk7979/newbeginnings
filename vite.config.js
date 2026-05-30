@@ -18,6 +18,44 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   base: '/newbeginnings/',
+  build: {
+    rollupOptions: {
+      output: {
+        // Manual chunk strategy — peel the big, rarely-changing deps off
+        // the main app chunk so a CSS / component edit doesn't bust
+        // their long-cached entries.
+        //
+        // The old single 828 KB index.js included every dep + every
+        // page's React component. Now:
+        //   firebase     — Firestore, Auth, Storage, Functions SDK
+        //                  (~250 KB; only changes when we bump the SDK)
+        //   react-vendor — React + ReactDOM + scheduler (~135 KB; only
+        //                  changes when React itself releases)
+        //   dompurify    — XSS sanitiser for clip rendering (~22 KB)
+        //
+        // We don't try to chunk-split Atlas data or @react-pdf — those
+        // already live in their own lazy chunks (per-route lazy imports
+        // + the dynamic import inside DPRExportButton).
+        manualChunks(id) {
+          if (id.includes('node_modules/firebase') ||
+              id.includes('node_modules/@firebase')) {
+            return 'firebase';
+          }
+          if (id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/scheduler') ||
+              id.match(/node_modules\/react\//)) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/dompurify')) {
+            return 'dompurify';
+          }
+        },
+      },
+    },
+    // Keep the chunk-size warning at the default 500 KB. The new chunks
+    // (Firebase ~250 KB, react-pdf ~1.4 MB but lazy-loaded) flag here on
+    // purpose — re-evaluate any new dep that pushes past it.
+  },
   plugins: [
     react(),
     VitePWA({

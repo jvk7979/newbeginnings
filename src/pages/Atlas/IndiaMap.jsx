@@ -1,5 +1,5 @@
 // src/pages/Atlas/IndiaMap.jsx
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import { C } from '../../tokens';
 import { STATE_CENTROIDS } from './cropData';
 import { useMapZoom, ZoomControls } from './MapZoom';
@@ -8,9 +8,75 @@ import {
   stateNameOf, intensityColor, computeStateMetric,
 } from './geoHelpers';
 
+// StatePath — per-state SVG <path> wrapped in React.memo so a hover
+// event that only changes one state's `isHover` prop doesn't reconcile
+// the other ~700 state paths. Default shallow-compare works because:
+//   - String / boolean / number primitives compared by value
+//   - Callbacks are stable from useCallback in the parent
+//   - We pre-resolve fill / aria-label / d to primitives so the parent
+//     doesn't recompute them per render
+// Without this, every mousemove inside an SVG path reconciled the whole
+// choropleth — visible as jank on slow connections + iPad.
+const StatePath = memo(function StatePath({
+  d, fill, stroke, strokeWidth, name, ariaLabel, isSel, onActivate, onHoverEnter, onHoverLeave,
+}) {
+  return (
+    <path
+      d={d}
+      fill={fill}
+      stroke={stroke}
+      strokeWidth={strokeWidth}
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      style={{
+        cursor: 'pointer',
+        transition: 'stroke 120ms',
+        filter: isSel ? 'url(#atlas-glow)' : 'none',
+      }}
+      onMouseEnter={onHoverEnter}
+      onMouseMove={onHoverEnter}
+      onMouseLeave={onHoverLeave}
+      onFocus={onHoverEnter}
+      onBlur={onHoverLeave}
+      onClick={onActivate}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onActivate();
+        }
+      }}
+    />
+  );
+});
+
 const W = 1000, H = 1100;
 
+// Stable callback factories — `useCallback`-wrap per state by closing
+// over its name. Caching keyed on state name + the parent callback
+// identity so we don't churn the StatePath memo on every render of
+// the parent.
+function useStablePathCallbacks(states, onHover, onSelect, onDrillDown) {
+  return useMemo(() => {
+    const cache = {};
+    Object.keys(states || {}).forEach(name => {
+      const hasDrill = !!states[name]?.districtKey;
+      cache[name] = {
+        onHoverEnter: (e) => onHover?.(name, e),
+        onHoverLeave: () => onHover?.(null),
+        onActivate:   () => {
+          onSelect?.(name);
+          if (hasDrill) onDrillDown?.(name);
+        },
+      };
+    });
+    return cache;
+  }, [states, onHover, onSelect, onDrillDown]);
+}
+
 export default function IndiaMap({ filter, states, hovered, selected, onHover, onSelect, onDrillDown, year }) {
+  const stableCbs = useStablePathCallbacks(states, onHover, onSelect, onDrillDown);
+
   const [geo, setGeo] = useState(null);
   const [status, setStatus] = useState('loading'); // loading | ok | fallback
 
@@ -119,41 +185,20 @@ export default function IndiaMap({ filter, states, hovered, selected, onHover, o
           const isSel = selected === name;
           const t = intensityFor(name);
           const hasDrill = !!states[name]?.districtKey;
-          const onActivate = () => {
-            onSelect?.(name);
-            if (hasDrill) onDrillDown?.(name);
-          };
+          const cbs = stableCbs[name] || stableCbs[name] || {};
           return (
-            <path key={i}
-                  d={pathGen.path(f)}
-                  fill={intensityColor(t)}
-                  stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}
-                  strokeWidth={(isSel ? 1.75 : isHover ? 1.2 : 0.6) / z.zoom}
-                  /* Keyboard a11y: each state is a button reachable with
-                   * Tab; Enter/Space activates it (selects + drills-down
-                   * where available). aria-label gives screen-reader users
-                   * the state name and drill-down hint. Without these, the
-                   * Atlas was a mouse-only surface (WCAG 2.1.1, A). */
-                  role="button"
-                  tabIndex={0}
-                  aria-label={hasDrill ? `${name} — press Enter to drill down to districts` : name}
-                  style={{
-                    cursor: 'pointer',
-                    transition: 'stroke 120ms',
-                    filter: isSel ? 'url(#atlas-glow)' : 'none',
-                  }}
-                  onMouseEnter={(e) => onHover?.(name, e)}
-                  onMouseMove={(e) => onHover?.(name, e)}
-                  onMouseLeave={() => onHover?.(null)}
-                  onFocus={(e) => onHover?.(name, e)}
-                  onBlur={() => onHover?.(null)}
-                  onClick={onActivate}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onActivate();
-                    }
-                  }}
+            <StatePath
+              key={i}
+              name={name}
+              d={pathGen.path(f)}
+              fill={intensityColor(t)}
+              stroke={isSel ? 'var(--c-accent-dim)' : isHover ? C.accent : C.borderLight}
+              strokeWidth={(isSel ? 1.75 : isHover ? 1.2 : 0.6) / z.zoom}
+              ariaLabel={hasDrill ? `${name} — press Enter to drill down to districts` : name}
+              isSel={isSel}
+              onActivate={cbs.onActivate}
+              onHoverEnter={cbs.onHoverEnter}
+              onHoverLeave={cbs.onHoverLeave}
             />
           );
         })}

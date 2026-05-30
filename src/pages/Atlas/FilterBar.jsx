@@ -5,7 +5,6 @@
 // category filter lives in the left rail (AtlasSidebar), not here.
 
 import { C } from '../../tokens';
-import apedaData from './apedaData.json';
 import { CATEGORIES } from './cropData';
 import CropSelect from './CropSelect';
 
@@ -15,13 +14,6 @@ const METRICS = [
   ['area',       'Area'],
 ];
 
-// Selectable financial years — APEDA has state data for all five years.
-const YEAR_OPTIONS = apedaData.meta.years;
-
-// Crop dropdown list — the real APEDA crops, so a picked crop always
-// resolves to data on the map.
-const APEDA_CROPS = Object.keys(apedaData.cropCategory).sort();
-
 const fbLabel = {
   fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600,
   color: C.fg3, letterSpacing: '0.14em', textTransform: 'uppercase',
@@ -29,10 +21,21 @@ const fbLabel = {
 };
 const grp = { display: 'flex', alignItems: 'center', gap: 8 };
 
+// YEAR_OPTIONS + CROP_OPTIONS used to be derived at module-init time
+// from a static import of apedaData.json. That import baked ~480 KB of
+// JSON into the JS bundle. After the move to public/data/ + runtime
+// fetch (see desDataset.js), the lists arrive as props from the Atlas
+// page, which knows when the data is ready. Fallbacks below cover the
+// brief pre-load window so the first paint doesn't crash.
+const DEFAULT_YEAR_OPTIONS = ['2024-25'];
+
 export default function FilterBar({
   filter, setFilter, view, onBack, searchValue, setSearch, onSearchSelect,
   states, apDistricts, year, setYear,
+  yearOptions, cropOptions,
 }) {
+  const YEAR_OPTIONS  = yearOptions || DEFAULT_YEAR_OPTIONS;
+  const APEDA_CROPS   = cropOptions || [];
   const results = computeSearchResults(searchValue, view, states, apDistricts);
 
   // What the map is coloured by right now — a picked crop wins over a

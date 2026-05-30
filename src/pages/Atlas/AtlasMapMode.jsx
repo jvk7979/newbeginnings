@@ -20,7 +20,7 @@ export default function AtlasMapMode({
   hover, setHover, selected, setSelected,
   districtSelected, setDistrictSelected,
   search, setSearch, year, setYear,
-  states, apDistricts,
+  states, apDistricts, yearOptions, cropOptions,
 }) {
   const handleHover = (name, e) => {
     if (!name) { setHover(null); return; }
@@ -68,6 +68,7 @@ export default function AtlasMapMode({
         onSearchSelect={handleSearchSelect}
         states={states} apDistricts={apDistricts}
         year={year} setYear={setYear}
+        yearOptions={yearOptions} cropOptions={cropOptions}
       />
 
       <div className="atlasv2-body">

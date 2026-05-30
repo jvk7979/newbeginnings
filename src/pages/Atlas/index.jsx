@@ -18,9 +18,9 @@
 // All data still comes from desDataset.buildUnifiedStates + mergedApDistricts —
 // nothing in cropData / desData / apedaData is touched.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { C } from '../../tokens';
-import { buildUnifiedStates, mergedApDistricts } from './desDataset';
+import { buildUnifiedStates, buildDesApDistricts, loadAtlasData } from './desDataset';
 
 import AtlasMasthead from './AtlasMasthead';
 import ModeBar from './ModeBar';
@@ -41,9 +41,39 @@ export default function AtlasPage({ onNavigate }) {
   const [search, setSearch] = useState('');
   const [year, setYear] = useState('2024-25');
 
-  // Year-driven unified dataset — same call your original used.
-  const states = useMemo(() => buildUnifiedStates(year), [year]);
-  const apDistricts = mergedApDistricts;
+  // APEDA + DES datasets used to be static imports baked into the JS
+  // bundle (~780 KB combined), which slowed every deploy by ~80s and
+  // bloated the initial Atlas chunk. Now they're fetched from
+  // public/data/ on first mount; loadAtlasData() memoises so mode
+  // switches / route remounts re-use the parsed result.
+  const [data, setData] = useState(null);
+  const [dataError, setDataError] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    loadAtlasData().then(d => { if (!cancelled) setData(d); })
+                   .catch(err => { if (!cancelled) setDataError(err); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Year-driven unified dataset. Returns {} until the JSON files load —
+  // every map / panel handles an empty states object gracefully.
+  const states = useMemo(
+    () => data ? buildUnifiedStates(year, data.apeda, data.des) : {},
+    [year, data]
+  );
+  const apDistricts = useMemo(
+    () => data ? buildDesApDistricts(data.des) : {},
+    [data]
+  );
+
+  // Year-picker + crop-picker options come from the loaded APEDA meta —
+  // they used to be top-level constants derived from a static import,
+  // but the public/data move means they're now props.
+  const yearOptions = data?.apeda?.meta?.years || ['2024-25'];
+  const cropOptions = useMemo(
+    () => data?.apeda?.cropCategory ? Object.keys(data.apeda.cropCategory).sort() : [],
+    [data]
+  );
 
   // Defend against any legacy 'share' value (the Nat'l Share metric was
   // removed from the UI) so cross-mode helpers never receive it.
@@ -57,6 +87,27 @@ export default function AtlasPage({ onNavigate }) {
     setDistrictSelected(null);
   };
 
+  // While the APEDA + DES JSON files are loading on first mount, the
+  // map renders empty — show a brief inline status instead of a blank
+  // map. Error state surfaces the network failure so the user knows to
+  // refresh (rather than thinking the Atlas itself is broken).
+  if (dataError) {
+    return (
+      <div className="atlas-root" style={{ background: C.bg0, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
+        <div style={{ maxWidth: 480, textAlign: 'center', fontFamily: "'DM Sans', sans-serif", color: C.fg2 }}>
+          <div style={{ fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 8 }}>Couldn't load Crop Atlas data</div>
+          <div style={{ fontSize: 14, color: C.fg3, marginBottom: 18 }}>
+            The APEDA + DES datasets couldn't be fetched. Refresh to retry.
+          </div>
+          <button onClick={() => window.location.reload()}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, padding: '8px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
+            Reload
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="atlas-root" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
       {/* Single scrolling surface — the header scrolls away, the mode
@@ -64,8 +115,13 @@ export default function AtlasPage({ onNavigate }) {
       <div className="atlas-scroll">
         <AtlasMasthead view={view}/>
         <ModeBar tab={tab} setTab={setTab}/>
+        {!data && (
+          <div className="atlas-mode-pane" style={{ textAlign: 'center', padding: 40, color: C.fg3, fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
+            Loading APEDA + DES crop datasets…
+          </div>
+        )}
 
-        {tab === 'atlas' && (
+        {data && tab === 'atlas' && (
           <AtlasMapMode
             filter={safeFilter} setFilter={setFilter}
             view={view} setView={setView}
@@ -75,12 +131,13 @@ export default function AtlasPage({ onNavigate }) {
             search={search} setSearch={setSearch}
             year={year} setYear={handleSetYear}
             states={states} apDistricts={apDistricts}
+            yearOptions={yearOptions} cropOptions={cropOptions}
           />
         )}
-        {tab === 'compare' && (
+        {data && tab === 'compare' && (
           <CompareMode states={states} year={year} setYear={handleSetYear}/>
         )}
-        {tab === 'opps' && (
+        {data && tab === 'opps' && (
           <OpportunitiesMode states={states}/>
         )}
       </div>
