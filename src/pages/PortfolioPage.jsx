@@ -48,7 +48,7 @@ const COLUMNS = [
   { key: 'verdict',         label: 'Verdict',    align: 'left',  fmt: (v) => v },
 ];
 
-const VERDICT_COLOR = { 'Viable': '#2a7d3c', 'Below hurdle': '#c0392b', 'No data': C.fg3 };
+const VERDICT_COLOR = { 'Viable': C.chartPositive, 'Below hurdle': C.chartNegative, 'No data': C.fg3 };
 
 // For sorting: pull a comparable value. Payback null = worst (Infinity);
 // other null metrics sort last regardless of direction by being pushed
@@ -130,8 +130,8 @@ export default function PortfolioPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 20 }}>
             {[
               { label: 'Projects', value: String(summary.count), color: C.fg1 },
-              { label: 'Viable', value: `${summary.viable} / ${summary.count}`, color: summary.viable > 0 ? '#2a7d3c' : C.fg2 },
-              { label: 'Combined NPV', value: fmtINR(summary.totalNPV), color: summary.totalNPV >= 0 ? '#2a7d3c' : '#c0392b' },
+              { label: 'Viable', value: `${summary.viable} / ${summary.count}`, color: summary.viable > 0 ? C.chartPositive : C.fg2 },
+              { label: 'Combined NPV', value: fmtINR(summary.totalNPV), color: summary.totalNPV >= 0 ? C.chartPositive : C.chartNegative },
               { label: 'Average IRR', value: fmtPct(summary.avgIRR), color: C.fg1 },
             ].map(t => (
               <div key={t.label} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px' }}>
@@ -175,7 +175,7 @@ export default function PortfolioPage() {
                           textAlign: col.align,
                           fontFamily: col.key === 'title' ? "'DM Sans', sans-serif" : "'JetBrains Mono', monospace",
                           fontWeight: col.key === 'title' ? 600 : 500,
-                          color: isNeg ? '#c0392b' : C.fg1,
+                          color: isNeg ? C.chartNegative : C.fg1,
                           whiteSpace: col.key === 'title' ? 'normal' : 'nowrap',
                           minWidth: col.key === 'title' ? 160 : 'auto',
                         }}>

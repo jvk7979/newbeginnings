@@ -171,7 +171,7 @@ export default function Scenarios({ projectId, currentInput, currentCalc, loadSc
                 </div>
                 <div className="calc-scenarios-card-kpis">
                   <span><em>IRR</em> <strong>{irrText}</strong></span>
-                  <span><em>Op. Profit</em> <strong style={{ color: sCalc.ebitda >= 0 ? '#2a7d3c' : '#c0392b' }}>{fmtINR(sCalc.ebitda)}</strong></span>
+                  <span><em>Op. Profit</em> <strong style={{ color: sCalc.ebitda >= 0 ? C.chartPositive : C.chartNegative }}>{fmtINR(sCalc.ebitda)}</strong></span>
                   <span><em>Payback</em> <strong>{paybackText}</strong></span>
                 </div>
                 <div className="calc-scenarios-card-actions">

@@ -58,7 +58,7 @@ export default function Tornado({ input, calc }) {
         <div>
           <div className="calc-whatif-title">Sensitivity Tornado</div>
           <div className="calc-whatif-sub">
-            ±{flexPct}% shock on each driver, ranked by impact. Base {metricLabel}: <strong style={{ color: baseValue >= 0 ? '#2a7d3c' : '#c0392b' }}>{fmtINR(baseValue)}</strong>
+            ±{flexPct}% shock on each driver, ranked by impact. Base {metricLabel}: <strong style={{ color: baseValue >= 0 ? C.chartPositive : C.chartNegative }}>{fmtINR(baseValue)}</strong>
           </div>
         </div>
         <div className="calc-whatif-toggle" role="tablist" aria-label="Metric">
@@ -89,8 +89,8 @@ export default function Tornado({ input, calc }) {
 
           const lowWidth  = (Math.abs(dLow)  / maxAbs) * 100;
           const highWidth = (Math.abs(dHigh) / maxAbs) * 100;
-          const lowColor  = dLow  < 0 ? '#dc2626' : '#16a34a';
-          const highColor = dHigh > 0 ? '#16a34a' : '#dc2626';
+          const lowColor  = dLow  < 0 ? C.chartNegative : C.chartPositive;
+          const highColor = dHigh > 0 ? C.chartPositive : C.chartNegative;
           const lowSign   = dLow  > 0 ? '+' : (dLow  < 0 ? '−' : '');
           const highSign  = dHigh > 0 ? '+' : (dHigh < 0 ? '−' : '');
 

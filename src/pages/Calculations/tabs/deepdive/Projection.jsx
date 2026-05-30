@@ -40,8 +40,8 @@ export default function Projection({ calc }) {
       <div className="calc-projection-footer">
         {[
           { label: `Cumulative ${windowYears}-yr Revenue`,         value: fmtINR(cumRevenue), color: C.fg1 },
-          { label: `Cumulative ${windowYears}-yr Operating Profit`, value: fmtINR(cumEbitda),  color: cumEbitda >= 0 ? '#2a7d3c' : '#c0392b' },
-          { label: `Yr ${windowYears} Operating Margin`,            value: `${lastMargin.toFixed(0)}%`, color: lastMargin >= 0 ? '#2a7d3c' : '#c0392b' },
+          { label: `Cumulative ${windowYears}-yr Operating Profit`, value: fmtINR(cumEbitda),  color: cumEbitda >= 0 ? C.chartPositive : C.chartNegative },
+          { label: `Yr ${windowYears} Operating Margin`,            value: `${lastMargin.toFixed(0)}%`, color: lastMargin >= 0 ? C.chartPositive : C.chartNegative },
         ].map(t => (
           <div key={t.label} className="calc-projection-footer-tile">
             <div className="calc-projection-footer-label">{t.label}</div>

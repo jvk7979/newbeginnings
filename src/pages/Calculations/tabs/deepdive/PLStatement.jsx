@@ -75,7 +75,7 @@ export default function PLStatement({ calc, input }) {
         </thead>
         <tbody>
           {lines.map((l, i) => {
-            const amountColor = l.positive ? '#2a7d3c' : l.negative ? '#c0392b' : C.fg1;
+            const amountColor = l.positive ? C.chartPositive : l.negative ? C.chartNegative : C.fg1;
             return (
               <tr key={i} className={l.subtotal ? 'calc-statement-subtotal' : ''}>
                 <td style={{

@@ -61,7 +61,7 @@ export default function LoanSchedule({ calc, input }) {
             label: 'Total Interest Paid',
             value: fmtINR(totalInterest),
             sub: `${tenure}-yr tenure @ ${input.interestRate}%`,
-            color: '#dc2626',
+            color: C.chartNegative,
           },
           {
             label: 'Total Principal Repaid',
@@ -74,25 +74,25 @@ export default function LoanSchedule({ calc, input }) {
                 label: <GlossaryTerm term="Total Subvention">Less: Subvention</GlossaryTerm>,
                 value: '−' + fmtINR(totalSubvention),
                 sub: 'government rebate',
-                color: '#16a34a',
+                color: C.chartPositive,
               }, {
                 label: 'Net Interest Cost',
                 value: fmtINR(netInterestCost),
                 sub: 'after subvention',
-                color: '#dc2626',
+                color: C.chartNegative,
               }]
             : []),
           {
             label: 'Interest % in Y1',
             value: `${y1InterestPct.toFixed(0)}%`,
             sub: 'of debt service',
-            color: '#dc2626',
+            color: C.chartNegative,
           },
           {
             label: `Interest % in Y${yLast?.t || tenure}`,
             value: `${yLastInterestPct.toFixed(0)}%`,
             sub: 'of debt service',
-            color: '#dc2626',
+            color: C.chartNegative,
           },
         ].map((t, i) => (
           <div key={i} className="calc-loan-kpi">

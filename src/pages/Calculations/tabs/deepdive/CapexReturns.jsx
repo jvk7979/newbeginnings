@@ -7,8 +7,8 @@ import GlossaryTerm from '../../../../components/calc/GlossaryTerm';
 // separation. Reused from QuickEstimate so the visual language is
 // consistent across the workspace.
 const CAPEX_COLORS = [
-  '#dc2626', // red-600
-  '#16a34a', // green-600
+  C.chartNegative, // red-600
+  C.chartPositive, // green-600
   '#0ea5e9', // sky-500
   '#ea580c', // orange-600
   '#7c3aed', // violet-600
@@ -199,7 +199,7 @@ export default function CapexReturns({
             { label: 'Y1 DSCR',          term: 'DSCR',               value: calc.dscrY1 !== null ? calc.dscrY1.toFixed(2) : '—', sub: '≥ 1.25 comfortable',          color: dscrColor },
             { label: 'Break-even Rev',   term: 'Break-even Revenue', value: calc.breakEvenRev !== null ? fmtINR(calc.breakEvenRev) + '/yr' : '—', sub: 'cover fixed costs', color: C.fg1 },
             ...(calc.totalSubvention > 0
-              ? [{ label: 'Total Subvention', term: 'Total Subvention', value: fmtINR(calc.totalSubvention), sub: `${input.interestSubventionPct}% × ${input.interestSubventionYears} yrs`, color: '#2a7d3c' }]
+              ? [{ label: 'Total Subvention', term: 'Total Subvention', value: fmtINR(calc.totalSubvention), sub: `${input.interestSubventionPct}% × ${input.interestSubventionYears} yrs`, color: C.chartPositive }]
               : []),
           ].map(card => (
             <div key={card.label} className="calc-returns-tile">

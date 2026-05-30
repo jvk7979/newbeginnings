@@ -436,7 +436,38 @@ const marketsCallOpts = {
   cors: ALLOWED_ORIGINS,
 };
 
-export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async () => {
+// Per-user cooldown for the Agmarknet callables. Both consume data.gov.in
+// quota + significant function time (up to 75s wall-clock for the
+// list endpoint, up to 120s for the manual sync). Without a cooldown,
+// a single allowed user clicking "Sync Now" on a loop could burn the
+// family's quota and run up function bills.
+//
+// Implementation: per-(uid, endpoint) cooldown doc in Firestore that
+// records the timestamp of the user's last call. If now - last <
+// cooldown window, throw resource-exhausted with seconds-remaining.
+// Doc id is sanitised (Firestore disallows `/` in segment ids).
+const COOLDOWN_MS_SYNC = 60_000;     // 1 minute between manual syncs
+const COOLDOWN_MS_LIST = 120_000;    // 2 minutes between full list pulls
+
+async function enforceCooldown(uid, endpoint, cooldownMs) {
+  if (!uid) return;
+  const ref = db.doc(`userQuota/${uid}__${endpoint}`);
+  const snap = await ref.get();
+  const last = snap.exists ? Number(snap.data()?.lastCallAt || 0) : 0;
+  const now = Date.now();
+  const elapsed = now - last;
+  if (elapsed < cooldownMs) {
+    const secondsLeft = Math.ceil((cooldownMs - elapsed) / 1000);
+    throw new HttpsError(
+      'resource-exhausted',
+      `Please wait ${secondsLeft}s before calling ${endpoint} again.`
+    );
+  }
+  await ref.set({ lastCallAt: now, endpoint }, { merge: true });
+}
+
+export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async (req) => {
+  await enforceCooldown(req.auth?.uid, 'runAgmarknetSyncNow', COOLDOWN_MS_SYNC);
   const result = await runAgmarknetSync(DATA_GOV_IN_API_KEY.value(), 'manual');
   await db.doc('marketsConfig/autoFetch').set({ lastRunAt: Date.now() }, { merge: true });
   console.log(`[runAgmarknetSyncNow] processed=${result.processed} ok=${result.ok} noData=${result.noData} errors=${result.errors}`);
@@ -449,7 +480,8 @@ export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async () => 
 // through recent records and collect unique `commodity` values. A handful
 // of 1000-row pages covers essentially every actively-traded commodity
 // nationwide. Returns `{ commodities: string[] }`, alphabetically sorted.
-export const listAgmarknetCommodities = onCall(marketsCallOpts, withAuth(async () => {
+export const listAgmarknetCommodities = onCall(marketsCallOpts, withAuth(async (req) => {
+  await enforceCooldown(req.auth?.uid, 'listAgmarknetCommodities', COOLDOWN_MS_LIST);
   const apiKey = DATA_GOV_IN_API_KEY.value();
   const names = new Set();
   const PAGE_SIZE = 1000;

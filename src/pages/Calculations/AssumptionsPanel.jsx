@@ -150,7 +150,7 @@ export default function AssumptionsPanel({
             <input type="number" value={row.price} min={0} onChange={e => setRow('revenueRows', row.id, 'price', e.target.value)} style={IS} />
             <input type="number" value={row.qty} min={0} step="0.01" onChange={e => setRow('revenueRows', row.id, 'qty', e.target.value)} style={IS} />
             <button onClick={() => delRow('revenueRows', row.id)} disabled={input.revenueRows.length === 1}
-              style={{ background: 'none', border: 'none', cursor: input.revenueRows.length === 1 ? 'default' : 'pointer', color: input.revenueRows.length === 1 ? C.fg3 : '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+              style={{ background: 'none', border: 'none', cursor: input.revenueRows.length === 1 ? 'default' : 'pointer', color: input.revenueRows.length === 1 ? C.fg3 : C.chartNegative, fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
           </div>
         ))}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, gap: 8, flexWrap: 'wrap' }}>
@@ -211,7 +211,7 @@ export default function AssumptionsPanel({
                 </select>
                 <input type="number" value={row.price} min={0} onChange={e => setRow('varRows', row.id, 'price', e.target.value)} style={IS} />
                 <input type="number" value={row.qty} min={0} step="0.01" onChange={e => setRow('varRows', row.id, 'qty', e.target.value)} style={IS} />
-                <button onClick={() => delRow('varRows', row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+                <button onClick={() => delRow('varRows', row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.chartNegative, fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 8, flexWrap: 'wrap' }}>
@@ -236,7 +236,7 @@ export default function AssumptionsPanel({
                 <input value={row.name} placeholder="Expense" onChange={e => setRow('fixedRows', row.id, 'name', e.target.value)} style={IS} />
                 <input type="number" value={row.amount} min={0} onChange={e => setRow('fixedRows', row.id, 'amount', e.target.value)} style={IS} />
                 <button onClick={() => delRow('fixedRows', row.id)} disabled={input.fixedRows.length === 1}
-                  style={{ background: 'none', border: 'none', cursor: input.fixedRows.length === 1 ? 'default' : 'pointer', color: input.fixedRows.length === 1 ? C.fg3 : '#c0392b', fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
+                  style={{ background: 'none', border: 'none', cursor: input.fixedRows.length === 1 ? 'default' : 'pointer', color: input.fixedRows.length === 1 ? C.fg3 : C.chartNegative, fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
