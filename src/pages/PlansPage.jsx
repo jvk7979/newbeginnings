@@ -8,6 +8,7 @@ import SavedViewsBar from '../components/SavedViewsBar';
 import ComparePanel from '../components/ComparePanel';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 import { IllPlan } from '../components/illustrations';
+import { PLAN_STATUSES as RAW_PLAN_STATUSES } from '../utils/status';
 
 const FILTERS = [
   { id: 'all',       label: 'All' },
@@ -27,13 +28,9 @@ const STATUS_CHIP_COLORS = {
   archived:     { color: '#4B5563',  bg: '#F3F4F6',   border: '#4B556355' },
 };
 
-const PLAN_STATUSES = [
-  { id: 'draft',     label: 'Draft' },
-  { id: 'active',    label: 'Active' },
-  { id: 'in-review', label: 'In Review' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'archived',  label: 'Archived' },
-];
+// PLAN_STATUSES now sourced from src/utils/status.js. QuickEditForm uses
+// `{ id, label }`; the shared list uses `{ value, label }`. Map once.
+const PLAN_STATUSES = RAW_PLAN_STATUSES.map(s => ({ id: s.value, label: s.label }));
 
 const PLAN_CATEGORY_OPTIONS = CATEGORIES.filter(c => c !== 'All');
 

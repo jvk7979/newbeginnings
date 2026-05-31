@@ -14,17 +14,10 @@ export const IS = {
   outline: 'none',
 };
 
-// Local INR formatter — kept here because the rest of the app's fmtINR copies
-// have subtly different signatures. A single shared util is a separate refactor.
-export function fmtINR(n) {
-  if (n === null || n === undefined || !isFinite(n)) return '—';
-  const sign = n < 0 ? '-' : '';
-  const abs = Math.abs(n);
-  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
-  if (abs >= 100000)   return `${sign}₹${(abs / 100000).toFixed(1)} L`;
-  if (abs >= 1000)     return `${sign}₹${(abs / 1000).toFixed(1)} K`;
-  return `${sign}₹${abs.toFixed(0)}`;
-}
+// fmtINR moved to src/utils/format.js so every consumer shares one
+// implementation. Re-exported here so existing imports
+// (`import { fmtINR } from '.../primitives'`) keep working.
+export { fmtINR } from '../../utils/format.js';
 
 // Compact chart-axis formatter — strips the ₹ prefix and trims decimals
 // so labels fit above bars without colliding. Used by the bar / waterfall

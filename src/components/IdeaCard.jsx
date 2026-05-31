@@ -2,21 +2,13 @@ import { C } from '../tokens';
 import Badge from './Badge';
 import { getCategoryStyle, IDEA_CATEGORIES } from '../utils/categoryStyles';
 import QuickEditForm from './QuickEditForm';
+import { fmtINR } from '../utils/format';
+import { IDEA_STATUSES as RAW_IDEA_STATUSES } from '../utils/status';
 
-function fmtINR(n) {
-  if (!n || !isFinite(n)) return '—';
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
-  if (n >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
-  if (n >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
-  return `₹${n.toFixed(0)}`;
-}
-
-const IDEA_STATUSES = [
-  { id: 'draft',      label: 'Draft' },
-  { id: 'validating', label: 'Validating' },
-  { id: 'active',     label: 'Active' },
-  { id: 'archived',   label: 'Archived' },
-];
+// QuickEditForm expects `{ id, label }`; the shared list uses
+// `{ value, label }`. Map once at module load so the rename is just
+// here (preserves the QuickEditForm contract without a second refactor).
+const IDEA_STATUSES = RAW_IDEA_STATUSES.map(s => ({ id: s.value, label: s.label }));
 
 export default function IdeaCard({
   id, title, date, status, desc, category, estimatedCapex, estimatedPayback, onClick,

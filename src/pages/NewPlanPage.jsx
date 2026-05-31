@@ -12,13 +12,10 @@ import { CATEGORIES } from '../utils/categoryStyles';
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
 
-const PLAN_STATUSES = [
-  { value: 'draft',     label: 'Draft' },
-  { value: 'active',    label: 'Active' },
-  { value: 'in-review', label: 'In Review' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'archived',  label: 'Archived' },
-];
+// PLAN_STATUSES now sourced from src/utils/status.js — was redefined in
+// 5 places before this refactor, with at least one missing newer
+// values (Dashboard's map didn't include 'in-review' or 'completed').
+import { PLAN_STATUSES } from '../utils/status';
 
 export default function NewPlanPage({ onNavigate }) {
   const { addPlan } = usePlans();

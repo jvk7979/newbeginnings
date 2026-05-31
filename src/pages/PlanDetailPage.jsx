@@ -18,16 +18,9 @@ import { SourcesEditor, SourcesView } from '../components/SourcesField';
 import { uploadFileToDB, deleteFileFromDB, mimeForType, fetchFileBlob } from '../utils/fileStorage';
 import { generateSummaryFromFile, isSummarySupported } from '../utils/aiSummary';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
+import { PLAN_STATUSES } from '../utils/status';
 
 const PLAN_CATEGORIES = CATEGORIES.slice(1);
-
-const PLAN_STATUSES = [
-  { value: 'draft',     label: 'Draft' },
-  { value: 'active',    label: 'Active' },
-  { value: 'in-review', label: 'In Review' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'archived',  label: 'Archived' },
-];
 
 export default function PlanDetailPage({ plan, onNavigate }) {
   const { updatePlan, deletePlan, restorePlan } = usePlans();

@@ -5,6 +5,7 @@ import { useIdeas, usePlans } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { formatText } from '../utils/textFormatter';
+import { fmtINR } from '../utils/format';
 import { analyzeIdea, generatePlanSection } from '../utils/gemini';
 import ConfirmModal from '../components/ConfirmModal';
 import AttachedFileViewer from '../components/AttachedFileViewer';
@@ -247,13 +248,8 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
 
   // KPI tiles — only render those whose data actually exists, and only
   // render the row if at least one tile has data. Skips noise on bare ideas.
-  const fmtINR = (n) => {
-    if (!n || !isFinite(n)) return '—';
-    if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
-    if (n >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
-    if (n >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
-    return `₹${n.toFixed(0)}`;
-  };
+  // fmtINR imported from src/utils/format.js (shared util — handles
+  // negative numbers consistently across the app).
   const kpis = [
     idea.estimatedCapex ? {
       key: 'capex', label: 'Project Cost Est.', value: fmtINR(idea.estimatedCapex),
