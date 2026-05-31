@@ -59,18 +59,6 @@ const THEME_PREVIEW = {
     atmosphere: 'editorial',
     desc: 'Cream + green + river blue + gold. Leather-notebook editorial mood with the Godavari hero photo.',
   },
-  prism: {
-    bg0: '#FFFFFF', bg1: '#F8F9FB', bg2: '#F1F3F8', bg3: '#E5E9F0',
-    fg1: '#0A2540', accent: '#635BFF', border: '#EDEFF2',
-    accents: ['#635BFF', '#10B981', '#F97316'], // indigo / emerald / hot orange
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#635BFF', to: '#06B6D4',           // hero italic + KPI gradient
-      ctaFrom: '#635BFF', ctaTo: '#4F46E5',     // CTA gradient
-      glowRgb: '99,91,255', glowRgb2: '6,182,212', // body radial-glow channels
-    },
-    desc: 'Indigo + emerald + hot orange. Corner glows, gradient KPI tile, gradient CTA. Confident, saturated.',
-  },
   citrus: {
     bg0: '#FFFFFF', bg1: '#FFFBF5', bg2: '#FEF3E0', bg3: '#FCE5BB',
     fg1: '#2A1A0A', accent: '#F97316', border: '#FCEACE',
@@ -81,7 +69,7 @@ const THEME_PREVIEW = {
       ctaFrom: '#F97316', ctaTo: '#C2410C',
       glowRgb: '249,115,22', glowRgb2: '250,204,21',
     },
-    desc: 'Hot orange + lime + sunny yellow. Same gradient signature as Prism, shifted warm. Energetic, sunset feel.',
+    desc: 'Hot orange + lime + sunny yellow. Confident corner-glow + gradient-tile signature. Energetic, sunset feel.',
   },
   // Midnight is the only dark theme — routed through the `vibrant` code path
   // so the picker card renders with radial corner glows (brass + sage) and

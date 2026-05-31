@@ -1,19 +1,15 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-// Eight-palette theme set (rev 6, 2026-05-11 — retired aura / lemon / jade
-// from rev-5 to tighten the picker around eight strong distinct moods).
-// Heritage is the default — coconut-cream + deep coconut green + river blue
-// + gold + dark warm-brown text, paired with the Godavari hero photo. All
-// alternates keep the editorial typography (Cormorant Garamond / Playfair
-// Display / DM Sans / JetBrains Mono) but bring a distinct atmospheric
-// layer.
+// Seven-palette theme set (rev 7, 2026-05-31 — retired Prism: its
+// indigo+cyan gradient stuck out from the editorial Heritage / Terracotta
+// / Plum / Coastal family). Heritage is the default — coconut-cream +
+// deep coconut green + river blue + gold + dark warm-brown text, paired
+// with the Godavari hero photo. All alternates keep the editorial
+// typography (Cormorant Garamond / Playfair Display / DM Sans /
+// JetBrains Mono) but bring a distinct atmospheric layer.
 //
-//   • prism      — vibrant — white page with indigo+cyan radial corner glows,
-//                  gradient KPI tile, gradient CTA, gradient italic hero.
-//                  Confident, saturated, cool register.
-//   • citrus     — vibrant — sibling of prism shifted warm: orange primary,
-//                  orange→yellow gradient signature, lime green secondary.
-//                  Energetic, sunset feel.
+//   • citrus     — vibrant — hot orange primary, orange→yellow gradient
+//                  signature, lime green secondary. Energetic, sunset feel.
 //   • midnight   — DARK — near-black slate backdrop, warm brass primary,
 //                  dim sage secondary, parchment text. Library-after-dark.
 //                  First-class dark palette (mode: 'dark').
@@ -46,7 +42,6 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 //   vellum              → heritage  (rev-2 retirement — warm ledger gone)
 export const THEMES = [
   { id: 'heritage',   label: 'Heritage',   mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#37986b'] },
-  { id: 'prism',      label: 'Prism',      mode: 'light', swatch: ['#FFFFFF', '#F8F9FB', '#635BFF'] },
   { id: 'citrus',     label: 'Citrus',     mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
   { id: 'midnight',   label: 'Midnight',   mode: 'dark',  swatch: ['#0E1116', '#161A22', '#E8B97B'] },
   { id: 'coastal',    label: 'Coastal',    mode: 'light', swatch: ['#F4F7F9', '#FFFFFF', '#3B6E8F'] },
@@ -63,6 +58,10 @@ const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 // versions. Anything not in this map and not in THEMES falls through to
 // DEFAULT_THEME on next load.
 const LEGACY_THEME_MAP = {
+  // Rev-7 retirement (2026-05-31) — Prism dropped because its indigo+cyan
+  // gradient signature stuck out from the editorial Heritage / Terracotta
+  // /Plum / Coastal family. Anyone who picked it falls back to heritage.
+  prism:    'heritage',
   // Rev-6 retirements (2026-05-11) — picker trimmed from 11 → 8.
   aura:     'heritage',
   lemon:    'heritage',

@@ -1,6 +1,7 @@
 /**
  * Theme system tests — covers the eight-palette set (rev-6, 2026-05-11):
- * heritage / prism / citrus / midnight / coastal / plum / terracotta / mono.
+ * heritage / citrus / midnight / coastal / plum / terracotta / mono (Prism
+ * retired in rev-7; legacy ids silently migrate to heritage).
  * Earlier palettes (aura / lemon / jade / sprout / forest / amber / field /
  * vellum / linen / oxford / burgundy) are silently migrated to heritage via
  * LEGACY_THEME_MAP in ThemeContext; legacy-id migration is exercised below.
@@ -15,7 +16,6 @@ import { goto } from './helpers.js';
 
 const THEME_LABELS = {
   heritage:   'Heritage',
-  prism:      'Prism',
   citrus:     'Citrus',
   midnight:   'Midnight',
   coastal:    'Coastal',
@@ -25,8 +25,10 @@ const THEME_LABELS = {
 };
 // Vibrant themes paint the active sidenav item with a linear-gradient
 // (see styles.css per-theme overrides). Heritage + the editorial themes
-// (terracotta / mono) stay on the flat accent-bg.
-const VIBRANT_THEMES = ['prism', 'citrus', 'coastal', 'plum'];
+// (terracotta / mono) stay on the flat accent-bg. Prism was retired
+// in rev-7 — kept in LEGACY_THEME_MAP so existing users migrate to
+// heritage.
+const VIBRANT_THEMES = ['citrus', 'coastal', 'plum'];
 
 test.describe('Theme system — picker + switching + persistence', () => {
 
@@ -35,7 +37,7 @@ test.describe('Theme system — picker + switching + persistence', () => {
     await goto(page);
     await page.evaluate(() => localStorage.removeItem('nb_theme'));
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
   });
 
   test('default theme is heritage on fresh load', async ({ page }) => {
@@ -54,13 +56,13 @@ test.describe('Theme system — picker + switching + persistence', () => {
 
   test('clicking a theme card updates dataset.theme and persists to localStorage', async ({ page }) => {
     await goto(page, 'settings');
-    await page.getByRole('button', { name: /^Use Prism theme$/i }).click();
+    await page.getByRole('button', { name: /^Use Plum theme$/i }).click();
     await page.waitForTimeout(250);
 
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     const stored = await page.evaluate(() => localStorage.getItem('nb_theme'));
-    expect(theme).toBe('prism');
-    expect(stored).toBe('prism');
+    expect(theme).toBe('plum');
+    expect(stored).toBe('plum');
   });
 
   test('theme survives a page reload', async ({ page }) => {
@@ -69,7 +71,7 @@ test.describe('Theme system — picker + switching + persistence', () => {
     await page.waitForTimeout(250);
 
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
 
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     expect(theme).toBe('citrus');
@@ -91,10 +93,20 @@ test.describe('Theme system — picker + switching + persistence', () => {
     expect(theme).toBe('mono');
   });
 
+  test('legacy theme id (prism) silently migrates to heritage on load (rev-7 retirement)', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('nb_theme', 'prism'));
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+    const theme = await page.evaluate(() => document.documentElement.dataset.theme);
+    const stored = await page.evaluate(() => localStorage.getItem('nb_theme'));
+    expect(theme).toBe('heritage');
+    expect(stored).toBe('heritage');
+  });
+
   test('legacy theme id (aura) silently migrates to heritage on load', async ({ page }) => {
     await page.evaluate(() => localStorage.setItem('nb_theme', 'aura'));
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     const stored = await page.evaluate(() => localStorage.getItem('nb_theme'));
     expect(theme).toBe('heritage');
@@ -104,7 +116,7 @@ test.describe('Theme system — picker + switching + persistence', () => {
   test('legacy theme id (lemon) silently migrates to heritage on load', async ({ page }) => {
     await page.evaluate(() => localStorage.setItem('nb_theme', 'lemon'));
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     expect(theme).toBe('heritage');
   });
@@ -113,7 +125,7 @@ test.describe('Theme system — picker + switching + persistence', () => {
     // Simulate a user who picked Forest in an earlier app version.
     await page.evaluate(() => localStorage.setItem('nb_theme', 'forest'));
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
 
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     const stored = await page.evaluate(() => localStorage.getItem('nb_theme'));
@@ -126,7 +138,7 @@ test.describe('Theme system — picker + switching + persistence', () => {
   test('legacy theme id (vellum) silently migrates to heritage', async ({ page }) => {
     await page.evaluate(() => localStorage.setItem('nb_theme', 'vellum'));
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     expect(theme).toBe('heritage');
   });
@@ -134,7 +146,7 @@ test.describe('Theme system — picker + switching + persistence', () => {
   test('an unknown theme id falls back to heritage', async ({ page }) => {
     await page.evaluate(() => localStorage.setItem('nb_theme', 'completely-bogus'));
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     expect(theme).toBe('heritage');
   });
@@ -153,7 +165,7 @@ test.describe('Theme system — every theme renders the dashboard without errors
         localStorage.setItem('nb_theme', t);
       }, id);
       await page.reload();
-      await page.waitForTimeout(800);
+      await page.waitForLoadState("networkidle");
 
       // The hero photo + KPI strip are the most theme-sensitive surfaces.
       // If the theme overrides break stacking or the photo wash, these go
@@ -199,7 +211,7 @@ test.describe('SideNav theme identity (#2)', () => {
       await goto(page);
       await page.evaluate((t) => localStorage.setItem('nb_theme', t), id);
       await page.reload();
-      await page.waitForTimeout(800);
+      await page.waitForLoadState("networkidle");
 
       // Navigate somewhere so an active item exists in the sidebar.
       await page.evaluate(() => { window.location.hash = '#/ideas'; });
@@ -219,7 +231,7 @@ test.describe('SideNav theme identity (#2)', () => {
     await goto(page);
     await page.evaluate(() => localStorage.removeItem('nb_theme'));
     await page.reload();
-    await page.waitForTimeout(800);
+    await page.waitForLoadState("networkidle");
     await page.evaluate(() => { window.location.hash = '#/ideas'; });
     await page.waitForTimeout(400);
 

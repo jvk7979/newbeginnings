@@ -7,13 +7,14 @@ import heroImg from '../assets/hero_gpdavari1.webp';
 import { IllIdea, IllPlan } from '../components/illustrations';
 import { useReveal } from '../utils/useReveal';
 import { useCountUp } from '../utils/useCountUp';
+import { fmtINR } from '../utils/format';
+import { planStatusLabel, ideaStatusLabel } from '../utils/status';
 
 // Eyebrow label for the bottom "features card" — Heritage keeps the
 // Godavari brand prefix; other themes drop it so the eyebrow stays
 // honest to the chosen palette and doesn't pretend to be heritage.
 const THEME_EYEBROW = {
   heritage:   'GODAVARI HERITAGE WORKSPACE',
-  prism:      'PRISM WORKSPACE',
   citrus:     'CITRUS WORKSPACE',
   midnight:   'MIDNIGHT WORKSPACE',
   coastal:    'COASTAL WORKSPACE',
@@ -41,16 +42,14 @@ const STATUS_COLORS = {
   archived:      '#36040d',
 };
 
-const IDEA_STATUS_LABELS = { draft: 'Draft', validating: 'Validating', active: 'Active', archived: 'Archived' };
-const PLAN_STATUS_LABELS = { draft: 'Draft', active: 'Active', archived: 'Archived' };
+// Status labels now come from src/utils/status.js. Previously this file
+// inlined its own maps and PLAN_STATUS_LABELS was missing 'in-review'
+// and 'completed' — a plan in either state rendered the literal
+// hyphenated string in the dashboard list.
 
-function fmtINR(n) {
-  if (!n || !isFinite(n)) return '—';
-  if (Math.abs(n) >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`;
-  if (Math.abs(n) >= 100000)   return `₹${(n / 100000).toFixed(1)} L`;
-  if (Math.abs(n) >= 1000)     return `₹${(n / 1000).toFixed(1)} K`;
-  return `₹${Math.round(n)}`;
-}
+// fmtINR comes from the shared util; previously this file had its own
+// copy that returned "₹-3 L" (₹ glyph before minus) for negative
+// numbers. The shared version puts the sign first: "-₹3 L".
 
 const ICON_LIGHTBULB = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" aria-hidden="true">
@@ -262,7 +261,7 @@ export default function Dashboard({ onNavigate }) {
                         <div className="dh-card-row-meta">
                           <span style={{ color: sc, fontWeight: 600 }}>
                             <span className="dh-dot" style={{ background: sc }} />
-                            {IDEA_STATUS_LABELS[idea.status] || idea.status || 'Draft'}
+                            {ideaStatusLabel(idea.status)}
                           </span>
                           {idea.estimatedCapex > 0 && <span className="dh-mono">{fmtINR(idea.estimatedCapex)}</span>}
                         </div>
@@ -304,7 +303,7 @@ export default function Dashboard({ onNavigate }) {
                         <div className="dh-card-row-meta">
                           <span style={{ color: sc, fontWeight: 600 }}>
                             <span className="dh-dot" style={{ background: sc }} />
-                            {PLAN_STATUS_LABELS[p.status] || p.status || 'Active'}
+                            {planStatusLabel(p.status)}
                           </span>
                           {p.eligibleForCalc && (
                             <span className="dh-tag">

@@ -80,7 +80,7 @@ test.describe('Data colour roles — theme token surface', () => {
 
   // Every theme must define the same role tokens — guarantees the data-
   // color system follows palette switches across the picker.
-  const ALL_THEMES = ['heritage', 'prism', 'citrus', 'midnight', 'coastal', 'plum', 'terracotta', 'mono'];
+  const ALL_THEMES = ['heritage', 'citrus', 'midnight', 'coastal', 'plum', 'terracotta', 'mono'];
   for (const theme of ALL_THEMES) {
     test(`${theme} defines all role tokens (success / warning / danger / info / accent-2/3/4)`, async ({ page }) => {
       await page.evaluate((t) => localStorage.setItem('nb_theme', t), theme);
