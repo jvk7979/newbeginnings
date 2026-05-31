@@ -14,7 +14,7 @@
  * value in their head.
  */
 import { describe, it, expect } from 'vitest';
-import { runCalc, runSensitivity, calcIRR, normalizeCalcInput, DEFAULT_CALC_INPUT } from './calcEngine.js';
+import { runCalc, runSensitivity, calcIRR, calcIRRDetailed, normalizeCalcInput, DEFAULT_CALC_INPUT } from './calcEngine.js';
 
 // Tiny scenario builder so each test reads as "default + my overrides".
 const scenario = (overrides = {}) => ({ ...DEFAULT_CALC_INPUT, ...overrides });
@@ -298,6 +298,42 @@ describe('calcIRR — Newton-Raphson solver', () => {
   it('returns null when the very first cash flow is non-negative', () => {
     expect(calcIRR([100, 100, 100])).toBeNull();
     expect(calcIRR([0, 100, 100])).toBeNull();
+  });
+
+  it('returns null on a cash-flow stream with no sign change at all', () => {
+    // All-negative — never a payback. No IRR exists.
+    expect(calcIRR([-100, -50, -30])).toBeNull();
+  });
+});
+
+describe('IRR multi-root detection (P2.9)', () => {
+  it('runCalc flags irrAmbiguous=false for the simple monotonic case', () => {
+    const r = runCalc(scenario({
+      capex: 1000000, debtPct: 0,
+      revenueRows: oneProduct(20, 100), varRows: [], fixedRows: [],
+    }));
+    expect(r.irrAmbiguous).toBe(false);
+    expect(r.irrSignChanges).toBeLessThanOrEqual(1);
+  });
+
+  it('calcIRRDetailed flags ambiguity on a stream with multiple sign changes', () => {
+    // The runCalc projection shape (single capex outflow + always-positive
+    // NCFs) is structurally monotonic by design — real-world ambiguity
+    // comes from mid-life capex injection / shutdown-and-restart patterns
+    // the engine doesn't currently model. The detection layer is
+    // unit-testable directly: classic multiple-IRR teaser stream from
+    // every corporate-finance textbook.
+    const stream = [-100, 230, -132];
+    const detail = calcIRRDetailed(stream);
+    expect(detail).not.toBeNull();
+    expect(detail.signChanges).toBe(2);
+    expect(detail.ambiguous).toBe(true);
+  });
+
+  it('calcIRRDetailed returns the same value calcIRR does on the simple case', () => {
+    const stream = [-100, 50, 50, 50];
+    expect(calcIRRDetailed(stream).value).toBeCloseTo(calcIRR(stream), 4);
+    expect(calcIRRDetailed(stream).ambiguous).toBe(false);
   });
 });
 

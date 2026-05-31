@@ -3,6 +3,7 @@ import { C, alpha } from '../tokens';
 import { useSuppliers, usePlans } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useDialogA11y } from '../utils/useDialogA11y';
 
 const inputStyle = { width: '100%', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 12px', outline: 'none', boxSizing: 'border-box' };
 const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -11,6 +12,7 @@ const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeig
 // of projects offered in the link multi-select.
 function SupplierModal({ supplier, plans, onClose, onSave }) {
   const { showToast } = useToast();
+  const { dialogProps, titleId } = useDialogA11y(onClose);
   const [submitting, setSubmitting] = useState(false);
   const [name,      setName]      = useState(supplier?.name      || '');
   const [materials, setMaterials] = useState(supplier?.materials || '');
@@ -55,11 +57,12 @@ function SupplierModal({ supplier, plans, onClose, onSave }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.55)', zIndex: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 460, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
+      <div {...dialogProps}
+           style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 460, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
         <button onClick={onClose} aria-label="Close"
           style={{ position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
 
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 18, paddingRight: 36 }}>
+        <div id={titleId} style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 18, paddingRight: 36 }}>
           {supplier ? 'Edit Supplier' : 'Add a Supplier'}
         </div>
 

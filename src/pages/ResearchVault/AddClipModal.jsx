@@ -7,6 +7,7 @@ import {
   uploadFileToDB, uploadImageToDB, deleteFileFromDB,
   FILE_MAX_BYTES, FILE_MAX_LABEL, fmtSize,
 } from '../../utils/fileStorage';
+import { useDialogA11y } from '../../utils/useDialogA11y';
 
 const inputStyle = { width: '100%', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 12px', outline: 'none', boxSizing: 'border-box' };
 const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -24,6 +25,7 @@ const TYPE_PICKER = [
 
 export default function AddClipModal({ onClose, onAdd }) {
   const { showToast } = useToast();
+  const { dialogProps, titleId } = useDialogA11y(onClose);
   const [step, setStep] = useState('type');   // 'type' | 'fields'
   const [type, setType] = useState(null);
 
@@ -95,7 +97,8 @@ export default function AddClipModal({ onClose, onAdd }) {
     <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.55)', zIndex: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 520, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
+      <div {...dialogProps}
+           style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 520, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
         <button onClick={onClose} aria-label="Close"
           onMouseEnter={e => { e.currentTarget.style.color = C.fg1; e.currentTarget.style.background = C.bg2; }}
           onMouseLeave={e => { e.currentTarget.style.color = C.fg3; e.currentTarget.style.background = 'none'; }}
@@ -103,7 +106,7 @@ export default function AddClipModal({ onClose, onAdd }) {
           ×
         </button>
 
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 4, paddingRight: 36 }}>
+        <div id={titleId} style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 4, paddingRight: 36 }}>
           New Clip
         </div>
 

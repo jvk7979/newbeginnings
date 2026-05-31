@@ -51,11 +51,48 @@ export function normalizeCalcInput(saved) {
   };
 }
 
-/** Newton-Raphson IRR. Returns IRR as a percentage, or null when the
-    cash-flow stream has no negative-then-positive flip (degenerate). */
+/** Count sign changes in a cash-flow stream. By Descartes' rule of
+ *  signs, the number of POSITIVE real IRR roots is at most the count
+ *  of sign changes. One sign change = at most one real IRR (the
+ *  classic "investment + future positive flows" case). Multiple sign
+ *  changes mean the IRR is potentially ambiguous — Newton-Raphson
+ *  can converge on any of them depending on the starting guess. We
+ *  surface this so the UI can warn instead of quietly returning an
+ *  arbitrary root. */
+function countSignChanges(cashFlows) {
+  let changes = 0;
+  let prev = 0;
+  for (const cf of cashFlows) {
+    if (cf === 0) continue;
+    const sign = cf > 0 ? 1 : -1;
+    if (prev !== 0 && sign !== prev) changes++;
+    prev = sign;
+  }
+  return changes;
+}
+
+/** Newton-Raphson IRR. Returns:
+ *    null                   — no IRR (no flip, no convergence, or out of range)
+ *    { value, ambiguous }   — value is percentage; ambiguous=true when the
+ *                             cash-flow has >1 sign change so the returned
+ *                             root may not be the unique economic IRR
+ *  Callers expecting the legacy plain-number return path can use
+ *  `irrValue(cashFlows)` below, which unwraps the result. */
 export function calcIRR(cashFlows) {
+  const result = calcIRRDetailed(cashFlows);
+  // Backwards-compatible plain-number return — runCalc consumers
+  // compare against discount rate / null / hurdle as a scalar.
+  return result === null ? null : result.value;
+}
+
+/** Detailed variant — returns { value, ambiguous, converged, signChanges }
+ *  for diagnostics-aware consumers. */
+export function calcIRRDetailed(cashFlows) {
   if (!cashFlows[0] || cashFlows[0] >= 0) return null;
+  const signChanges = countSignChanges(cashFlows);
+  if (signChanges === 0) return null;
   let rate = 0.15;
+  let converged = false;
   for (let i = 0; i < 200; i++) {
     let npv = 0, dnpv = 0;
     for (let t = 0; t < cashFlows.length; t++) {
@@ -66,10 +103,19 @@ export function calcIRR(cashFlows) {
     if (Math.abs(dnpv) < 1e-10) break;
     const next = rate - npv / dnpv;
     if (!Number.isFinite(next)) break;
-    if (Math.abs(next - rate) < 1e-9) { rate = next; break; }
+    if (Math.abs(next - rate) < 1e-9) { rate = next; converged = true; break; }
     rate = Math.max(-0.99, Math.min(next, 5));
   }
-  return (rate > -0.99 && rate < 5) ? rate * 100 : null;
+  if (rate <= -0.99 || rate >= 5) return null;
+  return {
+    value: rate * 100,
+    // Multiple sign changes → Newton-Raphson converged on ONE root but
+    // others may exist. The UI should surface a warning so the user
+    // knows the headline IRR may not be the only answer.
+    ambiguous: signChanges > 1,
+    converged,
+    signChanges,
+  };
 }
 
 /** Run the engine. Returns derived metrics + per-year projection rows. */
@@ -269,7 +315,15 @@ export function runCalc(input) {
   const totalSubvention = rows.reduce((s, r) => s + r.subvention, 0);
 
   const cashFlows = [-equity, ...rows.map(r => r.ncf)];
-  const irr = equity > 0 ? calcIRR(cashFlows) : null;
+  const irrDetailed = equity > 0 ? calcIRRDetailed(cashFlows) : null;
+  const irr = irrDetailed ? irrDetailed.value : null;
+  // Surfaced to the UI so the Feasibility Report / Quick Estimate can
+  // badge an IRR with multiple sign changes as "ambiguous — the cash
+  // flow stream has more than one negative-to-positive transition, so
+  // multiple economic IRRs may exist; Newton-Raphson returned the one
+  // closest to a 15% starting guess".
+  const irrAmbiguous = irrDetailed?.ambiguous === true;
+  const irrSignChanges = irrDetailed?.signChanges ?? 0;
 
   const r   = num(discountRate) / 100;
   const npv = cashFlows.reduce((s, cf, t) => s + cf / Math.pow(1 + r, t), 0);
@@ -304,7 +358,8 @@ export function runCalc(input) {
   return {
     effectiveCapex, equity, loan, revenue, variableCosts, fixedCosts, ebitda, ebitdaMargin,
     netProfitY1, netProfitY1Margin,
-    rows, irr, npv, payback, breakEvenRev, breakEvenCapacity, workingCapital,
+    rows, irr, irrAmbiguous, irrSignChanges,
+    npv, payback, breakEvenRev, breakEvenCapacity, workingCapital,
     revenueByProduct, dscrY1, totalSubvention,
   };
 }

@@ -5,6 +5,7 @@ import Tag from '../../components/Tag';
 import ConfirmModal from '../../components/ConfirmModal';
 import { useToast } from '../../context/ToastContext';
 import { getFileUrl } from '../../utils/fileStorage';
+import { useDialogA11y } from '../../utils/useDialogA11y';
 
 const inputStyle = { width: '100%', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 12px', outline: 'none', boxSizing: 'border-box' };
 const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -25,6 +26,7 @@ function useBlobUrl(blobId) {
 
 export default function ClipModal({ clip, onClose, onUpdate, onDelete, canEdit }) {
   const { showToast } = useToast();
+  const { dialogProps, titleId } = useDialogA11y(onClose);
   const [editing, setEditing] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -74,13 +76,14 @@ export default function ClipModal({ clip, onClose, onUpdate, onDelete, canEdit }
       <div
         style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,20,0.55)', zIndex: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
         onClick={e => e.target === e.currentTarget && onClose()}>
-        <div style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 560, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
+        <div {...dialogProps}
+             style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 560, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
           <button onClick={onClose} aria-label="Close"
             style={{ position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ×
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, paddingRight: 36 }}>
+          <div id={titleId} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, paddingRight: 36 }}>
             <ClipTypeBadge type={clip.type} />
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{clip.date}</span>
           </div>
