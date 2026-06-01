@@ -27,7 +27,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
+    "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^4.3.1",
+    "happy-dom": "^20.9.0",
     "mapshaper": "^0.7.19",
     "sharp": "^0.34.5",
     "vite": "^5.4.8",

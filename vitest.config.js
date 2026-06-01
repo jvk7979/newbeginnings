@@ -12,6 +12,11 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.{js,jsx}'],
     exclude: ['node_modules', 'dist', 'e2e', 'playwright-report', 'test-results'],
+    // Default to node (lighter / faster) for pure-function math.
+    // React-hook tests that need a DOM opt-in via the
+    // `// @vitest-environment happy-dom` pragma at the top of the
+    // test file (Vitest 4 deprecated environmentMatchGlobs in favour
+    // of per-file pragmas).
     environment: 'node',
   },
 });
