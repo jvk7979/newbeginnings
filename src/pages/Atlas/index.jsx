@@ -58,11 +58,11 @@ export default function AtlasPage({ onNavigate }) {
   // Year-driven unified dataset. Returns {} until the JSON files load —
   // every map / panel handles an empty states object gracefully.
   const states = useMemo(
-    () => data ? buildUnifiedStates(year, data.apeda, data.des) : {},
+    () => data ? buildUnifiedStates(year, data.apeda, data.des, data.meta) : {},
     [year, data]
   );
   const apDistricts = useMemo(
-    () => data ? buildDesApDistricts(data.des) : {},
+    () => data ? buildDesApDistricts(data.des, data.meta) : {},
     [data]
   );
 

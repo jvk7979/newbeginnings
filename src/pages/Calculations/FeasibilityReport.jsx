@@ -101,6 +101,17 @@ export default function FeasibilityReport({ selectedProject, input, calc, insigh
             vs <b>{dr}% hurdle rate</b>
             {irrHeadroom != null && <> · {irrHeadroom >= 0 ? '+' : ''}{irrHeadroom} pp headroom</>}
           </div>
+          {/* IRR ambiguity badge — surfaces when the cash-flow stream
+              has more than one sign change. Newton-Raphson lands on
+              ONE of multiple possible IRRs in that case, and the user
+              should know the headline number may not be unique. */}
+          {calc.irrAmbiguous && (
+            <div className="fr-irr-warn" title={`${calc.irrSignChanges} sign changes in cash flow — multiple economic IRRs may exist`}>
+              <span className="fr-irr-warn-dot" />
+              <span>IRR ambiguous</span>
+              <span className="fr-irr-warn-meta">· {calc.irrSignChanges} cash-flow sign changes</span>
+            </div>
+          )}
           <SectorBar value={irr} min={SECTOR_IRR.min} max={SECTOR_IRR.max} label={SECTOR_IRR.label}/>
         </div>
 

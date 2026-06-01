@@ -52,9 +52,14 @@ export default defineConfig({
         },
       },
     },
-    // Keep the chunk-size warning at the default 500 KB. The new chunks
-    // (Firebase ~250 KB, react-pdf ~1.4 MB but lazy-loaded) flag here on
-    // purpose — re-evaluate any new dep that pushes past it.
+    // react-pdf is intentionally a separate 1.4 MB chunk (lazy-loaded
+    // only on Export DPR click) and Firebase legitimately needs ~620 KB
+    // for Firestore + Auth + Storage + Functions. Both flagged the
+    // default 500 KB warning every build, which trained reviewers to
+    // ignore the warning entirely. Raise the threshold so the warning
+    // catches NEW offenders rather than firing on the two we've already
+    // audited and accepted.
+    chunkSizeWarningLimit: 1600,
   },
   plugins: [
     react(),
@@ -85,9 +90,22 @@ export default defineConfig({
       workbox: {
         // Precache every Vite-emitted asset (chunked JS, CSS, fonts, images).
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,ico,mjs}'],
-        // PDF worker is large (~1.4 MB) and not always used; let it fetch
-        // on demand instead of bloating the precache install step.
-        globIgnores: ['**/pdf.worker.*'],
+        // Precache exclusions — keep the install step lean. Each of
+        // these is genuinely opt-in (only fetched when the user
+        // triggers the specific feature) and the install would
+        // otherwise pull megabytes the user never uses:
+        //   - pdf.worker — fetched only when opening a PDF clip
+        //   - react-pdf  — fetched only when clicking Export DPR
+        //   - data/*.json — Crop Atlas datasets, fetched only on
+        //     Atlas page load (Workbox runtime cache picks them up
+        //     after first fetch so subsequent loads are still instant)
+        //   - mammoth    — fetched only when viewing a .docx clip
+        globIgnores: [
+          '**/pdf.worker.*',
+          '**/react-pdf.browser-*',
+          '**/mammoth.browser*',
+          '**/data/*.json',
+        ],
         // Single-page hash router — every navigation lives at index.html.
         navigateFallback: '/newbeginnings/index.html',
         // Don't intercept hash route changes; the SPA handles them.

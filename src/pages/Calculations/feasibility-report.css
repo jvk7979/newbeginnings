@@ -5,6 +5,41 @@
  * .fr-* so they can't collide with the surrounding calc page styles.
  */
 
+/* IRR-ambiguity badge — surfaces under the IRR BigNum when the cash-flow
+ * stream has >1 sign change (Descartes' rule of signs → potentially
+ * multiple real IRRs; Newton-Raphson returned only one). Uses the
+ * warning token (gold in heritage, amber in midnight, etc.) so every
+ * theme renders an attention-getting but not-alarming hue. */
+.fr-irr-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: var(--c-warning-bg);
+  color: var(--c-warning);
+  border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: help;
+}
+.fr-irr-warn-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-warning);
+  flex-shrink: 0;
+}
+.fr-irr-warn-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  opacity: 0.78;
+  font-weight: 400;
+}
+
 .fr-page {
   display: flex; flex-direction: column; gap: 18px;
   padding: 18px 24px 8px;

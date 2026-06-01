@@ -25,10 +25,13 @@
 // runtime by the Atlas page on first mount, and cached aggressively by
 // the browser thereafter.
 
-import { STATES, AP_DISTRICTS } from './cropData';
-
+// STATES + AP_DISTRICTS were imported here statically before — they
+// now live in public/data/atlas-meta.json (51 KB) so the static-data
+// bulk doesn't bloat the Atlas JS chunk. cropData.js retains only the
+// small lookup constants (CATEGORIES + the two centroid maps).
 const APEDA_URL = `${import.meta.env.BASE_URL || '/'}data/apeda.json`;
 const DES_URL   = `${import.meta.env.BASE_URL || '/'}data/des.json`;
+const META_URL  = `${import.meta.env.BASE_URL || '/'}data/atlas-meta.json`;
 
 // A few APEDA crop names differ from the DES spelling — map them so the
 // DES area lookup resolves for the field crops that exist in both sets.
@@ -36,20 +39,21 @@ const DES_ALIAS = { 'Soyabean': 'Soybean', 'Tur (Arhar)': 'Tur', 'Lentil (Masur)
 
 // Module-global cache so repeated mounts of AtlasPage / mode switches /
 // route remounts re-use the parsed data without re-fetching. Resolves to
-// `{ apeda, des }` once both fetches complete.
+// `{ apeda, des, meta }` once all three fetches complete. `meta` carries
+// the curated STATES + AP_DISTRICTS metadata (51 KB) that used to be
+// statically imported from cropData.js.
 let _dataPromise = null;
 export function loadAtlasData() {
   if (_dataPromise) return _dataPromise;
+  const fetchJson = (url, label) => fetch(url).then(r => {
+    if (!r.ok) throw new Error(`Atlas ${label} fetch failed: ${r.status}`);
+    return r.json();
+  });
   _dataPromise = Promise.all([
-    fetch(APEDA_URL).then(r => {
-      if (!r.ok) throw new Error(`Atlas apeda.json fetch failed: ${r.status}`);
-      return r.json();
-    }),
-    fetch(DES_URL).then(r => {
-      if (!r.ok) throw new Error(`Atlas des.json fetch failed: ${r.status}`);
-      return r.json();
-    }),
-  ]).then(([apeda, des]) => ({ apeda, des }))
+    fetchJson(APEDA_URL, 'apeda.json'),
+    fetchJson(DES_URL,   'des.json'),
+    fetchJson(META_URL,  'atlas-meta.json'),
+  ]).then(([apeda, des, meta]) => ({ apeda, des, meta }))
     .catch(err => {
       // Reset the cache on failure so the next call retries instead of
       // serving the rejected Promise forever.
@@ -74,8 +78,9 @@ export function loadAtlasData() {
 // Memoised per (year, dataset identity). Callers pass the loaded apeda /
 // des objects in so this stays a pure function.
 const _statesCache = new WeakMap();
-export function buildUnifiedStates(year, apeda, des) {
+export function buildUnifiedStates(year, apeda, des, atlasMeta) {
   if (!apeda || !des) return {};
+  const STATES = atlasMeta?.states || {};
   let perDataset = _statesCache.get(apeda);
   if (!perDataset) { perDataset = {}; _statesCache.set(apeda, perDataset); }
   if (perDataset[year]) return perDataset[year];
@@ -117,12 +122,14 @@ function desDistrictCrops(districtName, des) {
   return crops;
 }
 
-// buildDesApDistricts(des) — the 26 AP districts, each curated raw-materials
-// metadata merged with DES district crop rows.
-export function buildDesApDistricts(des) {
-  if (!des) return {};
+// buildDesApDistricts(des, atlasMeta) — the 26 AP districts, each
+// curated raw-materials metadata merged with DES district crop rows.
+// AP_DISTRICTS now comes from atlas-meta.json (loaded at runtime),
+// not from a static import.
+export function buildDesApDistricts(des, atlasMeta) {
+  if (!des || !atlasMeta?.apDistricts) return {};
   const out = {};
-  for (const [name, meta] of Object.entries(AP_DISTRICTS)) {
+  for (const [name, meta] of Object.entries(atlasMeta.apDistricts)) {
     out[name] = { ...meta, crops: desDistrictCrops(name, des) };
   }
   return out;
