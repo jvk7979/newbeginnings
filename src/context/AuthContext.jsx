@@ -4,7 +4,8 @@ import {
   signInWithPopup, signInWithRedirect, getRedirectResult, signOut,
   onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence,
 } from 'firebase/auth';
-import { doc, getDoc, getDocFromServer, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getDoc, getDocFromServer, setDoc, serverTimestamp } from 'firebase/firestore';
+import { allowedUserRef } from '../data/paths.js';
 
 // On mobile we try signInWithPopup first — it avoids the cross-domain redirect
 // bounce (github.io → google.com → firebaseapp.com → github.io) that iOS
@@ -115,14 +116,14 @@ export function AuthProvider({ children }) {
       let snap;
       try {
         // Live server read — always sees the current allowlist, not cache.
-        snap = await getDocFromServer(doc(db, 'allowedUsers', email));
+        snap = await getDocFromServer(allowedUserRef(db, email));
       } catch (serverErr) {
         const code = serverErr?.code || '';
         // Fall back to the local Firestore cache for ANY transient error
         // (not just 'unavailable'). On mobile, deadline-exceeded and other
         // transient codes are common when the network is flaky.
         if (!isTransient(code)) throw serverErr;
-        snap = await getDoc(doc(db, 'allowedUsers', email));
+        snap = await getDoc(allowedUserRef(db, email));
       }
 
       if (snap.exists()) {
@@ -131,7 +132,7 @@ export function AuthProvider({ children }) {
         setUserRole(snap.data()?.role || 'Editor');
         // Non-critical: record last active time. Fails silently for non-admins
         // (Firestore write rule = admins only).
-        setDoc(doc(db, 'allowedUsers', email), { lastSeenAt: serverTimestamp() }, { merge: true }).catch(() => {});
+        setDoc(allowedUserRef(db, email), { lastSeenAt: serverTimestamp() }, { merge: true }).catch(() => {});
       } else {
         await signOut(auth);
         pendingFirebaseUserRef.current = null;

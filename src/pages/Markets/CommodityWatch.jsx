@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { C } from '../../tokens';
 import { db } from '../../firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { onSnapshot, setDoc } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { marketsCalloutsRef } from '../../data/paths.js';
 import { pctChange } from './marketsMath';
 import IndexedTrendChart from './IndexedTrendChart';
 
 // Editable-override notes live here; the auto-summary is computed client-side.
-const CALLOUTS_REF = doc(db, 'marketsConfig', 'callouts');
+const CALLOUTS_REF = marketsCalloutsRef(db);
 
 const WINDOWS = [
   { weeks: 4,  label: '4w' },

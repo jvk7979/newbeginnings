@@ -3,10 +3,14 @@ import { db } from '../firebase';
 import { useAuth } from './AuthContext';
 import { deleteFileFromDB } from '../utils/fileStorage';
 import {
-  collection, doc, onSnapshot,
-  setDoc, updateDoc, deleteDoc,
+  onSnapshot, setDoc, updateDoc, deleteDoc,
   getDocs, writeBatch, getDoc,
 } from 'firebase/firestore';
+import {
+  ideasCol, ideaRef, projectsCol, projectRef, plansCol, planRef,
+  commoditiesCol, commodityRef, suppliersCol, supplierRef,
+  legacyUserIdeasCol, legacyUserProjectsCol, legacyUserPlansCol,
+} from '../data/paths.js';
 
 // ── Seed data ──────────────────────────────────────────────────────────────
 const SEED_IDEAS = [
@@ -53,10 +57,26 @@ function todayStr() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-// All data lives in shared top-level collections — visible to every signed-in family member
-const SHARED = { ideas: 'sharedIdeas', projects: 'sharedProjects', plans: 'sharedPlans', commodities: 'sharedCommodities', suppliers: 'sharedSuppliers' };
-const sharedCol = (name) => collection(db, SHARED[name]);
-const sharedRef = (name, id) => doc(db, SHARED[name], String(id));
+// All data lives in shared top-level collections — visible to every
+// signed-in family member. Path constants moved to src/data/paths.js so
+// a rename ('sharedPlans' → 'sharedProjects', say) only has to land in
+// one place instead of cascading through 14 files.
+const COL_BUILDERS = {
+  ideas:       ideasCol,
+  projects:    projectsCol,
+  plans:       plansCol,
+  commodities: commoditiesCol,
+  suppliers:   suppliersCol,
+};
+const REF_BUILDERS = {
+  ideas:       ideaRef,
+  projects:    projectRef,
+  plans:       planRef,
+  commodities: commodityRef,
+  suppliers:   supplierRef,
+};
+const sharedCol = (name) => COL_BUILDERS[name](db);
+const sharedRef = (name, id) => REF_BUILDERS[name](db, id);
 
 // On first ever load, seed shared collections (migrating from per-user storage if present)
 async function ensureSharedData(uid) {
@@ -65,9 +85,9 @@ async function ensureSharedData(uid) {
 
   // Try to migrate data the primary account already saved under users/{uid}/…
   const [uIdeas, uProjects, uPlans] = await Promise.all([
-    getDocs(collection(db, 'users', uid, 'ideas')),
-    getDocs(collection(db, 'users', uid, 'projects')),
-    getDocs(collection(db, 'users', uid, 'plans')),
+    getDocs(legacyUserIdeasCol(db, uid)),
+    getDocs(legacyUserProjectsCol(db, uid)),
+    getDocs(legacyUserPlansCol(db, uid)),
   ]);
 
   const lsIdeas    = (() => { try { return JSON.parse(localStorage.getItem('nb_ideas'))    || null; } catch { return null; } })();

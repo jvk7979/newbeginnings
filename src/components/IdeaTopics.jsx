@@ -3,7 +3,8 @@ import { C, alpha } from '../tokens';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { db } from '../firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { query, orderBy, onSnapshot, addDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { ideaTopicsCol, ideaTopicRef } from '../data/paths.js';
 import DiscussionThread from './DiscussionThread';
 import ConfirmModal from './ConfirmModal';
 
@@ -338,7 +339,7 @@ export default function IdeaTopics({ ideaId }) {
   const [dragOverId,  setDragOverId]  = useState(null);
 
   const topicsPath = useMemo(
-    () => collection(db, 'ideaTopics', String(ideaId), 'topics'),
+    () => ideaTopicsCol(db, ideaId),
     [ideaId]
   );
 
@@ -404,7 +405,7 @@ export default function IdeaTopics({ ideaId }) {
     if (!title || savingEdit) return;
     setSavingEdit(true);
     try {
-      await updateDoc(doc(db, 'ideaTopics', String(ideaId), 'topics', topicId), { title, category });
+      await updateDoc(ideaTopicRef(db, ideaId, topicId), { title, category });
       setEditingId(null);
     } catch {
       showToast('Could not save topic.', 'error');
@@ -417,7 +418,7 @@ export default function IdeaTopics({ ideaId }) {
     const topicId = confirmDel;
     setConfirmDel(null);
     try {
-      await deleteDoc(doc(db, 'ideaTopics', String(ideaId), 'topics', topicId));
+      await deleteDoc(ideaTopicRef(db, ideaId, topicId));
       if (selectedId === topicId) setSelectedId(view === 'list' ? GENERAL_TOPIC.id : null);
     } catch {
       showToast('Could not delete topic.', 'error');
@@ -439,7 +440,7 @@ export default function IdeaTopics({ ideaId }) {
     if (!target) { setDragId(null); setDragOverId(null); return; }
     const targetOrder = sortKey(target);
     try {
-      await updateDoc(doc(db, 'ideaTopics', String(ideaId), 'topics', dragId), {
+      await updateDoc(ideaTopicRef(db, ideaId, dragId), {
         order: targetOrder - 0.5,
       });
     } catch {

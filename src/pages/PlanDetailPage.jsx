@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans, useIdeas } from '../context/AppContext';
 import { db } from '../firebase';
-import { collection, getCountFromServer } from 'firebase/firestore';
+import { getCountFromServer } from 'firebase/firestore';
+import { planClipsCol } from '../data/paths.js';
 import { useAutosave } from '../utils/useAutosave';
 import AutosaveStatus from '../components/AutosaveStatus';
 import { useToast } from '../context/ToastContext';
@@ -87,7 +88,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   // without the "· N" suffix — the count is decorative, not load-bearing.
   useEffect(() => {
     let alive = true;
-    getCountFromServer(collection(db, 'sharedPlans', String(plan.id), 'clips'))
+    getCountFromServer(planClipsCol(db, plan.id))
       .then(snap => { if (alive) setClipCount(snap.data().count); })
       .catch(() => { /* leave null */ });
     return () => { alive = false; };

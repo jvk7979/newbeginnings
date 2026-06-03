@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { C } from '../../tokens';
 import { db } from '../../firebase';
-import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { planClipsCol, planClipRef } from '../../data/paths.js';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { deleteFileFromDB } from '../../utils/fileStorage';
@@ -16,8 +17,11 @@ import EmptyState from './EmptyState';
 // to timeline on any project makes timeline the default everywhere.
 const VIEW_KEY = 'nb_vault_view';
 
-const clipsCol = (planId)     => collection(db, 'sharedPlans', String(planId), 'clips');
-const clipRef  = (planId, id) => doc(db, 'sharedPlans', String(planId), 'clips', String(id));
+// Path helpers — now sourced from src/data/paths.js. Locally bind them
+// to the imported `db` so the rest of this file keeps the short
+// `clipsCol(planId)` / `clipRef(planId, id)` calling convention.
+const clipsCol = (planId)     => planClipsCol(db, planId);
+const clipRef  = (planId, id) => planClipRef(db, planId, id);
 
 const todayStr = () => new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 

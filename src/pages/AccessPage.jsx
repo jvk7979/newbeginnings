@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { C, alpha } from '../tokens';
 import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { db } from '../firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { getDocs, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { allowedUsersCol, allowedUserRef, plansCol, ideasCol } from '../data/paths.js';
 
 const ROLES = ['Editor', 'Viewer'];
 
@@ -47,8 +48,8 @@ export default function AccessPage() {
       // correctly surface as orphans for cleanup.
       const [allBlobs, plansSnap, ideasSnap] = await Promise.all([
         listAllUploadedBlobs(),
-        getDocs(collection(db, 'sharedPlans')),
-        getDocs(collection(db, 'sharedIdeas')),
+        getDocs(plansCol(db)),
+        getDocs(ideasCol(db)),
       ]);
       const referenced = new Set();
       const collect = (snap) => snap.docs.forEach(d => {
@@ -86,7 +87,7 @@ export default function AccessPage() {
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
-    const snap = await getDocs(collection(db, 'allowedUsers'));
+    const snap = await getDocs(allowedUsersCol(db));
     setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     setLoading(false);
   }, []);
@@ -102,7 +103,7 @@ export default function AccessPage() {
     if (!emailLower.includes('@')) { setError('Enter a valid email address.'); return; }
     setAdding(true); setError(''); setSuccess('');
     try {
-      await setDoc(doc(db, 'allowedUsers', emailLower), {
+      await setDoc(allowedUserRef(db, emailLower), {
         email: emailLower,
         name: name.trim() || emailLower.split('@')[0],
         role,
@@ -119,12 +120,12 @@ export default function AccessPage() {
   };
 
   const removeUser = async (uid) => {
-    await deleteDoc(doc(db, 'allowedUsers', uid));
+    await deleteDoc(allowedUserRef(db, uid));
     await loadUsers();
   };
 
   const changeRole = async (uid, role) => {
-    await updateDoc(doc(db, 'allowedUsers', uid), { role });
+    await updateDoc(allowedUserRef(db, uid), { role });
     setUsers(prev => prev.map(u => u.id === uid ? { ...u, role } : u));
   };
 
