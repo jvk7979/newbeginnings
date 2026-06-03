@@ -50,7 +50,7 @@ test.describe('Page transitions (#6)', () => {
   test('navigating to a different route still finds .page-enter', async ({ page }) => {
     await goto(page, 'dashboard');
     await page.evaluate(() => { window.location.hash = '#/ideas'; });
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('.page-enter').first()).toBeVisible();
     // Confirm we actually landed on Ideas (atmosphere is page-specific).
     await expect(page.locator('.page-pad.page-hero-atmo .page-title').filter({ hasText: /Ideas/ }))

@@ -37,7 +37,7 @@ test.describe('Data colour roles — theme token surface', () => {
     await goto(page);
     await page.evaluate(() => localStorage.removeItem('nb_theme'));
     await page.reload();
-    await page.waitForTimeout(600);
+    await page.waitForLoadState('networkidle');
   });
 
   test('Heritage exposes all four status tokens (success / warning / danger / info)', async ({ page }) => {
@@ -85,7 +85,7 @@ test.describe('Data colour roles — theme token surface', () => {
     test(`${theme} defines all role tokens (success / warning / danger / info / accent-2/3/4)`, async ({ page }) => {
       await page.evaluate((t) => localStorage.setItem('nb_theme', t), theme);
       await page.reload();
-      await page.waitForTimeout(600);
+      await page.waitForLoadState('networkidle');
 
       for (const name of ['--c-success', '--c-warning', '--c-danger', '--c-info', '--c-accent-2', '--c-accent-3', '--c-accent-4']) {
         const v = await readToken(page, name);

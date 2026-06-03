@@ -225,7 +225,7 @@ test.describe('Atlas state paths — keyboard accessible', () => {
     // The map loads asynchronously (fetchGeoJSON); give it a generous
     // window. After load, the `.atlasv2-map svg path[role="button"]`
     // selector should find at least 25 of India's 28 states.
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
     const focusables = page.locator('.atlasv2-map svg path[role="button"][tabindex="0"]');
     const count = await focusables.count();
     // The map might be in `fallback` mode (proportional symbol map) if
@@ -241,7 +241,7 @@ test.describe('Atlas state paths — keyboard accessible', () => {
 
   test('every focusable state has a non-empty aria-label', async ({ page }) => {
     await goto(page, 'atlas');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
     const first = page.locator('.atlasv2-map svg path[role="button"], .atlasv2-map svg g[role="button"]').first();
     const aria = await first.getAttribute('aria-label');
     expect(aria).toBeTruthy();

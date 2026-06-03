@@ -17,7 +17,7 @@ test.describe('Crop Atlas — landing + masthead + mode router', () => {
   test('mounts without runtime errors', async ({ page }) => {
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('networkidle');
     expect(errors.filter(e => !e.includes('ResizeObserver'))).toHaveLength(0);
   });
 
