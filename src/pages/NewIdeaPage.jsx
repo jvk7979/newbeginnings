@@ -16,6 +16,7 @@ export default function NewIdeaPage({ onNavigate }) {
   const [form, setForm] = useState({ title: '', status: 'draft', category: '', desc: '', sources: [], estimatedCapex: '', estimatedPayback: '' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [uploadPct, setUploadPct] = useState(null);
   const [error, setError] = useState('');
 
   // Form chrome handled by `.form-input` / `.form-label` / `.form-error`
@@ -37,7 +38,7 @@ export default function NewIdeaPage({ onNavigate }) {
     setSaving(true);
     try {
       let attachedFile = null;
-      if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
+      if (selectedFile) attachedFile = await uploadFileToDB(selectedFile, setUploadPct);
       const sources = (form.sources || []).map(s => (s || '').trim()).filter(Boolean);
       addIdea({
         title: form.title.trim(), status: form.status, category: form.category || '',
@@ -50,6 +51,8 @@ export default function NewIdeaPage({ onNavigate }) {
     } catch {
       showToast('Failed to upload file. Please try again.', 'error');
       setSaving(false);
+    } finally {
+      setUploadPct(null);
     }
   };
 
@@ -131,7 +134,7 @@ export default function NewIdeaPage({ onNavigate }) {
         </div>
         <div>
           <label className="form-label">Attach Document (optional)</label>
-          <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
+          <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} progress={uploadPct} />
         </div>
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
           <button disabled={saving} className="themed-cta"

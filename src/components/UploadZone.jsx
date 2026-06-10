@@ -9,7 +9,11 @@ const ACCEPTED = ['PDF', 'DOC', 'DOCX'];
 //   file      — currently selected File object (null = show drop zone)
 //   onFile    — called with a validated File when user selects one
 //   onRemove  — called when user clicks Remove on the selected file preview
-export default function UploadZone({ file, onFile, onRemove }) {
+//   progress  — 0..1 while the file is uploading (null/undefined when idle).
+//               Replaces the "ready to save" line with a live progress bar
+//               and hides Remove so the in-flight file can't be pulled out
+//               from under the upload.
+export default function UploadZone({ file, onFile, onRemove, progress }) {
   const [drag, setDrag] = useState(false);
   const [err,  setErr]  = useState('');
   const inputRef = useRef(null);
@@ -41,14 +45,28 @@ export default function UploadZone({ file, onFile, onRemove }) {
         </svg>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg3, marginTop: 2 }}>
-            {type} · {fmtSize(file.size)} · ready to save
-          </div>
+          {progress != null ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}
+              role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)} aria-label={`Uploading ${file.name}`}>
+              <div style={{ flex: 1, height: 5, borderRadius: 999, background: alpha(C.accent, 22), overflow: 'hidden' }}>
+                <div style={{ width: `${Math.round(progress * 100)}%`, height: '100%', borderRadius: 999, background: C.accent, transition: 'width 200ms ease' }} />
+              </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, whiteSpace: 'nowrap' }}>
+                {Math.round(progress * 100)}%
+              </span>
+            </div>
+          ) : (
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: C.fg3, marginTop: 2 }}>
+              {type} · {fmtSize(file.size)} · ready to save
+            </div>
+          )}
         </div>
-        <button onClick={onRemove}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-          Remove
-        </button>
+        {progress == null && (
+          <button onClick={onRemove}
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Remove
+          </button>
+        )}
       </div>
     );
   }

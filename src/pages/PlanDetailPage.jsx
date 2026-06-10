@@ -42,6 +42,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   const [pendingFile,  setPendingFile]  = useState(null);
   const [replacingFile, setReplacingFile] = useState(false);
   const [saving, setSaving]           = useState(false);
+  const [uploadPct, setUploadPct]     = useState(null);
   const [isEditing, setIsEditing]     = useState(false);
   const [generatingIdx, setGeneratingIdx] = useState(null);
   const [improvingSummary, setImprovingSummary] = useState(false);
@@ -129,7 +130,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       let nextFile     = attachedFile;
       let blobToDelete = null;
       if (pendingFile) {
-        nextFile     = await uploadFileToDB(pendingFile);
+        nextFile     = await uploadFileToDB(pendingFile, setUploadPct);
         blobToDelete = attachedFile?.blobId || null;
       }
       // NOTE: replacingFile && !pendingFile is intentionally a NO-OP — see
@@ -154,6 +155,7 @@ export default function PlanDetailPage({ plan, onNavigate }) {
       // Stay in edit mode so the user can retry without losing their input.
     } finally {
       setSaving(false);
+      setUploadPct(null);
     }
   };
 
@@ -598,7 +600,8 @@ export default function PlanDetailPage({ plan, onNavigate }) {
                 onPendingFile={setPendingFile}
                 onReplaceClick={() => setReplacingFile(true)}
                 onCancelReplace={() => { setReplacingFile(false); setPendingFile(null); }}
-                onRemove={handleRemoveFile} />
+                onRemove={handleRemoveFile}
+                uploadProgress={uploadPct} />
             </div>
 
             <div>

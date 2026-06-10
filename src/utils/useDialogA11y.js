@@ -112,6 +112,11 @@ export function useDialogA11y(onClose) {
       'aria-modal': 'true',
       'aria-labelledby': titleId,
       tabIndex: -1,
+      // Shared dialog class — on mobile (≤768px) styles.css turns every
+      // hook-managed dialog into a bottom sheet (slide-up, grab handle,
+      // full width). Desktop styling is untouched: the class carries no
+      // rules outside the mobile media query.
+      className: 'nb-dialog',
     },
     titleId,
   };

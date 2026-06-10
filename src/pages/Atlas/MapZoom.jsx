@@ -36,7 +36,13 @@ export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
   const [zoom, setZoom] = useState(defaultZoom);
   const [pan, setPan] = useState(defaultPan);
   const svgRef = useRef(null);
-  const drag = useRef(null);    // { startX, startY, panX, panY, moved }
+  const drag = useRef(null);     // { startX, startY, panX, panY, moved }
+  // Touch support: every active pointer is tracked so two fingers become a
+  // pinch (zoom toward the midpoint) while one finger pans exactly like a
+  // mouse drag. `touch-action: none` on the SVG (see svgHandlers) stops the
+  // browser from hijacking those touches for page scroll / native zoom.
+  const pointers = useRef(new Map()); // pointerId → { x, y }
+  const pinch = useRef(null);         // { startDist, startZoom }
 
   // Reset whenever the caller's resetKey changes (India ↔ AP switch).
   useEffect(() => {
@@ -109,15 +115,38 @@ export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
   }, [zoom, toViewBox, zoomTo]);
 
   const onPointerDown = useCallback((e) => {
-    // Left button only; ignore clicks on the zoom-control buttons.
-    if (e.button !== 0) return;
-    drag.current = {
-      startX: e.clientX, startY: e.clientY,
-      panX: pan.x, panY: pan.y, moved: false,
-    };
-  }, [pan]);
+    // Left button only for mice; ignore clicks on the zoom-control buttons.
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    // Capture so moves outside the SVG (fast flicks) keep arriving.
+    try { e.currentTarget.setPointerCapture?.(e.pointerId); } catch { /* ignore */ }
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2) {
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = { startDist: Math.hypot(a.x - b.x, a.y - b.y), startZoom: zoom };
+      drag.current = null; // two fingers = pinch, not pan
+    } else if (pointers.current.size === 1) {
+      drag.current = {
+        startX: e.clientX, startY: e.clientY,
+        panX: pan.x, panY: pan.y, moved: false,
+      };
+    }
+  }, [pan, zoom]);
 
   const onPointerMove = useCallback((e) => {
+    if (pointers.current.has(e.pointerId)) {
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+    // Pinch: scale by finger-distance ratio, anchored on the midpoint so
+    // the region between the fingers stays put.
+    if (pinch.current && pointers.current.size >= 2) {
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (dist > 0 && pinch.current.startDist > 0) {
+        const { x, y } = toViewBox({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 });
+        zoomTo(pinch.current.startZoom * (dist / pinch.current.startDist), x, y);
+      }
+      return;
+    }
     const d = drag.current;
     if (!d) return;
     const svg = svgRef.current;
@@ -128,9 +157,21 @@ export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
     const dy = (e.clientY - d.startY) / scale;
     if (Math.abs(dx) > 2 || Math.abs(dy) > 2) d.moved = true;
     setPan(clampPan(d.panX + dx, d.panY + dy, zoom));
-  }, [viewW, viewH, zoom, clampPan]);
+  }, [viewW, viewH, zoom, clampPan, toViewBox, zoomTo]);
 
-  const endDrag = useCallback(() => { drag.current = null; }, []);
+  const endDrag = useCallback((e) => {
+    if (e?.pointerId != null) pointers.current.delete(e.pointerId);
+    else pointers.current.clear();
+    if (pointers.current.size < 2) pinch.current = null;
+    if (pointers.current.size === 0) {
+      drag.current = null;
+    } else if (pointers.current.size === 1) {
+      // Pinch ended but one finger is still down — restart a pan from its
+      // current position so the map doesn't jump.
+      const [p] = [...pointers.current.values()];
+      drag.current = { startX: p.x, startY: p.y, panX: pan.x, panY: pan.y, moved: true };
+    }
+  }, [pan]);
 
   // Native wheel listener — React's onWheel is passive, so preventDefault
   // there is ignored and the page scrolls instead of the map zooming.
@@ -148,8 +189,11 @@ export function useMapZoom({ viewW, viewH, resetKey, defaultZoom = 1 } = {}) {
     onPointerDown,
     onPointerMove,
     onPointerUp: endDrag,
+    onPointerCancel: endDrag,
     onPointerLeave: endDrag,
-    style: { cursor: drag.current?.moved ? 'grabbing' : 'grab' },
+    // touchAction none: without it, mobile browsers claim touch moves for
+    // page scrolling and pointermove never fires — no pan, no pinch.
+    style: { cursor: drag.current?.moved ? 'grabbing' : 'grab', touchAction: 'none' },
   };
 
   // "Zoomed" / "can zoom out" are measured against the default view (which

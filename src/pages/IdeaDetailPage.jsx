@@ -27,7 +27,7 @@ const STATUS_OPTIONS = ['draft', 'validating', 'active', 'archived'];
 
 export default function IdeaDetailPage({ idea, onNavigate }) {
   const { updateIdea, deleteIdea, restoreIdea } = useIdeas();
-  const { plans } = usePlans();
+  const { plans, addPlan } = usePlans();
   const { showToast } = useToast();
   const { isViewer } = useAuth();
   const linkedProjects = plans.filter(p => p.linkedIdeaId === idea.id);
@@ -46,6 +46,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   const [pendingFile,  setPendingFile]  = useState(null);
   const [replacingFile, setReplacingFile] = useState(false);
   const [saving, setSaving]           = useState(false);
+  const [uploadPct, setUploadPct]     = useState(null);
   const [sections,     setSections]     = useState(idea.sections || []);
   const [editingSecIdx,   setEditingSecIdx]   = useState(null);
   const [editingSecDraft, setEditingSecDraft] = useState(null);
@@ -111,7 +112,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
       let nextFile     = attachedFile;
       let blobToDelete = null;
       if (pendingFile) {
-        nextFile     = await uploadFileToDB(pendingFile);
+        nextFile     = await uploadFileToDB(pendingFile, setUploadPct);
         blobToDelete = attachedFile?.blobId || null;
       }
       // NOTE: replacingFile && !pendingFile is intentionally a NO-OP. The
@@ -142,6 +143,7 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
       // Stay in edit mode so the user can retry without losing their input.
     } finally {
       setSaving(false);
+      setUploadPct(null);
     }
   };
 
@@ -234,6 +236,41 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
     }
   };
 
+  // Promote: one click turns this idea into a draft project with title /
+  // description / category / sources carried over and linkedIdeaId set, then
+  // lands on the new project's detail page (fully editable there — no
+  // intermediate form). If a linked project already exists the button opens
+  // it instead, so repeated clicks can't create duplicates.
+  const [promoting, setPromoting] = useState(false);
+  const handlePromote = async () => {
+    if (linkedProjects.length > 0) {
+      onNavigate('project-detail', { id: linkedProjects[0].id });
+      return;
+    }
+    setPromoting(true);
+    try {
+      const newId = await addPlan({
+        title: idea.title,
+        summary: idea.desc || '',
+        notes: '',
+        category: idea.category || 'Business',
+        status: 'draft',
+        sources: Array.isArray(idea.sources) ? idea.sources : [],
+        sections: [],
+        attachedFile: null,
+        linkedIdeaId: idea.id,
+        eligibleForCalc: false,
+      });
+      showToast('Project created from this idea', 'success');
+      if (newId) onNavigate('project-detail', { id: newId });
+    } catch (err) {
+      console.error('[promoteIdea]', err);
+      showToast('Could not create the project. Please try again.', 'error');
+    } finally {
+      setPromoting(false);
+    }
+  };
+
   const handleDelete = () => setConfirmDel(true);
   const confirmDeleteIdea = () => {
     const backup = { ...idea };
@@ -286,6 +323,13 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
             All Ideas
           </button>
           <div className="idea-hero-actions">
+            {!isEditing && (linkedProjects.length > 0 || !isViewer) && (
+              <button onClick={handlePromote} disabled={promoting} className="idea-hero-btn idea-hero-btn-secondary"
+                style={promoting ? { opacity: 0.6, cursor: 'wait' } : undefined}>
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                {linkedProjects.length > 0 ? 'View project' : promoting ? 'Creating…' : 'Promote to project'}
+              </button>
+            )}
             {!isEditing && (
               <button onClick={() => setIsEditing(true)} className="idea-hero-btn idea-hero-btn-secondary">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -545,7 +589,8 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
                 onPendingFile={setPendingFile}
                 onReplaceClick={() => setReplacingFile(true)}
                 onCancelReplace={() => { setReplacingFile(false); setPendingFile(null); }}
-                onRemove={handleRemoveFile} />
+                onRemove={handleRemoveFile}
+                uploadProgress={uploadPct} />
             </div>
 
             <div>

@@ -5158,6 +5158,138 @@ textarea:focus-visible,
 }
 .dh-empty-art > svg { width: 32px; height: 32px; opacity: 0.84; }
 
+/* ── Mobile bottom-sheet dialogs ──────────────────────────────────────
+   Every modal that spreads useDialogA11y's dialogProps carries the
+   .nb-dialog class. On phones the centred-card pattern wastes thumb
+   reach and fights the keyboard, so the card becomes a bottom sheet:
+   fixed to the viewport bottom (escapes each modal's own flex scrim and
+   its varying padding), full width, top-rounded, slide-up entrance,
+   grab-handle visual. `!important` is required because every dialog
+   styles itself with inline styles. Desktop is untouched — no rules
+   outside this media query. */
+@media (max-width: 768px) {
+  .nb-dialog {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 88vh !important;
+    overflow-y: auto !important;
+    padding-top: 26px !important;
+    padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+    animation: nb-sheet-up 240ms cubic-bezier(0.2, 0.8, 0.3, 1) !important;
+  }
+  .nb-dialog::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--c-border);
+  }
+}
+@keyframes nb-sheet-up {
+  from { transform: translateY(24%); opacity: 0.4; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-dialog { animation: none !important; }
+}
+
+/* ── Loading skeleton — theme-aware shimmer used while async data
+   (Atlas datasets, etc.) is in flight. Static block under
+   prefers-reduced-motion: the gradient stays but stops sweeping. */
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--c-bg2) 35%,
+    var(--c-bg1) 50%,
+    var(--c-bg2) 65%
+  );
+  background-size: 250% 100%;
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-sweep {
+  from { background-position: 120% 0; }
+  to   { background-position: -120% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+/* Visually hidden but available to screen readers (status text that
+   accompanies skeleton loaders, etc.). */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* Atlas loading skeleton — map canvas + ranking sidebar, mirroring the
+   real map-mode proportions. Collapses to a single column on mobile. */
+.atlas-skeleton-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .atlas-skeleton-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Activity feed — "who did what" rows below the two-column section.
+   Each row: kind icon chip · sentence · relative time. Times stay
+   right-aligned; sentences ellipsize so long titles can't wrap the row. */
+.dh-activity-section { margin-bottom: 48px; }
+.dh-activity {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border-light);
+  border-radius: 10px;
+  padding: 6px 0;
+}
+.dh-activity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: var(--c-fg2);
+}
+.dh-activity-row + .dh-activity-row { border-top: 1px solid var(--c-border-light); }
+.dh-activity-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dh-activity-text strong { color: var(--c-fg1); font-weight: 600; }
+.dh-activity-time { font-size: 12px; white-space: nowrap; }
+.dh-activity-icon {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--c-bg2);
+  color: var(--c-fg3);
+}
+.dh-activity-icon-created  { background: rgba(var(--c-accent-rgb) / 0.12); color: var(--c-accent); }
+.dh-activity-icon-promoted { background: rgba(var(--c-accent-rgb) / 0.12); color: var(--c-accent); }
+.dh-activity-icon-deleted  { background: #FBEAEA; color: #A33B3B; }
+:root[data-theme="midnight"] .dh-activity-icon-deleted { background: rgba(196, 86, 86, 0.18); color: #E08A8A; }
+
 /* ── Features card — closes the dashboard with a workspace overview.
    Banner header (eyebrow + Cormorant italic title + DM Sans subhead with
    leaf flourishes on the edges) sits above three feature cards (Explore

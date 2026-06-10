@@ -24,6 +24,7 @@ import { buildUnifiedStates, buildDesApDistricts, loadAtlasData } from './desDat
 
 import AtlasMasthead from './AtlasMasthead';
 import ModeBar from './ModeBar';
+import Skeleton from '../../components/Skeleton';
 import AtlasMapMode from './AtlasMapMode';
 import CompareMode from './CompareMode';
 import OpportunitiesMode from './OpportunitiesMode';
@@ -116,8 +117,21 @@ export default function AtlasPage({ onNavigate }) {
         <AtlasMasthead view={view}/>
         <ModeBar tab={tab} setTab={setTab}/>
         {!data && (
-          <div className="atlas-mode-pane" style={{ textAlign: 'center', padding: 40, color: C.fg3, fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>
-            Loading APEDA + DES crop datasets…
+          /* Skeleton sketching the map-mode layout (filter strip, map
+             canvas, ranking sidebar) while the ~780 KB APEDA + DES JSONs
+             fetch on first mount — a recognisable page shape instead of a
+             lone status line. aria-busy + the visually-hidden text keep
+             the state announced for screen readers. */
+          <div className="atlas-mode-pane" aria-busy="true" style={{ padding: '16px 20px 32px' }}>
+            <span className="sr-only" role="status">Loading APEDA and DES crop datasets…</span>
+            <Skeleton height={46} radius={10} style={{ marginBottom: 14 }} />
+            <div className="atlas-skeleton-grid">
+              <Skeleton height={440} radius={12} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <Skeleton height={26} width="60%" />
+                {[...Array(7)].map((_, i) => <Skeleton key={i} height={44} radius={10} />)}
+              </div>
+            </div>
           </div>
         )}
 

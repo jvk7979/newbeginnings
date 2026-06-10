@@ -147,10 +147,21 @@ export default function PortfolioPage() {
               <thead>
                 <tr style={{ background: C.bg2 }}>
                   {COLUMNS.map(col => (
-                    <th key={col.key} onClick={() => toggleSort(col.key)}
-                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, color: sort.key === col.key ? C.accent : C.fg3, padding: '10px 12px', textAlign: col.align, whiteSpace: 'nowrap', borderBottom: `1px solid ${C.border}`, cursor: 'pointer', userSelect: 'none' }}>
-                      {col.label}
-                      {sort.key === col.key && <span style={{ marginLeft: 4 }}>{sort.dir === 'asc' ? '▲' : '▼'}</span>}
+                    /* aria-sort announces the active sort to screen readers
+                       (WCAG 1.3.1); the inner <button> makes the header
+                       keyboard-operable (Tab + Enter/Space) instead of a
+                       click-only <th>. */
+                    <th key={col.key} scope="col"
+                      aria-sort={sort.key === col.key ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                      style={{ padding: 0, textAlign: col.align, whiteSpace: 'nowrap', borderBottom: `1px solid ${C.border}` }}>
+                      <button type="button" onClick={() => toggleSort(col.key)}
+                        style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', userSelect: 'none',
+                          fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700,
+                          color: sort.key === col.key ? C.accent : C.fg3,
+                          padding: '10px 12px', textAlign: col.align }}>
+                        {col.label}
+                        {sort.key === col.key && <span aria-hidden="true" style={{ marginLeft: 4 }}>{sort.dir === 'asc' ? '▲' : '▼'}</span>}
+                      </button>
                     </th>
                   ))}
                 </tr>

@@ -22,6 +22,8 @@ export default function AttachmentEditor({
                      // affordance during the replacing state so the user
                      // can back out without accidentally deleting their
                      // existing attachment on save.
+  uploadProgress,    // optional 0..1 while the pending file uploads on save
+                     // — passed through to UploadZone's progress bar.
 }) {
   if (attachedFile && !replacingFile) {
     return (
@@ -55,6 +57,7 @@ export default function AttachmentEditor({
         file={pendingFile}
         onFile={onPendingFile}
         onRemove={() => onPendingFile(null)}
+        progress={uploadProgress}
       />
     </div>
   );

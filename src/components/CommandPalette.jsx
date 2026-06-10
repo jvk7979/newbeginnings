@@ -3,6 +3,15 @@ import { C, alpha } from '../tokens';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { useIdeas, usePlans, useCommodities, useSuppliers } from '../context/AppContext';
+
+// Data-backed search kicks in at 2+ typed characters so the default
+// (empty-query) view stays a short command list instead of dumping every
+// idea/project/commodity into the palette. Capped per group to keep the
+// list scannable — the page-level filters remain the tool for exhaustive
+// browsing.
+const SEARCH_MIN_CHARS = 2;
+const SEARCH_CAP_PER_GROUP = 5;
 
 const kbd = {
   fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3,
@@ -13,6 +22,10 @@ export default function CommandPalette({ open, onClose, onNavigate }) {
   const { isAdmin, signOutUser } = useAuth();
   const { themes, setTheme } = useTheme();
   const { showToast } = useToast();
+  const { ideas } = useIdeas();
+  const { plans } = usePlans();
+  const { commodities } = useCommodities();
+  const { suppliers } = useSuppliers();
   const [q, setQ] = useState('');
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef(null);
@@ -45,8 +58,34 @@ export default function CommandPalette({ open, onClose, onNavigate }) {
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
     if (!ql) return commands;
-    return commands.filter(c => `${c.label} ${c.keywords}`.toLowerCase().includes(ql));
-  }, [commands, q]);
+    const matched = commands.filter(c => `${c.label} ${c.keywords}`.toLowerCase().includes(ql));
+    if (ql.length < SEARCH_MIN_CHARS) return matched;
+
+    // Data-backed results: jump straight to any idea / project / commodity /
+    // supplier by name. Suppliers have no detail route, so they land on the
+    // Suppliers page. Matching is plain substring over name + category-ish
+    // fields — same affordance the page filters give, just one keystroke away.
+    const hit = (...fields) => fields.some(f => String(f || '').toLowerCase().includes(ql));
+    const dataItems = [
+      ...ideas.filter(i => hit(i.title, i.category)).slice(0, SEARCH_CAP_PER_GROUP).map(i => ({
+        id: `idea-${i.id}`, label: i.title || 'Untitled idea', group: 'Ideas',
+        hint: i.category, run: () => onNavigate('idea-detail', { id: i.id }),
+      })),
+      ...plans.filter(p => hit(p.title, p.category)).slice(0, SEARCH_CAP_PER_GROUP).map(p => ({
+        id: `plan-${p.id}`, label: p.title || 'Untitled project', group: 'Projects',
+        hint: p.category, run: () => onNavigate('project-detail', { id: p.id }),
+      })),
+      ...commodities.filter(c => hit(c.name, c.mandi)).slice(0, SEARCH_CAP_PER_GROUP).map(c => ({
+        id: `commodity-${c.id}`, label: c.name || 'Unnamed commodity', group: 'Commodities',
+        hint: c.mandi, run: () => onNavigate('commodity-detail', { id: c.id }),
+      })),
+      ...suppliers.filter(s => hit(s.name, s.materials)).slice(0, SEARCH_CAP_PER_GROUP).map(s => ({
+        id: `supplier-${s.id}`, label: s.name || 'Unnamed supplier', group: 'Suppliers',
+        hint: s.materials, run: () => onNavigate('suppliers'),
+      })),
+    ];
+    return [...matched, ...dataItems];
+  }, [commands, q, ideas, plans, commodities, suppliers, onNavigate]);
 
   // Reset state + focus input on open; restore focus on close.
   useEffect(() => {
@@ -122,7 +161,7 @@ export default function CommandPalette({ open, onClose, onNavigate }) {
             <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
           <input ref={inputRef} type="text" value={q} onChange={e => setQ(e.target.value)}
-            placeholder="Type a command or search…"
+            placeholder="Search pages, ideas, projects, commodities…"
             aria-label="Command search" autoComplete="off" spellCheck={false}
             style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none',
               fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg1, minWidth: 0 }} />
@@ -159,6 +198,11 @@ export default function CommandPalette({ open, onClose, onNavigate }) {
                     <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {cmd.label}
                     </span>
+                    {cmd.hint && (
+                      <span style={{ fontSize: 12, color: C.fg3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
+                        {cmd.hint}
+                      </span>
+                    )}
                     {active && <span aria-hidden="true" style={{ fontSize: 12, color: C.accent }}>↵</span>}
                   </button>
                 );

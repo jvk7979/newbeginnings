@@ -2,7 +2,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { C } from '../../../tokens';
 import { runCalc, DEFAULT_CALC_INPUT } from '../../../utils/calcEngine';
 import { fmtINR } from '../../../components/calc/primitives';
-import { loadScenarios, saveScenarios } from '../../../utils/scenarios';
+import { subscribeScenarios, addScenario, deleteScenario, renameScenario } from '../../../utils/scenarios';
+import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 
 // Per-metric "winner direction" — used to decide which column wins on
 // each comparison row. Higher is better for IRR/NPV/Profit/DSCR; lower
@@ -20,34 +22,50 @@ const COMPARE_METRICS = [
 ];
 
 export default function Scenarios({ projectId, currentInput, currentCalc, loadScenario }) {
-  const [scenarios, setScenarios] = useState(() => loadScenarios(projectId));
+  const { user } = useAuth();
+  const { showToast } = useToast();
+  const [scenarios, setScenarios] = useState([]);
   const [selected, setSelected]   = useState(() => new Set());
   const [name, setName]           = useState('');
+  // Rename drafts keyed by scenario id — committed to Firestore on blur so
+  // typing a name doesn't fire one write per keystroke.
+  const [renames, setRenames]     = useState({});
 
-  // Re-load when the user switches projects (orchestrator re-keys this
-  // whole component via projectId, but be safe).
+  // Live Firestore subscription (also runs the one-time localStorage
+  // migration). Re-attaches when the user switches projects.
   useEffect(() => {
-    setScenarios(loadScenarios(projectId));
     setSelected(new Set());
+    setRenames({});
+    return subscribeScenarios(projectId, setScenarios);
   }, [projectId]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const fallbackName = `Snapshot ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    const next = [
-      ...scenarios,
-      { id: Date.now(), name: name.trim() || fallbackName, savedAt: Date.now(), input: currentInput },
-    ];
-    setScenarios(next);
-    saveScenarios(projectId, next);
+    const item = {
+      id: Date.now(),
+      name: name.trim() || fallbackName,
+      savedAt: Date.now(),
+      input: currentInput,
+      savedBy: user?.displayName || user?.email || '',
+    };
     setName('');
+    try {
+      await addScenario(projectId, item);
+    } catch (err) {
+      console.error('[saveScenario]', err);
+      showToast('Could not save the snapshot. Please try again.', 'error');
+    }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Delete this snapshot?')) return;
-    const next = scenarios.filter(s => s.id !== id);
-    setScenarios(next);
-    saveScenarios(projectId, next);
     setSelected(s => { const n = new Set(s); n.delete(id); return n; });
+    try {
+      await deleteScenario(projectId, id);
+    } catch (err) {
+      console.error('[deleteScenario]', err);
+      showToast('Could not delete the snapshot. Please try again.', 'error');
+    }
   };
 
   const handleLoad = (s) => {
@@ -55,10 +73,15 @@ export default function Scenarios({ projectId, currentInput, currentCalc, loadSc
     loadScenario(s.input);
   };
 
-  const handleRename = (id, newName) => {
-    const next = scenarios.map(s => s.id === id ? { ...s, name: newName } : s);
-    setScenarios(next);
-    saveScenarios(projectId, next);
+  const commitRename = (id) => {
+    const draft = renames[id];
+    setRenames(r => { const { [id]: _, ...rest } = r; return rest; });
+    const current = scenarios.find(s => s.id === id);
+    if (draft == null || !current || draft === current.name) return;
+    renameScenario(projectId, id, draft).catch((err) => {
+      console.error('[renameScenario]', err);
+      showToast('Could not rename the snapshot.', 'error');
+    });
   };
 
   const toggleSelected = (id) => {
@@ -142,7 +165,7 @@ export default function Scenarios({ projectId, currentInput, currentCalc, loadSc
         <div className="calc-scenarios-empty">
           <div className="calc-scenarios-empty-title">No snapshots yet</div>
           <div className="calc-scenarios-empty-sub">
-            Save the current input set as a snapshot, tweak assumptions, save again, then check two or more boxes to compare side-by-side. Snapshots live in your browser's localStorage — they don't sync across devices.
+            Save the current input set as a snapshot, tweak assumptions, save again, then check two or more boxes to compare side-by-side. Snapshots sync across devices, so everyone in the workspace sees them.
           </div>
         </div>
       ) : (
@@ -162,12 +185,14 @@ export default function Scenarios({ projectId, currentInput, currentCalc, loadSc
                     className="calc-scenarios-check" />
                   <input
                     type="text"
-                    value={s.name}
-                    onChange={e => handleRename(s.id, e.target.value)}
+                    value={renames[s.id] ?? s.name}
+                    onChange={e => setRenames(r => ({ ...r, [s.id]: e.target.value }))}
+                    onBlur={() => commitRename(s.id)}
+                    onKeyDown={e => { if (e.key === 'Enter') e.target.blur(); }}
                     className="calc-scenarios-card-name" />
                 </div>
                 <div className="calc-scenarios-card-meta">
-                  Saved {new Date(s.savedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                  Saved {new Date(s.savedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}{s.savedBy ? ` · ${s.savedBy}` : ''}
                 </div>
                 <div className="calc-scenarios-card-kpis">
                   <span><em>IRR</em> <strong>{irrText}</strong></span>

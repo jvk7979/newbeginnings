@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import heroImg from '../assets/hero_gpdavari1.webp';
 import { IllIdea, IllPlan } from '../components/illustrations';
+import ActivityFeed from '../components/ActivityFeed';
 import { useReveal } from '../utils/useReveal';
 import { useCountUp } from '../utils/useCountUp';
 import { fmtINR } from '../utils/format';
@@ -321,6 +322,14 @@ export default function Dashboard({ onNavigate }) {
           </div>
 
         </div>
+
+        {/* ── Activity feed — latest creates/deletes/status changes across
+              the shared workspace, so anyone opening the dashboard sees
+              what the family changed since their last visit. The component
+              renders nothing at all (header included) until the first
+              event exists. ─────────────────────────────────────────────── */}
+        <ActivityFeed />
+
 
         {/* ── Features card — workspace overview with three CTA cards.
               Replaces the old "A river nurtures every tree…" tagline so

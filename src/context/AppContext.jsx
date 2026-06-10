@@ -10,6 +10,7 @@ import {
   ideasCol, ideaRef, projectsCol, projectRef, plansCol, planRef,
   commoditiesCol, commodityRef, suppliersCol, supplierRef,
   legacyUserIdeasCol, legacyUserProjectsCol, legacyUserPlansCol,
+  activityRef,
 } from '../data/paths.js';
 
 // ── Seed data ──────────────────────────────────────────────────────────────
@@ -192,12 +193,31 @@ export function AppProvider({ children }) {
     };
   }, [user]);
 
+  // ── Activity feed ────────────────────────────────────────────────────────
+  // Fire-and-forget "who did what" events for the Dashboard feed. Logs only
+  // meaningful moments (create / delete / status change / promote) — never
+  // routine autosave patches — so the feed stays signal-rich. A logging
+  // failure must never break the operation that triggered it, hence the
+  // swallowed catch.
+  const logActivity = useCallback((kind, entity, title, detail = null) => {
+    if (!user) return;
+    // Small random suffix so two events landing in the same millisecond
+    // (e.g. promote = plan-created + idea-status) get distinct doc ids.
+    const id = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+    setDoc(activityRef(db, id), {
+      id, kind, entity, title: title || '', detail,
+      by: user.displayName || user.email || 'Someone',
+      at: Date.now(),
+    }).catch(() => {});
+  }, [user]);
+
   // ── Ideas ────────────────────────────────────────────────────────────────
   const addIdea = useCallback(async (idea) => {
     if (!user) return;
     const item = { ...idea, id: Date.now(), date: todayStr() };
     await setDoc(sharedRef('ideas', item.id), item);
-  }, [user]);
+    logActivity('created', 'idea', item.title);
+  }, [user, logActivity]);
 
   const updateIdea = useCallback(async (id, patch) => {
     if (!user) return;
@@ -206,13 +226,16 @@ export function AppProvider({ children }) {
 
   const deleteIdea = useCallback(async (id) => {
     if (!user) return;
+    let title = '';
     try {
       const snap = await getDoc(sharedRef('ideas', id));
+      title = snap.data()?.title || '';
       const blobId = snap.data()?.attachedFile?.blobId;
       if (blobId) await deleteFileFromDB(blobId);
     } catch { /* ignore — proceed with Firestore delete regardless */ }
     await deleteDoc(sharedRef('ideas', id));
-  }, [user]);
+    logActivity('deleted', 'idea', title);
+  }, [user, logActivity]);
 
   const restoreIdea = useCallback(async (idea) => {
     if (!user) return;
@@ -243,11 +266,15 @@ export function AppProvider({ children }) {
 
   // ── Plans ────────────────────────────────────────────────────────────────
   const addPlan = useCallback(async (plan) => {
-    if (!user) return;
+    if (!user) return null;
     const secs = plan.sections || [];
     const item = { ...plan, id: Date.now(), updated: todayStr(), sectionCount: secs.length };
     await setDoc(sharedRef('plans', item.id), item);
-  }, [user]);
+    logActivity(plan.linkedIdeaId ? 'promoted' : 'created', 'project', item.title);
+    // Callers like "Promote to project" need the generated id to navigate
+    // straight to the new project's detail page.
+    return item.id;
+  }, [user, logActivity]);
 
   const updatePlan = useCallback(async (id, patch) => {
     if (!user) return;
@@ -257,17 +284,26 @@ export function AppProvider({ children }) {
     await setDoc(sharedRef('plans', id), {
       ...existing, ...patch, updated: todayStr(), sectionCount: secs.length,
     });
-  }, [user]);
+    // The existing-doc read above is already paid for, so detecting a real
+    // status transition is free — and autosave patches that repeat the same
+    // status don't spam the feed.
+    if (existing && patch.status && patch.status !== existing.status) {
+      logActivity('status', 'project', patch.title ?? existing.title, patch.status);
+    }
+  }, [user, logActivity]);
 
   const deletePlan = useCallback(async (id) => {
     if (!user) return;
+    let title = '';
     try {
       const snap = await getDoc(sharedRef('plans', id));
+      title = snap.data()?.title || '';
       const blobId = snap.data()?.attachedFile?.blobId;
       if (blobId) await deleteFileFromDB(blobId);
     } catch { /* ignore — proceed with Firestore delete regardless */ }
     await deleteDoc(sharedRef('plans', id));
-  }, [user]);
+    logActivity('deleted', 'project', title);
+  }, [user, logActivity]);
 
   const restorePlan = useCallback(async (plan) => {
     if (!user) return;
@@ -286,7 +322,8 @@ export function AppProvider({ children }) {
       history: commodity.history || [],
     };
     await setDoc(sharedRef('commodities', id), item);
-  }, [user]);
+    logActivity('created', 'commodity', item.name);
+  }, [user, logActivity]);
 
   const updateCommodity = useCallback(async (id, patch) => {
     if (!user) return;
@@ -295,8 +332,10 @@ export function AppProvider({ children }) {
 
   const deleteCommodity = useCallback(async (id) => {
     if (!user) return;
+    const name = commodities.find(c => c.id === id)?.name || '';
     await deleteDoc(sharedRef('commodities', id));
-  }, [user]);
+    logActivity('deleted', 'commodity', name);
+  }, [user, commodities, logActivity]);
 
   const restoreCommodity = useCallback(async (commodity) => {
     if (!user) return;
@@ -314,7 +353,8 @@ export function AppProvider({ children }) {
       addedBy: user.email || user.uid,
       projectIds: supplier.projectIds || [],
     });
-  }, [user]);
+    logActivity('created', 'supplier', supplier.name);
+  }, [user, logActivity]);
 
   const updateSupplier = useCallback(async (id, patch) => {
     if (!user) return;
@@ -323,8 +363,10 @@ export function AppProvider({ children }) {
 
   const deleteSupplier = useCallback(async (id) => {
     if (!user) return;
+    const name = suppliers.find(s => s.id === id)?.name || '';
     await deleteDoc(sharedRef('suppliers', id));
-  }, [user]);
+    logActivity('deleted', 'supplier', name);
+  }, [user, suppliers, logActivity]);
 
   // ── Bulk import ──────────────────────────────────────────────────────────
   const importData = useCallback(async (data) => {

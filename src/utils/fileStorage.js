@@ -30,25 +30,37 @@ function todayLabel() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+// Shared upload runner. `onProgress` (optional) receives 0..1 fractions as
+// bytes transfer. The timeout is a STALL timeout — it re-arms on every
+// progress event — so a large file on a slow connection isn't killed at a
+// fixed 30s; only a transfer that stops making progress is.
+function runUpload(fileRef, file, contentType, onProgress) {
+  return new Promise((resolve, reject) => {
+    const task = uploadBytesResumable(fileRef, file, { contentType });
+    let timer;
+    const arm = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { task.cancel(); reject(new Error('Upload timed out — check your connection and try again.')); }, 30000);
+    };
+    arm();
+    task.on('state_changed',
+      snap => { arm(); if (snap.totalBytes > 0) onProgress?.(snap.bytesTransferred / snap.totalBytes); },
+      err  => { clearTimeout(timer); console.error('[Storage upload error]', err?.code, err); reject(err); },
+      ()   => { clearTimeout(timer); onProgress?.(1); resolve(); }
+    );
+  });
+}
+
 // Upload a File → Firebase Storage → return metadata object.
 // Note: the unauthenticated download URL is NOT persisted — callers must
 // fetch it on demand via getFileUrl(blobId) so that revoking access (or
 // deleting the file) actually denies further reads. Persisting a download
 // URL inside Firestore would leak a permanent public token.
-export async function uploadFileToDB(file) {
+export async function uploadFileToDB(file, onProgress) {
   const type    = detectType(file);
   const blobId  = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
   const fileRef = ref(storage, `uploads/${blobId}`);
-
-  await new Promise((resolve, reject) => {
-    const task  = uploadBytesResumable(fileRef, file, { contentType: mimeForType(type) });
-    const timer = setTimeout(() => { task.cancel(); reject(new Error('Upload timed out — check your connection and try again.')); }, 30000);
-    task.on('state_changed', null,
-      err  => { clearTimeout(timer); console.error('[Storage upload error]', err?.code, err); reject(err); },
-      ()   => { clearTimeout(timer); resolve(); }
-    );
-  });
-
+  await runUpload(fileRef, file, mimeForType(type), onProgress);
   return { blobId, name: file.name, type, size: file.size, uploadedAt: todayLabel() };
 }
 
@@ -57,19 +69,10 @@ export async function uploadFileToDB(file) {
 // Storage contentType (uploadFileToDB only knows PDF/DOC/DOCX) so the
 // stored blob carries an image content-type and renders inline when
 // fetched via getFileUrl.
-export async function uploadImageToDB(file) {
+export async function uploadImageToDB(file, onProgress) {
   const blobId  = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
   const fileRef = ref(storage, `uploads/${blobId}`);
-
-  await new Promise((resolve, reject) => {
-    const task  = uploadBytesResumable(fileRef, file, { contentType: file.type || 'image/jpeg' });
-    const timer = setTimeout(() => { task.cancel(); reject(new Error('Upload timed out — check your connection and try again.')); }, 30000);
-    task.on('state_changed', null,
-      err  => { clearTimeout(timer); console.error('[Storage image upload error]', err?.code, err); reject(err); },
-      ()   => { clearTimeout(timer); resolve(); }
-    );
-  });
-
+  await runUpload(fileRef, file, file.type || 'image/jpeg', onProgress);
   return { blobId, name: file.name, type: detectType(file), size: file.size, uploadedAt: todayLabel() };
 }
 

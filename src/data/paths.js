@@ -43,6 +43,17 @@ export const supplierRef     = (db, id) => doc(db, 'sharedSuppliers', String(id)
 export const planClipsCol    = (db, planId)         => collection(db, 'sharedPlans', String(planId), 'clips');
 export const planClipRef     = (db, planId, clipId) => doc(db, 'sharedPlans', String(planId), 'clips', String(clipId));
 
+// Per-plan calculation scenarios — frozen calc-input snapshots. Lived in
+// localStorage before (device-local, invisible to other family members);
+// now a subcollection so they sync like everything else.
+export const planScenariosCol = (db, planId)             => collection(db, 'sharedPlans', String(planId), 'scenarios');
+export const planScenarioRef  = (db, planId, scenarioId) => doc(db, 'sharedPlans', String(planId), 'scenarios', String(scenarioId));
+
+// Activity feed — lightweight "who did what" events (creates, deletes,
+// status changes). Read by the Dashboard feed with a limit() query.
+export const activityCol = (db)     => collection(db, 'sharedActivity');
+export const activityRef = (db, id) => doc(db, 'sharedActivity', String(id));
+
 // Per-idea discussion topics + their nested comment threads.
 export const ideaTopicsCol      = (db, ideaId)              => collection(db, 'ideaTopics', String(ideaId), 'topics');
 export const ideaTopicRef       = (db, ideaId, topicId)     => doc(db, 'ideaTopics', String(ideaId), 'topics', String(topicId));

@@ -39,6 +39,7 @@ export default function AddClipModal({ onClose, onAdd }) {
   const [imageFile,   setImageFile]   = useState(null);   // photo — File object
   const [imageErr,    setImageErr]    = useState('');
   const [submitting,  setSubmitting]  = useState(false);
+  const [uploadPct,   setUploadPct]   = useState(null);
 
   const pickImage = (f) => {
     if (!f) return;
@@ -74,11 +75,11 @@ export default function AddClipModal({ onClose, onAdd }) {
       } else if (type === 'quote') {
         clip = { ...base, quoteText: quoteText.trim(), title: base.title || quoteText.trim().slice(0, 80) };
       } else if (type === 'pdf') {
-        const attachedFile = await uploadFileToDB(file);
+        const attachedFile = await uploadFileToDB(file, setUploadPct);
         uploadedBlobId = attachedFile.blobId;
         clip = { ...base, attachedFile };
       } else {
-        const photo = await uploadImageToDB(imageFile);
+        const photo = await uploadImageToDB(imageFile, setUploadPct);
         uploadedBlobId = photo.blobId;
         clip = { ...base, photo };
       }
@@ -90,6 +91,8 @@ export default function AddClipModal({ onClose, onAdd }) {
       if (uploadedBlobId) { try { await deleteFileFromDB(uploadedBlobId); } catch { /* orphan scan cleans up */ } }
       showToast(err?.message || 'Could not save clip. Please try again.', 'error');
       setSubmitting(false);   // stay open so input isn't lost
+    } finally {
+      setUploadPct(null);
     }
   };
 
@@ -151,7 +154,7 @@ export default function AddClipModal({ onClose, onAdd }) {
               {type === 'pdf' && (
                 <div>
                   <label style={labelStyle}>Document</label>
-                  <UploadZone file={file} onFile={setFile} onRemove={() => setFile(null)} />
+                  <UploadZone file={file} onFile={setFile} onRemove={() => setFile(null)} progress={uploadPct} />
                 </div>
               )}
 

@@ -25,6 +25,7 @@ export default function NewPlanPage({ onNavigate }) {
   const [form, setForm] = useState({ title: '', summary: '', notes: '', category: 'Business', status: 'draft', sources: [], linkedIdeaId: '', eligibleForCalc: false });
   const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [uploadPct, setUploadPct] = useState(null);
   const [summarizing, setSummarizing] = useState(false);
   const [error, setError] = useState('');
 
@@ -56,7 +57,7 @@ export default function NewPlanPage({ onNavigate }) {
     setSaving(true);
     try {
       let attachedFile = null;
-      if (selectedFile) attachedFile = await uploadFileToDB(selectedFile);
+      if (selectedFile) attachedFile = await uploadFileToDB(selectedFile, setUploadPct);
       const sources = (form.sources || []).map(s => (s || '').trim()).filter(Boolean);
       const linkedIdeaId = form.linkedIdeaId ? Number(form.linkedIdeaId) : null;
       addPlan({ ...form, title: form.title.trim(), sources, sections: [], attachedFile, linkedIdeaId, eligibleForCalc: !!form.eligibleForCalc });
@@ -66,6 +67,8 @@ export default function NewPlanPage({ onNavigate }) {
       console.error('[Save error]', err);
       showToast(err?.message || 'Failed to save. Please try again.', 'error');
       setSaving(false);
+    } finally {
+      setUploadPct(null);
     }
   };
 
@@ -152,7 +155,7 @@ export default function NewPlanPage({ onNavigate }) {
         {/* File attachment — above summary so AI button activates immediately */}
         <div>
           <label className="form-label">Attach Document (optional)</label>
-          <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} />
+          <UploadZone file={selectedFile} onFile={setSelectedFile} onRemove={() => setSelectedFile(null)} progress={uploadPct} />
           {isSummarySupported(selectedFile) && (
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, marginTop: 6 }}>
               ✦ Document attached — click "Generate AI Summary" below to auto-fill the executive summary

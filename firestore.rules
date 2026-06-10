@@ -103,6 +103,21 @@ service cloud.firestore {
       allow read:  if request.auth != null && isAllowed();
       allow write: if request.auth != null && isEditor();
     }
+    // Per-plan calculation scenarios — frozen calc-input snapshots saved
+    // from the Calculations page. Same access model as clips: any allowed
+    // family member reads, only editors mutate.
+    match /sharedPlans/{planId}/scenarios/{scenarioId} {
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
+    }
+    // Activity feed — lightweight "who did what" events (created / deleted /
+    // status changed) shown on the Dashboard. Created by editors as a side
+    // effect of their writes; never updated or deleted from the client.
+    match /sharedActivity/{eventId} {
+      allow read:   if request.auth != null && isAllowed();
+      allow create: if request.auth != null && isEditor();
+      allow update, delete: if false;
+    }
     // Step 3: per-idea topic threads. ideaTopics holds the topic metadata
     // (title, category, author); ideaTopicComments holds each topic's
     // comment thread (mirrors the existing ideaDiscussions / planDiscussions
