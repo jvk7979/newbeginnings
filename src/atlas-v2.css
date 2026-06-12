@@ -51,12 +51,12 @@
   margin-bottom: 10px;
 }
 .atlas-header .atlas-title {
-  font-family: 'Inter', Georgia, serif; font-size: 34px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 34px;
   font-weight: 600; color: var(--c-fg1); margin: 0;
   line-height: 1.15; letter-spacing: -0.01em;
 }
 .atlas-header .atlas-title .atlas-title-it {
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic; font-weight: 600; color: var(--c-accent);
 }
 .atlas-header .atlas-subhead {
@@ -125,12 +125,12 @@
   letter-spacing: 0.18em; text-transform: uppercase; color: var(--c-accent);
 }
 .atlas-mode-pane .pane-head h2 {
-  font-family: 'Inter', Georgia, serif; font-size: 40px; font-weight: 600;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 40px; font-weight: 600;
   margin: 8px 0 0; letter-spacing: -0.02em; line-height: 1.15;
   color: var(--c-fg1);
 }
 .atlas-mode-pane .pane-head h2 .it {
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic; color: var(--c-accent); font-weight: 500;
 }
 .atlas-mode-pane .pane-head .sub {
@@ -215,7 +215,7 @@
   box-shadow: 0 1px 0 rgba(0,0,0,0.03), 0 12px 28px -18px rgba(0,0,0,0.12);
 }
 .compare-card .h {
-  font-family: 'Inter', Georgia, serif; font-size: 24px; font-weight: 600;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 600;
   margin: 0; letter-spacing: -0.015em; color: var(--c-fg1);
 }
 .compare-card .h .code {
@@ -274,7 +274,7 @@
   font-size: 11px; color: var(--c-fg2);
 }
 .compare-card .cnote {
-  margin-top: 14px; font-family: 'Inter', Georgia, serif;
+  margin-top: 14px; font-family: 'Cormorant Garamond', Georgia, serif;
   font-style: italic; font-size: 14px; color: var(--c-fg2);
   line-height: 1.45; border-top: 1px dashed var(--c-border); padding-top: 10px;
 }
@@ -319,11 +319,11 @@
 .opp-card.tier-B .score-strip { background: var(--c-warning); }
 .opp-card.tier-C .score-strip { background: var(--c-fg3); }
 .opp-card .nm {
-  font-family: 'Inter', Georgia, serif; font-size: 22px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 22px;
   font-weight: 600; line-height: 1.1; color: var(--c-fg1); padding-right: 90px;
 }
 .opp-card .nm .it {
-  font-family: 'Inter', Georgia, serif; font-style: italic;
+  font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic;
   color: var(--c-accent); font-weight: 500; margin-left: 6px;
 }
 .opp-card .where {
@@ -435,12 +435,12 @@
   letter-spacing: 0.16em; text-transform: uppercase; color: var(--c-fg3);
 }
 .rank-head .rk-title {
-  font-family: 'Inter', Georgia, serif; font-size: 27px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 27px;
   font-weight: 600; color: var(--c-fg1); margin: 7px 0 0;
   line-height: 1.16; letter-spacing: -0.02em;
 }
 .rank-head .rk-title .it {
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic; font-weight: 500; color: var(--c-accent);
 }
 .rank-head .rk-sub {
@@ -476,7 +476,7 @@
 }
 .rank-card .rk-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .rank-card .rk-name {
-  font-family: 'Inter', Georgia, serif; font-size: 18px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 18px;
   font-weight: 600; color: var(--c-fg1); line-height: 1.15;
 }
 .rank-card .rk-crop {

@@ -152,7 +152,10 @@ textarea:focus-visible,
   word-break: break-word;
   overflow-wrap: break-word;
   min-width: 0;
-  background: var(--c-bg0);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.85'%20numOctaves='4'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'%20opacity='0.028'/%3E%3C/svg%3E") repeat,
+    radial-gradient(ellipse at 60% 0%, rgba(var(--c-accent-rgb) / 0.05) 0%, transparent 60%),
+    var(--c-bg0);
 }
 
 .hero-bleed {
@@ -269,16 +272,17 @@ textarea:focus-visible,
   animation: pageIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Card with hover highlight — flat SaaS style: accent border + subtle shadow */
+/* Card with accent-glow hover — add to any interactive card */
 .card-rich {
-  transition: border-color 160ms ease, box-shadow 160ms ease !important;
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms cubic-bezier(0.16,1,0.3,1) !important;
 }
 .card-rich:hover {
-  border-color: rgba(var(--c-accent-rgb) / 0.50) !important;
-  box-shadow: 0 4px 16px rgba(var(--c-accent-rgb) / 0.10), 0 1px 3px rgba(0,0,0,0.04) !important;
+  border-color: rgba(var(--c-accent-rgb) / 0.40) !important;
+  box-shadow: 0 8px 32px rgba(var(--c-accent-rgb) / 0.14), 0 2px 6px rgba(0,0,0,0.06) !important;
+  transform: translateY(-2px);
 }
 .card-rich:active {
-  box-shadow: none !important;
+  transform: translateY(0);
 }
 
 /* Gradient text for hero/page headings */
@@ -289,23 +293,23 @@ textarea:focus-visible,
   background-clip: text;
 }
 
-/* Primary button — solid flat fill, minimal shadow */
+/* Primary button — gradient + glow */
 .btn-primary {
-  background: var(--c-accent) !important;
-  box-shadow: 0 1px 3px rgba(var(--c-accent-rgb) / 0.25) !important;
-  transition: background 140ms ease, box-shadow 140ms ease !important;
+  background: linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent-light) 100%) !important;
+  box-shadow: 0 2px 10px rgba(var(--c-accent-rgb) / 0.32) !important;
+  transition: box-shadow 180ms ease, transform 180ms ease !important;
 }
 .btn-primary:hover {
-  background: var(--c-accent-dim) !important;
-  box-shadow: 0 2px 8px rgba(var(--c-accent-rgb) / 0.35) !important;
+  box-shadow: 0 4px 18px rgba(var(--c-accent-rgb) / 0.45) !important;
+  transform: translateY(-1px);
 }
 .btn-primary:active {
-  box-shadow: none !important;
+  transform: translateY(0);
 }
 
-/* Nav header — clean 1px border, no glow */
+/* Nav header — subtle accent glow at bottom */
 .top-nav {
-  box-shadow: 0 1px 0 var(--c-border);
+  box-shadow: 0 1px 0 rgba(var(--c-accent-rgb) / 0.18), 0 3px 12px rgba(0,0,0,0.06);
 }
 
 /* Stat card — counts on Dashboard */
@@ -482,7 +486,7 @@ textarea:focus-visible,
   margin-bottom: 6px;
 }
 .idea-detail-redesign .idea-hero-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(24px, 3.6vw, 36px);
   font-weight: 700;
   color: var(--c-fg1);
@@ -681,7 +685,7 @@ textarea:focus-visible,
   margin-bottom: 6px;
 }
 .plan-detail-redesign .plan-hero-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(24px, 3.6vw, 36px);
   font-weight: 700;
   color: var(--c-fg1);
@@ -861,7 +865,7 @@ textarea:focus-visible,
   min-width: 0;
 }
 .idea-detail-redesign .idea-linked-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 16px;
   font-weight: 600;
   color: var(--c-fg1);
@@ -988,7 +992,7 @@ textarea:focus-visible,
   color: var(--c-fg1);
 }
 .dashboard-redesign .dashboard-editorial-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(28px, 4vw, 40px);
   font-weight: 700;
   color: var(--c-fg1);
@@ -1113,7 +1117,7 @@ textarea:focus-visible,
 
 /* Page header title — smaller on mobile so count badge + button fit in one row */
 .page-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -1547,7 +1551,7 @@ textarea:focus-visible,
   min-width: 0;
 }
 .calc-page-redesign .calc-hero-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(22px, 3vw, 30px);
   font-weight: 700;
   color: var(--c-fg1);
@@ -1646,7 +1650,7 @@ textarea:focus-visible,
   color: var(--c-fg3);
 }
 .calc-page-redesign .calc-metric-headline-value {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(40px, 5.2vw, 60px);
   font-weight: 700;
   line-height: 1;
@@ -1715,7 +1719,7 @@ textarea:focus-visible,
 /* .calc-gauge-eyebrow + .calc-composition-eyebrow consolidated into the
    shared .calc-chart-eyebrow class — see <ChartEyebrow>. */
 .calc-page-redesign .calc-gauge-value {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
@@ -1974,7 +1978,7 @@ textarea:focus-visible,
   border-bottom: 1px solid var(--c-border);
 }
 .calc-page-redesign .calc-assumptions-eyebrow {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 17px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -2594,7 +2598,7 @@ textarea:focus-visible,
   margin-bottom: 14px;
 }
 .calc-projection-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -2848,7 +2852,7 @@ textarea:focus-visible,
   gap: 14px;
 }
 .calc-quick-capacity-value {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 30px;
   font-weight: 700;
   color: var(--c-accent);
@@ -3187,7 +3191,7 @@ textarea:focus-visible,
   border-bottom: 1px solid var(--c-border);
 }
 .calc-whatif-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -3439,7 +3443,7 @@ textarea:focus-visible,
   text-align: center;
 }
 .calc-scenarios-empty-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 17px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -3581,7 +3585,7 @@ textarea:focus-visible,
   margin-bottom: 12px;
 }
 .calc-scenarios-compare-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -3710,7 +3714,7 @@ textarea:focus-visible,
   gap: 12px;
 }
 .calc-livedrivers-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -3748,7 +3752,7 @@ textarea:focus-visible,
   padding: 16px 18px;
 }
 .calc-livedrivers-value {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 36px;
   font-weight: 700;
   color: var(--c-accent);
@@ -3860,7 +3864,7 @@ textarea:focus-visible,
   gap: 14px;
 }
 .calc-goalseek-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -4069,7 +4073,7 @@ textarea:focus-visible,
   flex-wrap: wrap;
 }
 .calc-cashflow-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -4251,7 +4255,7 @@ textarea:focus-visible,
   align-items: flex-start;
 }
 .calc-loan-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -4440,7 +4444,7 @@ textarea:focus-visible,
   align-items: flex-start;
 }
 .calc-heatmap-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -4706,7 +4710,7 @@ textarea:focus-visible,
 }
 /* Web + iPad: editorial content sits transparently in the top-left
    corner of the hero. Welcome eyebrow + 2-line headline (second line
-   italic in Inter) + tagline + 2 CTAs. Pure dark text on
+   italic in Cormorant Garamond) + tagline + 2 CTAs. Pure dark text on
    the photo. */
 .dh-hero-content {
   position: absolute;
@@ -4731,7 +4735,7 @@ textarea:focus-visible,
   margin-bottom: -4px;
 }
 .dh-hero-title {
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: clamp(36px, 4.8vw, 58px);
   font-weight: 700;
@@ -4745,7 +4749,7 @@ textarea:focus-visible,
 .dh-hero-title-italic {
   display: block;
   margin-top: 4px;
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-weight: 500;
   font-size: clamp(26px, 3.4vw, 40px);
@@ -4811,7 +4815,7 @@ textarea:focus-visible,
   margin-bottom: 4px;
 }
 .dh-hero-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(36px, 6vw, 64px);
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -4820,7 +4824,7 @@ textarea:focus-visible,
   color: var(--c-fg1);
 }
 .dh-hero-tagline {
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: clamp(18px, 2.4vw, 24px);
   font-weight: 500;
@@ -4928,7 +4932,7 @@ textarea:focus-visible,
 }
 .dh-kpi-body { flex: 1; min-width: 0; }
 .dh-kpi-value {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 19px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -4990,7 +4994,7 @@ textarea:focus-visible,
   margin-bottom: 4px;
 }
 .dh-section-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 22px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -5336,7 +5340,7 @@ textarea:focus-visible,
   margin-bottom: 12px;
 }
 .dh-features-title {
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: clamp(22px, 2.8vw, 30px);
   font-weight: 600;
@@ -5417,7 +5421,7 @@ textarea:focus-visible,
   margin-bottom: 2px;
 }
 .dh-feature-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 17px;
   font-weight: 600;
   color: var(--c-fg1);
@@ -5526,7 +5530,7 @@ html { scroll-behavior: smooth; }
    normally that's the Executive Summary. Cormorant italic, accent-coloured,
    floats left. */
 .plan-detail-redesign .plan-section-summary .plan-section-prose::first-letter {
-  font-family: 'Inter', 'Inter', Georgia, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-weight: 600;
   font-size: 4.2em;
@@ -5871,7 +5875,7 @@ html { scroll-behavior: smooth; }
   opacity: 0.84;
 }
 .empty-state-title {
-  font-family: 'Inter', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 22px;
   font-weight: 700;
   color: var(--c-fg1);
@@ -5981,7 +5985,7 @@ textarea.form-input {
 /* ─────────────────────────────────────────────────────────────────────────
  * Theme atmospheric overrides
  *
- * Editorial typography (Inter / Inter / DM Sans /
+ * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /
  * JetBrains Mono) stays the same across all themes — only the page
  * backdrop, KPI tile surface treatment, hero photo behaviour, and primary
  * CTA chrome change. Heritage uses the default styling (the Godavari hero

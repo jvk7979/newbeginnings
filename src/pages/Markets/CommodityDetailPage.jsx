@@ -85,7 +85,7 @@ export default function CommodityDetailPage({ commodity, onNavigate }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: 3, background: color, flexShrink: 0 }} />
-            <h1 className="page-title" style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 32, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>{commodity.name}</h1>
+            <h1 className="page-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>{commodity.name}</h1>
           </div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
             {commodity.unit}{commodity.mandi ? ` · ${commodity.mandi}` : ''}

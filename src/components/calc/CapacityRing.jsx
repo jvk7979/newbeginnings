@@ -40,7 +40,7 @@ export default function CapacityRing({ pct, color, track }) {
         strokeLinecap="round"
         transform={`rotate(-90 ${cx} ${cy})`} />
       <text x={cx} y={cy + 1} textAnchor="middle"
-        style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 18, fontWeight: 700, fill: color }}>{pct}%</text>
+        style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, fill: color }}>{pct}%</text>
       <text x={cx} y={cy + 11} textAnchor="middle"
         style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 4.5, letterSpacing: '0.18em', fontWeight: 600, fill: track === '#000' ? '#888' : track }}>CAPACITY</text>
       {/* Inscribed zone labels — small, low-opacity, ride on the outer

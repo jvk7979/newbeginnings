@@ -31,7 +31,7 @@
  *   terracotta — editorial — burnt sienna + sage on warm sand. Mediterranean.
  *   mono       — editorial — ink black + one red pop on paper. Newspaper.
  *
- * Editorial typography (Inter / Inter / DM Sans /
+ * Editorial typography (Cormorant Garamond / Playfair Display / DM Sans /
  * JetBrains Mono) is the brand voice — held constant across all eight themes.
  * Themes vary only the palette and the atmospheric layer (page background,
  * KPI surfaces, CTA treatment), so navigating between pages stays coherent.
@@ -49,67 +49,94 @@
  * through to the heritage default.
  * ───────────────────────────────────────────────────────────────────────── */
 
-/* Modern SaaS — clean slate + blue primary + sharp utility aesthetic.
-   White cards, near-white page, Inter typography, single blue accent.
-   Replaces the warm editorial Heritage palette as the new default.
-   Pairs with the Midnight dark theme for light/dark parity. */
+/* Heritage — coconut cream + deep coconut green + river blue + gold
+   The brand palette: warm cream backdrop, sage-green accent, river-blue
+   for secondary cues, muted gold for highlights, dark warm-brown text.
+   Premium, rooted, culturally rich — designed for the agriculture /
+   food-processing / regional-investment audience the app serves.
+   Applied to `:root` so a fresh visit (cleared localStorage, server-
+   render, default state) lands on Heritage immediately. */
 :root,
 :root[data-theme="heritage"] {
-  --c-bg0: #F8FAFC;          /* near-white slate — page bg */
-  --c-bg1: #FFFFFF;          /* pure white card surface */
-  --c-bg2: #F1F5F9;          /* secondary surface — sidebar, raised panels */
-  --c-bg3: #E2E8F0;          /* deepest surface — borders/dividers */
+  --c-bg0: #F6F1E7;          /* coconut cream — page bg */
+  --c-bg1: #FDFAF2;          /* card surface — slightly warmer than pure white */
+  --c-bg2: #EDE5D2;          /* deeper warm cream — secondary surfaces */
+  --c-bg3: #DDD0B5;          /* deepest warm cream — borders/dividers */
+  /* Theme-aware backdrop gradient — three soft radial pools composed
+   * from this theme's own --c-warning / --c-info / --c-accent, so every
+   * theme gets its own flavour of an ambient ground. Apply with
+   * `background: var(--c-bg-texture) var(--c-bg0); background-attachment: fixed;`. */
   --c-bg-texture:
-    radial-gradient(1000px 700px at 8% 10%,  color-mix(in srgb, var(--c-accent) 4%, transparent), transparent 60%),
-    radial-gradient(1100px 800px at 96% 4%,  color-mix(in srgb, var(--c-info)   3%, transparent), transparent 62%),
-    radial-gradient(900px 900px at 60% 100%, color-mix(in srgb, var(--c-accent) 3%, transparent), transparent 65%);
-  --c-fg1: #0F172A;          /* near-black slate text */
-  --c-fg2: #475569;          /* muted body text */
-  --c-fg3: #94A3B8;          /* tertiary / labels */
-  --c-accent: #2563EB;       /* blue — primary accent */
-  --c-accent-light: #3B82F6;
-  --c-accent-dim: #1D4ED8;
-  --c-accent-bg: #EFF6FF;
-  --c-accent-rgb: 37 99 235;
-  --c-accent-dim-rgb: 29 78 216;
-  --c-border: #E2E8F0;
-  --c-border-light: #CBD5E1;
-  --c-success: #16A34A;
-  --c-success-bg: #DCFCE7;
-  --c-warning: #D97706;
-  --c-warning-bg: #FEF3C7;
-  --c-danger: #DC2626;
-  --c-danger-bg: #FEE2E2;
-  --c-danger-rgb: 220 38 38;
-  --c-info: #0284C7;
-  --c-info-bg: #E0F2FE;
+    radial-gradient(1000px 700px at 8% 10%,  color-mix(in srgb, var(--c-warning) 7%, transparent), transparent 60%),
+    radial-gradient(1100px 800px at 96% 4%,  color-mix(in srgb, var(--c-info)    6%, transparent), transparent 62%),
+    radial-gradient(900px 900px at 60% 100%, color-mix(in srgb, var(--c-accent)  5%, transparent), transparent 65%);
+  --c-fg1: #2D2A26;          /* dark warm-brown text */
+  --c-fg2: #5C5648;          /* muted body text */
+  --c-fg3: #6E6450;          /* tertiary / labels — was #8E8470 (~3.4:1 on bg0, failed AA);
+                                  bumped to ~5.0:1 so form-helpers and pill-subs clear AA Normal. */
+  --c-accent: #2F6B4F;       /* deep coconut green — primary accent */
+  --c-accent-light: #4A8F70;
+  --c-accent-dim: #205139;
+  --c-accent-bg: #E6EEE6;    /* sage tint for callout backgrounds */
+  --c-accent-rgb: 47 107 79;
+  --c-accent-dim-rgb: 32 81 57;
+  --c-border: #E5DDC9;
+  --c-border-light: #D4C8AE;
+  --c-success: #2F6B4F;
+  --c-success-bg: #E6EEE6;
+  --c-warning: #B88A3B;      /* gold */
+  --c-warning-bg: #F8F0DD;
+  --c-danger: #B33A2F;       /* terracotta-red — fits the heritage palette */
+  --c-danger-bg: #FBEAE6;
+  --c-danger-rgb: 179 58 47;
+  --c-info: #7FA9B8;         /* river blue */
+  --c-info-bg: #E5EEF1;
 
-  /* Brand-specific extras — kept for backward compatibility with any
-     component that consumes them. Map onto the new SaaS palette. */
-  --c-h-gold:        #D97706;
-  --c-h-gold-light:  #F59E0B;
-  --c-h-gold-bg:     #FEF3C7;
-  --c-h-river:       #0284C7;
-  --c-h-river-light: #38BDF8;
-  --c-h-river-bg:    #E0F2FE;
-  --c-h-terracotta:  #DB2777;
-  --c-h-terracotta-bg: #FCE7F3;
+  /* Brand-specific extras (used by the dashboard hero, KPI tiles,
+     section dividers, decorative flourishes). Keep them prefixed
+     with --c-h- so it's obvious they're heritage-specific. */
+  --c-h-gold:        #B88A3B;
+  --c-h-gold-light:  #D5A85A;
+  --c-h-gold-bg:     #F8F0DD;
+  --c-h-river:       #7FA9B8;
+  --c-h-river-light: #A6C1CC;
+  --c-h-river-bg:    #E5EEF1;
+  --c-h-terracotta:  #C97435; /* warm icon-circle fills on KPI tiles */
+  --c-h-terracotta-bg: #F8E8D8;
 
-  /* Secondary categorical palette — violet / pink / emerald. Each is
-     visually distinct from the four status hues (blue/green/amber/red). */
-  --c-accent-2:    #7C3AED;  /* violet */
-  --c-accent-2-bg: #EDE9FE;
-  --c-accent-3:    #DB2777;  /* pink */
-  --c-accent-3-bg: #FCE7F3;
-  --c-accent-4:    #059669;  /* emerald */
-  --c-accent-4-bg: #D1FAE5;
+  /* Secondary categorical palette — same role the other themes expose as
+   * --c-accent-2/3/4. Heritage walks its narrow editorial palette
+   * carefully: each categorical hue is visually distinct from the four
+   * status hues above (accent / info / warning / danger), so a stripe
+   * or chip painted in --c-accent-2 reads as its own colour, not as a
+   * blue-coverage signal or a green-accent signal. The trio:
+   *   --c-accent-2 — lighter sage (#4A8F70) — same family as accent,
+   *                  but enough lighter to register as separate. Used
+   *                  on Scenarios pill, Compare-card categorical stat.
+   *   --c-accent-3 — warm terracotta-orange (#C97435) — heritage's
+   *                  KPI-icon-circle hue, fully outside the four
+   *                  status hues' colour wheel.
+   *   --c-accent-4 — muted teal (#5C8A8B) — a cool counterpoint that
+   *                  introduces a NEW hue to Heritage's otherwise
+   *                  warm palette. Distinct from --c-info (river blue
+   *                  #7FA9B8 is warmer + lighter) and from --c-warning
+   *                  (gold). Resolves the previous gold/gold collision
+   *                  where a categorical slot rendered identical pixels
+   *                  to the warning sentiment in 6+ row Money Flow bars. */
+  --c-accent-2:    #4A8F70;
+  --c-accent-2-bg: #E2EEE6;
+  --c-accent-3:    #C97435;
+  --c-accent-3-bg: #F8E8D8;
+  --c-accent-4:    #5C8A8B;
+  --c-accent-4-bg: #DEEAEA;
 
-  /* Chart palette */
-  --c-chart-positive: #16A34A; /* green */
-  --c-chart-negative: #DC2626; /* red */
-  --c-chart-neutral:  #D97706; /* amber */
-  --c-chart-accent:   #2563EB; /* blue primary */
-  --c-chart-axis:     #94A3B8; /* slate */
+  /* Chart palette — five roles consumed by Calculations + Dashboard SVG
+     charts. Each theme picks colours that sit on its own background. */
+  --c-chart-positive: #5C8A52; /* sage — upward trends, positive EBITDA */
+  --c-chart-negative: #B33A2F; /* terracotta — downward trends */
+  --c-chart-neutral:  #B88A3B; /* gold — interest, neutral zones */
+  --c-chart-accent:   #2F6B4F; /* deep coconut green — primary metric */
+  --c-chart-axis:     #8A7256; /* warm brown — axis lines, tick marks */
 }
 
 /* Citrus — vibrant + energetic · orange-primary sibling of Prism. Same

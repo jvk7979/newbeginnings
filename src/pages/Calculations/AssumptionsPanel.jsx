@@ -75,8 +75,8 @@ export default function AssumptionsPanel({
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: C.fg2 }}>Ceiling</span>
           <div>
-            <span style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{input.capacityCeilingPct ?? input.capacityPct}</span>
-            <span style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, fontWeight: 700, color: C.accent }}>%</span>
+            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 32, fontWeight: 700, color: C.accent, lineHeight: 1 }}>{input.capacityCeilingPct ?? input.capacityPct}</span>
+            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: C.accent }}>%</span>
           </div>
         </div>
         <div style={{ position: 'relative', marginBottom: 12, paddingTop: 18 }}>

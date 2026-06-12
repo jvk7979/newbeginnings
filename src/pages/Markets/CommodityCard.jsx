@@ -31,7 +31,7 @@ export default function CommodityCard({ commodity, onOpen }) {
         <div style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 3, background: color, flexShrink: 0 }} />
-            <span style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{commodity.name}</span>
+            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{commodity.name}</span>
           </div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
             {commodity.unit}{commodity.mandi ? ` · ${commodity.mandi}` : ''}

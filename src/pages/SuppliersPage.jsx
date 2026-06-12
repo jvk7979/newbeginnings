@@ -62,7 +62,7 @@ function SupplierModal({ supplier, plans, onClose, onSave }) {
         <button onClick={onClose} aria-label="Close"
           style={{ position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
 
-        <div id={titleId} style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 18, paddingRight: 36 }}>
+        <div id={titleId} style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 18, paddingRight: 36 }}>
           {supplier ? 'Edit Supplier' : 'Add a Supplier'}
         </div>
 
@@ -246,7 +246,7 @@ export default function SuppliersPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <h1 className="page-title" style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>
+            <h1 className="page-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>
               Suppliers
             </h1>
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 4 }}>
@@ -264,7 +264,7 @@ export default function SuppliersPage() {
 
       {suppliers.length === 0 ? (
         <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, fontWeight: 600, color: C.fg1, marginBottom: 6 }}>No suppliers yet</div>
+          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: C.fg1, marginBottom: 6 }}>No suppliers yet</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginBottom: canEdit ? 18 : 0 }}>
             Add the vendors who supply your raw materials and link them to the projects they feed.
           </div>

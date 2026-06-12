@@ -90,7 +90,7 @@ export default function AboutPage({ onNavigate }) {
       {/* Mission */}
       <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 10, padding: '24px 28px', marginBottom: 32, maxWidth: PROSE_MAX }}>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>Mission</div>
-        <p style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
+        <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
           "To identify, evaluate, and build sustainable ventures that create local value —
           leveraging the agricultural abundance, craftsmanship, and community of the Godavari delta."
         </p>

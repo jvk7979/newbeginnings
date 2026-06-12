@@ -12,7 +12,7 @@ export default function EmptyState({ onAddClip, canAdd }) {
             <IllLibrary size={36} />
           </span>
         </div>
-        <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>No clips yet</div>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>No clips yet</div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.6, marginBottom: canAdd ? 22 : 0 }}>
           Collect the web links, PDFs, quotes, and photos you gather while researching this project.
         </div>

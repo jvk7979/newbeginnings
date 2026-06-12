@@ -27,7 +27,7 @@ function Wordmark({ size = 'lg', align = 'left' }) {
       }}>The</span>
       <h1 style={{
         margin: 0,
-        fontFamily: "'Inter', Georgia, serif",
+        fontFamily: "'Playfair Display', Georgia, serif",
         fontSize: 44 * px, fontWeight: 700, fontStyle: 'italic',
         letterSpacing: '-0.02em', lineHeight: 1.04,
         color: C.fg1,
@@ -43,7 +43,7 @@ function Wordmark({ size = 'lg', align = 'left' }) {
       }} />
       <p style={{
         margin: 0,
-        fontFamily: "'Inter', Georgia, serif",
+        fontFamily: "'Playfair Display', Georgia, serif",
         fontSize: 16 * px, fontStyle: 'italic',
         color: C.fg2,
         lineHeight: 1.5,
@@ -116,7 +116,7 @@ export default function SignInPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
           <Wordmark size="lg" />
           <div>
-            <p style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: 16 }}>
+            <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: 16 }}>
               Your private workspace for Rajahmundry ventures.
             </p>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
@@ -152,7 +152,7 @@ export default function SignInPage() {
           </div>
 
           <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, margin: '0 0 8px 0' }}>Sign in</h1>
+            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 28, fontWeight: 700, color: C.fg1, margin: '0 0 8px 0' }}>Sign in</h1>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, margin: 0 }}>
               Access your private venture workspace.
             </p>

@@ -66,7 +66,7 @@ function TopicEditor({ initialTitle = '', initialCategory = 'general', onSave, o
         onKeyDown={e => { if (e.key === 'Escape') onCancel(); if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && isValid) onSave({ title: title.trim(), category }); }}
         placeholder="Topic title (e.g. Coir supply concerns)"
         maxLength={140}
-        style={{ width: '100%', boxSizing: 'border-box', fontFamily: "'Inter', Georgia, serif", fontSize: 18, fontWeight: 600, color: C.fg1, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '9px 12px', outline: 'none', marginBottom: 10 }} />
+        style={{ width: '100%', boxSizing: 'border-box', fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 600, color: C.fg1, background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 6, padding: '9px 12px', outline: 'none', marginBottom: 10 }} />
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
         {TOPIC_CATEGORIES.map(c => {
           const active = category === c.id;
@@ -170,7 +170,7 @@ function BoardView({ topics, selectedId, onSelect, currentUserEmail, onEdit, onD
               </div>
             </div>
             {/* Title */}
-            <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 17, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
               {t.title}
             </div>
             {/* Footer: author / time / built-in marker */}
@@ -263,7 +263,7 @@ function ActiveThreadPanel({ topic, ideaId, onCloseDrawer = null, currentUserEma
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: cat.color, background: cat.bg, borderRadius: 4, padding: '2px 8px' }}>
           {cat.label}
         </span>
-        <span style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 19, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {topic.title}
         </span>
         <div style={{ display: 'flex', gap: 2 }}>

@@ -57,7 +57,7 @@ export default function AddCommodityModal({ onClose, onAdd }) {
           onMouseEnter={e => { e.currentTarget.style.color = C.fg1; e.currentTarget.style.background = C.bg2; }}
           onMouseLeave={e => { e.currentTarget.style.color = C.fg3; e.currentTarget.style.background = 'none'; }}>×</button>
 
-        <div id={titleId} style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 18, paddingRight: 36 }}>
+        <div id={titleId} style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 18, paddingRight: 36 }}>
           Track a Commodity
         </div>
 

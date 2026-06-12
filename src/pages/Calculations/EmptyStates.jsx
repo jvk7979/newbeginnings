@@ -11,7 +11,7 @@ export function EmptyNoEligible({ onNavigate }) {
             <IllCalc size={36} />
           </span>
         </div>
-        <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>No projects ready to calculate</div>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>No projects ready to calculate</div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.6, marginBottom: 22 }}>
           Open a project, click <strong>Edit</strong>, and tick <strong>"Eligible for Calculations"</strong>. It'll show up here.
         </div>
@@ -33,7 +33,7 @@ export function EmptyNoSelection({ eligible, onPick }) {
             <IllScenario size={36} />
           </span>
         </div>
-        <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>Pick a project to begin</div>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>Pick a project to begin</div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.6, marginBottom: 22 }}>
           Choose one of the projects you've marked eligible. Their saved calculation loads automatically.
         </div>

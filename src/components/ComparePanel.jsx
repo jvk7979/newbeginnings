@@ -68,7 +68,7 @@ export default function ComparePanel({ open, onClose, items, kind, onOpen }) {
           background: C.bg1,
         }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
-            <span style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, fontWeight: 700, color: C.fg1 }}>
+            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: C.fg1 }}>
               Compare {kind === 'plan' ? 'projects' : 'ideas'}
             </span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px' }}>
@@ -162,7 +162,7 @@ function CompareColumn({ item, kind, onOpen, onRemove }) {
       borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0,
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-        <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 16, fontWeight: 700, color: C.fg1, lineHeight: 1.3, minWidth: 0, overflowWrap: 'anywhere' }}>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 700, color: C.fg1, lineHeight: 1.3, minWidth: 0, overflowWrap: 'anywhere' }}>
           {item.title}
         </div>
         <button onClick={onRemove} aria-label="Remove from comparison"

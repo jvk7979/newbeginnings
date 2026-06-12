@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 // / Plum / Coastal family). Heritage is the default — coconut-cream +
 // deep coconut green + river blue + gold + dark warm-brown text, paired
 // with the Godavari hero photo. All alternates keep the editorial
-// typography (Inter / Inter / DM Sans /
+// typography (Cormorant Garamond / Playfair Display / DM Sans /
 // JetBrains Mono) but bring a distinct atmospheric layer.
 //
 //   • citrus     — vibrant — hot orange primary, orange→yellow gradient

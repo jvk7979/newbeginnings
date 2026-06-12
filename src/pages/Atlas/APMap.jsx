@@ -62,7 +62,7 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
       <rect x="0" y="0" width={W} height={H} fill={C.bg0}/>
 
       <text x="900" y="780" fill="var(--c-h-river)" fontSize="11"
-            fontFamily="'Inter', 'Inter', Georgia, serif"
+            fontFamily="'Cormorant Garamond', 'Playfair Display', Georgia, serif"
             fontStyle="italic" textAnchor="end" opacity="0.85" letterSpacing="0.15em">
         Bay of Bengal
       </text>
@@ -135,12 +135,12 @@ export default function APMap({ filter, apDistricts, hovered, selected, onHover,
           <path d="M 460,300 Q 540,330 600,360 Q 670,390 720,420" fill="none"
                 stroke="var(--c-h-river)" strokeWidth="3" strokeLinecap="round" opacity="0.85"/>
           <text x="510" y="295" fill="var(--c-h-river)" fontSize="10"
-                fontFamily="'Inter', 'Inter', Georgia, serif"
+                fontFamily="'Cormorant Garamond', 'Playfair Display', Georgia, serif"
                 fontStyle="italic" opacity="0.9">Godavari</text>
           <path d="M 280,520 Q 360,540 430,540 Q 480,540 510,510" fill="none"
                 stroke="var(--c-h-river)" strokeWidth="2.5" strokeLinecap="round" opacity="0.8"/>
           <text x="340" y="515" fill="var(--c-h-river)" fontSize="10"
-                fontFamily="'Inter', 'Inter', Georgia, serif"
+                fontFamily="'Cormorant Garamond', 'Playfair Display', Georgia, serif"
                 fontStyle="italic" opacity="0.85">Krishna</text>
         </g>
       )}

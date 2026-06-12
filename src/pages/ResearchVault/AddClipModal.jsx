@@ -109,7 +109,7 @@ export default function AddClipModal({ onClose, onAdd }) {
           ×
         </button>
 
-        <div id={titleId} style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 4, paddingRight: 36 }}>
+        <div id={titleId} style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, marginBottom: 4, paddingRight: 36 }}>
           New Clip
         </div>
 
