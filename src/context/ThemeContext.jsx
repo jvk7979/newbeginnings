@@ -44,10 +44,7 @@ export const THEMES = [
   { id: 'heritage',   label: 'Heritage',   mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#37986b'] },
   { id: 'citrus',     label: 'Citrus',     mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
   { id: 'midnight',   label: 'Midnight',   mode: 'dark',  swatch: ['#0E1116', '#161A22', '#E8B97B'] },
-  { id: 'coastal',    label: 'Coastal',    mode: 'light', swatch: ['#F4F7F9', '#FFFFFF', '#3B6E8F'] },
-  { id: 'plum',       label: 'Plum',       mode: 'light', swatch: ['#F7F2F6', '#FFFDFE', '#5A2A52'] },
   { id: 'terracotta', label: 'Terracotta', mode: 'light', swatch: ['#FBF5EE', '#FFFCF6', '#B5532A'] },
-  { id: 'mono',       label: 'Mono',       mode: 'light', swatch: ['#FAFAFA', '#FFFFFF', '#111111'] },
 ];
 
 const DEFAULT_THEME = 'heritage';
@@ -58,9 +55,11 @@ const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 // versions. Anything not in this map and not in THEMES falls through to
 // DEFAULT_THEME on next load.
 const LEGACY_THEME_MAP = {
-  // Rev-7 retirement (2026-05-31) — Prism dropped because its indigo+cyan
-  // gradient signature stuck out from the editorial Heritage / Terracotta
-  // /Plum / Coastal family. Anyone who picked it falls back to heritage.
+  // Rev-8 retirement (2026-06-12) — Coastal, Plum, Mono removed.
+  coastal:  'heritage',
+  plum:     'heritage',
+  mono:     'heritage',
+  // Rev-7 retirement (2026-05-31) — Prism dropped.
   prism:    'heritage',
   // Rev-6 retirements (2026-05-11) — picker trimmed from 11 → 8.
   aura:     'heritage',

@@ -5691,37 +5691,14 @@ html { scroll-behavior: smooth; }
 :root[data-theme="midnight"] .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #E8B97B !important; }
 :root[data-theme="midnight"] .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #E8B97B !important; }
 
-/* Coastal / Plum — vibrant family, gradient-pill active item. */
-:root[data-theme="coastal"] .sidenav-item[aria-current="page"] {
-  background: linear-gradient(135deg, #3B6E8F 0%, #E8896B 100%) !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(59, 110, 143, 0.30) !important;
-}
-:root[data-theme="plum"] .sidenav-item[aria-current="page"] {
-  background: linear-gradient(135deg, #5A2A52 0%, #C49A6C 100%) !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(90, 42, 82, 0.30) !important;
-}
-:root[data-theme="coastal"] .sidenav-item[aria-current="page"] .sidenav-item-icon,
-:root[data-theme="plum"]    .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
-:root[data-theme="coastal"] .sidenav-item[aria-current="page"] .sidenav-item-bar,
-:root[data-theme="plum"]    .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
-
-/* Terracotta / Mono — editorial family, solid-fill active item. */
+/* Terracotta — editorial family, solid-fill active item. */
 :root[data-theme="terracotta"] .sidenav-item[aria-current="page"] {
   background: #B5532A !important;
   color: #FFFFFF !important;
   box-shadow: 0 4px 14px rgba(181, 83, 42, 0.30) !important;
 }
-:root[data-theme="mono"] .sidenav-item[aria-current="page"] {
-  background: #111111 !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
-}
-:root[data-theme="terracotta"] .sidenav-item[aria-current="page"] .sidenav-item-icon,
-:root[data-theme="mono"]       .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
-:root[data-theme="terracotta"] .sidenav-item[aria-current="page"] .sidenav-item-bar,
-:root[data-theme="mono"]       .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
+:root[data-theme="terracotta"] .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
+:root[data-theme="terracotta"] .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
 
 /* ─────────────────────────────────────────────────────────────────────────
  * Page hero atmospheric layer (#1)
@@ -5807,20 +5784,7 @@ html { scroll-behavior: smooth; }
 :root[data-theme="midnight"] .themed-cta:hover:not(:disabled) {
   background: var(--c-accent-light);
 }
-/* Coastal / Plum — vibrant family, gradient CTA. */
-:root[data-theme="coastal"] .themed-cta {
-  background: linear-gradient(135deg, #3B6E8F 0%, #2A536D 100%);
-}
-:root[data-theme="coastal"] .themed-cta:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2A536D 0%, #3B6E8F 100%);
-}
-:root[data-theme="plum"] .themed-cta {
-  background: linear-gradient(135deg, #5A2A52 0%, #401A39 100%);
-}
-:root[data-theme="plum"] .themed-cta:hover:not(:disabled) {
-  background: linear-gradient(135deg, #401A39 0%, #5A2A52 100%);
-}
-/* Terracotta / Mono — editorial, default solid-accent CTA flow is fine.
+/* Terracotta — editorial, default solid-accent CTA flow is fine.
    No override needed; var(--c-accent) handles the colour. */
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -6236,166 +6200,6 @@ textarea.form-input {
   border: 1px solid var(--c-border);
 }
 
-/* ── Coastal ──────────────────────────────────────────────────────────────
- * Vibrant sibling. Slate-blue + coral radial corner glows; hero photo
- * picks up a slate-coral wash; gradient italic; gradient centre KPI tile;
- * gradient CTA. Calm professional cool/warm pairing. */
-:root[data-theme="coastal"] body {
-  background:
-    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(59, 110, 143, 0.16) 0%, rgba(59, 110, 143, 0) 60%),
-    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(232, 137, 107, 0.12) 0%, rgba(232, 137, 107, 0) 60%),
-    #F4F7F9;
-  background-attachment: fixed;
-}
-:root[data-theme="coastal"] .dh-page { background: transparent; }
-:root[data-theme="coastal"] .dh-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(59, 110, 143, 0.24) 0%, rgba(232, 137, 107, 0.18) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-:root[data-theme="coastal"] .dh-hero-title-italic {
-  background: linear-gradient(90deg, #3B6E8F 0%, #E8896B 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-:root[data-theme="coastal"] .dh-kpi-tile {
-  background: var(--c-bg1); border: 1px solid var(--c-border);
-  border-radius: 12px; padding: 14px 16px;
-}
-:root[data-theme="coastal"] .dh-kpi-tile:hover { background: var(--c-bg2); }
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
-  background: var(--c-accent-bg); color: var(--c-accent);
-}
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(2) {
-  background: linear-gradient(135deg, #3B6E8F 0%, #E8896B 100%);
-  border: none; color: #FFFFFF;
-  box-shadow: 0 6px 18px rgba(59, 110, 143, 0.30);
-}
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(2):hover {
-  background: linear-gradient(135deg, #2A536D 0%, #3B6E8F 50%, #E8896B 100%);
-  box-shadow: 0 8px 22px rgba(59, 110, 143, 0.42);
-}
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
-  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
-}
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
-:root[data-theme="coastal"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-}
-:root[data-theme="coastal"] .dh-card-row-leaf-river {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-  border-color: rgba(232, 137, 107, 0.22);
-}
-:root[data-theme="coastal"] .dh-card-row-leaf-gold {
-  background: var(--c-accent-3-bg); color: var(--c-accent-3);
-  border-color: rgba(79, 138, 139, 0.22);
-}
-:root[data-theme="coastal"] .dh-btn-primary {
-  background: linear-gradient(135deg, #3B6E8F 0%, #2A536D 100%);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(59, 110, 143, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 160ms, transform 160ms, background 160ms;
-}
-:root[data-theme="coastal"] .dh-btn-primary:hover {
-  background: linear-gradient(135deg, #2A536D 0%, #3B6E8F 100%);
-  box-shadow: 0 6px 18px rgba(59, 110, 143, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-:root[data-theme="coastal"] .dh-btn-outline {
-  border-color: var(--c-accent); color: var(--c-accent);
-}
-:root[data-theme="coastal"] .dh-btn-outline:hover {
-  background: rgba(59, 110, 143, 0.06);
-  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
-}
-
-/* ── Plum ─────────────────────────────────────────────────────────────────
- * Vibrant sibling. Aubergine + brass radial corner glows; hero photo
- * picks up a deep-plum wash; gradient italic aubergine → brass; gradient
- * centre KPI tile; gradient CTA. Romantic / boutique-hotel luxury. */
-:root[data-theme="plum"] body {
-  background:
-    radial-gradient(ellipse 720px 720px at 100% 0%, rgba(90, 42, 82, 0.18) 0%, rgba(90, 42, 82, 0) 60%),
-    radial-gradient(ellipse 600px 600px at 0% 100%, rgba(196, 154, 108, 0.14) 0%, rgba(196, 154, 108, 0) 60%),
-    #F7F2F6;
-  background-attachment: fixed;
-}
-:root[data-theme="plum"] .dh-page { background: transparent; }
-:root[data-theme="plum"] .dh-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(90, 42, 82, 0.30) 0%, rgba(196, 154, 108, 0.18) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-:root[data-theme="plum"] .dh-hero-title-italic {
-  background: linear-gradient(90deg, #5A2A52 0%, #C49A6C 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-:root[data-theme="plum"] .dh-kpi-tile {
-  background: var(--c-bg1); border: 1px solid var(--c-border);
-  border-radius: 12px; padding: 14px 16px;
-}
-:root[data-theme="plum"] .dh-kpi-tile:hover { background: var(--c-bg2); }
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
-  background: var(--c-accent-bg); color: var(--c-accent);
-}
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(2) {
-  background: linear-gradient(135deg, #5A2A52 0%, #C49A6C 100%);
-  border: none; color: #FFFFFF;
-  box-shadow: 0 6px 18px rgba(90, 42, 82, 0.32);
-}
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(2):hover {
-  background: linear-gradient(135deg, #401A39 0%, #5A2A52 50%, #C49A6C 100%);
-  box-shadow: 0 8px 22px rgba(90, 42, 82, 0.45);
-}
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
-  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
-}
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
-:root[data-theme="plum"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-}
-:root[data-theme="plum"] .dh-card-row-leaf-river {
-  background: var(--c-accent-2-bg); color: var(--c-accent-2);
-  border-color: rgba(196, 154, 108, 0.24);
-}
-:root[data-theme="plum"] .dh-card-row-leaf-gold {
-  background: var(--c-accent-3-bg); color: var(--c-accent-3);
-  border-color: rgba(212, 166, 160, 0.24);
-}
-:root[data-theme="plum"] .dh-btn-primary {
-  background: linear-gradient(135deg, #5A2A52 0%, #401A39 100%);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(90, 42, 82, 0.35), 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 160ms, transform 160ms, background 160ms;
-}
-:root[data-theme="plum"] .dh-btn-primary:hover {
-  background: linear-gradient(135deg, #401A39 0%, #5A2A52 100%);
-  box-shadow: 0 6px 18px rgba(90, 42, 82, 0.45), 0 1px 3px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-:root[data-theme="plum"] .dh-btn-outline {
-  border-color: var(--c-accent); color: var(--c-accent);
-}
-:root[data-theme="plum"] .dh-btn-outline:hover {
-  background: rgba(90, 42, 82, 0.06);
-  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
-}
-
 /* ── Terracotta ───────────────────────────────────────────────────────────
  * Editorial family — flat warm-sand backdrop, the Godavari hero photo
  * stays with no radial overlay (matches Heritage's "no atmosphere photo
@@ -6448,85 +6252,6 @@ textarea.form-input {
 }
 :root[data-theme="terracotta"] .dh-btn-outline:hover {
   background: rgba(181, 83, 42, 0.06);
-  border-color: var(--c-accent-dim); color: var(--c-accent-dim);
-}
-
-/* ── Mono ─────────────────────────────────────────────────────────────────
- * Editorial family — paper-white backdrop with the hero photo
- * desaturated to grayscale for the maximum-typography newspaper feel.
- * Flat KPI tiles. The centre tile and CTA pick up the one red pop
- * (#C9302C) so the page reads as black + one red — Sunday Times mood. */
-:root[data-theme="mono"] body {
-  background: var(--c-bg0);
-}
-:root[data-theme="mono"] .dh-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.0) 0%, rgba(255, 255, 255, 0.45) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-/* Desaturate the hero photo for the newspaper feel. The photo is set
-   via the .dh-hero img/background — we use filter:grayscale on the hero
-   container so any inner img/background picks it up. */
-:root[data-theme="mono"] .dh-hero {
-  filter: grayscale(0.85) contrast(1.05);
-}
-:root[data-theme="mono"] .dh-hero-title-italic {
-  color: var(--c-accent-2);  /* the one red pop */
-}
-:root[data-theme="mono"] .dh-kpi-tile {
-  background: var(--c-bg1); border: 1px solid var(--c-border);
-  border-radius: 12px; padding: 14px 16px;
-}
-:root[data-theme="mono"] .dh-kpi-tile:hover { background: var(--c-bg2); }
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
-  background: var(--c-accent-bg); color: var(--c-accent);
-}
-/* Centre tile picks up the one red pop — black-and-white page + one red
-   accent is the entire Mono visual identity. */
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(2) {
-  background: var(--c-accent-2);  /* red */
-  border: none; color: #FFFFFF;
-  box-shadow: 0 6px 18px rgba(201, 48, 44, 0.28);
-}
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(2):hover {
-  background: #A82220;
-  box-shadow: 0 8px 22px rgba(201, 48, 44, 0.40);
-}
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
-  background: rgba(255, 255, 255, 0.18); color: #FFFFFF;
-}
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #FFFFFF; }
-:root[data-theme="mono"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
-  background: var(--c-accent-3-bg); color: var(--c-accent-3);
-}
-:root[data-theme="mono"] .dh-card-row-leaf-river {
-  background: var(--c-accent-3-bg); color: var(--c-accent-3);
-  border-color: rgba(45, 106, 63, 0.22);
-}
-:root[data-theme="mono"] .dh-card-row-leaf-gold {
-  background: var(--c-accent-4-bg); color: var(--c-accent-4);
-  border-color: rgba(138, 109, 28, 0.22);
-}
-:root[data-theme="mono"] .dh-btn-primary {
-  background: var(--c-accent);  /* solid ink */
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
-}
-:root[data-theme="mono"] .dh-btn-primary:hover {
-  background: var(--c-accent-dim);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.30);
-  transform: translateY(-1px);
-}
-:root[data-theme="mono"] .dh-btn-outline {
-  border-color: var(--c-accent); color: var(--c-accent);
-}
-:root[data-theme="mono"] .dh-btn-outline:hover {
-  background: rgba(17, 17, 17, 0.06);
   border-color: var(--c-accent-dim); color: var(--c-accent-dim);
 }
 
