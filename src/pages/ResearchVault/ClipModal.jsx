@@ -99,7 +99,7 @@ export default function ClipModal({ clip, onClose, onUpdate, onDelete, canEdit }
                 </div>
               )}
 
-              <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: clip.type === 'quote' ? 22 : 20, fontStyle: clip.type === 'quote' ? 'italic' : 'normal', fontWeight: 600, color: C.fg1, lineHeight: 1.35, marginBottom: 12 }}>
+              <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: clip.type === 'quote' ? 22 : 20, fontStyle: clip.type === 'quote' ? 'italic' : 'normal', fontWeight: 600, color: C.fg1, lineHeight: 1.35, marginBottom: 12 }}>
                 {clip.type === 'quote' ? `"${clip.quoteText || ''}"` : (clip.title || 'Untitled')}
               </div>
 

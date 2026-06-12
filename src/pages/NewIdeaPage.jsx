@@ -63,7 +63,7 @@ export default function NewIdeaPage({ onNavigate }) {
         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Ideas
       </button>
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 6 }}>Capture New Idea</div>
+      <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 30, fontWeight: 700, color: C.fg1, letterSpacing: '-0.02em', marginBottom: 6 }}>Capture New Idea</div>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 24 }}>Upload a PDF to auto-fill, or type manually below.</div>
 
       <PdfUploadZone mode="idea" onExtracted={handleExtracted} onFileAttached={setSelectedFile} />

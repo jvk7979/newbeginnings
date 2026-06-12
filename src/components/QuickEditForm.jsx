@@ -49,7 +49,7 @@ export default function QuickEditForm({
         placeholder="Title"
         aria-label="Title"
         style={{
-          fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 600,
+          fontFamily: "'Inter', Georgia, serif", fontSize: 17, fontWeight: 600,
           color: C.fg1, background: C.bg1,
           border: `1px solid ${C.accentDim}`, borderRadius: 6,
           padding: '8px 10px', outline: 'none', width: '100%', boxSizing: 'border-box',

@@ -21,7 +21,7 @@ export default function ClipRow({ clip, onOpen }) {
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontStyle: 'italic', color: C.fg3 }}>· {clip.sourceLabel}</span>
           )}
         </div>
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: isQuote ? 19 : 18, fontStyle: isQuote ? 'italic' : 'normal', fontWeight: 600, color: C.fg1, lineHeight: 1.3, marginBottom: clip.description ? 6 : 0 }}>
+        <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: isQuote ? 19 : 18, fontStyle: isQuote ? 'italic' : 'normal', fontWeight: 600, color: C.fg1, lineHeight: 1.3, marginBottom: clip.description ? 6 : 0 }}>
           {isQuote ? `"${clip.quoteText || clip.title || ''}"` : (clip.title || 'Untitled')}
         </div>
         {clip.description && (

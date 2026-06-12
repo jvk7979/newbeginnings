@@ -109,7 +109,7 @@ export default function PortfolioPage() {
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.06em', color: C.fg3, marginBottom: 10, textTransform: 'uppercase' }}>
           Portfolio
         </div>
-        <h1 className="page-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>
+        <h1 className="page-title" style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>
           Project Portfolio
         </h1>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 4 }}>
@@ -119,7 +119,7 @@ export default function PortfolioPage() {
 
       {eligible.length === 0 ? (
         <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: C.fg1, marginBottom: 6 }}>No projects to compare yet</div>
+          <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, fontWeight: 600, color: C.fg1, marginBottom: 6 }}>No projects to compare yet</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
             Mark a project as eligible for calculations, fill in its numbers, and it will appear here.
           </div>

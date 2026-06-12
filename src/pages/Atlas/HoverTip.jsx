@@ -30,7 +30,7 @@ export default function HoverTip({ name, level, x, y, filter, states, apDistrict
       fontFamily: "'DM Sans', sans-serif",
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 600, color: C.fg1, letterSpacing: '-0.01em', lineHeight: 1.15 }}>{name}</div>
+        <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 18, fontWeight: 600, color: C.fg1, letterSpacing: '-0.01em', lineHeight: 1.15 }}>{name}</div>
         {isState && data.code && (
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: C.accent, letterSpacing: '0.08em', padding: '2px 7px', background: C.accentBg, borderRadius: 4, border: `1px solid ${C.border}` }}>{data.code}</span>
         )}

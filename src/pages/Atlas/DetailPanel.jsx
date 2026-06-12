@@ -40,7 +40,7 @@ export default function DetailPanel({ name, level, filter, states, apDistricts, 
           ? `Chapter · ${data.code || '—'}${data.capital ? ' · ' + data.capital : ''}`
           : 'Chapter · Andhra Pradesh district'}
       </div>
-      <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 30, fontWeight: 600, color: C.fg1, lineHeight: 1.1, letterSpacing: '-0.02em', margin: 0 }}>
+      <h2 style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 30, fontWeight: 600, color: C.fg1, lineHeight: 1.1, letterSpacing: '-0.02em', margin: 0 }}>
         {name}
       </h2>
 
@@ -165,7 +165,7 @@ function EmptyState() {
   return (
     <div style={{ padding: '22px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.fg3, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>No selection</div>
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, lineHeight: 1.2 }}>
+      <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 22, fontWeight: 600, color: C.fg1, lineHeight: 1.2 }}>
         Pick a region to inspect.
       </div>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, color: C.fg2, marginTop: 10, lineHeight: 1.6 }}>

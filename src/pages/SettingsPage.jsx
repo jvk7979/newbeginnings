@@ -152,7 +152,7 @@ export default function SettingsPage() {
 
         {/* Page header */}
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 36, fontWeight: 800, color: C.fg1, marginBottom: 6, letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 36, fontWeight: 800, color: C.fg1, marginBottom: 6, letterSpacing: '-0.02em' }}>
             Settings
           </h1>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.5, maxWidth: 580 }}>
@@ -164,7 +164,7 @@ export default function SettingsPage() {
         {user && (
           <SectionCard title="Account">
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: C.accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: C.accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, fontFamily: "'Inter', Georgia, serif", fontSize: 20, fontWeight: 700 }}>
                 {(user.displayName || user.email || '?').charAt(0).toUpperCase()}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -230,7 +230,7 @@ export default function SettingsPage() {
                     transition: 'box-shadow 140ms, transform 140ms',
                   }}>
                   <div style={{
-                    fontFamily: "'Cormorant Garamond', 'Cormorant', Georgia, serif",
+                    fontFamily: "'Inter', 'Cormorant', Georgia, serif",
                     fontStyle: 'italic',
                     fontWeight: 600,
                     fontSize: 19,
@@ -248,7 +248,7 @@ export default function SettingsPage() {
                     } : {}),
                   }}>VENTURE LOG</div>
                   <div style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontFamily: "'Inter', Georgia, serif",
                     fontSize: 15,
                     fontWeight: 600,
                     color: p.fg1,
@@ -396,7 +396,7 @@ function SectionCard({ title, subtitle, children }) {
       marginBottom: 16,
     }}>
       <div style={{ marginBottom: 14 }}>
-        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: C.fg1, letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 18, fontWeight: 700, color: C.fg1, letterSpacing: '-0.01em' }}>
           {title}
         </h2>
         {subtitle && (

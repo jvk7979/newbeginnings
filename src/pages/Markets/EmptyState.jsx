@@ -12,7 +12,7 @@ export default function EmptyState({ onAdd, canAdd }) {
             <IllScenario size={36} />
           </span>
         </div>
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>No commodities tracked yet</div>
+        <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: 20, color: C.fg1, marginBottom: 10 }}>No commodities tracked yet</div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.6, marginBottom: canAdd ? 22 : 0 }}>
           Track the price of raw materials and commodities — coconut husk, coir fiber, copra, and more — week by week.
         </div>

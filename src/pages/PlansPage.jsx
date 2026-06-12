@@ -94,7 +94,7 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
         </div>
       </div>
 
-      <div className="plan-card-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", color: C.fg1 }}>{plan.title}</div>
+      <div className="plan-card-title" style={{ fontFamily: "'Inter', Georgia, serif", color: C.fg1 }}>{plan.title}</div>
 
       <div className="plan-card-summary"
         style={{ fontFamily: "'DM Sans', sans-serif", color: plan.summary ? C.fg2 : C.fg3, fontStyle: plan.summary ? 'normal' : 'italic' }}>

@@ -34,7 +34,7 @@ export default function ClipCard({ clip, onOpen }) {
 
       {clip.type === 'photo' && clip.photo?.blobId && <PhotoThumb blobId={clip.photo.blobId} />}
 
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: isQuote ? 18 : 17, fontStyle: isQuote ? 'italic' : 'normal', fontWeight: 600, color: C.fg1, lineHeight: 1.3, marginBottom: 8 }}>
+      <div style={{ fontFamily: "'Inter', Georgia, serif", fontSize: isQuote ? 18 : 17, fontStyle: isQuote ? 'italic' : 'normal', fontWeight: 600, color: C.fg1, lineHeight: 1.3, marginBottom: 8 }}>
         {isQuote ? `"${clip.quoteText || clip.title || ''}"` : (clip.title || 'Untitled')}
       </div>
 
