@@ -367,11 +367,11 @@
  * take the remaining width. */
 .atlasv2-map {
   flex: none; width: auto; height: 100%;
-  aspect-ratio: 1000 / 1100; max-width: 56vw;
+  aspect-ratio: 1000 / 1100; max-width: 65vw;
   position: relative; background: var(--c-bg0);
 }
 .atlasv2-panel {
-  flex: 1 1 auto; min-width: 380px; max-width: 900px;
+  flex: 1 1 auto; min-width: 240px; max-width: 520px;
   display: flex; flex-direction: column;
   background: var(--c-bg1); border-left: 1px solid var(--c-border);
   overflow: hidden;
@@ -427,16 +427,16 @@
 /* Ranking panel — editorial card list (default right pane) */
 .rank-pane { display: flex; flex-direction: column; height: 100%; }
 .rank-head {
-  flex: none; padding: 22px 22px 16px;
+  flex: none; padding: 14px 16px 10px;
   border-bottom: 1px solid var(--c-border);
 }
 .rank-head .rk-eyebrow {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  letter-spacing: 0.16em; text-transform: uppercase; color: var(--c-fg3);
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--c-fg3);
 }
 .rank-head .rk-title {
-  font-family: 'Playfair Display', Georgia, serif; font-size: 27px;
-  font-weight: 600; color: var(--c-fg1); margin: 7px 0 0;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 18px;
+  font-weight: 600; color: var(--c-fg1); margin: 4px 0 0;
   line-height: 1.16; letter-spacing: -0.02em;
 }
 .rank-head .rk-title .it {
@@ -444,12 +444,12 @@
   font-style: italic; font-weight: 500; color: var(--c-accent);
 }
 .rank-head .rk-sub {
-  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--c-fg3);
-  line-height: 1.5; margin-top: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--c-fg3);
+  line-height: 1.4; margin-top: 4px;
 }
 .rank-list {
   flex: 1; min-height: 0; overflow-y: auto;
-  padding: 14px; display: flex; flex-direction: column; gap: 9px;
+  padding: 10px; display: flex; flex-direction: column; gap: 6px;
 }
 .rank-empty {
   padding: 34px 18px; text-align: center;
@@ -457,11 +457,11 @@
   color: var(--c-fg3); line-height: 1.6;
 }
 .rank-card {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; align-items: center; gap: 10px;
   width: 100%; text-align: left;
-  padding: 15px 17px;
+  padding: 10px 13px;
   background: var(--c-bg0); border: 1px solid var(--c-border);
-  border-radius: 8px; cursor: pointer;
+  border-radius: 7px; cursor: pointer;
   transition: border-color 130ms, box-shadow 130ms;
 }
 .rank-card:hover,
@@ -476,7 +476,7 @@
 }
 .rank-card .rk-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .rank-card .rk-name {
-  font-family: 'Playfair Display', Georgia, serif; font-size: 18px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 14px;
   font-weight: 600; color: var(--c-fg1); line-height: 1.15;
 }
 .rank-card .rk-crop {
@@ -485,11 +485,11 @@
 }
 .rank-card .rk-val {
   flex: none; text-align: right; white-space: nowrap;
-  font-family: 'JetBrains Mono', monospace; font-size: 13.5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
   font-weight: 700; color: var(--c-fg1);
 }
 .rank-card .rk-bar {
-  flex: none; width: 64px; height: 6px;
+  flex: none; width: 48px; height: 5px;
   background: var(--c-bg2); border-radius: 3px; overflow: hidden;
 }
 .rank-card .rk-bar > span { display: block; height: 100%; background: var(--c-accent); }

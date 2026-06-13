@@ -49,6 +49,7 @@ export default function CalculationsPage({ onNavigate }) {
   const [rightTab, setRightTab] = useState('quick');
   const [compareWithId, setCompareWithId] = useState(null);
   const [leftWidth, setLeftWidth] = useState(readSavedLeftWidth);
+  const [panelCollapsed, setPanelCollapsed] = useState(false);
 
   const handleResize = useCallback((pct) => {
     setLeftWidth(pct);
@@ -209,10 +210,12 @@ export default function CalculationsPage({ onNavigate }) {
           beLeft={beLeft}
           sliderMin={sliderMin}
           sliderMax={sliderMax}
-          style={{ width: `${leftWidth}%` }}
+          style={{ width: panelCollapsed ? '44px' : `${leftWidth}%` }}
+          collapsed={panelCollapsed}
+          onToggleCollapse={() => setPanelCollapsed(v => !v)}
         />
 
-        <Splitter currentWidth={leftWidth} onResize={handleResize} min={LEFT_WIDTH_MIN} max={LEFT_WIDTH_MAX} />
+        {!panelCollapsed && <Splitter currentWidth={leftWidth} onResize={handleResize} min={LEFT_WIDTH_MIN} max={LEFT_WIDTH_MAX} />}
 
         {/* RIGHT PANEL: Output tabs */}
         <div className="calc-right">

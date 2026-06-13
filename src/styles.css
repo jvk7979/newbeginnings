@@ -1970,12 +1970,17 @@ textarea:focus-visible,
 }
 .calc-page-redesign .calc-assumptions-title {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   padding-bottom: 8px;
   margin-bottom: 4px;
   border-bottom: 1px solid var(--c-border);
+}
+.calc-page-redesign .calc-assumptions-title-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .calc-page-redesign .calc-assumptions-eyebrow {
   font-family: 'Playfair Display', Georgia, serif;
@@ -1988,6 +1993,66 @@ textarea:focus-visible,
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   color: var(--c-fg3);
+}
+.calc-assumptions-collapse-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  color: var(--c-fg3);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+.calc-assumptions-collapse-btn:hover {
+  background: var(--c-bg2);
+  color: var(--c-fg1);
+  border-color: var(--c-fg3);
+}
+/* Collapsed state — desktop/tablet only */
+@media (min-width: 769px) {
+  .calc-page-redesign .calc-assumptions.calc-assumptions-collapsed {
+    width: 44px !important;
+    min-width: 44px;
+    overflow: hidden;
+    padding: 10px 0 !important;
+    border-right: 1px solid var(--c-border);
+  }
+  .calc-page-redesign .calc-assumptions.calc-assumptions-collapsed .calc-assumptions-title {
+    flex-direction: column-reverse;
+    align-items: center;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    gap: 14px;
+  }
+  .calc-page-redesign .calc-assumptions.calc-assumptions-collapsed .calc-assumptions-title-right {
+    flex-direction: column;
+    gap: 0;
+  }
+  .calc-page-redesign .calc-assumptions.calc-assumptions-collapsed .calc-assumptions-hint {
+    display: none;
+  }
+  .calc-page-redesign .calc-assumptions.calc-assumptions-collapsed .calc-assumptions-eyebrow {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--c-fg3);
+  }
+  .calc-page-redesign .calc-assumptions.calc-assumptions-collapsed .calc-assumption-group {
+    display: none;
+  }
+}
+/* On mobile the panel is always full-width; hide the collapse button */
+@media (max-width: 768px) {
+  .calc-assumptions-collapse-btn { display: none; }
 }
 .calc-page-redesign .calc-assumption-group {
   border-bottom: 1px solid var(--c-border);

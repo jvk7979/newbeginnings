@@ -5,13 +5,14 @@ import { Section, Stepper, ChipRow, Hint, IS, fmtINR } from '../../components/ca
 import { useCommodities } from '../../context/AppContext';
 import { currentPrice } from '../Markets/marketsMath';
 
-// LEFT PANEL — Assumptions. Five collapsible groups: Capacity, Products,
+// LEFT PANEL — Input Panel. Five collapsible groups: Capacity, Products,
 // Costs (variable/fixed sub-tabs), Financing, Subsidies, Working Capital.
 export default function AssumptionsPanel({
   input, calc, setI, setRow, addRow, delRow,
   openSections, toggleSection,
   bePct, beLeft, sliderMin, sliderMax,
   style,
+  collapsed, onToggleCollapse,
 }) {
   const [costTab, setCostTab] = useState('fixed');
   const { commodities } = useCommodities();
@@ -57,10 +58,22 @@ export default function AssumptionsPanel({
   const anyBound = input.revenueRows.some(r => r.commodityId);
 
   return (
-    <div className="calc-left calc-assumptions" style={style}>
+    <div className={`calc-left calc-assumptions${collapsed ? ' calc-assumptions-collapsed' : ''}`} style={style}>
       <div className="calc-assumptions-title">
-        <span className="calc-assumptions-eyebrow">Assumptions</span>
-        <span className="calc-assumptions-hint">Click any group to expand or collapse</span>
+        <span className="calc-assumptions-eyebrow">Input Panel</span>
+        <div className="calc-assumptions-title-right">
+          <span className="calc-assumptions-hint">Click any group to expand or collapse</span>
+          {onToggleCollapse && (
+            <button
+              className="calc-assumptions-collapse-btn"
+              onClick={onToggleCollapse}
+              aria-label={collapsed ? 'Expand Input Panel' : 'Collapse Input Panel'}
+              title={collapsed ? 'Expand' : 'Collapse'}
+            >
+              {collapsed ? '›' : '‹'}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Capacity Utilisation — Y1 + ramp + ceiling, instead of a flat scalar.
