@@ -5700,6 +5700,14 @@ html { scroll-behavior: smooth; }
 :root[data-theme="terracotta"] .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #FFFFFF !important; }
 :root[data-theme="terracotta"] .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #FFFFFF !important; }
 
+/* Aurora — dark cool-toned, translucent jade pill for active nav item. */
+:root[data-theme="aurora"] .sidenav-item[aria-current="page"] {
+  background: rgba(0, 200, 150, 0.12) !important;
+  color: #00C896 !important;
+}
+:root[data-theme="aurora"] .sidenav-item[aria-current="page"] .sidenav-item-icon { color: #00C896 !important; }
+:root[data-theme="aurora"] .sidenav-item[aria-current="page"] .sidenav-item-bar { background: #00C896 !important; }
+
 /* ─────────────────────────────────────────────────────────────────────────
  * Page hero atmospheric layer (#1)
  *
@@ -5786,6 +5794,14 @@ html { scroll-behavior: smooth; }
 }
 /* Terracotta — editorial, default solid-accent CTA flow is fine.
    No override needed; var(--c-accent) handles the colour. */
+/* Aurora — jade gradient CTA; dark text reads clearly on bright jade. */
+:root[data-theme="aurora"] .themed-cta {
+  background: linear-gradient(135deg, #00C896 0%, #009E77 100%);
+  color: #031A12;
+}
+:root[data-theme="aurora"] .themed-cta:hover:not(:disabled) {
+  background: linear-gradient(135deg, #009E77 0%, #1DDBA8 100%);
+}
 
 /* ─────────────────────────────────────────────────────────────────────────
  * Empty states (#3)
@@ -6253,6 +6269,104 @@ textarea.form-input {
 :root[data-theme="terracotta"] .dh-btn-outline:hover {
   background: rgba(181, 83, 42, 0.06);
   border-color: var(--c-accent-dim); color: var(--c-accent-dim);
+}
+
+/* ── Aurora ──────────────────────────────────────────────────────────────
+ * Dark cool-toned theme. Deep navy backdrop with aurora borealis corner
+ * radial glows — jade at top-right, violet at bottom-left. The Godavari
+ * hero photo gets a deep navy + jade scrim; the italic hero title
+ * graduates jade → violet; the centre KPI tile picks up a jade gradient;
+ * the primary CTA is a jade gradient button with dark text. */
+:root[data-theme="aurora"] body {
+  background:
+    radial-gradient(ellipse 900px 600px at 95% -5%, rgba(0, 200, 150, 0.14) 0%, rgba(0, 200, 150, 0) 62%),
+    radial-gradient(ellipse 700px 700px at 5% 100%, rgba(129, 140, 248, 0.12) 0%, rgba(129, 140, 248, 0) 60%),
+    #0D1B2A;
+  background-attachment: fixed;
+  color: var(--c-fg1);
+}
+:root[data-theme="aurora"] .dh-page { background: transparent; }
+:root[data-theme="aurora"] .dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(13, 27, 42, 0.65) 0%, rgba(13, 27, 42, 0.82) 100%),
+    linear-gradient(135deg, rgba(0, 200, 150, 0.16) 0%, rgba(129, 140, 248, 0.12) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="aurora"] .dh-hero-title-italic {
+  background: linear-gradient(90deg, #00C896 0%, #818CF8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+:root[data-theme="aurora"] .dh-kpi-tile {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40);
+}
+:root[data-theme="aurora"] .dh-kpi-tile:hover {
+  background: var(--c-bg2);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #00C896 0%, #009E77 100%);
+  border: none;
+  color: #031A12;
+  box-shadow: 0 6px 18px rgba(0, 200, 150, 0.28);
+}
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(2):hover {
+  background: linear-gradient(135deg, #009E77 0%, #1DDBA8 100%);
+  box-shadow: 0 8px 22px rgba(0, 200, 150, 0.42);
+}
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(1) .dh-kpi-icon {
+  background: var(--c-accent-bg); color: var(--c-accent);
+}
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(2) .dh-kpi-icon {
+  background: rgba(3, 26, 18, 0.18); color: #031A12;
+}
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(2) .dh-kpi-value,
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(2) .dh-kpi-label,
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(2) .dh-kpi-hint { color: #031A12; }
+:root[data-theme="aurora"] .dh-kpi-tile:nth-child(3) .dh-kpi-icon {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+}
+:root[data-theme="aurora"] .dh-card-row-leaf-river {
+  background: var(--c-accent-2-bg); color: var(--c-accent-2);
+  border-color: rgba(129, 140, 248, 0.28);
+}
+:root[data-theme="aurora"] .dh-card-row-leaf-gold {
+  background: var(--c-accent-3-bg); color: var(--c-accent-3);
+  border-color: rgba(244, 114, 182, 0.28);
+}
+:root[data-theme="aurora"] .dh-btn-primary {
+  background: linear-gradient(135deg, #00C896 0%, #009E77 100%);
+  color: #031A12;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 200, 150, 0.30), 0 1px 3px rgba(0, 0, 0, 0.30);
+  transition: box-shadow 160ms, transform 160ms, background 160ms;
+}
+:root[data-theme="aurora"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #009E77 0%, #1DDBA8 100%);
+  box-shadow: 0 6px 18px rgba(0, 200, 150, 0.42), 0 1px 3px rgba(0, 0, 0, 0.30);
+  transform: translateY(-1px);
+}
+:root[data-theme="aurora"] .dh-btn-outline {
+  border-color: var(--c-accent); color: var(--c-accent);
+}
+:root[data-theme="aurora"] .dh-btn-outline:hover {
+  background: rgba(0, 200, 150, 0.10);
+  border-color: var(--c-accent-light); color: var(--c-accent-light);
+}
+:root[data-theme="aurora"] .dh-card-row,
+:root[data-theme="aurora"] .dh-empty {
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
 }
 
 /* ── Crop Atlas — responsive layout ──────────────────────────────────────
