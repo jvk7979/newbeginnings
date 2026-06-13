@@ -289,50 +289,50 @@
 }
 
 
-/* Aurora — deep cool navy dark · electric jade primary · aurora borealis
-   atmospheric glows. A second first-class dark palette alongside Midnight
-   but cool-toned rather than warm: indigo-navy backdrop, jade/emerald
-   accent, soft violet and rose secondaries. Night-sky observatory mood. */
+/* Aurora — white backdrop · deep jade primary · aurora borealis corner
+   glows. Cool-toned light palette: pure white base, deep jade accent,
+   violet and rose secondaries. Fresh, luminous, botanical-observatory mood.
+   Distinctive from all warm light themes (Heritage / Citrus / Terracotta)
+   via its cool jade-green + indigo-violet colour register. */
 :root[data-theme="aurora"] {
-  --c-bg0: #0D1B2A;          /* deep navy — page bg */
-  --c-bg1: #142236;          /* card surface */
-  --c-bg2: #1C2F48;          /* secondary surface */
-  --c-bg3: #243956;          /* borders / dividers */
-  --c-fg1: #E8F4F2;          /* cool crisp white */
-  --c-fg2: #A8C4D4;          /* sky-blue muted body text */
-  --c-fg3: #6F90A4;          /* tertiary labels */
-  --c-accent: #00C896;       /* electric jade — primary accent */
-  --c-accent-light: #1DDBA8;
-  --c-accent-dim: #009E77;
-  --c-accent-bg: #082820;    /* deep jade tint for callouts */
-  --c-accent-rgb: 0 200 150;
-  --c-accent-dim-rgb: 0 158 119;
-  --c-border: #1E3348;
-  --c-border-light: #2A4560;
-  --c-success: #34D399;      /* emerald — distinct from jade accent */
-  --c-success-bg: #0A2A1E;
-  --c-warning: #FBBF24;      /* amber */
-  --c-warning-bg: #2A1E08;
-  --c-danger: #F87171;       /* soft coral-red */
-  --c-danger-bg: #2A1018;
-  --c-danger-rgb: 248 113 113;
-  --c-info: #818CF8;         /* aurora violet */
-  --c-info-bg: #141624;
-  /* Categorical secondary palette — aurora borealis trio, each hue
-     fully outside the status palette (jade/emerald/amber/coral/violet). */
-  --c-accent-2:    #818CF8;  /* indigo-violet */
-  --c-accent-2-bg: #14162A;
-  --c-accent-3:    #F472B6;  /* aurora rose-pink */
-  --c-accent-3-bg: #2A1022;
-  --c-accent-4:    #34D399;  /* mint emerald */
-  --c-accent-4-bg: #0A2A1E;
+  --c-bg0: #FFFFFF;          /* pure white — page bg */
+  --c-bg1: #F0FDF9;          /* jade-tinted white — card surface */
+  --c-bg2: #E0F7EF;          /* light jade — secondary surface */
+  --c-bg3: #C2EDD8;          /* jade border / divider */
+  --c-fg1: #0A2218;          /* deep forest — primary text */
+  --c-fg2: #1A4A38;          /* muted body text */
+  --c-fg3: #3A7A60;          /* tertiary / labels (~5.5:1 on white) */
+  --c-accent: #009974;       /* deep jade — AA-compliant on white */
+  --c-accent-light: #00BB8A;
+  --c-accent-dim: #007A5A;
+  --c-accent-bg: #E0F7EF;
+  --c-accent-rgb: 0 153 116;
+  --c-accent-dim-rgb: 0 122 90;
+  --c-border: #C2EDD8;
+  --c-border-light: #A8DEC8;
+  --c-success: #16A34A;
+  --c-success-bg: #DCFCE7;
+  --c-warning: #D97706;
+  --c-warning-bg: #FEF3C7;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEE2E2;
+  --c-danger-rgb: 220 38 38;
+  --c-info: #6366F1;         /* aurora violet */
+  --c-info-bg: #EEF2FF;
+  /* Categorical secondary palette — aurora borealis trio. */
+  --c-accent-2:    #6366F1;  /* indigo-violet */
+  --c-accent-2-bg: #EEF2FF;
+  --c-accent-3:    #EC4899;  /* aurora rose-pink */
+  --c-accent-3-bg: #FCE7F3;
+  --c-accent-4:    #10B981;  /* mint emerald */
+  --c-accent-4-bg: #D1FAE5;
 
-  /* Chart palette — tuned for deep navy backdrop */
-  --c-chart-positive: #34D399; /* emerald */
-  --c-chart-negative: #F87171; /* soft red */
-  --c-chart-neutral:  #FBBF24; /* amber */
-  --c-chart-accent:   #00C896; /* jade primary */
-  --c-chart-axis:     #4A6B80; /* cool dark axis */
+  /* Chart palette — tuned for white backdrop */
+  --c-chart-positive: #10B981; /* emerald */
+  --c-chart-negative: #EF4444; /* red */
+  --c-chart-neutral:  #F59E0B; /* amber */
+  --c-chart-accent:   #009974; /* jade primary */
+  --c-chart-axis:     #3A7A60; /* forest */
 }
 
 /* Translucent variants — derived from the theme's accent / danger / accent-dim

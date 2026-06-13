@@ -45,7 +45,7 @@ export const THEMES = [
   { id: 'citrus',     label: 'Citrus',     mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
   { id: 'midnight',   label: 'Midnight',   mode: 'dark',  swatch: ['#0E1116', '#161A22', '#E8B97B'] },
   { id: 'terracotta', label: 'Terracotta', mode: 'light', swatch: ['#FBF5EE', '#FFFCF6', '#B5532A'] },
-  { id: 'aurora',     label: 'Aurora',     mode: 'dark',  swatch: ['#0D1B2A', '#142236', '#00C896'] },
+  { id: 'aurora',     label: 'Aurora',     mode: 'light', swatch: ['#FFFFFF', '#F0FDF9', '#009974'] },
 ];
 
 const DEFAULT_THEME = 'heritage';
