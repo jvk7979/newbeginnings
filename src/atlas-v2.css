@@ -32,6 +32,13 @@
   overflow-y: auto; overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
+/* In map mode the atlasv2-body must fill remaining height so height:100%
+ * resolves on the map and panel. Suppressing scroll here turns atlas-scroll
+ * into a height-constrained flex container, making flex:1 on atlasv2-body
+ * work correctly. Compare and Opps modes restore auto scroll. */
+.atlas-scroll-map {
+  overflow: hidden !important;
+}
 
 /* ─── HEADER ────────────────────────────────────────────────── */
 /* Compact page header — matches the app-wide pattern used by Markets,

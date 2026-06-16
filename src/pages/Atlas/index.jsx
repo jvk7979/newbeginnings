@@ -113,7 +113,7 @@ export default function AtlasPage({ onNavigate }) {
     <div className="atlas-root" style={{ background: C.bg0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
       {/* Single scrolling surface — the header scrolls away, the mode
           tabs (inside ModeBar) stick to the top as you move down. */}
-      <div className="atlas-scroll">
+      <div className={`atlas-scroll${tab === 'atlas' ? ' atlas-scroll-map' : ''}`}>
         <AtlasMasthead view={view}/>
         <ModeBar tab={tab} setTab={setTab}/>
         {!data && (
