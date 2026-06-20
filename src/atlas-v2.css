@@ -373,12 +373,13 @@
  * fills it edge-to-edge — no cream letterbox gaps. The panel flexes to
  * take the remaining width. */
 .atlasv2-map {
-  flex: none; width: auto; height: 100%;
-  aspect-ratio: 1000 / 1100; max-width: 65vw;
+  flex: none;
+  align-self: stretch;
+  aspect-ratio: 1000 / 1100;
   position: relative; background: var(--c-bg0);
 }
 .atlasv2-panel {
-  flex: 1 1 auto; min-width: 240px; max-width: 520px;
+  flex: 1 1 auto; min-width: 260px;
   display: flex; flex-direction: column;
   background: var(--c-bg1); border-left: 1px solid var(--c-border);
   overflow: hidden;
