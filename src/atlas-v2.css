@@ -35,9 +35,19 @@
 /* In map mode the atlasv2-body must fill remaining height so height:100%
  * resolves on the map and panel. Suppressing scroll here turns atlas-scroll
  * into a height-constrained flex container, making flex:1 on atlasv2-body
- * work correctly. Compare and Opps modes restore auto scroll. */
+ * work correctly. Compare and Opps modes restore auto scroll.
+ * At narrow viewports (≤1099px) atlasv2-body stacks vertically so the
+ * map sits below the sidebar — restoring overflow-y:auto lets the user
+ * scroll to the map rather than having it clipped away. */
 .atlas-scroll-map {
   overflow: hidden !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+@media (max-width: 1099px) {
+  .atlas-scroll-map {
+    overflow-y: auto !important;
+  }
 }
 
 /* ─── HEADER ────────────────────────────────────────────────── */
@@ -535,4 +545,228 @@
   .atlas-mode-pane .pane-head h2 { font-size: 25px; }
   .compare-grid { grid-template-columns: 1fr; }
   .opp-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── ATLAS NAV BAR ─────────────────────────────────────────
+   Compact accent-colour bar — always visible, never scrolls.
+   Replaces the separate AtlasMasthead header + ModeBar tabs. */
+.atlas-navbar {
+  flex: none;
+  display: flex; align-items: stretch;
+  height: 44px;
+  background: var(--c-accent);
+  padding: 0 24px;
+  gap: 0;
+  z-index: 10;
+}
+.atlas-navbar-crumb {
+  display: flex; align-items: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.14em; color: rgba(255,255,255,0.45);
+  text-transform: uppercase; white-space: nowrap;
+  padding-right: 20px;
+}
+.atlas-navbar-tabs {
+  flex: 1; display: flex; align-items: stretch; gap: 0;
+}
+.atlas-navbar-tab {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 0 18px;
+  background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.5);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  letter-spacing: 0.02em; cursor: pointer; white-space: nowrap;
+  transition: color 140ms, border-color 140ms;
+}
+.atlas-navbar-tab:hover { color: rgba(255,255,255,0.85); }
+.atlas-navbar-tab.active {
+  color: #fff; border-bottom-color: rgba(255,255,255,0.9);
+}
+.atlas-navbar-tab[data-mode="compare"].active { border-bottom-color: var(--c-info); }
+.atlas-navbar-tab[data-mode="opps"].active    { border-bottom-color: var(--c-accent-2); }
+.atlas-navbar-idx {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; color: rgba(255,255,255,0.3);
+}
+.atlas-navbar-tab.active .atlas-navbar-idx { color: rgba(255,255,255,0.6); }
+.atlas-navbar-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  padding: 1px 5px; border-radius: 2px; letter-spacing: 0.08em;
+  background: rgba(255,80,60,0.8); color: #fff; text-transform: uppercase;
+}
+.atlas-navbar-toggle {
+  display: flex; align-items: center; gap: 5px;
+  background: transparent; border: none;
+  color: rgba(255,255,255,0.55); cursor: pointer;
+  padding: 0 4px;
+  transition: color 120ms;
+}
+.atlas-navbar-toggle:hover { color: rgba(255,255,255,0.9); }
+.atlas-navbar-toggle-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.atlas-navbar-toggle-arrow { font-size: 9px; }
+
+/* ─── COLLAPSIBLE EDITORIAL HEADER STRIP ────────────────────
+   Sits directly below AtlasNavBar. Removed from DOM when
+   collapsed (React conditional). */
+.atlas-header-strip {
+  flex: none;
+  display: flex; align-items: center; gap: 24px;
+  padding: 14px 24px;
+  background: var(--c-bg1);
+  border-bottom: 1px solid var(--c-border);
+}
+.atlas-header-text { flex: 1; min-width: 0; }
+.atlas-header-text .atlas-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--c-fg3); margin-bottom: 6px;
+}
+.atlas-header-text .atlas-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px; font-weight: 600; color: var(--c-fg1);
+  margin: 0; line-height: 1.15; letter-spacing: -0.01em;
+}
+.atlas-header-text .atlas-title .atlas-title-it {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic; font-weight: 600; color: var(--c-accent);
+}
+.atlas-header-text .atlas-subhead {
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: var(--c-fg3); margin-top: 4px; line-height: 1.5; max-width: 560px;
+}
+
+/* KPI chips */
+.atlas-kpi-chips {
+  flex: none; display: flex; gap: 10px; align-items: center;
+}
+.atlas-kpi-chip {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--c-bg0); border: 1px solid var(--c-border);
+  border-radius: 8px; padding: 8px 14px; min-width: 70px;
+}
+.atlas-kpi-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px; font-weight: 600; color: var(--c-fg1);
+  line-height: 1; letter-spacing: -0.01em;
+}
+.atlas-kpi-unit {
+  font-size: 11px; font-weight: 400; color: var(--c-fg3);
+  margin-left: 2px;
+}
+.atlas-kpi-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--c-fg3); margin-top: 4px;
+}
+
+/* ─── RIGHT PANEL TABS ──────────────────────────────────────
+   Two-tab chrome (Ranking / Stats) at the top of atlasv2-panel. */
+.atlas-panel-tabs {
+  flex: none;
+  display: flex; align-items: stretch;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg1);
+}
+.atlas-panel-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 10px 8px;
+  background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--c-fg3);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: color 130ms, border-color 130ms;
+}
+.atlas-panel-tab:hover { color: var(--c-fg1); }
+.atlas-panel-tab.active { color: var(--c-fg1); border-bottom-color: var(--c-accent); }
+.atlas-panel-tab-idx {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; color: var(--c-fg3);
+}
+.atlas-panel-tab.active .atlas-panel-tab-idx { color: var(--c-accent); }
+
+/* ─── STATS PANEL ────────────────────────────────────────────
+   Two sections: top crops bar list + category breakdown. */
+.atlas-stats-panel {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column;
+  padding: 12px 12px 20px;
+  gap: 18px;
+}
+.atlas-stats-section { display: flex; flex-direction: column; gap: 8px; }
+.atlas-stats-section-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--c-fg3);
+}
+.atlas-stats-empty {
+  font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--c-fg3);
+  padding: 8px 0;
+}
+
+/* Top-crops bar rows */
+.atlas-stats-bars { display: flex; flex-direction: column; gap: 6px; }
+.atlas-stats-bar-row {
+  display: grid;
+  grid-template-columns: 10px 1fr 60px auto;
+  gap: 8px; align-items: center;
+}
+.atlas-stats-bar-swatch {
+  width: 9px; height: 9px; border-radius: 2px; flex: none;
+}
+.atlas-stats-bar-name {
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: var(--c-fg1); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; min-width: 0;
+}
+.atlas-stats-bar-track {
+  height: 5px; background: var(--c-bg2); border-radius: 3px; overflow: hidden;
+}
+.atlas-stats-bar-fill {
+  height: 100%; border-radius: 3px; transition: width 400ms ease;
+}
+.atlas-stats-bar-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--c-fg2); text-align: right; white-space: nowrap;
+}
+
+/* Category breakdown rows */
+.atlas-stats-cats { display: flex; flex-direction: column; gap: 6px; }
+.atlas-stats-cat-row {
+  display: grid;
+  grid-template-columns: 10px 80px 1fr auto;
+  gap: 8px; align-items: center;
+}
+.atlas-stats-cat-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+}
+.atlas-stats-cat-name {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--c-fg2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.atlas-stats-cat-track {
+  height: 5px; background: var(--c-bg2); border-radius: 3px; overflow: hidden;
+}
+.atlas-stats-cat-fill {
+  height: 100%; border-radius: 3px; opacity: 0.75; transition: width 400ms ease;
+}
+.atlas-stats-cat-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--c-fg3); text-align: right; white-space: nowrap;
+}
+
+/* ─── RESPONSIVE OVERRIDES ───────────────────────────────── */
+@media (max-width: 1099px) {
+  .atlas-header-strip { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .atlas-kpi-chips { width: 100%; }
+  .atlas-kpi-chip  { flex: 1; }
+  .atlas-navbar-crumb { display: none; }
+}
+@media (max-width: 768px) {
+  .atlas-header-strip { padding: 12px 16px; }
+  .atlas-header-text .atlas-title { font-size: 20px; }
+  /* Stats tab hidden on narrow viewports — ranking only */
+  .atlas-panel-tab:nth-child(2) { display: none; }
 }

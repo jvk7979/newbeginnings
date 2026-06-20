@@ -3,16 +3,16 @@
 // Atlas tab — the three-column working surface:
 //   AtlasSidebar (intensity key + category filter)
 //   │ IndiaMap / APMap
-//   │ RankingPanel / DetailPanel
-// Composes the existing map and panel components; the v2 router mounts
-// this for the 'atlas' tab.
+//   │ Right panel: Ranking tab | Stats tab
 
+import { useState } from 'react';
 import IndiaMap from './IndiaMap';
 import APMap from './APMap';
 import FilterBar from './FilterBar';
 import AtlasSidebar from './AtlasSidebar';
 import DetailPanel from './DetailPanel';
 import RankingPanel from './RankingPanel';
+import StatsPanel from './StatsPanel';
 import HoverTip from './HoverTip';
 
 export default function AtlasMapMode({
@@ -22,6 +22,8 @@ export default function AtlasMapMode({
   search, setSearch, year, setYear,
   states, apDistricts, yearOptions, cropOptions,
 }) {
+  const [rightTab, setRightTab] = useState('ranking');
+
   const handleHover = (name, e) => {
     if (!name) { setHover(null); return; }
     setHover({ name, x: e?.clientX || 0, y: e?.clientY || 0, tip: !!e });
@@ -56,7 +58,7 @@ export default function AtlasMapMode({
     }
   };
 
-  const focused = view.level === 'india' ? selected : districtSelected;
+  const focused    = view.level === 'india' ? selected : districtSelected;
   const clearFocus = view.level === 'india' ? () => setSelected(null) : () => setDistrictSelected(null);
 
   return (
@@ -88,20 +90,48 @@ export default function AtlasMapMode({
           )}
         </div>
 
+        {/* Right panel — tab bar + content */}
         <div className="atlasv2-panel">
+          {/* Tab bar — hidden when a region is focused (DetailPanel takes over) */}
+          {!focused && (
+            <div className="atlas-panel-tabs" role="tablist">
+              <button
+                role="tab"
+                aria-selected={rightTab === 'ranking'}
+                className={`atlas-panel-tab${rightTab === 'ranking' ? ' active' : ''}`}
+                onClick={() => setRightTab('ranking')}
+              >
+                <span className="atlas-panel-tab-idx">01</span>
+                Ranking
+              </button>
+              <button
+                role="tab"
+                aria-selected={rightTab === 'stats'}
+                className={`atlas-panel-tab${rightTab === 'stats' ? ' active' : ''}`}
+                onClick={() => setRightTab('stats')}
+              >
+                <span className="atlas-panel-tab-idx">02</span>
+                Stats
+              </button>
+            </div>
+          )}
+
+          {/* Panel content */}
           {focused ? (
             <DetailPanel
               name={focused} level={view.level} filter={filter}
               states={states} apDistricts={apDistricts}
               onDrillDown={handleDrillDown} onClear={clearFocus}
             />
-          ) : (
+          ) : rightTab === 'ranking' ? (
             <RankingPanel
               level={view.level} filter={filter}
               states={states} apDistricts={apDistricts}
               hovered={hover?.name}
               onHover={handleHover} onSelect={handleSelect}
             />
+          ) : (
+            <StatsPanel filter={filter} states={states}/>
           )}
         </div>
       </div>
