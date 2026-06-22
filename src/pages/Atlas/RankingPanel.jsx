@@ -68,6 +68,7 @@ export default function RankingPanel({ level, filter, states, apDistricts, hover
           return (
             <button key={r.name} type="button"
               className={`rank-card${hovered === r.name ? ' hover' : ''}${r.name === HOME_DISTRICT ? ' home' : ''}`}
+              style={{ '--cat-color': tc ? (CATEGORIES[tc[1]]?.color || 'var(--c-accent)') : 'var(--c-accent)' }}
               onClick={() => onSelect?.(r.name)}
               onMouseEnter={() => onHover?.(r.name)}
               onMouseLeave={() => onHover?.(null)}>
