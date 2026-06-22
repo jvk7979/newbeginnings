@@ -1,0 +1,275 @@
+/* src/world-market.css
+ *
+ * World Market page styles. Mirrors atlas-v2.css naming patterns.
+ * All colours use --c-* tokens so all themes work automatically.
+ */
+
+.wm-root {
+  background: var(--c-bg-texture) var(--c-bg0) !important;
+  background-attachment: fixed !important;
+}
+
+/* ─── SCROLL REGION ─────────────────────────────── */
+.wm-scroll {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.wm-scroll-map {
+  overflow: hidden !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+@media (max-width: 900px) {
+  .wm-scroll-map { overflow-y: auto !important; }
+}
+
+/* ─── NAV BAR ────────────────────────────────────── */
+.wm-navbar {
+  flex: none;
+  display: flex; align-items: stretch;
+  background: var(--c-bg0);
+  border-bottom: 1px solid var(--c-border);
+  min-height: 44px;
+  padding-left: 4px;
+}
+.wm-tab {
+  flex: none; display: flex; align-items: center;
+  gap: 6px; padding: 10px 18px;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--c-fg3); letter-spacing: 0.06em; cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+}
+.wm-tab:hover { color: var(--c-fg1); }
+.wm-tab.active { color: var(--c-accent); border-bottom-color: var(--c-accent); }
+.wm-tab-idx { color: var(--c-fg3); font-size: 9px; }
+.wm-tab.active .wm-tab-idx { color: var(--c-accent); opacity: 0.6; }
+
+/* ─── HEADER STRIP ───────────────────────────────── */
+.wm-header-strip {
+  flex: none; display: flex; align-items: stretch;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg0); min-height: 68px;
+}
+.wm-header-text {
+  flex: none; padding: 14px 24px;
+  border-right: 1px solid var(--c-border);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.wm-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--c-fg3); margin-bottom: 3px;
+}
+.wm-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px; font-weight: 700; color: var(--c-fg1);
+  letter-spacing: -0.01em; line-height: 1;
+}
+.wm-title em { font-style: italic; color: var(--c-accent); }
+
+.wm-kpi-chips {
+  flex: none; display: flex; align-items: stretch;
+  border-left: 1px solid var(--c-border);
+}
+.wm-kpi-chip {
+  display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: center;
+  padding: 0 20px; border-right: 1px solid var(--c-border);
+}
+.wm-kpi-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px; font-weight: 700; color: var(--c-fg1);
+  line-height: 1; letter-spacing: -0.02em;
+}
+.wm-kpi-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--c-fg3); margin-top: 3px;
+}
+
+/* ─── 3-COLUMN BODY ──────────────────────────────── */
+.wm-body {
+  flex: 1; display: flex; min-height: 0; overflow: hidden;
+}
+
+/* Sidebar */
+.wm-sidebar {
+  flex: none; width: 190px; border-right: 1px solid var(--c-border);
+  background: var(--c-bg0); overflow-y: auto; padding: 16px 12px;
+}
+.wm-sb-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--c-fg3); margin-bottom: 6px; display: block;
+}
+.wm-sb-select {
+  width: 100%; background: var(--c-bg1); border: 1px solid var(--c-border);
+  border-radius: 6px; padding: 7px 10px; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--c-fg1); outline: none; margin-bottom: 16px;
+}
+.wm-sb-block { margin-bottom: 16px; }
+.wm-sb-cat {
+  display: flex; align-items: center; gap: 7px; width: 100%;
+  background: none; border: none; cursor: pointer; padding: 5px 7px;
+  border-radius: 5px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--c-fg2); text-align: left; transition: background 100ms;
+}
+.wm-sb-cat:hover { background: var(--c-bg2); }
+.wm-sb-cat.active { color: var(--c-fg1); background: var(--c-accentBg); font-weight: 600; }
+.wm-sb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Map area */
+.wm-map {
+  flex: 3 0 auto; min-width: 320px;
+  align-self: stretch; position: relative;
+  background: var(--c-bg0); display: flex; align-items: center; justify-content: center;
+}
+.wm-map svg { display: block; width: 100%; height: 100%; position: absolute; inset: 0; }
+
+/* Panel */
+.wm-panel {
+  flex: 2 1 auto; min-width: 260px;
+  border-left: 1px solid var(--c-border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.wm-panel-head {
+  flex: none; padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--c-border);
+}
+.wm-panel-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--c-fg3);
+  margin-bottom: 3px;
+}
+.wm-panel-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 17px; font-weight: 700; color: var(--c-fg1); margin: 0 0 2px;
+}
+.wm-panel-sub {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--c-fg3); letter-spacing: 0.04em;
+}
+.wm-panel-list { flex: 1; overflow-y: auto; padding: 10px 12px; }
+
+/* Commodity bars */
+.wm-commodity-row {
+  border: 1px solid var(--c-border);
+  border-radius: 6px; padding: 8px 10px; margin-bottom: 6px;
+  transition: background 100ms;
+}
+.wm-commodity-row:hover { background: var(--c-bg1); }
+.wm-commodity-meta {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 5px;
+}
+.wm-commodity-name {
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: var(--c-fg1); font-weight: 500;
+}
+.wm-commodity-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--c-fg2); white-space: nowrap; margin-left: 8px;
+}
+.wm-bar-track {
+  height: 3px; background: var(--c-border); border-radius: 2px; overflow: hidden;
+}
+.wm-bar-fill { height: 100%; border-radius: 2px; }
+
+/* Default panel — top importers list */
+.wm-default-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 6px; cursor: pointer;
+  transition: background 100ms;
+}
+.wm-default-row:hover { background: var(--c-bg1); }
+.wm-default-rank {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--c-fg3); width: 20px; flex-shrink: 0;
+}
+.wm-default-name { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--c-fg1); flex: 1; }
+.wm-default-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-fg3); }
+
+/* ─── AP TAB ─────────────────────────────────────── */
+.wm-ap-body {
+  flex: 1; display: flex; min-height: 0; overflow: hidden;
+}
+.wm-ap-list {
+  flex: 3; border-right: 1px solid var(--c-border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.wm-ap-header {
+  flex: none; padding: 14px 20px 10px;
+  border-bottom: 1px solid var(--c-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.wm-ap-title {
+  font-family: 'DM Sans', sans-serif; font-size: 15px;
+  font-weight: 600; color: var(--c-fg1);
+}
+.wm-ap-cols {
+  flex: none; display: grid;
+  grid-template-columns: 36px 1fr 100px 90px 110px;
+  padding: 6px 16px; border-bottom: 1px solid var(--c-bg2);
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.08em; color: var(--c-fg3);
+}
+.wm-ap-rows { flex: 1; overflow-y: auto; }
+.wm-ap-row {
+  display: grid; grid-template-columns: 36px 1fr 100px 90px 110px;
+  padding: 10px 16px; border-bottom: 1px solid var(--c-bg2);
+  align-items: center; cursor: pointer; transition: background 100ms;
+  border-left: 3px solid transparent;
+}
+.wm-ap-row:hover { background: var(--c-bg1); }
+.wm-ap-row.active { background: var(--c-accentBg); }
+.wm-ap-rank { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--c-fg3); }
+.wm-ap-name { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--c-fg1); }
+.wm-ap-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.06em; color: var(--c-fg3); text-transform: uppercase;
+  margin-top: 2px;
+}
+.wm-ap-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-fg2); text-align: right; }
+.wm-ap-top { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--c-accent); text-align: right; }
+
+/* AP destination panel */
+.wm-dest-panel { flex: 2; display: flex; flex-direction: column; overflow: hidden; }
+.wm-dest-empty {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--c-fg3);
+  text-align: center; padding: 20px;
+}
+
+/* ─── LOADING / ERROR ────────────────────────────── */
+.wm-loading {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--c-fg3); letter-spacing: 0.06em;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 900px) {
+  .wm-body { flex-direction: column; overflow: hidden; max-width: 100%; }
+  .wm-sidebar { width: 100%; border-right: 0; border-bottom: 1px solid var(--c-border); padding: 10px 16px; }
+  .wm-map { flex: none; width: 100%; height: 56vh; min-height: 280px; }
+  .wm-panel { flex: none; width: 100%; border-left: 0; border-top: 1px solid var(--c-border); height: 380px; }
+  .wm-header-text { padding: 10px 16px; }
+  .wm-kpi-chips { border-left: 0; width: 100%; }
+  .wm-kpi-chip { flex: 1; align-items: center; padding: 8px 4px; }
+  .wm-header-strip { flex-direction: column; align-items: flex-start; }
+  .wm-ap-body { flex-direction: column; }
+  .wm-ap-list { border-right: 0; border-bottom: 1px solid var(--c-border); flex: none; height: 360px; }
+  .wm-ap-cols { grid-template-columns: 36px 1fr 90px; }
+  .wm-ap-row { grid-template-columns: 36px 1fr 90px; }
+  .wm-ap-cols > :nth-child(4), .wm-ap-cols > :nth-child(5),
+  .wm-ap-row > :nth-child(4), .wm-ap-row > :nth-child(5) { display: none; }
+  .wm-dest-panel { flex: none; height: 320px; }
+}
+@media (max-width: 600px) {
+  .wm-kpi-label { font-size: 7px; }
+  .wm-title { font-size: 17px; }
+}

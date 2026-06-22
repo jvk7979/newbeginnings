@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "year": "2023-24",
+    "source": "APEDA AgriExchange — state-wise export tables",
+    "note": "Figures are approximate; Rice and Chilli data from APEDA AP region; Seafood from MPEDA; others from APEDA commodity reports."
+  },
+  "commodities": [
+    {
+      "name": "Rice (Non-Basmati)",
+      "category": "cereal",
+      "value_usd_m": 1240,
+      "volume_kt": 4120,
+      "destinations": [
+        { "country": "Bangladesh", "value_usd_m": 496, "share_pct": 40 },
+        { "country": "Indonesia", "value_usd_m": 199, "share_pct": 16 },
+        { "country": "Nepal", "value_usd_m": 149, "share_pct": 12 },
+        { "country": "Malaysia", "value_usd_m": 112, "share_pct": 9 },
+        { "country": "Others", "value_usd_m": 284, "share_pct": 23 }
+      ]
+    },
+    {
+      "name": "Chillies",
+      "category": "spice",
+      "value_usd_m": 840,
+      "volume_kt": 580,
+      "destinations": [
+        { "country": "China", "value_usd_m": 277, "share_pct": 33 },
+        { "country": "Malaysia", "value_usd_m": 126, "share_pct": 15 },
+        { "country": "Sri Lanka", "value_usd_m": 92, "share_pct": 11 },
+        { "country": "Bangladesh", "value_usd_m": 76, "share_pct": 9 },
+        { "country": "Others", "value_usd_m": 269, "share_pct": 32 }
+      ]
+    },
+    {
+      "name": "Seafood (Shrimp & Prawn)",
+      "category": "livestock",
+      "value_usd_m": 720,
+      "volume_kt": 210,
+      "destinations": [
+        { "country": "USA", "value_usd_m": 230, "share_pct": 32 },
+        { "country": "China", "value_usd_m": 158, "share_pct": 22 },
+        { "country": "EU (combined)", "value_usd_m": 130, "share_pct": 18 },
+        { "country": "Japan", "value_usd_m": 86, "share_pct": 12 },
+        { "country": "Others", "value_usd_m": 116, "share_pct": 16 }
+      ]
+    },
+    {
+      "name": "Tobacco",
+      "category": "residue",
+      "value_usd_m": 560,
+      "volume_kt": 180,
+      "destinations": [
+        { "country": "Belgium", "value_usd_m": 157, "share_pct": 28 },
+        { "country": "Russia", "value_usd_m": 112, "share_pct": 20 },
+        { "country": "South Korea", "value_usd_m": 78, "share_pct": 14 },
+        { "country": "Germany", "value_usd_m": 56, "share_pct": 10 },
+        { "country": "Others", "value_usd_m": 157, "share_pct": 28 }
+      ]
+    },
+    {
+      "name": "Mango (Fresh & Pulp)",
+      "category": "horti",
+      "value_usd_m": 310,
+      "volume_kt": 95,
+      "destinations": [
+        { "country": "UAE", "value_usd_m": 93, "share_pct": 30 },
+        { "country": "UK", "value_usd_m": 62, "share_pct": 20 },
+        { "country": "Saudi Arabia", "value_usd_m": 47, "share_pct": 15 },
+        { "country": "Netherlands", "value_usd_m": 37, "share_pct": 12 },
+        { "country": "Others", "value_usd_m": 71, "share_pct": 23 }
+      ]
+    },
+    {
+      "name": "Cotton",
+      "category": "fiber",
+      "value_usd_m": 290,
+      "volume_kt": 140,
+      "destinations": [
+        { "country": "Vietnam", "value_usd_m": 87, "share_pct": 30 },
+        { "country": "Bangladesh", "value_usd_m": 72, "share_pct": 25 },
+        { "country": "China", "value_usd_m": 58, "share_pct": 20 },
+        { "country": "Indonesia", "value_usd_m": 44, "share_pct": 15 },
+        { "country": "Others", "value_usd_m": 29, "share_pct": 10 }
+      ]
+    },
+    {
+      "name": "Maize",
+      "category": "cereal",
+      "value_usd_m": 185,
+      "volume_kt": 620,
+      "destinations": [
+        { "country": "Nepal", "value_usd_m": 56, "share_pct": 30 },
+        { "country": "Bangladesh", "value_usd_m": 44, "share_pct": 24 },
+        { "country": "Malaysia", "value_usd_m": 37, "share_pct": 20 },
+        { "country": "Myanmar", "value_usd_m": 30, "share_pct": 16 },
+        { "country": "Others", "value_usd_m": 18, "share_pct": 10 }
+      ]
+    },
+    {
+      "name": "Groundnut",
+      "category": "oilseed",
+      "value_usd_m": 160,
+      "volume_kt": 210,
+      "destinations": [
+        { "country": "Indonesia", "value_usd_m": 48, "share_pct": 30 },
+        { "country": "China", "value_usd_m": 40, "share_pct": 25 },
+        { "country": "Philippines", "value_usd_m": 32, "share_pct": 20 },
+        { "country": "Vietnam", "value_usd_m": 24, "share_pct": 15 },
+        { "country": "Others", "value_usd_m": 16, "share_pct": 10 }
+      ]
+    }
+  ]
+}
