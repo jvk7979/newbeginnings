@@ -383,14 +383,15 @@
  * fills it edge-to-edge — no cream letterbox gaps. The panel flexes to
  * take the remaining width. */
 .atlasv2-map {
-  flex: none;
+  flex: 3 0 auto;       /* 3 parts of the non-sidebar space ≈ 60% */
+  min-width: 280px;
   align-self: stretch;
-  aspect-ratio: 1000 / 1100;
-  max-width: 430px;   /* prevents the portrait map from crowding the panel at medium heights */
   position: relative; background: var(--c-bg0);
+  /* no aspect-ratio: SVG uses preserveAspectRatio="xMidYMid meet" to
+     maintain the portrait ratio inside whatever box flex gives it */
 }
 .atlasv2-panel {
-  flex: 1 1 auto; min-width: 260px;
+  flex: 2 1 auto; min-width: 260px;   /* 2 parts ≈ 40% */
   display: flex; flex-direction: column;
   background: var(--c-bg1); border-left: 1px solid var(--c-border);
   overflow: hidden;
