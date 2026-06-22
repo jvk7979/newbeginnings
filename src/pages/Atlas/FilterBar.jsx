@@ -180,8 +180,8 @@ export default function FilterBar({
 
       <div style={{ flex: 1, minWidth: 12 }}/>
 
-      {/* SHOWING status — names the current colouring */}
-      <div style={{
+      {/* SHOWING status — names the current colouring; hidden at ≤900px via CSS */}
+      <div className="atlas-fb-showing" style={{
         fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
         letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg3,
         whiteSpace: 'nowrap',

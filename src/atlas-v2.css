@@ -44,7 +44,7 @@
   flex: 1 !important;
   min-height: 0 !important;
 }
-@media (max-width: 1099px) {
+@media (max-width: 900px) {
   .atlas-scroll-map {
     overflow-y: auto !important;
   }
@@ -526,34 +526,79 @@
 }
 
 /* ─── RESPONSIVE ────────────────────────────────────────────── */
-/* Tablet + phone — the 3-column Atlas surface stacks (rail, map,
- * panel). The body sizes to its stacked content so the scroll region
- * (.atlas-scroll), not a squeezed flex child, handles the scroll. */
-@media (max-width: 1099px) {
-  .atlasv2-body { flex: 0 0 auto; flex-direction: column; overflow: visible; }
+/* ≤900px — iPad portrait, phone. The 3-column surface stacks.
+ * At ≥901px (iPad landscape, small laptop) the three columns still fit
+ * comfortably after the app nav sidebar eats ~190px of viewport. */
+@media (max-width: 900px) {
+  /* Stack the 3-column body into a single column. max-width:100% prevents
+   * any child (FilterBar overflowing, etc.) from widening the container and
+   * causing the map SVG to center into an off-screen region. */
+  .atlasv2-body {
+    flex: 0 0 auto; flex-direction: column;
+    overflow: hidden; max-width: 100%;
+  }
   .atlas-sidebar {
     width: 100%; border-right: 0; border-bottom: 1px solid var(--c-border);
-    padding: 16px 20px 18px;
+    padding: 10px 16px 12px;
   }
+  /* Collapse block spacing in stacked mode so the sidebar is shorter */
+  .atlas-sidebar .as-block { margin-bottom: 14px; }
+  /* 2-column category grid — compact but still readable */
   .atlas-sidebar .as-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
   .atlasv2-map {
-    flex: none; width: 100%; height: 56vh; min-height: 340px;
+    flex: none; width: 100%; height: 56vh; min-height: 320px;
     aspect-ratio: auto; max-width: none;
   }
   .atlasv2-panel {
-    width: 100%; max-width: none; flex: none; height: 600px;
+    width: 100%; max-width: none; flex: none; height: 520px;
     border-left: 0; border-top: 1px solid var(--c-border);
   }
-}
-
-@media (max-width: 900px) {
+  /* Header strip stacks: text block above, chips below */
+  .atlas-header-strip {
+    flex-direction: column; align-items: flex-start; gap: 0;
+    padding: 14px 16px 0; min-height: auto;
+  }
+  .atlas-header-text {
+    padding: 0 0 12px; border-right: 0;
+    border-bottom: 1px solid var(--c-border); width: 100%;
+  }
+  .atlas-kpi-chips { width: 100%; border-left: 0; }
+  .atlas-kpi-chip  { flex: 1; align-items: center; padding: 10px 4px; }
+  .atlas-navbar-crumb { display: none; }
+  /* SHOWING status takes space and wraps awkwardly at narrow widths */
+  .atlas-fb-showing { display: none; }
+  /* Legacy pane padding fixes */
   .atlas-header { padding: 18px 20px 14px; }
   .atlas-mode-pane { padding: 22px 20px 50px; }
   .atlas-modebar { padding: 0 20px; }
   .atlas-mode-pane .pane-head h2 { font-size: 30px; }
 }
 
-@media (max-width: 560px) {
+/* ≤600px — phone-only tweaks */
+@media (max-width: 600px) {
+  /* Header: hide the subhead to save vertical space; compact title */
+  .atlas-header-text .atlas-subhead { display: none; }
+  .atlas-header-text .atlas-title { font-size: 19px; }
+  .atlas-kpi-label { font-size: 7px; letter-spacing: 0.1em; }
+
+  /* Sidebar: hide the verbose colour-scale explanation note.
+   * The intensity ramp itself stays so the legend is still readable. */
+  .atlas-sidebar .as-note { display: none; }
+  /* 2-column grid is safer than 3 on very narrow phones — avoids
+   * text wrapping inside cells (Raw Material, Horticulture etc.) */
+  .atlas-sidebar .as-cats { grid-template-columns: 1fr 1fr; }
+
+  /* Prevent the filterbar or sidebar from introducing horizontal overflow.
+   * When atlas-scroll-map gets a vertical scrollbar (~15px wide), content
+   * that was exactly viewport-width overflows by that margin. Clipping both
+   * containers stops that from propagating to the document width. */
+  .atlas-filterbar { overflow-x: hidden; }
+  .atlas-sidebar    { overflow-x: hidden; }
+
+  /* Ensure the map container never exceeds the available width */
+  .atlasv2-map { max-width: 100vw; }
+
+  /* Legacy pane/header tweaks */
   .atlas-header .atlas-title { font-size: 26px; }
   .atlas-mode-pane .pane-head h2 { font-size: 25px; }
   .compare-grid { grid-template-columns: 1fr; }
@@ -785,13 +830,9 @@
   color: var(--c-fg3); text-align: right; white-space: nowrap;
 }
 
-/* ─── RESPONSIVE OVERRIDES ───────────────────────────────── */
-@media (max-width: 1099px) {
-  .atlas-header-strip { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .atlas-kpi-chips { width: 100%; }
-  .atlas-kpi-chip  { flex: 1; }
-  .atlas-navbar-crumb { display: none; }
-}
+/* ─── RESPONSIVE OVERRIDES (KPI + nav) ──────────────────────
+   These supplement the ≤900px block above. The header strip
+   and KPI chips are handled there; nothing extra needed here. */
 @media (max-width: 768px) {
   .atlas-header-strip { padding: 12px 16px; }
   .atlas-header-text .atlas-title { font-size: 20px; }
