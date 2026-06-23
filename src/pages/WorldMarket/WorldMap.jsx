@@ -68,6 +68,14 @@ const COUNTRY_PATHS = WORLD_GEO.features
   }))
   .filter(c => c.d);                  // drop any empty paths
 
+// Deterministic muted hue per country code (golden-angle hash → full hue wheel).
+// Countries with no export data get a distinct political-map colour; countries
+// with data get the green intensity ramp from intensityColor().
+function countryBaseColor(code) {
+  const hue = (code * 137) % 360;
+  return `hsl(${hue}, 22%, 60%)`;
+}
+
 // ── Components ─────────────────────────────────────────────────────────────
 
 const CountryPath = memo(function CountryPath({ d, fill, stroke, strokeWidth, code, onSelect, onHover }) {
@@ -104,7 +112,7 @@ export default function WorldMap({ partnerData, selectedCode, hoveredCode, onSel
         const t = partner ? partner.value_usd / maxVal : null;
         const fill = t != null
           ? intensityColor(Math.pow(t, 0.32))
-          : 'var(--c-bg2)';
+          : countryBaseColor(code);
         const isSel = selectedCode === code;
         const isHov = hoveredCode === code;
         return (

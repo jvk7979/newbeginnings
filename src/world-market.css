@@ -123,6 +123,10 @@
   font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
   color: var(--c-fg1); padding: 0 2px;
 }
+.wm-overlay-divider {
+  width: 1px; height: 16px;
+  background: var(--c-border); margin: 0 4px;
+}
 
 /* Source attribution (bottom-left of map) */
 .wm-map-source {

@@ -1,47 +1,70 @@
 // src/pages/WorldMarket/comtradeDataset.js
 //
-// Static curated dataset of India's agricultural exports by partner country.
-// Source: APEDA AgriExchange / DGFT, curated for 2022-2024.
+// Static curated datasets for India's exports by partner country.
+// Two sources:
+//   'apeda' — Agricultural & Allied Products only (APEDA AgriExchange / DGFT)
+//   'oec'   — All Merchandise Exports (OEC / UN Comtrade)
 // ISO 3166-1 numeric partner codes match world-atlas country IDs directly.
 
-const DATA_URL = `${import.meta.env.BASE_URL || '/'}data/india-exports.json`;
+const BASE = import.meta.env.BASE_URL || '/';
 
-let _cache = null;
+const SOURCE_URLS = {
+  apeda: `${BASE}data/india-exports.json`,
+  oec:   `${BASE}data/india-exports-oec.json`,
+};
 
-async function loadAll() {
-  if (_cache) return _cache;
-  const res = await fetch(DATA_URL);
+const _cache = {};
+
+async function loadAll(source) {
+  const key = source || 'apeda';
+  if (_cache[key]) return _cache[key];
+  const url = SOURCE_URLS[key] || SOURCE_URLS.apeda;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  _cache = await res.json();
-  return _cache;
+  _cache[key] = await res.json();
+  return _cache[key];
 }
 
-// Returns { [partnerCode]: { name, value_usd } } for the given year.
-export async function loadPartnerTotals(year) {
-  const all = await loadAll();
-  return all[year] || all['2024'] || {};
+// Returns { [partnerCode]: { name, value_usd } } for the given year + source.
+export async function loadPartnerTotals(year, source = 'apeda') {
+  const all = await loadAll(source);
+  return all[year] || all['2025'] || all['2024'] || {};
 }
 
-// Returns [{ hsCode, name, value_usd }] for a clicked country.
-// Static breakdown for major partners; empty array for others.
+// Human-readable label for source chips / attribution line.
+export const SOURCE_META = {
+  apeda: {
+    label: 'APEDA',
+    detail: 'Agricultural & Allied Products',
+    attribution: 'Source: APEDA AgriExchange / DGFT · Agricultural & Allied Products',
+  },
+  oec: {
+    label: 'OEC',
+    detail: 'All Merchandise Exports',
+    attribution: 'Source: OEC (oec.world) / UN Comtrade · All Merchandise Exports',
+  },
+};
+
+// Returns [{ hsCode, name, value_usd }] for a clicked country (APEDA only).
+// Static breakdown for major partners; empty array for others / OEC source.
 const COMMODITY_DETAIL = {
-  // Bangladesh — top buyer of Indian rice, sugar, cotton
+  // Bangladesh — rice, sugar, vegetables, cotton, spices (FY2025 base)
   '50':  [
-    { hsCode: '10', name: 'Cereals (Rice)',         value_usd: 1800000000 },
-    { hsCode: '17', name: 'Sugar',                  value_usd:  620000000 },
-    { hsCode: '07', name: 'Vegetables',             value_usd:  410000000 },
-    { hsCode: '52', name: 'Cotton',                 value_usd:  290000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  130000000 },
+    { hsCode: '10', name: 'Cereals (Rice)',         value_usd: 1820000000 },
+    { hsCode: '17', name: 'Sugar',                  value_usd:  630000000 },
+    { hsCode: '07', name: 'Vegetables',             value_usd:  420000000 },
+    { hsCode: '52', name: 'Cotton',                 value_usd:  295000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  135000000 },
   ],
-  // USA — marine products, spices, rice
+  // USA — marine products, spices, rice, processed foods, vegetables (FY2025 base $5.62B)
   '840': [
-    { hsCode: '03', name: 'Marine Products',        value_usd:  980000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  480000000 },
-    { hsCode: '10', name: 'Cereals (Rice)',          value_usd:  390000000 },
-    { hsCode: '20', name: 'Processed Foods',        value_usd:  310000000 },
-    { hsCode: '07', name: 'Vegetables',             value_usd:  220000000 },
+    { hsCode: '03', name: 'Marine Products',        value_usd: 1960000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  850000000 },
+    { hsCode: '10', name: 'Cereals (Rice)',          value_usd:  720000000 },
+    { hsCode: '20', name: 'Processed Foods',        value_usd:  680000000 },
+    { hsCode: '07', name: 'Vegetables',             value_usd:  460000000 },
   ],
-  // UAE — rice, meat, vegetables, fruits
+  // UAE — rice, meat, vegetables, fruits, spices
   '784': [
     { hsCode: '10', name: 'Cereals (Rice)',          value_usd:  650000000 },
     { hsCode: '02', name: 'Meat & Poultry',         value_usd:  490000000 },
@@ -49,70 +72,73 @@ const COMMODITY_DETAIL = {
     { hsCode: '08', name: 'Fruits',                 value_usd:  280000000 },
     { hsCode: '09', name: 'Spices',                 value_usd:  200000000 },
   ],
-  // China — cotton, sugar, castor oil, spices
+  // China — cotton, sugar, castor oil, spices, oil seeds
   '156': [
-    { hsCode: '52', name: 'Cotton',                 value_usd:  580000000 },
-    { hsCode: '17', name: 'Sugar',                  value_usd:  340000000 },
-    { hsCode: '15', name: 'Oils & Fats (Castor)',   value_usd:  290000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  210000000 },
-    { hsCode: '12', name: 'Oil Seeds',              value_usd:  150000000 },
+    { hsCode: '52', name: 'Cotton',                 value_usd:  610000000 },
+    { hsCode: '17', name: 'Sugar',                  value_usd:  360000000 },
+    { hsCode: '15', name: 'Oils & Fats (Castor)',   value_usd:  310000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  224000000 },
+    { hsCode: '12', name: 'Oil Seeds',              value_usd:  160000000 },
   ],
-  // Nepal — food grains, vegetables, processed food
+  // Nepal — cereals, vegetables, processed food, sugar, beverages
   '524': [
-    { hsCode: '10', name: 'Cereals',                value_usd:  560000000 },
-    { hsCode: '07', name: 'Vegetables',             value_usd:  340000000 },
-    { hsCode: '20', name: 'Processed Foods',        value_usd:  260000000 },
-    { hsCode: '17', name: 'Sugar',                  value_usd:  190000000 },
-    { hsCode: '22', name: 'Beverages',              value_usd:  110000000 },
+    { hsCode: '10', name: 'Cereals',                value_usd:  595000000 },
+    { hsCode: '07', name: 'Vegetables',             value_usd:  362000000 },
+    { hsCode: '20', name: 'Processed Foods',        value_usd:  277000000 },
+    { hsCode: '17', name: 'Sugar',                  value_usd:  202000000 },
+    { hsCode: '22', name: 'Beverages',              value_usd:  117000000 },
   ],
-  // Vietnam — cotton, spices, cashews
+  // Vietnam — cotton, spices, cashews, cereals, oil seeds
   '704': [
-    { hsCode: '52', name: 'Cotton',                 value_usd:  580000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  310000000 },
-    { hsCode: '08', name: 'Cashew',                 value_usd:  240000000 },
-    { hsCode: '10', name: 'Cereals',                value_usd:  160000000 },
-    { hsCode: '12', name: 'Oil Seeds',              value_usd:  110000000 },
+    { hsCode: '52', name: 'Cotton',                 value_usd:  617000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  330000000 },
+    { hsCode: '08', name: 'Cashew',                 value_usd:  256000000 },
+    { hsCode: '10', name: 'Cereals',                value_usd:  170000000 },
+    { hsCode: '12', name: 'Oil Seeds',              value_usd:  117000000 },
   ],
-  // Saudi Arabia — rice, meat, vegetables
+  // Saudi Arabia — rice, meat, vegetables, spices, fruits
   '682': [
-    { hsCode: '10', name: 'Cereals (Rice)',          value_usd:  430000000 },
-    { hsCode: '02', name: 'Meat & Poultry',         value_usd:  380000000 },
-    { hsCode: '07', name: 'Vegetables',             value_usd:  240000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  120000000 },
-    { hsCode: '08', name: 'Fruits',                 value_usd:   80000000 },
+    { hsCode: '10', name: 'Cereals (Rice)',          value_usd:  458000000 },
+    { hsCode: '02', name: 'Meat & Poultry',         value_usd:  404000000 },
+    { hsCode: '07', name: 'Vegetables',             value_usd:  255000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  128000000 },
+    { hsCode: '08', name: 'Fruits',                 value_usd:   85000000 },
   ],
-  // Indonesia — cotton, sugar, marine
+  // Indonesia — cotton, sugar, marine, spices, cereals
   '360': [
-    { hsCode: '52', name: 'Cotton',                 value_usd:  340000000 },
-    { hsCode: '17', name: 'Sugar',                  value_usd:  280000000 },
-    { hsCode: '03', name: 'Marine Products',        value_usd:  180000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  110000000 },
-    { hsCode: '10', name: 'Cereals',                value_usd:   90000000 },
+    { hsCode: '52', name: 'Cotton',                 value_usd:  362000000 },
+    { hsCode: '17', name: 'Sugar',                  value_usd:  298000000 },
+    { hsCode: '03', name: 'Marine Products',        value_usd:  191000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  117000000 },
+    { hsCode: '10', name: 'Cereals',                value_usd:   96000000 },
   ],
-  // UK — marine, spices, rice, beverages
+  // UK — marine, spices, rice, misc preparations, vegetables
   '826': [
-    { hsCode: '03', name: 'Marine Products',        value_usd:  180000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  150000000 },
-    { hsCode: '10', name: 'Cereals (Rice)',          value_usd:  120000000 },
-    { hsCode: '21', name: 'Misc. Preparations',     value_usd:   95000000 },
-    { hsCode: '07', name: 'Vegetables',             value_usd:   70000000 },
+    { hsCode: '03', name: 'Marine Products',        value_usd:  192000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  160000000 },
+    { hsCode: '10', name: 'Cereals (Rice)',          value_usd:  128000000 },
+    { hsCode: '21', name: 'Misc. Preparations',     value_usd:  101000000 },
+    { hsCode: '07', name: 'Vegetables',             value_usd:   74000000 },
   ],
-  // Japan — marine, sesame, spices
+  // Japan — marine, sesame, spices, vegetables, processed foods
   '392': [
-    { hsCode: '03', name: 'Marine Products',        value_usd:  220000000 },
-    { hsCode: '12', name: 'Oil Seeds (Sesame)',     value_usd:  140000000 },
-    { hsCode: '09', name: 'Spices',                 value_usd:  110000000 },
-    { hsCode: '07', name: 'Vegetables',             value_usd:   70000000 },
-    { hsCode: '20', name: 'Processed Foods',        value_usd:   50000000 },
+    { hsCode: '03', name: 'Marine Products',        value_usd:  234000000 },
+    { hsCode: '12', name: 'Oil Seeds (Sesame)',     value_usd:  149000000 },
+    { hsCode: '09', name: 'Spices',                 value_usd:  117000000 },
+    { hsCode: '07', name: 'Vegetables',             value_usd:   74000000 },
+    { hsCode: '20', name: 'Processed Foods',        value_usd:   53000000 },
   ],
 };
 
-// Returns commodity breakdown for clicked country, or empty array.
-export async function loadCountryCommodities(partnerCode, year) {
+// Scale factors by year relative to 2025 base values in COMMODITY_DETAIL.
+const YEAR_SCALE = { '2025': 1.0, '2024': 0.94, '2023': 0.88, '2022': 0.82 };
+
+// Returns commodity breakdown for clicked country (APEDA only), or empty array.
+export async function loadCountryCommodities(partnerCode, year, source = 'apeda') {
+  if (source !== 'apeda') return [];
   const rows = COMMODITY_DETAIL[String(partnerCode)];
   if (!rows) return [];
-  // Scale by year (2024 base; 2023 +8%; 2022 +16%)
-  const scale = year === '2023' ? 1.08 : year === '2022' ? 1.16 : 1.0;
+  const scale = YEAR_SCALE[year] ?? 1.0;
   return rows.map(r => ({ ...r, value_usd: Math.round(r.value_usd * scale) }));
 }
 

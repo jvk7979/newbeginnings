@@ -25,7 +25,7 @@ function categoryColor(hsCode) {
   return CATEGORIES[cat]?.color || 'var(--c-accent)';
 }
 
-export default function CountryPanel({ code, partnerData, year, topPartners, onSelectCode }) {
+export default function CountryPanel({ code, partnerData, year, source, topPartners, onSelectCode }) {
   const [commodities, setCommodities] = useState(null);
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState(null);
@@ -34,11 +34,11 @@ export default function CountryPanel({ code, partnerData, year, topPartners, onS
     if (!code) { setCommodities(null); return; }
     let cancelled = false;
     setLoading(true); setError(null); setCommodities(null);
-    loadCountryCommodities(code, year)
+    loadCountryCommodities(code, year, source)
       .then(data => { if (!cancelled) { setCommodities(data); setLoading(false); } })
       .catch(err => { if (!cancelled) { setError(err.message); setLoading(false); } });
     return () => { cancelled = true; };
-  }, [code, year]);
+  }, [code, year, source]);
 
   const partner = partnerData?.[code];
 
@@ -84,7 +84,11 @@ export default function CountryPanel({ code, partnerData, year, topPartners, onS
           </div>
         )}
         {!loading && !error && commodities?.length === 0 && (
-          <div className="wm-loading">No agricultural export data for this country.</div>
+          <div className="wm-loading" style={{ textAlign: 'center', padding: 20 }}>
+            {source === 'oec'
+              ? 'Commodity breakdown not available for OEC source.'
+              : 'No detailed commodity data for this country.'}
+          </div>
         )}
         {!loading && !error && commodities?.map((c) => {
           const color = categoryColor(c.hsCode);

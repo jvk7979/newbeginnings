@@ -1,6 +1,6 @@
 // src/pages/WorldMarket/index.jsx
 //
-// World Market page root. Tab state + Comtrade data loading.
+// World Market page root. Tab state + data loading for both sources.
 
 import { useState, useEffect, useMemo } from 'react';
 import { loadPartnerTotals } from './comtradeDataset';
@@ -9,24 +9,26 @@ import WorldTab from './WorldTab';
 import APTab from './APTab';
 import '../../world-market.css';
 
-// 2024 is the latest available annual data on UN Comtrade as of mid-2025.
-const DEFAULT_YEAR = '2024';
+const DEFAULT_YEAR   = '2025';
+const DEFAULT_SOURCE = 'apeda';
 
 export default function WorldMarketPage() {
-  const [tab, setTab]                 = useState('world');
-  const [year, setYear]               = useState(DEFAULT_YEAR);
+  const [tab,    setTab]    = useState('world');
+  const [year,   setYear]   = useState(DEFAULT_YEAR);
+  const [source, setSource] = useState(DEFAULT_SOURCE);
+
   const [partnerData, setPartnerData] = useState(null);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true); setError(null);
-    loadPartnerTotals(year)
+    loadPartnerTotals(year, source)
       .then(data => { if (!cancelled) { setPartnerData(data); setLoading(false); } })
-      .catch(err => { if (!cancelled) { setError(err.message); setLoading(false); } });
+      .catch(err  => { if (!cancelled) { setError(err.message); setLoading(false); } });
     return () => { cancelled = true; };
-  }, [year]);
+  }, [year, source]);
 
   const topPartners = useMemo(() => {
     if (!partnerData) return [];
@@ -55,6 +57,8 @@ export default function WorldMarketPage() {
             error={error}
             year={year}
             setYear={setYear}
+            source={source}
+            setSource={setSource}
           />
         )}
         {tab === 'ap' && <APTab />}
