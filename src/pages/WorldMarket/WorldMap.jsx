@@ -71,11 +71,13 @@ const COUNTRY_PATHS = WORLD_GEO.features
 // Export intensity (t: 0–1) drives saturation and lightness — big exporters
 // are vivid and dark, no-data countries are pale. Every country keeps its own
 // distinct colour (orange, blue, red, teal, etc.).
+// No-data countries: neutral grey. Import partners: unique hue per country
+// (orange, blue, red, teal…) with saturation + lightness driven by export volume.
 function countryFill(code, t) {
+  if (t == null) return '#c8cdd4';                // uniform grey — no import data
   const hue = (code * 137) % 360;
-  if (t == null) return `hsl(${hue}, 22%, 66%)`; // muted, no trade data
-  const sat = Math.round(35 + t * 50);            // 35% → 85%  as export grows
-  const lig = Math.round(62 - t * 30);            // 62% → 32%  as export grows
+  const sat = Math.round(40 + t * 50);            // 40% → 90% as export grows
+  const lig = Math.round(60 - t * 28);            // 60% → 32% as export grows
   return `hsl(${hue}, ${sat}%, ${lig}%)`;
 }
 
