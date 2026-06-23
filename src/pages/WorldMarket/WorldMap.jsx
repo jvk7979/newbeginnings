@@ -51,6 +51,7 @@ export default function WorldMap({ partnerData, selectedCode, hoveredCode, onSel
     <svg
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="xMidYMid meet"
+      style={{ display: 'block', width: '100%', height: '100%' }}
       aria-label="World map — India's exports by destination country"
     >
       <rect width={W} height={H} fill="var(--c-bg0)" />
