@@ -133,6 +133,13 @@ const COMMODITY_DETAIL = {
 // Scale factors by year relative to 2025 base values in COMMODITY_DETAIL.
 const YEAR_SCALE = { '2025': 1.0, '2024': 0.94, '2023': 0.88, '2022': 0.82 };
 
+// Sync: returns top-N product names for tooltip (APEDA only, no network call).
+export function getQuickProducts(partnerCode, n = 3) {
+  const rows = COMMODITY_DETAIL[String(partnerCode)];
+  if (!rows) return [];
+  return rows.slice(0, n).map(r => r.name);
+}
+
 // Returns commodity breakdown for clicked country (APEDA only), or empty array.
 export async function loadCountryCommodities(partnerCode, year, source = 'apeda') {
   if (source !== 'apeda') return [];
