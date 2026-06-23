@@ -8,7 +8,6 @@
 import { useMemo, memo } from 'react';
 import { feature } from 'topojson-client';
 import worldTopo from 'world-atlas/countries-110m.json';
-import { intensityColor } from '../Atlas/geoHelpers';
 
 // ── Projection ─────────────────────────────────────────────────────────────
 
@@ -68,12 +67,16 @@ const COUNTRY_PATHS = WORLD_GEO.features
   }))
   .filter(c => c.d);                  // drop any empty paths
 
-// Deterministic muted hue per country code (golden-angle hash → full hue wheel).
-// Countries with no export data get a distinct political-map colour; countries
-// with data get the green intensity ramp from intensityColor().
-function countryBaseColor(code) {
+// Each country gets a unique hue via golden-angle hash.
+// Export intensity (t: 0–1) drives saturation and lightness — big exporters
+// are vivid and dark, no-data countries are pale. Every country keeps its own
+// distinct colour (orange, blue, red, teal, etc.).
+function countryFill(code, t) {
   const hue = (code * 137) % 360;
-  return `hsl(${hue}, 22%, 60%)`;
+  if (t == null) return `hsl(${hue}, 22%, 66%)`; // muted, no trade data
+  const sat = Math.round(35 + t * 50);            // 35% → 85%  as export grows
+  const lig = Math.round(62 - t * 30);            // 62% → 32%  as export grows
+  return `hsl(${hue}, ${sat}%, ${lig}%)`;
 }
 
 // ── Components ─────────────────────────────────────────────────────────────
@@ -109,10 +112,8 @@ export default function WorldMap({ partnerData, selectedCode, hoveredCode, onSel
       <rect width={W} height={H} fill="var(--c-bg0)" />
       {COUNTRY_PATHS.map(({ code, d }) => {
         const partner = partnerData?.[code];
-        const t = partner ? partner.value_usd / maxVal : null;
-        const fill = t != null
-          ? intensityColor(Math.pow(t, 0.32))
-          : countryBaseColor(code);
+        const t = partner ? Math.pow(partner.value_usd / maxVal, 0.32) : null;
+        const fill = countryFill(code, t);
         const isSel = selectedCode === code;
         const isHov = hoveredCode === code;
         return (
