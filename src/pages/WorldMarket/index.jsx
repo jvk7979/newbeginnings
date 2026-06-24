@@ -1,6 +1,4 @@
 // src/pages/WorldMarket/index.jsx
-//
-// World Market page root. Tab state + data loading for both sources.
 
 import { useState, useEffect, useMemo } from 'react';
 import { loadPartnerTotals } from './comtradeDataset';
@@ -47,6 +45,8 @@ export default function WorldMarketPage() {
         tab={tab} setTab={setTab}
         topPartners={topPartners}
         partnerCount={partnerCount}
+        year={year}   setYear={setYear}
+        source={source} setSource={setSource}
       />
 
       <div className={`wm-scroll${tab === 'world' ? ' wm-scroll-map' : ''}`}>
@@ -56,9 +56,7 @@ export default function WorldMarketPage() {
             loading={loading}
             error={error}
             year={year}
-            setYear={setYear}
             source={source}
-            setSource={setSource}
           />
         )}
         {tab === 'ap' && <APTab />}

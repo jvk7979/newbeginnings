@@ -1,13 +1,11 @@
 // src/pages/WorldMarket/CountryPanel.jsx
 //
-// Right panel — commodity breakdown for a clicked country, or top-10
-// importer list when nothing is selected.
+// World tab right panel — top-importers list (default) or commodity breakdown.
 
 import { useEffect, useState } from 'react';
-import { loadCountryCommodities, fmtUsd } from './comtradeDataset';
+import { loadCountryCommodities, fmtUsd, SOURCE_META } from './comtradeDataset';
 import { CATEGORIES } from '../Atlas/cropData';
 
-// HS chapter 2-digit prefix → existing category key.
 const HS_CATEGORY = {
   '01': 'livestock', '02': 'livestock', '03': 'livestock',
   '04': 'livestock', '05': 'livestock',
@@ -27,8 +25,8 @@ function categoryColor(hsCode) {
 
 export default function CountryPanel({ code, partnerData, year, source, topPartners, onSelectCode }) {
   const [commodities, setCommodities] = useState(null);
-  const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState(null);
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState(null);
 
   useEffect(() => {
     if (!code) { setCommodities(null); return; }
@@ -36,19 +34,21 @@ export default function CountryPanel({ code, partnerData, year, source, topPartn
     setLoading(true); setError(null); setCommodities(null);
     loadCountryCommodities(code, year, source)
       .then(data => { if (!cancelled) { setCommodities(data); setLoading(false); } })
-      .catch(err => { if (!cancelled) { setError(err.message); setLoading(false); } });
+      .catch(err  => { if (!cancelled) { setError(err.message); setLoading(false); } });
     return () => { cancelled = true; };
   }, [code, year, source]);
 
   const partner = partnerData?.[code];
+  const sourceMeta = SOURCE_META[source] || SOURCE_META.apeda;
 
+  // ── Default view — top importers list ──────────────────────────────────
   if (!code) {
     return (
       <div className="wm-panel">
         <div className="wm-panel-head">
-          <div className="wm-panel-eyebrow">Top Importers from India</div>
-          <div className="wm-panel-name" style={{ fontSize: 14 }}>
-            Click a country to see commodity breakdown
+          <div className="wm-panel-eyebrow">Top Importers · {year}</div>
+          <div className="wm-panel-name" style={{ fontSize: 15 }}>
+            {sourceMeta.detail}
           </div>
         </div>
         <div className="wm-panel-list">
@@ -64,29 +64,31 @@ export default function CountryPanel({ code, partnerData, year, source, topPartn
     );
   }
 
+  // ── Selected country view — commodity breakdown ─────────────────────────
   const max = commodities?.[0]?.value_usd || 1;
 
   return (
     <div className="wm-panel">
       <div className="wm-panel-head">
-        <div className="wm-panel-eyebrow">Selected Country</div>
+        <div className="wm-panel-eyebrow">Commodity Mix · {year}</div>
         <div className="wm-panel-name">{partner?.name || `Country ${code}`}</div>
-        <div className="wm-panel-sub">
-          {fmtUsd(partner?.value_usd)} total imports from India · {year}
-        </div>
+        <div className="wm-panel-big-val">{fmtUsd(partner?.value_usd)}</div>
+        <button className="wm-panel-back" onClick={() => onSelectCode(null)}>
+          ← All countries
+        </button>
       </div>
       <div className="wm-panel-list">
         {loading && <div className="wm-loading">Loading commodities…</div>}
         {error && (
           <div className="wm-loading" style={{ flexDirection: 'column', gap: 6 }}>
-            <span style={{ color: 'var(--c-danger)' }}>API error</span>
+            <span style={{ color: 'var(--c-danger)' }}>Error</span>
             <span style={{ fontSize: 10 }}>{error}</span>
           </div>
         )}
         {!loading && !error && commodities?.length === 0 && (
           <div className="wm-loading" style={{ textAlign: 'center', padding: 20 }}>
             {source === 'oec'
-              ? 'Commodity breakdown not available for OEC source.'
+              ? 'Commodity detail not available for OEC source.'
               : 'No detailed commodity data for this country.'}
           </div>
         )}
