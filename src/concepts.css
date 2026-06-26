@@ -282,46 +282,80 @@
   font-size: 16px; color: rgba(45,18,7,0.4); cursor: pointer; line-height: 1;
 }
 
-/* Bottom strip */
+/* Bottom strip — editorial bar chart */
 .cb-strip-wrap {
-  flex: none; background: #fff; border-top: 2px solid #2d1207;
-  padding: 6px 28px 0;
+  flex: none; background: #faf6ee; border-top: 2px solid #2d1207;
+  padding: 10px 28px 0;
+}
+.cb-strip-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px;
 }
 .cb-strip-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 7px;
-  letter-spacing: 0.14em; text-transform: uppercase; color: rgba(45,18,7,0.4);
-  margin-bottom: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: rgba(45,18,7,0.45);
+}
+.cb-strip-hint {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  color: rgba(45,18,7,0.3); font-style: italic;
 }
 .cb-strip {
-  display: flex; align-items: flex-end; gap: 4px;
-  overflow-x: auto; padding-bottom: 8px; min-height: 110px;
+  display: flex; align-items: flex-end; gap: 6px;
+  overflow-x: auto; padding-bottom: 12px;
 }
-.cb-strip::-webkit-scrollbar { height: 3px; }
-.cb-strip::-webkit-scrollbar-track { background: transparent; }
-.cb-strip::-webkit-scrollbar-thumb { background: rgba(45,18,7,0.2); border-radius: 2px; }
+.cb-strip::-webkit-scrollbar { height: 4px; }
+.cb-strip::-webkit-scrollbar-track { background: rgba(45,18,7,0.05); border-radius: 2px; }
+.cb-strip::-webkit-scrollbar-thumb { background: rgba(45,18,7,0.25); border-radius: 2px; }
 .cb-strip-col {
   flex: none; display: flex; flex-direction: column; align-items: center;
-  cursor: pointer; gap: 2px; transition: opacity 100ms;
-  width: 38px;
+  cursor: pointer; gap: 3px; width: 58px; position: relative;
+  transition: transform 80ms;
 }
-.cb-strip-col:hover { opacity: 1 !important; }
-.cb-strip-sel .cb-strip-name { color: #b71c1c; font-weight: 700; }
+.cb-strip-col:hover { transform: translateY(-2px); }
+.cb-strip-col:hover .cb-strip-tooltip { opacity: 1; pointer-events: none; }
+
+/* Hover tooltip */
+.cb-strip-tooltip {
+  position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: #2d1207; color: #faf6ee;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 5px 9px; border-radius: 4px; white-space: nowrap;
+  opacity: 0; transition: opacity 120ms; z-index: 50;
+  pointer-events: none;
+}
+.cb-strip-tooltip::after {
+  content: ''; position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent; border-top-color: #2d1207;
+}
+.cb-strip-tooltip-name { font-weight: 700; margin-bottom: 1px; }
+.cb-strip-tooltip-val  { color: rgba(250,246,238,0.7); }
+
 .cb-strip-rank {
-  font-family: 'JetBrains Mono', monospace; font-size: 7px;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
   color: rgba(45,18,7,0.3); letter-spacing: 0.04em;
 }
-.cb-strip-bar-wrap { display: flex; align-items: flex-end; height: 68px; }
-.cb-strip-bar {
-  width: 20px; border-radius: 2px 2px 0 0; transition: height 400ms ease;
+.cb-strip-bar-wrap {
+  display: flex; align-items: flex-end; height: 120px; width: 100%;
+  justify-content: center;
 }
+.cb-strip-bar {
+  width: 36px; border-radius: 3px 3px 0 0;
+  transition: height 500ms cubic-bezier(.4,0,.2,1), opacity 150ms;
+  position: relative;
+}
+.cb-strip-col:hover .cb-strip-bar { filter: brightness(1.12); }
+.cb-strip-sel .cb-strip-bar { outline: 2px solid #2d1207; outline-offset: 2px; }
 .cb-strip-name {
-  font-family: 'JetBrains Mono', monospace; font-size: 7px;
-  color: rgba(45,18,7,0.6); text-align: center; width: 100%;
+  font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500;
+  color: rgba(45,18,7,0.65); text-align: center; width: 100%;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.cb-strip-sel .cb-strip-name { color: #b71c1c; font-weight: 700; }
 .cb-strip-val {
-  font-family: 'JetBrains Mono', monospace; font-size: 7px;
-  color: rgba(45,18,7,0.4); text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  color: rgba(45,18,7,0.45); text-align: center;
 }
 
 

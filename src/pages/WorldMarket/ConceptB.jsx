@@ -227,24 +227,32 @@ export default function ConceptB({ partnerData, topPartners, standalone = true }
 
       {/* ── Bottom country strip ─────────────────────────────── */}
       <div className="cb-strip-wrap">
-        <div className="cb-strip-label">TOP EXPORT DESTINATIONS — click to explore</div>
+        <div className="cb-strip-header">
+          <div className="cb-strip-label">Top Export Destinations</div>
+          <div className="cb-strip-hint">hover for details · click to explore</div>
+        </div>
         <div className="cb-strip">
-          {topPartners.slice(0, 40).map((p, i) => {
+          {topPartners.slice(0, 30).map((p, i) => {
             const t = p.value_usd / maxVal;
             const hue = HUES[p.code % 10];
             const isSel = selected === p.code;
+            const barH = Math.max(6, t * 120);
             return (
               <div
                 key={p.code}
                 className={`cb-strip-col${isSel ? ' cb-strip-sel' : ''}`}
                 onClick={() => setSelected(p.code === selected ? null : p.code)}
-                title={`${p.name}: ${fmtUsd(p.value_usd)}`}
               >
+                {/* Hover tooltip */}
+                <div className="cb-strip-tooltip">
+                  <div className="cb-strip-tooltip-name">{p.name}</div>
+                  <div className="cb-strip-tooltip-val">#{i + 1} · {fmtUsd(p.value_usd)}</div>
+                </div>
                 <div className="cb-strip-rank">{String(i + 1).padStart(2, '0')}</div>
                 <div className="cb-strip-bar-wrap">
                   <div
                     className="cb-strip-bar"
-                    style={{ height: `${Math.max(4, t * 68)}px`, background: `hsl(${hue},55%,45%)`, opacity: isSel ? 1 : 0.72 }}
+                    style={{ height: `${barH}px`, background: `hsl(${hue},52%,42%)`, opacity: isSel ? 1 : 0.75 }}
                   />
                 </div>
                 <div className="cb-strip-name">{p.name.split(' ')[0]}</div>
