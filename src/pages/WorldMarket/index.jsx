@@ -3,10 +3,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { loadPartnerTotals } from './comtradeDataset';
 import WorldMarketNavBar from './WorldMarketNavBar';
-import ConceptB from './ConceptB';
+import LayoutA from './LayoutA';
 import APTab from './APTab';
 import '../../world-market.css';
-import '../../concepts.css';
+import '../../layouts.css';
 
 const DEFAULT_YEAR   = '2025';
 const DEFAULT_SOURCE = 'apeda';
@@ -57,10 +57,9 @@ export default function WorldMarketPage({ onNavigate }) {
             ? <div className="wm-loading">Loading…</div>
             : error
               ? <div className="wm-error">Failed to load data: {error}</div>
-              : <ConceptB
+              : <LayoutA
                   partnerData={partnerData}
                   topPartners={topPartners}
-                  standalone={false}
                 />
         )}
         {tab === 'ap' && <APTab />}
