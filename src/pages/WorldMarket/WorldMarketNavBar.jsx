@@ -90,14 +90,6 @@ export default function WorldMarketNavBar({
           onClick={() => setTab('ap')}>
           <span className="wm-tab-idx">02</span> Andhra Pradesh
         </button>
-        <button
-          className="wm-tab"
-          style={{ marginLeft: 'auto', fontSize: 10, opacity: 0.6 }}
-          onClick={() => onNavigate?.('world-market-layouts')}
-          title="Preview 4 layout options"
-        >
-          Layout Options ↗
-        </button>
       </div>
 
       {/* Header strip */}
