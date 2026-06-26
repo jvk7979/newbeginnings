@@ -90,14 +90,6 @@ export default function WorldMarketNavBar({
           onClick={() => setTab('ap')}>
           <span className="wm-tab-idx">02</span> Andhra Pradesh
         </button>
-        <button
-          className="wm-tab"
-          style={{ marginLeft: 'auto', fontSize: 10, opacity: 0.65 }}
-          onClick={() => onNavigate?.('world-market-concepts')}
-          title="Preview design concepts A / B / C"
-        >
-          Design Concepts ↗
-        </button>
       </div>
 
       {/* Header strip */}
@@ -158,14 +150,14 @@ export default function WorldMarketNavBar({
                 >
                   {seeding ? 'Seeding…' : '↑ Seed Cloud'}
                 </button>
-                {source === 'oec' && syncPaused !== null && (
+                {syncPaused !== null && (
                   <button
                     className={`wm-pause-btn${syncPaused ? ' wm-pause-btn-paused' : ''}`}
                     onClick={handleTogglePause}
                     disabled={togglingPause}
                     title={syncPaused ? 'Weekly OEC sync is paused — click to resume' : 'Pause weekly OEC sync'}
                   >
-                    {togglingPause ? '…' : syncPaused ? '▶ Resume sync' : '⏸ Pause sync'}
+                    {togglingPause ? '…' : syncPaused ? '▶ Resume OEC sync' : '⏸ Pause OEC sync'}
                   </button>
                 )}
               </div>
