@@ -3,14 +3,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { loadPartnerTotals } from './comtradeDataset';
 import WorldMarketNavBar from './WorldMarketNavBar';
-import WorldTab from './WorldTab';
+import ConceptB from './ConceptB';
 import APTab from './APTab';
 import '../../world-market.css';
+import '../../concepts.css';
 
 const DEFAULT_YEAR   = '2025';
 const DEFAULT_SOURCE = 'apeda';
 
-export default function WorldMarketPage() {
+export default function WorldMarketPage({ onNavigate }) {
   const [tab,    setTab]    = useState('world');
   const [year,   setYear]   = useState(DEFAULT_YEAR);
   const [source, setSource] = useState(DEFAULT_SOURCE);
@@ -47,17 +48,20 @@ export default function WorldMarketPage() {
         partnerCount={partnerCount}
         year={year}   setYear={setYear}
         source={source} setSource={setSource}
+        onNavigate={onNavigate}
       />
 
       <div className={`wm-scroll${tab === 'world' ? ' wm-scroll-map' : ''}`}>
         {tab === 'world' && (
-          <WorldTab
-            partnerData={partnerData}
-            loading={loading}
-            error={error}
-            year={year}
-            source={source}
-          />
+          loading
+            ? <div className="wm-loading">Loading…</div>
+            : error
+              ? <div className="wm-error">Failed to load data: {error}</div>
+              : <ConceptB
+                  partnerData={partnerData}
+                  topPartners={topPartners}
+                  standalone={false}
+                />
         )}
         {tab === 'ap' && <APTab />}
       </div>
