@@ -139,5 +139,11 @@ service cloud.firestore {
       allow read:  if request.auth != null && docId.matches(request.auth.uid + '__.*');
       allow write: if false;
     }
+    // World Market export data — seeded/synced by Cloud Functions (Admin SDK,
+    // bypasses rules). Any allowed signed-in user can read. No client writes.
+    match /worldMarketExports/{docId} {
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if false;
+    }
   }
 }

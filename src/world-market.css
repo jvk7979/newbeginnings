@@ -107,6 +107,46 @@
   color: var(--c-fg1); padding: 0;
 }
 
+/* Firestore sync status badge */
+.wm-sync-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.06em; color: var(--c-fg3);
+  padding: 3px 8px; border-radius: 12px;
+  background: var(--c-bg1); border: 1px solid var(--c-border);
+  white-space: nowrap;
+}
+.wm-sync-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--c-fg3); flex-shrink: 0;
+}
+.wm-sync-dot-live {
+  background: #34c759;
+  box-shadow: 0 0 4px rgba(52,199,89,0.7);
+  animation: wm-pulse 2.5s ease-in-out infinite;
+}
+@keyframes wm-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+/* Admin seed-to-cloud button */
+.wm-seed-wrap {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.wm-seed-btn {
+  background: none; border: 1px solid var(--c-accent, #4f8ef7);
+  color: var(--c-accent, #4f8ef7); border-radius: 4px; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; padding: 3px 8px; transition: background 150ms;
+}
+.wm-seed-btn:hover:not(:disabled) { background: rgba(79,142,247,0.12); }
+.wm-seed-btn:disabled { opacity: 0.45; cursor: wait; }
+.wm-seed-result {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--c-fg3); max-width: 220px; text-align: right;
+}
+
 /* ─── 2-COLUMN BODY (map + panel) ───────────────────── */
 .wm-body {
   flex: 1; display: flex; min-height: 0; overflow: hidden;

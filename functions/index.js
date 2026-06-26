@@ -480,6 +480,98 @@ export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async (req) 
 // through recent records and collect unique `commodity` values. A handful
 // of 1000-row pages covers essentially every actively-traded commodity
 // nationwide. Returns `{ commodities: string[] }`, alphabetically sorted.
+// ── World Market Exports ─────────────────────────────────────────────────
+// Collection: worldMarketExports/{docId}
+// Doc fields: { partners: { [numericCode]: { name, value_usd } }, syncedAt, source, year }
+//
+// Two write paths:
+//   - seedWorldMarketData: admin callable to push curated static data from the client
+//   - syncWorldMarketExports: scheduled weekly, fetches live from UN Comtrade public API
+
+// Fetch India's export partner breakdown for a given year from the UN Comtrade
+// Public Preview API (free, no key, 500 req/day, sufficient for weekly schedule).
+async function fetchComtradePartners(year) {
+  const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=356&period=${year}&cmdCode=TOTAL&flowCode=X&includeDesc=true`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+  if (!res.ok) throw new Error(`Comtrade API ${res.status}: ${(await res.text().catch(() => '')).slice(0, 200)}`);
+  const data = await res.json();
+  const rows = Array.isArray(data?.data) ? data.data : [];
+  const partners = {};
+  for (const row of rows) {
+    const code = Number(row.partnerCode);
+    // Skip aggregates: 0=World, 899=Areas NES, 568=Bunkers
+    if (!code || code === 0 || code === 899 || code === 568) continue;
+    const value = Number(row.primaryValue);
+    if (!Number.isFinite(value) || value <= 0) continue;
+    partners[String(code)] = {
+      name: row.partnerDesc || String(code),
+      value_usd: Math.round(value),
+    };
+  }
+  return partners;
+}
+
+const worldMarketOpts = {
+  timeoutSeconds: 60,
+  memory: '256MiB',
+  cors: ALLOWED_ORIGINS,
+};
+
+// Admin-only callable: push curated partner data for a source+year into Firestore.
+// The React app reads this back via loadPartnerTotals (Firestore-first, static fallback).
+export const seedWorldMarketData = onCall(worldMarketOpts, withAuth(async (req) => {
+  const email = req.auth?.token?.email?.toLowerCase()?.trim() || '';
+  if (!ADMIN_EMAILS.has(email)) {
+    throw new HttpsError('permission-denied', 'Admin only.');
+  }
+  const { source, year, partners } = req.data || {};
+  if (!source || !year || !partners || typeof partners !== 'object') {
+    throw new HttpsError('invalid-argument', 'source, year (string), partners (object) required.');
+  }
+  const count = Object.keys(partners).length;
+  if (count < 5) throw new HttpsError('invalid-argument', 'partners must have ≥5 entries.');
+  const docId = `${source}-${year}`;
+  await db.doc(`worldMarketExports/${docId}`).set({
+    partners,
+    syncedAt: Date.now(),
+    source,
+    year: String(year),
+    seededBy: email,
+  });
+  console.log(`[seedWorldMarketData] docId=${docId} count=${count} by=${email}`);
+  return { docId, count };
+}));
+
+// Scheduled weekly (Sunday 02:00 IST): fetch India's total merchandise exports
+// from UN Comtrade and store under worldMarketExports/comtrade-{year}.
+// This feeds the 'oec' source in the React app (all merchandise).
+export const syncWorldMarketExports = onSchedule({
+  schedule: '30 20 * * 6', // 20:30 UTC Sat = 02:00 IST Sun
+  timeZone: 'UTC',
+  timeoutSeconds: 120,
+  memory: '256MiB',
+}, async () => {
+  // Use the previous calendar year — annual Comtrade data is available ~6 months after year-end.
+  const fyYear = new Date().getUTCFullYear() - 1;
+  try {
+    const partners = await fetchComtradePartners(fyYear);
+    const count = Object.keys(partners).length;
+    if (count < 10) {
+      console.warn(`[syncWorldMarketExports] too few partners (${count}) — skipping write`);
+      return;
+    }
+    await db.doc(`worldMarketExports/comtrade-${fyYear}`).set({
+      partners,
+      syncedAt: Date.now(),
+      source: 'comtrade',
+      year: String(fyYear),
+    });
+    console.log(`[syncWorldMarketExports] year=${fyYear} partners=${count}`);
+  } catch (err) {
+    console.error('[syncWorldMarketExports]', String(err?.message || err).slice(0, 300));
+  }
+});
+
 export const listAgmarknetCommodities = onCall(marketsCallOpts, withAuth(async (req) => {
   await enforceCooldown(req.auth?.uid, 'listAgmarknetCommodities', COOLDOWN_MS_LIST);
   const apiKey = DATA_GOV_IN_API_KEY.value();
