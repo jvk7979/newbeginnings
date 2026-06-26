@@ -146,6 +146,21 @@
   font-family: 'JetBrains Mono', monospace; font-size: 9px;
   color: var(--c-fg3); max-width: 220px; text-align: right;
 }
+.wm-admin-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.wm-pause-btn {
+  background: none; border: 1px solid var(--c-fg3);
+  color: var(--c-fg3); border-radius: 4px; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.06em; padding: 3px 8px; transition: all 150ms;
+}
+.wm-pause-btn:hover:not(:disabled) { border-color: var(--c-fg2); color: var(--c-fg2); }
+.wm-pause-btn.wm-pause-btn-paused {
+  border-color: #e6a817; color: #e6a817;
+}
+.wm-pause-btn.wm-pause-btn-paused:hover:not(:disabled) { background: rgba(230,168,23,0.1); }
+.wm-pause-btn:disabled { opacity: 0.45; cursor: wait; }
 
 /* ─── 2-COLUMN BODY (map + panel) ───────────────────── */
 .wm-body {

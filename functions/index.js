@@ -545,12 +545,21 @@ export const seedWorldMarketData = onCall(worldMarketOpts, withAuth(async (req) 
 // Scheduled weekly (Sunday 02:00 IST): fetch India's total merchandise exports
 // from UN Comtrade and store under worldMarketExports/comtrade-{year}.
 // This feeds the 'oec' source in the React app (all merchandise).
+// Controlled by marketsConfig/worldMarketSync: { paused: true/false, lastRunAt }
 export const syncWorldMarketExports = onSchedule({
   schedule: '30 20 * * 6', // 20:30 UTC Sat = 02:00 IST Sun
   timeZone: 'UTC',
   timeoutSeconds: 120,
   memory: '256MiB',
 }, async () => {
+  const cfgRef = db.doc('marketsConfig/worldMarketSync');
+  const cfgSnap = await cfgRef.get();
+  const cfg = cfgSnap.exists ? cfgSnap.data() : {};
+  if (cfg.paused === true) {
+    console.log('[syncWorldMarketExports] paused — skipping.');
+    return;
+  }
+
   // Use the previous calendar year — annual Comtrade data is available ~6 months after year-end.
   const fyYear = new Date().getUTCFullYear() - 1;
   try {
@@ -566,6 +575,7 @@ export const syncWorldMarketExports = onSchedule({
       source: 'comtrade',
       year: String(fyYear),
     });
+    await cfgRef.set({ lastRunAt: Date.now() }, { merge: true });
     console.log(`[syncWorldMarketExports] year=${fyYear} partners=${count}`);
   } catch (err) {
     console.error('[syncWorldMarketExports]', String(err?.message || err).slice(0, 300));

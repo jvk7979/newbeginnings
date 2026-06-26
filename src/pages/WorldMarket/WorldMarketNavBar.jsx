@@ -4,6 +4,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { db } from '../../firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { fmtUsd, getWorldMarketSyncInfo, seedYearToFirestore } from './comtradeDataset';
 
 const YEARS = ['2025', '2024', '2023', '2022'];
@@ -19,14 +21,24 @@ export default function WorldMarketNavBar({
   const { user } = useAuth();
   const isAdmin = user?.email && ADMIN_EMAILS.has(user.email.toLowerCase());
 
-  const [syncInfo,   setSyncInfo]   = useState(null);
-  const [seeding,    setSeeding]    = useState(false);
-  const [seedResult, setSeedResult] = useState(null);
+  const [syncInfo,    setSyncInfo]    = useState(null);
+  const [seeding,     setSeeding]     = useState(false);
+  const [seedResult,  setSeedResult]  = useState(null);
+  const [syncPaused,  setSyncPaused]  = useState(null); // null = loading
+  const [togglingPause, setTogglingPause] = useState(false);
 
   useEffect(() => {
     setSyncInfo(null);
     getWorldMarketSyncInfo(year, source).then(setSyncInfo).catch(() => {});
   }, [year, source]);
+
+  // Load the weekly sync pause state (admin only)
+  useEffect(() => {
+    if (!isAdmin) return;
+    getDoc(doc(db, 'marketsConfig', 'worldMarketSync'))
+      .then(snap => setSyncPaused(snap.exists() ? (snap.data().paused === true) : false))
+      .catch(() => setSyncPaused(false));
+  }, [isAdmin]);
 
   async function handleSeed() {
     setSeeding(true);
@@ -39,6 +51,19 @@ export default function WorldMarketNavBar({
       setSeedResult(`✗ ${err.message}`);
     } finally {
       setSeeding(false);
+    }
+  }
+
+  async function handleTogglePause() {
+    setTogglingPause(true);
+    try {
+      const next = !syncPaused;
+      await setDoc(doc(db, 'marketsConfig', 'worldMarketSync'), { paused: next }, { merge: true });
+      setSyncPaused(next);
+    } catch (err) {
+      console.error('Failed to toggle sync pause:', err);
+    } finally {
+      setTogglingPause(false);
     }
   }
 
@@ -121,17 +146,29 @@ export default function WorldMarketNavBar({
               {syncLabel}
             </div>
           )}
-          {/* Admin seed button — only visible to admin emails */}
+          {/* Admin controls — only visible to admin emails */}
           {isAdmin && (
             <div className="wm-seed-wrap">
-              <button
-                className="wm-seed-btn"
-                onClick={handleSeed}
-                disabled={seeding}
-                title={`Push static ${source}/${year} data to Firestore`}
-              >
-                {seeding ? 'Seeding…' : '↑ Seed Cloud'}
-              </button>
+              <div className="wm-admin-row">
+                <button
+                  className="wm-seed-btn"
+                  onClick={handleSeed}
+                  disabled={seeding}
+                  title={`Push static ${source}/${year} data to Firestore`}
+                >
+                  {seeding ? 'Seeding…' : '↑ Seed Cloud'}
+                </button>
+                {source === 'oec' && syncPaused !== null && (
+                  <button
+                    className={`wm-pause-btn${syncPaused ? ' wm-pause-btn-paused' : ''}`}
+                    onClick={handleTogglePause}
+                    disabled={togglingPause}
+                    title={syncPaused ? 'Weekly OEC sync is paused — click to resume' : 'Pause weekly OEC sync'}
+                  >
+                    {togglingPause ? '…' : syncPaused ? '▶ Resume sync' : '⏸ Pause sync'}
+                  </button>
+                )}
+              </div>
               {seedResult && <div className="wm-seed-result">{seedResult}</div>}
             </div>
           )}
