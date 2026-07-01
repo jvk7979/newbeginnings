@@ -10,15 +10,15 @@ const LAT_MIN = 7,  LAT_MAX = 38;
 
 const DATA_URL = `${import.meta.env.BASE_URL || '/'}data/india-states.json`;
 
-// Distinct pastel fills for each state (by sorted index → consistent colour)
+// Vibrant distinct fills for each state (by sorted index → consistent colour)
 const PALETTE = [
-  '#f9d5a7','#b8e4c9','#f4b8b8','#b8d4f4','#e4d5b8',
-  '#d4b8f4','#b8f4e4','#f4d8b8','#b8c4f4','#f4f4b8',
-  '#f4b8d4','#b8f4b8','#d8b8f4','#f4c8b8','#b8e8f4',
-  '#e8b8f4','#c8f4b8','#f4b8c8','#b8d8f4','#f4e8b8',
-  '#d4f4b8','#f4b8e8','#b8f4d4','#e4b8f4','#f4d4b8',
-  '#b8f4f4','#f4b8b8','#c4b8f4','#f4f4c8','#b8e4b8',
-  '#f4c4b8','#b8c8f4','#e8f4b8','#f4b8c4','#c8b8f4',
+  '#f4a236','#4db87a','#e05c5c','#4a90d9','#c47f2a',
+  '#9b59d4','#2bbfa0','#e8742a','#5b7fd4','#c4c420',
+  '#e05a9b','#3ab84a','#a048d4','#e8943a','#3ab8d4',
+  '#d448b8','#7ac43a','#e8436a','#3a7ad4','#d4b820',
+  '#6ab83a','#e843b8','#3ab888','#c448e8','#e87a3a',
+  '#3ad4d4','#e85a5a','#7a5ad4','#d4d420','#3ab86a',
+  '#e8743a','#4a7ad4','#a8d43a','#e8436a','#8a3ad4',
 ];
 
 // Simple equirectangular projection for India's bounding box
@@ -129,9 +129,9 @@ export default function IndiaMap({ commodity, onStateClick }) {
                   d={d}
                   fill={isAP ? color : PALETTE[idx % PALETTE.length]}
                   stroke="#fff"
-                  strokeWidth={isAP ? 1.8 : 0.8}
-                  opacity={isHov && !isAP ? 0.8 : 1}
-                  style={{ filter: isAP ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))' : 'none',
+                  strokeWidth={isAP ? 2.2 : 1.0}
+                  opacity={isHov && !isAP ? 0.75 : 1}
+                  style={{ filter: isAP ? 'drop-shadow(0 3px 10px rgba(0,0,0,0.35))' : 'none',
                            transition: 'opacity 100ms' }}
                 />
                 {/* AP label */}
@@ -174,11 +174,15 @@ export default function IndiaMap({ commodity, onStateClick }) {
   );
 }
 
-// Commodity category → colour (same as Atlas)
+// Commodity category → vibrant highlight colour for AP state
 function catColor(cat) {
   const MAP = {
-    cereal:'#c0392b', spice:'#e67e22', livestock:'#2980b9',
-    oilseed:'#f39c12', horticulture:'#27ae60', fiber:'#8e44ad',
+    cereal:      '#e81c1c',
+    spice:       '#f07000',
+    livestock:   '#0070e8',
+    oilseed:     '#e8a800',
+    horticulture:'#00a832',
+    fiber:       '#8800e8',
   };
   return MAP[cat] || '#e05c2a';
 }
