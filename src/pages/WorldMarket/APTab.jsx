@@ -1,7 +1,8 @@
-// src/pages/WorldMarket/APTab.jsx
+// APTab.jsx — Andhra Pradesh exports: commodity list · India map · destination panel
 
 import { useState, useEffect } from 'react';
 import CommodityLeaderboard from './CommodityLeaderboard';
+import IndiaMap from './IndiaMap';
 import DestinationPanel from './DestinationPanel';
 
 const AP_URL = `${import.meta.env.BASE_URL || '/'}data/ap-exports.json`;
@@ -29,11 +30,17 @@ export default function APTab() {
 
   return (
     <div className="wm-ap-body">
+      {/* Left: commodity leaderboard */}
       <CommodityLeaderboard
         commodities={commodities}
         selected={selected}
         onSelect={setSelected}
       />
+
+      {/* Centre: India states map with AP highlighted */}
+      <IndiaMap commodity={selectedCommodity} />
+
+      {/* Right: world destination map + bar chart */}
       <DestinationPanel commodity={selectedCommodity} />
     </div>
   );
