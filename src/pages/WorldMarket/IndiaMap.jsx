@@ -1,65 +1,79 @@
-// IndiaMap.jsx — India states SVG choropleth
-// Uses the same GeoJSON + Mercator projection as the Crop Atlas for identical borders
-// AP highlighted in commodity colour · other states in distinct vibrant colours
+// IndiaMap.jsx — India state-wise export infographic map
+// Pastel choropleth · state labels with commodity + value · Top 5 panel
+// Uses same GeoJSON + Mercator projection as the Crop Atlas
 
 import { useState, useEffect, useMemo } from 'react';
 import { buildPathGen, stateNameOf } from '../Atlas/geoHelpers';
 import { fmtUsd } from './comtradeDataset';
 
 const IW = 500, IH = 580;
+const GEO_URL     = `${import.meta.env.BASE_URL}atlas/india-states.geojson`;
+const EXPORTS_URL = `${import.meta.env.BASE_URL}data/india-state-exports.json`;
 
-// Same GeoJSON as the Crop Atlas — official Survey of India boundaries
-const DATA_URL = `${import.meta.env.BASE_URL}atlas/india-states.geojson`;
-
-// Vibrant distinct fills for each state (by sorted alpha index)
+// Soft pastel palette (low saturation, light) — distinct per state
 const PALETTE = [
-  '#f4a236','#4db87a','#e05c5c','#4a90d9','#c47f2a',
-  '#9b59d4','#2bbfa0','#e8742a','#5b7fd4','#c4c420',
-  '#e05a9b','#3ab84a','#a048d4','#e8943a','#3ab8d4',
-  '#d448b8','#7ac43a','#e8436a','#3a7ad4','#d4b820',
-  '#6ab83a','#e843b8','#3ab888','#c448e8','#e87a3a',
-  '#3ad4d4','#e85a5a','#7a5ad4','#d4d420','#3ab86a',
-  '#e8743a','#4a7ad4','#a8d43a','#e8436a','#8a3ad4',
+  '#fde8c8','#c8edd8','#fcd0d0','#c8ddf5','#faeac8',
+  '#e0cdf5','#c8f0e8','#fdddc8','#ccd5f5','#f5f5c8',
+  '#f5c8e0','#c8f5c8','#dcc8f5','#f5d8c8','#c8ecf5',
+  '#f0c8f5','#d5f5c8','#f5c8d5','#c8d8f5','#f5eac8',
+  '#d0e8f5','#f5d0c8','#c8f5d8','#f5c8f0','#e8f5c8',
+  '#fcd8e8','#c8e0f5','#f5f5d0','#d8c8f5','#c8f5e8',
+  '#f5e0c8','#d0c8f5','#e8f5d0','#f5c8d8','#c8d0f5',
 ];
+
+// States large enough to show full 3-line label
+const LABEL_FULL = new Set([
+  'Gujarat','Rajasthan','Madhya Pradesh','Maharashtra','Uttar Pradesh',
+  'Andhra Pradesh','Telangana','Karnataka','Tamil Nadu','Kerala',
+  'Odisha','Chhattisgarh','Jharkhand','West Bengal','Punjab',
+  'Haryana','Bihar','Assam','Jammu and Kashmir','Ladakh','Arunachal Pradesh',
+]);
+
+// States that get a 2-line label (abbr + commodity)
+const LABEL_MED = new Set([
+  'Himachal Pradesh','Uttarakhand','Sikkim','Meghalaya',
+  'Nagaland','Manipur','Tripura','Mizoram','Delhi','Goa',
+]);
+
+function fmtCr(cr) {
+  if (!cr) return '';
+  if (cr >= 100000) return `₹${(cr/100000).toFixed(2).replace(/\.?0+$/,'')}L Cr`;
+  if (cr >= 1000)   return `₹${Math.round(cr/100)/10}K Cr`;
+  return `₹${cr} Cr`;
+}
 
 function catColor(cat) {
   const MAP = {
-    cereal:      '#e81c1c',
-    spice:       '#f07000',
-    livestock:   '#0070e8',
-    oilseed:     '#e8a800',
-    horticulture:'#00a832',
-    fiber:       '#8800e8',
+    cereal:'#e81c1c', spice:'#f07000', livestock:'#0070e8',
+    oilseed:'#e8a800', horticulture:'#00a832', fiber:'#8800e8',
   };
   return MAP[cat] || '#e05c2a';
 }
 
-export default function IndiaMap({ commodity, onStateClick }) {
-  const [geo,     setGeo]  = useState(null);
-  const [hovered, setHov]  = useState(null);
-  const [tip,     setTip]  = useState(null);
+const TOP5_COLOURS = ['#f5c518','#c0c0c0','#cd7f32','#4a90d9','#7ac43a'];
+
+export default function IndiaMap({ commodity }) {
+  const [geo,     setGeo]     = useState(null);
+  const [exports, setExports] = useState(null);
+  const [hovered, setHov]     = useState(null);
 
   useEffect(() => {
-    fetch(DATA_URL).then(r => r.json()).then(setGeo).catch(console.error);
+    fetch(GEO_URL).then(r => r.json()).then(setGeo).catch(console.error);
+    fetch(EXPORTS_URL).then(r => r.json()).then(setExports).catch(console.error);
   }, []);
 
-  // Mercator path generator — same as Crop Atlas (padding 6)
   const pathGen = useMemo(() => geo ? buildPathGen(geo, IW, IH, 6) : null, [geo]);
 
-  // Alphabetical sort for consistent palette assignment
   const stateOrder = useMemo(() => {
     if (!geo) return {};
     return Object.fromEntries(
-      [...geo.features]
-        .map(f => stateNameOf(f.properties))
-        .sort()
-        .map((name, i) => [name, i])
+      [...geo.features].map(f => stateNameOf(f.properties)).sort().map((n,i) => [n,i])
     );
   }, [geo]);
 
-  const color = commodity ? catColor(commodity.category) : '#e05c2a';
+  const apColor = commodity ? catColor(commodity.category) : '#e05c2a';
 
-  if (!geo || !pathGen) {
+  if (!geo || !pathGen || !exports) {
     return (
       <div className="im-root">
         <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%',
@@ -70,50 +84,101 @@ export default function IndiaMap({ commodity, onStateClick }) {
     );
   }
 
+  const statesData = exports.states || {};
+  const top5       = exports.top5   || [];
+
   return (
     <div className="im-root">
       {/* Header */}
       <div className="im-header">
-        <span className="im-header-state">Andhra Pradesh</span>
+        <span className="im-header-state">India · State-wise Exports</span>
         <span className="im-header-sep">·</span>
-        <span className="im-header-label">India's Agri-Export Powerhouse</span>
+        <span className="im-header-label">Apr 2023 – Mar 2024</span>
       </div>
 
-      {/* SVG Map */}
+      {/* Map + overlay */}
       <div className="im-svg-wrap">
         <svg viewBox={`0 0 ${IW} ${IH}`} className="im-svg" preserveAspectRatio="xMidYMid meet">
+
           {geo.features.map((f, fi) => {
-            const name  = stateNameOf(f.properties);
-            const isAP  = name === 'Andhra Pradesh';
-            const isHov = hovered === name;
-            const idx   = stateOrder[name] ?? fi;
-            const d     = pathGen.path(f);
-            const cen   = pathGen.centroid(f);
+            const name   = stateNameOf(f.properties);
+            const isAP   = name === 'Andhra Pradesh';
+            const isHov  = hovered === name;
+            const idx    = stateOrder[name] ?? fi;
+            const sd     = statesData[name];
+            const d      = pathGen.path(f);
+            const [cx, cy] = pathGen.centroid(f);
+            const labelT = LABEL_FULL.has(name) ? 'full' : LABEL_MED.has(name) ? 'med' : 'tiny';
+            const fill   = isAP ? apColor : PALETTE[idx % PALETTE.length];
+            const textFill = isAP ? '#fff' : '#2d1a0e';
 
             return (
               <g key={fi}
-                onMouseEnter={e => { setHov(name); setTip({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY, name }); }}
-                onMouseMove={e  => setTip({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY, name })}
-                onMouseLeave={() => { setHov(null); setTip(null); }}
-                onClick={() => isAP && onStateClick?.()}
-                style={{ cursor: isAP ? 'pointer' : 'default' }}
+                onMouseEnter={() => setHov(name)}
+                onMouseLeave={() => setHov(null)}
               >
-                <path
-                  d={d}
-                  fill={isAP ? color : PALETTE[idx % PALETTE.length]}
-                  stroke="#fff"
-                  strokeWidth={isAP ? 2.2 : 1.0}
-                  opacity={isHov && !isAP ? 0.75 : 1}
-                  style={{ filter: isAP ? 'drop-shadow(0 3px 10px rgba(0,0,0,0.35))' : 'none',
-                           transition: 'opacity 100ms' }}
+                <path d={d} fill={fill}
+                  stroke={isHov ? '#2d1207' : '#fff'}
+                  strokeWidth={isAP ? 1.6 : isHov ? 1.2 : 0.7}
+                  style={{ filter: isAP ? 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' : 'none',
+                           transition: 'stroke 80ms' }}
                 />
-                {isAP && cen && (
-                  <text x={cen[0]} y={cen[1]}
-                    textAnchor="middle" dominantBaseline="middle"
-                    fill="#fff" fontWeight="700" fontSize="11"
+
+                {/* Full label: name + commodity + value */}
+                {labelT === 'full' && sd && cx && (
+                  <>
+                    <text x={cx} y={cy - (isAP ? 10 : 7)} textAnchor="middle"
+                      fontSize={isAP ? 9 : 8} fontWeight="700"
+                      fill={textFill} fontFamily="'DM Sans',sans-serif"
+                      style={{ pointerEvents:'none' }}>
+                      {isAP ? 'Andhra Pradesh' : name.replace(' Pradesh','').replace(' Bengal','').replace(' Nadu','').replace('Madhya ','MP–').replace('Uttar ','UP–').replace('West ','W.')}
+                    </text>
+                    <text x={cx} y={cy + 2} textAnchor="middle"
+                      fontSize={isAP ? 7.5 : 6.5}
+                      fill={isAP ? 'rgba(255,255,255,0.9)' : '#5a3a1a'}
+                      fontFamily="'DM Sans',sans-serif"
+                      fontStyle="italic"
+                      style={{ pointerEvents:'none' }}>
+                      {sd.commodity}
+                    </text>
+                    {sd.value_cr > 0 && (
+                      <text x={cx} y={cy + (isAP ? 12 : 10)} textAnchor="middle"
+                        fontSize={isAP ? 7 : 6}
+                        fill={isAP ? 'rgba(255,255,255,0.8)' : '#3a2010'}
+                        fontFamily="'JetBrains Mono',monospace" fontWeight="700"
+                        style={{ pointerEvents:'none' }}>
+                        {fmtCr(sd.value_cr)}
+                      </text>
+                    )}
+                  </>
+                )}
+
+                {/* Medium label: abbr + commodity */}
+                {labelT === 'med' && sd && cx && (
+                  <>
+                    <text x={cx} y={cy - 2} textAnchor="middle"
+                      fontSize="7" fontWeight="700"
+                      fill={textFill} fontFamily="'DM Sans',sans-serif"
+                      style={{ pointerEvents:'none' }}>
+                      {sd.abbr}
+                    </text>
+                    <text x={cx} y={cy + 6} textAnchor="middle"
+                      fontSize="5.5" fill={textFill} opacity="0.75"
+                      fontFamily="'DM Sans',sans-serif"
+                      style={{ pointerEvents:'none' }}>
+                      {sd.commodity.split(' ')[0]}
+                    </text>
+                  </>
+                )}
+
+                {/* Tiny label: abbr only */}
+                {labelT === 'tiny' && sd && cx && (
+                  <text x={cx} y={cy + 2.5} textAnchor="middle"
+                    fontSize="5.5" fontWeight="600"
+                    fill={textFill} opacity="0.8"
                     fontFamily="'DM Sans',sans-serif"
                     style={{ pointerEvents:'none' }}>
-                    Andhra Pradesh
+                    {sd.abbr}
                   </text>
                 )}
               </g>
@@ -121,14 +186,32 @@ export default function IndiaMap({ commodity, onStateClick }) {
           })}
         </svg>
 
-        {tip && (
-          <div className="im-tip" style={{ left: tip.x + 12, top: tip.y - 8 }}>
-            {tip.name}
+        {/* Hover tooltip */}
+        {hovered && statesData[hovered] && (
+          <div className="im-tip" style={{ top: 8, left: '50%', transform: 'translateX(-50%)' }}>
+            <span style={{ fontWeight:700 }}>{hovered}</span>
+            {statesData[hovered].value_cr > 0 && (
+              <> · {fmtCr(statesData[hovered].value_cr)}</>
+            )}
+            {' · '}{statesData[hovered].commodity}
           </div>
         )}
 
+        {/* Top 5 panel */}
+        <div className="im-top5">
+          <div className="im-top5-head">Top 5 Exporting States</div>
+          {top5.map((s, i) => (
+            <div key={s.name} className="im-top5-row">
+              <span className="im-top5-medal" style={{ background: TOP5_COLOURS[i] }}>{i+1}</span>
+              <span className="im-top5-name">{s.name}</span>
+              <span className="im-top5-val">{fmtCr(s.value_cr)}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* AP commodity chip */}
         {commodity && (
-          <div className="im-ap-chip" style={{ borderColor: color, color }}>
+          <div className="im-ap-chip" style={{ borderColor: apColor, color: apColor }}>
             <span className="im-ap-chip-name">{commodity.name}</span>
             <span className="im-ap-chip-val">{fmtUsd(commodity.value_usd_m * 1e6)}</span>
           </div>
@@ -137,9 +220,10 @@ export default function IndiaMap({ commodity, onStateClick }) {
 
       {/* Legend */}
       <div className="im-legend">
-        <span className="im-legend-dot" style={{ background: color }}/>
+        <span className="im-legend-dot" style={{ background: apColor }}/>
         <span className="im-legend-text">
-          Andhra Pradesh {commodity ? `· ${commodity.name}` : '· Select a commodity'}
+          Andhra Pradesh highlighted · {commodity ? commodity.name : 'select a commodity'}
+          {' · '}Source: Ministry of Commerce & Industry
         </span>
       </div>
     </div>

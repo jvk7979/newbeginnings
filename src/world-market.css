@@ -375,6 +375,36 @@
   font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
   padding: 4px 10px; border-radius: 4px; white-space: nowrap;
 }
+.im-top5 {
+  position: absolute; top: 12px; right: 10px; z-index: 20;
+  background: rgba(255,252,245,0.97); border: 1.5px solid rgba(45,18,7,0.18);
+  border-radius: 8px; padding: 8px 12px;
+  box-shadow: 0 3px 16px rgba(45,18,7,0.14); min-width: 160px;
+}
+.im-top5-head {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(45,18,7,0.5);
+  margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px solid rgba(45,18,7,0.1);
+}
+.im-top5-row {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 5px;
+}
+.im-top5-row:last-child { margin-bottom: 0; }
+.im-top5-medal {
+  width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.im-top5-name {
+  font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 600;
+  color: #2d1207; flex: 1;
+}
+.im-top5-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  color: rgba(45,18,7,0.6); white-space: nowrap;
+}
+
 .im-ap-chip {
   position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
   background: rgba(255,252,245,0.96); border: 1.5px solid;
