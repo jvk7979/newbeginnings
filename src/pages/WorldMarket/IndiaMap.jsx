@@ -1,16 +1,17 @@
 // IndiaMap.jsx — India states SVG choropleth
-// AP highlighted in commodity colour · other states in distinct pastels
+// Uses the same GeoJSON + Mercator projection as the Crop Atlas for identical borders
+// AP highlighted in commodity colour · other states in distinct vibrant colours
 
 import { useState, useEffect, useMemo } from 'react';
+import { buildPathGen, stateNameOf } from '../Atlas/geoHelpers';
 import { fmtUsd } from './comtradeDataset';
 
 const IW = 500, IH = 580;
-const LNG_MIN = 68, LNG_MAX = 98;
-const LAT_MIN = 7,  LAT_MAX = 38;
 
-const DATA_URL = `${import.meta.env.BASE_URL || '/'}data/india-states.json`;
+// Same GeoJSON as the Crop Atlas — official Survey of India boundaries
+const DATA_URL = `${import.meta.env.BASE_URL}atlas/india-states.geojson`;
 
-// Vibrant distinct fills for each state (by sorted index → consistent colour)
+// Vibrant distinct fills for each state (by sorted alpha index)
 const PALETTE = [
   '#f4a236','#4db87a','#e05c5c','#4a90d9','#c47f2a',
   '#9b59d4','#2bbfa0','#e8742a','#5b7fd4','#c4c420',
@@ -21,72 +22,44 @@ const PALETTE = [
   '#e8743a','#4a7ad4','#a8d43a','#e8436a','#8a3ad4',
 ];
 
-// Simple equirectangular projection for India's bounding box
-function project(lng, lat) {
-  return [
-    ((lng - LNG_MIN) / (LNG_MAX - LNG_MIN)) * IW,
-    ((LAT_MAX - lat) / (LAT_MAX - LAT_MIN)) * IH,
-  ];
-}
-
-function ringToPath(ring) {
-  let d = '';
-  for (let i = 0; i < ring.length; i++) {
-    const [x, y] = project(ring[i][0], ring[i][1]);
-    d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
-  }
-  return d + 'Z';
-}
-
-function geomToPath(geom) {
-  if (!geom) return '';
-  if (geom.type === 'Polygon')
-    return geom.coordinates.map(ringToPath).join(' ');
-  if (geom.type === 'MultiPolygon')
-    return geom.coordinates.flatMap(r => r.map(ringToPath)).join(' ');
-  return '';
-}
-
-// Centroid of a ring (for label placement)
-function ringCentroid(ring) {
-  let lngSum = 0, latSum = 0;
-  for (const [lng, lat] of ring) { lngSum += lng; latSum += lat; }
-  return [lngSum / ring.length, latSum / ring.length];
-}
-
-function featureCentroid(geom) {
-  if (!geom) return null;
-  const ring = geom.type === 'Polygon'
-    ? geom.coordinates[0]
-    : geom.coordinates.sort((a,b) => b[0].length - a[0].length)[0][0];
-  const [lng, lat] = ringCentroid(ring);
-  return project(lng, lat);
+function catColor(cat) {
+  const MAP = {
+    cereal:      '#e81c1c',
+    spice:       '#f07000',
+    livestock:   '#0070e8',
+    oilseed:     '#e8a800',
+    horticulture:'#00a832',
+    fiber:       '#8800e8',
+  };
+  return MAP[cat] || '#e05c2a';
 }
 
 export default function IndiaMap({ commodity, onStateClick }) {
-  const [geo, setGeo]     = useState(null);
-  const [hovered, setHov] = useState(null);
-  const [tip, setTip]     = useState(null); // {x,y,name}
+  const [geo,     setGeo]  = useState(null);
+  const [hovered, setHov]  = useState(null);
+  const [tip,     setTip]  = useState(null);
 
   useEffect(() => {
-    fetch(DATA_URL)
-      .then(r => r.json())
-      .then(setGeo)
-      .catch(console.error);
+    fetch(DATA_URL).then(r => r.json()).then(setGeo).catch(console.error);
   }, []);
 
+  // Mercator path generator — same as Crop Atlas (padding 6)
+  const pathGen = useMemo(() => geo ? buildPathGen(geo, IW, IH, 6) : null, [geo]);
+
+  // Alphabetical sort for consistent palette assignment
   const stateOrder = useMemo(() => {
     if (!geo) return {};
     return Object.fromEntries(
-      [...geo.features].sort((a,b) => a.properties.name.localeCompare(b.properties.name))
-        .map((f,i) => [f.properties.name, i])
+      [...geo.features]
+        .map(f => stateNameOf(f.properties))
+        .sort()
+        .map((name, i) => [name, i])
     );
   }, [geo]);
 
-  const cat   = commodity?.category;
-  const color = cat ? catColor(cat) : '#e05c2a';
+  const color = commodity ? catColor(commodity.category) : '#e05c2a';
 
-  if (!geo) {
+  if (!geo || !pathGen) {
     return (
       <div className="im-root">
         <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%',
@@ -110,15 +83,15 @@ export default function IndiaMap({ commodity, onStateClick }) {
       <div className="im-svg-wrap">
         <svg viewBox={`0 0 ${IW} ${IH}`} className="im-svg" preserveAspectRatio="xMidYMid meet">
           {geo.features.map((f, fi) => {
-            const name  = f.properties.name;
+            const name  = stateNameOf(f.properties);
             const isAP  = name === 'Andhra Pradesh';
             const isHov = hovered === name;
             const idx   = stateOrder[name] ?? fi;
-            const d     = geomToPath(f.geometry);
-            const cen   = featureCentroid(f.geometry);
+            const d     = pathGen.path(f);
+            const cen   = pathGen.centroid(f);
 
             return (
-              <g key={name}
+              <g key={fi}
                 onMouseEnter={e => { setHov(name); setTip({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY, name }); }}
                 onMouseMove={e  => setTip({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY, name })}
                 onMouseLeave={() => { setHov(null); setTip(null); }}
@@ -134,13 +107,12 @@ export default function IndiaMap({ commodity, onStateClick }) {
                   style={{ filter: isAP ? 'drop-shadow(0 3px 10px rgba(0,0,0,0.35))' : 'none',
                            transition: 'opacity 100ms' }}
                 />
-                {/* AP label */}
                 {isAP && cen && (
                   <text x={cen[0]} y={cen[1]}
                     textAnchor="middle" dominantBaseline="middle"
-                    fill="#fff" fontWeight="700"
-                    fontSize="10" fontFamily="'DM Sans',sans-serif"
-                    style={{ pointerEvents:'none', textShadow:'0 1px 2px rgba(0,0,0,0.4)' }}>
+                    fill="#fff" fontWeight="700" fontSize="11"
+                    fontFamily="'DM Sans',sans-serif"
+                    style={{ pointerEvents:'none' }}>
                     Andhra Pradesh
                   </text>
                 )}
@@ -149,14 +121,12 @@ export default function IndiaMap({ commodity, onStateClick }) {
           })}
         </svg>
 
-        {/* Hover tooltip */}
         {tip && (
           <div className="im-tip" style={{ left: tip.x + 12, top: tip.y - 8 }}>
             {tip.name}
           </div>
         )}
 
-        {/* AP commodity chip */}
         {commodity && (
           <div className="im-ap-chip" style={{ borderColor: color, color }}>
             <span className="im-ap-chip-name">{commodity.name}</span>
@@ -165,24 +135,13 @@ export default function IndiaMap({ commodity, onStateClick }) {
         )}
       </div>
 
-      {/* Legend row */}
+      {/* Legend */}
       <div className="im-legend">
         <span className="im-legend-dot" style={{ background: color }}/>
-        <span className="im-legend-text">Andhra Pradesh {commodity ? `· ${commodity.name}` : '· Select a commodity'}</span>
+        <span className="im-legend-text">
+          Andhra Pradesh {commodity ? `· ${commodity.name}` : '· Select a commodity'}
+        </span>
       </div>
     </div>
   );
-}
-
-// Commodity category → vibrant highlight colour for AP state
-function catColor(cat) {
-  const MAP = {
-    cereal:      '#e81c1c',
-    spice:       '#f07000',
-    livestock:   '#0070e8',
-    oilseed:     '#e8a800',
-    horticulture:'#00a832',
-    fiber:       '#8800e8',
-  };
-  return MAP[cat] || '#e05c2a';
 }
