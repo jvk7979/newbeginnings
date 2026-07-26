@@ -6594,3 +6594,121 @@ textarea.form-input {
      label + control never gets squeezed against a neighbour. */
   .atlas-filterbar .atlas-fb-group { flex: 1 1 auto; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * GODAVARI — Delta × Monsoon component styling (2026-07-26 redesign).
+ *
+ * The palette lives in themes.css; this block reshapes Dashboard components
+ * to match the approved sample:
+ *   • Monsoon (light) — a floating colour-block KPI ribbon (mango / paddy /
+ *     river), mono numerals, paddy CTA, hover-lift cards.
+ *   • Delta (dark)    — gauge-style dark KPI tiles with a glowing centre tile.
+ *   • Hero text stays readable on the bright Godavari photo in BOTH climates.
+ *
+ * Every selector is [data-theme="godavari"]-scoped; the dark climate adds the
+ * [data-mode="dark"] attribute so its specificity (0,5,0) beats the light
+ * Godavari rules (0,4,0), which in turn beat the base component rules.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* — Hero — the Godavari photo stays bright in both climates, so on web/iPad
+ *   the overlay text must be dark ink regardless of light/dark mode (in dark
+ *   mode --c-fg1 would flip to parchment and wash out over the bright sky).
+ *   Mobile (<=640px) drops the text below the photo onto the page background
+ *   and keeps its own token-driven colours — untouched here. */
+@media (min-width: 641px) {
+  :root[data-theme="godavari"] .dh-hero-content { color: #17201a; }
+  :root[data-theme="godavari"] .dh-hero-title   { color: #17201a; }
+  :root[data-theme="godavari"] .dh-hero-welcome { color: #2c3428; }
+  :root[data-theme="godavari"] .dh-hero-tagline { color: #34402f; }
+}
+
+/* — KPI ribbon — drop the outer card so three colour blocks float like the
+ *   sample's Monsoon stat ribbon; mono numerals give the data voice. */
+:root[data-theme="godavari"] .dh-kpi-strip {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  gap: 14px;
+  margin-bottom: 34px;
+}
+:root[data-theme="godavari"] .dh-kpi-tile {
+  border-radius: 16px;
+  padding: 16px 18px;
+  align-items: center;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+:root[data-theme="godavari"] .dh-kpi-tile:hover { transform: translateY(-2px); }
+:root[data-theme="godavari"] .dh-kpi-value {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme="godavari"] .dh-kpi-label { letter-spacing: 0.1em; }
+
+/* Monsoon (light) — three saturated colour blocks, white content. */
+:root[data-theme="godavari"] .dh-kpi-tile:nth-child(1) {
+  background: linear-gradient(135deg, #F2A93B 0%, #E0921F 100%);
+  box-shadow: 0 12px 26px -14px rgba(242, 169, 59, 0.70);
+}
+:root[data-theme="godavari"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(135deg, #46A06B 0%, #2E7D53 100%);
+  box-shadow: 0 12px 26px -14px rgba(46, 125, 83, 0.60);
+}
+:root[data-theme="godavari"] .dh-kpi-tile:nth-child(3) {
+  background: linear-gradient(135deg, #3F97C2 0%, #2F80A8 100%);
+  box-shadow: 0 12px 26px -14px rgba(47, 128, 168, 0.55);
+}
+:root[data-theme="godavari"] .dh-kpi-tile .dh-kpi-value,
+:root[data-theme="godavari"] .dh-kpi-tile .dh-kpi-label,
+:root[data-theme="godavari"] .dh-kpi-tile .dh-kpi-hint { color: #ffffff; }
+:root[data-theme="godavari"] .dh-kpi-tile .dh-kpi-label { opacity: 0.92; }
+:root[data-theme="godavari"] .dh-kpi-icon {
+  background: rgba(255, 255, 255, 0.20);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.30);
+}
+
+/* Delta (dark) — gauge-style dark tiles; the centre "active projects" tile
+ *   glows paddy-green so the strip has a clear focal point. */
+:root[data-theme="godavari"][data-mode="dark"] .dh-kpi-tile:nth-child(1),
+:root[data-theme="godavari"][data-mode="dark"] .dh-kpi-tile:nth-child(3) {
+  background: var(--c-bg1);
+  box-shadow: inset 0 0 0 1px var(--c-border);
+}
+:root[data-theme="godavari"][data-mode="dark"] .dh-kpi-tile:nth-child(2) {
+  background: linear-gradient(180deg, #1D3327 0%, #16201B 100%);
+  box-shadow: inset 0 0 0 1px rgba(127, 176, 105, 0.40);
+}
+:root[data-theme="godavari"][data-mode="dark"] .dh-kpi-tile .dh-kpi-value { color: var(--c-fg1); }
+:root[data-theme="godavari"][data-mode="dark"] .dh-kpi-tile:nth-child(2) .dh-kpi-value { color: var(--c-accent); }
+:root[data-theme="godavari"][data-mode="dark"] .dh-kpi-tile .dh-kpi-label { color: var(--c-fg3); opacity: 1; }
+:root[data-theme="godavari"][data-mode="dark"] .dh-kpi-icon {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  border-color: rgba(127, 176, 105, 0.25);
+}
+
+/* — Cards — hover-lift on the Featured Ideas / Active Projects rows. */
+:root[data-theme="godavari"] .dh-card-row {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+:root[data-theme="godavari"] .dh-card-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -20px rgba(46, 125, 83, 0.55);
+}
+
+/* — Primary CTA — paddy gradient, matching the sample. */
+:root[data-theme="godavari"] .dh-btn-primary {
+  background: linear-gradient(135deg, #2E7D53 0%, #46A06B 100%);
+  border: none;
+  box-shadow: 0 6px 16px -6px rgba(46, 125, 83, 0.55);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+:root[data-theme="godavari"] .dh-btn-primary:hover {
+  background: linear-gradient(135deg, #256A46 0%, #3C9160 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -6px rgba(46, 125, 83, 0.62);
+}

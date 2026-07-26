@@ -40,9 +40,11 @@ test.describe('Theme system — picker + switching + persistence', () => {
     await page.waitForLoadState("networkidle");
   });
 
-  test('default theme is heritage on fresh load', async ({ page }) => {
+  test('default theme is godavari on fresh load', async ({ page }) => {
+    // Godavari (the Delta × Monsoon redesign) is the default as of the
+    // 2026-07-26 rebrand; heritage remains selectable in the picker.
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
-    expect(theme).toBe('heritage');
+    expect(theme).toBe('godavari');
   });
 
   test('Settings picker shows all eight theme cards', async ({ page }) => {

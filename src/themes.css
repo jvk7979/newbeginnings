@@ -335,6 +335,133 @@
   --c-chart-axis:     #3A7A60; /* forest */
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * Godavari — the combined "Delta × Monsoon" direction (2026-07-26 redesign).
+ * One identity, two climates, driven by the existing light/dark axis:
+ *
+ *   LIGHT  →  Monsoon : warm paper, paddy-green primary, mango + river +
+ *             coral highlights. Joyful, approachable.
+ *   DARK   →  Delta   : fertile near-black ground, brightened paddy green,
+ *             silt gold + river teal. Rooted, immersive.
+ *
+ * The DARK block is written with an extra [data-mode="dark"] attribute so its
+ * specificity (0,3,0) beats the universal :root[data-mode="dark"] neutral
+ * override (0,2,0) in styles.css — dark mode therefore renders TRUE Delta
+ * (fertile greens) instead of the generic grey dark applied to other themes.
+ *
+ * Editorial type stack (Playfair / DM Sans / JetBrains Mono) is unchanged;
+ * this palette only supplies colour. The hero contour signature + component
+ * shapes are added as [data-theme="godavari"]-scoped rules in styles.css.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* Monsoon — LIGHT climate */
+:root[data-theme="godavari"] {
+  --c-bg0: #FBF7EF;          /* warm paper — page bg */
+  --c-bg1: #FFFFFF;          /* card surface */
+  --c-bg2: #F3ECDD;          /* secondary surface */
+  --c-bg3: #E7DCC5;          /* deepest warm surface — borders/dividers */
+  --c-bg-texture:
+    radial-gradient(1000px 700px at 8% 10%,  color-mix(in srgb, var(--c-warning) 8%, transparent), transparent 60%),
+    radial-gradient(1100px 800px at 96% 4%,  color-mix(in srgb, var(--c-info)    6%, transparent), transparent 62%),
+    radial-gradient(900px 900px at 60% 100%, color-mix(in srgb, var(--c-accent)  6%, transparent), transparent 65%);
+  --c-fg1: #20261F;          /* ink */
+  --c-fg2: #55594B;          /* body */
+  --c-fg3: #6E6A57;          /* labels — ~5:1 on bg0, clears AA */
+  --c-accent: #2E7D53;       /* paddy green — primary */
+  --c-accent-light: #46A06B; /* leaf */
+  --c-accent-dim: #1F5B3B;
+  --c-accent-bg: #E4F0E8;
+  --c-accent-rgb: 46 125 83;
+  --c-accent-dim-rgb: 31 91 59;
+  --c-border: #EFE7D4;
+  --c-border-light: #DFD2B8;
+  --c-success: #2E7D53;
+  --c-success-bg: #E4F0E8;
+  --c-warning: #DE9A2E;      /* mango gold */
+  --c-warning-bg: #FBEFD6;
+  --c-danger: #E4633C;       /* coral */
+  --c-danger-bg: #FBE7DF;
+  --c-danger-rgb: 228 99 60;
+  --c-info: #2F80A8;         /* river blue */
+  --c-info-bg: #E2EEF5;
+  /* Categorical secondary palette — leaf / mango / river. */
+  --c-accent-2:    #46A06B;
+  --c-accent-2-bg: #E4F0E8;
+  --c-accent-3:    #DE9A2E;
+  --c-accent-3-bg: #FBEFD6;
+  --c-accent-4:    #2F80A8;
+  --c-accent-4-bg: #E2EEF5;
+  /* Chart palette — on warm paper */
+  --c-chart-positive: #46A06B; /* leaf */
+  --c-chart-negative: #E4633C; /* coral */
+  --c-chart-neutral:  #DE9A2E; /* mango */
+  --c-chart-accent:   #2E7D53; /* paddy */
+  --c-chart-axis:     #9A8F73; /* warm tan */
+  /* Brand extras (hero / KPI icon circles / dividers) */
+  --c-h-gold:        #DE9A2E;
+  --c-h-gold-light:  #F2A93B;
+  --c-h-gold-bg:     #FBEFD6;
+  --c-h-river:       #2F80A8;
+  --c-h-river-light: #7FB3CE;
+  --c-h-river-bg:    #E2EEF5;
+  --c-h-terracotta:  #E4633C;
+  --c-h-terracotta-bg: #FBE7DF;
+  /* Godavari signature — hero contour-line tint. */
+  --c-contour: #2E7D53;
+}
+
+/* Delta — DARK climate (specificity beats universal [data-mode="dark"]). */
+:root[data-theme="godavari"][data-mode="dark"] {
+  --c-bg0: #0E1512;          /* fertile near-black */
+  --c-bg1: #16201B;          /* tile surface */
+  --c-bg2: #1B2A22;          /* secondary surface */
+  --c-bg3: #24332B;          /* borders/dividers */
+  --c-bg-texture:
+    radial-gradient(1000px 700px at 8% 10%,  color-mix(in srgb, var(--c-warning) 8%, transparent), transparent 60%),
+    radial-gradient(1100px 800px at 96% 4%,  color-mix(in srgb, var(--c-info)    7%, transparent), transparent 62%),
+    radial-gradient(900px 900px at 60% 100%, color-mix(in srgb, var(--c-accent)  8%, transparent), transparent 65%);
+  --c-fg1: #EAF0EA;
+  --c-fg2: #B4C2B7;
+  --c-fg3: #93A596;
+  --c-accent: #7FB069;       /* paddy — brightened for dark */
+  --c-accent-light: #98C784;
+  --c-accent-dim: #5E8F4E;
+  --c-accent-bg: #182A1E;
+  --c-accent-rgb: 127 176 105;
+  --c-accent-dim-rgb: 94 143 78;
+  --c-border: #24332B;
+  --c-border-light: #35473B;
+  --c-success: #7FB069;
+  --c-success-bg: #182A1E;
+  --c-warning: #E0A458;      /* silt gold */
+  --c-warning-bg: #2A2114;
+  --c-danger: #D9764A;
+  --c-danger-bg: #2A1912;
+  --c-danger-rgb: 217 118 74;
+  --c-info: #4EA8A0;         /* river teal */
+  --c-info-bg: #10231F;
+  --c-accent-2:    #98C784;
+  --c-accent-2-bg: #1B2A22;
+  --c-accent-3:    #E0A458;
+  --c-accent-3-bg: #2A2114;
+  --c-accent-4:    #4EA8A0;
+  --c-accent-4-bg: #10231F;
+  --c-chart-positive: #7FB069;
+  --c-chart-negative: #D9764A;
+  --c-chart-neutral:  #E0A458;
+  --c-chart-accent:   #7FB069;
+  --c-chart-axis:     #5A6A5E;
+  --c-h-gold:        #E0A458;
+  --c-h-gold-light:  #EBBE7E;
+  --c-h-gold-bg:     #2A2114;
+  --c-h-river:       #4EA8A0;
+  --c-h-river-light: #7CC3BC;
+  --c-h-river-bg:    #10231F;
+  --c-h-terracotta:  #D9764A;
+  --c-h-terracotta-bg: #2A1912;
+  --c-contour: #7FB069;
+}
+
 /* Translucent variants — derived from the theme's accent / danger / accent-dim
  * RGB channels so they stay readable on whatever background the theme uses. */
 :root,

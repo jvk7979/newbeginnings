@@ -41,6 +41,9 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 //   oxford / burgundy   → heritage  (rev-2 retirement — blue / red gone)
 //   vellum              → heritage  (rev-2 retirement — warm ledger gone)
 export const THEMES = [
+  // Godavari — the combined direction (light = Monsoon, dark = Delta). Its
+  // swatch shows the two climates: warm paper + paddy green vs fertile dark.
+  { id: 'godavari',   label: 'Godavari',   mode: 'light', swatch: ['#FBF7EF', '#0E1512', '#2E7D53'] },
   { id: 'heritage',   label: 'Heritage',   mode: 'light', swatch: ['#F6F1E7', '#FDFAF2', '#37986b'] },
   { id: 'citrus',     label: 'Citrus',     mode: 'light', swatch: ['#FFFFFF', '#FFFBF5', '#F97316'] },
   { id: 'midnight',   label: 'Midnight',   mode: 'dark',  swatch: ['#0E1116', '#161A22', '#E8B97B'] },
@@ -48,7 +51,7 @@ export const THEMES = [
   { id: 'aurora',     label: 'Aurora',     mode: 'light', swatch: ['#FFFFFF', '#F0FDF9', '#009974'] },
 ];
 
-const DEFAULT_THEME = 'heritage';
+const DEFAULT_THEME = 'godavari';
 const STORAGE_KEY   = 'nb_theme';
 const DARK_KEY      = 'nb_dark_mode'; // 'light' | 'dark' | 'system'
 
