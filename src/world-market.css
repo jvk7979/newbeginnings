@@ -476,7 +476,9 @@
   .wm-header-text { padding: 10px 16px; }
   .wm-kpi-chips { border-left: 0; }
   .wm-header-strip { flex-wrap: wrap; }
-  .wm-header-selectors { border-left: 0; border-top: 1px solid var(--c-border); width: 100%; padding: 8px 16px; }
+  /* Let the selectors row wrap so Year / Source / sync badge / admin buttons
+     stack onto extra rows instead of overflowing a narrow phone. */
+  .wm-header-selectors { border-left: 0; border-top: 1px solid var(--c-border); width: 100%; padding: 8px 16px; flex-wrap: wrap; }
   .wm-ap-body { flex-direction: column; }
   .wm-ap-list { width: 100%; border-right: 0; border-bottom: 1px solid var(--c-border); flex: none; height: 320px; }
   .wm-dest-panel { flex: none; height: 380px; }

@@ -1,26 +1,26 @@
-// Layout A — Split Panel
-// Map 60% left · Horizontal-bar ranked list 40% right · cross-highlight on click
+// Layout A — Split Panel (Godavari redesign)
+//
+// A single sequential paddy-green choropleth encodes each market's export
+// value (darker green = larger importer), India is marked gold as the export
+// origin, and a cross-highlighted ranked list sits alongside. Everything is
+// theme-token driven, so it repaints for Monsoon (light) / Delta (dark).
+//
+// Replaces the previous per-country rainbow (HUES[code % 10]) which coloured
+// countries by identity rather than value — visually noisy and off-brand.
 
 import { useState, useRef } from 'react';
 import { COUNTRY_PATHS, W, H } from './mapGeo';
 import { fmtUsd } from './comtradeDataset';
 
-// Vibrant, well-separated hues for the 10 colour buckets
-const HUES = [8, 38, 180, 118, 258, 48, 158, 302, 76, 326];
+// ISO-numeric code for India — the export origin, painted gold rather than
+// treated as a (non-existent) importer of its own goods.
+const INDIA_CODE = 356;
 
-// Non-partner ocean/land colour
-const LAND_BLANK = '#c8bfad';
-
-function countryFill(code, t) {
-  if (t == null) return LAND_BLANK;
-  const hue = HUES[code % 10];
-  const sat = 68 + t * 22;         // 68 → 90 %
-  const lit = 62 - t * 34;         // 62 → 28 %
-  return `hsl(${hue},${sat}%,${lit}%)`;
-}
-
-function barColour(code) {
-  return `hsl(${HUES[code % 10]},75%,36%)`;
+// Perceptual value → 0..1 ramp. The <1 exponent lifts the low end so small
+// importers stay distinguishable from the land colour instead of washing out.
+function ramp(value, max) {
+  if (!value || !max) return 0;
+  return Math.pow(value / max, 0.45);
 }
 
 export default function LayoutA({ partnerData, topPartners }) {
@@ -38,86 +38,85 @@ export default function LayoutA({ partnerData, topPartners }) {
     }
   }
 
-  const selP     = selected ? partnerData?.[selected] : null;
-  const selRank  = selected ? topPartners.findIndex(p => p.code === selected) + 1 : null;
-  const selHue   = selected ? HUES[selected % 10] : null;
-  const selColour = selHue != null ? `hsl(${selHue},80%,36%)` : '#2d1207';
+  const selP    = selected ? partnerData?.[selected] : null;
+  const selRank = selected ? topPartners.findIndex(p => p.code === selected) + 1 : null;
 
   return (
     <div className="la-root">
       {/* ── Map ── */}
       <div className="la-map-col">
         <svg viewBox={`0 0 ${W} ${H}`} className="la-svg" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <pattern id="la-hatch" width="6" height="6" patternUnits="userSpaceOnUse">
-              <path d="M-1,1 l2,-2 M0,6 l6,-6 M5,7 l2,-2" stroke="rgba(0,0,0,0.18)" strokeWidth="1.2" fill="none"/>
-            </pattern>
-          </defs>
-          <rect width={W} height={H} fill="#dce8f0"/>
-          {COUNTRY_PATHS.map(({ code, d }) => {
-            const pd   = partnerData?.[code];
-            const t    = pd ? Math.pow(pd.value_usd / maxVal, 0.38) : null;
-            const isP  = t != null;
-            const isSel = selected === code;
+          <rect width={W} height={H} className="la-ocean" />
+          {/* Keyed by index: some world-atlas features have no `id`, so
+              `code` is NaN for several land shapes — index keys stay unique
+              (the path list is static and never reorders). */}
+          {COUNTRY_PATHS.map(({ code, d }, i) => {
+            const pd      = partnerData?.[code];
+            const isP     = pd != null;
+            const isIndia = code === INDIA_CODE;
+            const isSel   = selected === code;
+            // Blend from the land colour toward the paddy accent by value —
+            // a smooth sequential ramp anchored to the map's own land tone.
+            const mix  = isP ? (22 + ramp(pd.value_usd, maxVal) * 78).toFixed(0) : 0;
+            const fill = isIndia
+              ? 'var(--c-h-gold)'
+              : isP
+                ? `color-mix(in srgb, var(--c-accent) ${mix}%, var(--c-bg3))`
+                : 'var(--c-bg3)';
             return (
-              <g key={code}>
-                <path d={d} fill={countryFill(code, t)}
-                  stroke={isSel ? '#fff' : '#6b5c4e'}
-                  strokeWidth={isSel ? 1.6 : 0.35}
-                  style={{ cursor: isP ? 'pointer' : 'default', transition: 'stroke-width 80ms' }}
-                  onClick={() => isP && pick(code)}/>
-                {isP && <path d={d} fill="url(#la-hatch)" stroke="none"
-                  style={{ pointerEvents: 'none', opacity: isSel ? 0.6 : 0.3 }}/>}
-              </g>
+              <path key={i} d={d} fill={fill}
+                className={`la-country${isSel ? ' la-country-sel' : ''}`}
+                style={{ cursor: isP ? 'pointer' : 'default' }}
+                onClick={() => isP && pick(code)} />
             );
           })}
         </svg>
 
-        {/* Selected country overlay */}
+        {/* Intensity legend — mirrors the Crop Atlas scale for consistency. */}
+        <div className="la-legend">
+          <div className="la-legend-title">Export value</div>
+          <div className="la-legend-scale" />
+          <div className="la-legend-ends"><span>Low</span><span>Top importer</span></div>
+          <div className="la-legend-origin"><span className="la-legend-origin-dot" /> India · origin</div>
+        </div>
+
+        {/* Selected market card */}
         {selP && (
-          <div className="la-map-sel-card" style={{ borderColor: selColour }}>
+          <div className="la-map-sel-card">
             <div className="la-map-sel-name">{selP.name}</div>
-            <div className="la-map-sel-val" style={{ color: selColour }}>{fmtUsd(selP.value_usd)}</div>
-            <div className="la-map-sel-rank">#{selRank} · {(selP.value_usd / total * 100).toFixed(1)}% of total</div>
+            <div className="la-map-sel-val">{fmtUsd(selP.value_usd)}</div>
+            <div className="la-map-sel-rank">#{selRank} · {(selP.value_usd / total * 100).toFixed(1)}% of total exports</div>
             <button className="la-map-sel-close" onClick={() => setSelected(null)}>✕ Deselect</button>
           </div>
         )}
-        <div className="la-map-credit">India Agricultural Exports · FY 2024-25</div>
+        <div className="la-map-credit">India Agricultural Exports · FY 2024–25</div>
       </div>
 
       {/* ── Ranked list ── */}
       <div className="la-list-col">
         <div className="la-list-head">
-          <span className="la-list-title">Ranked Markets</span>
-          <span className="la-list-sub">{topPartners.length} importers · click to highlight</span>
+          <span className="la-list-title">Ranked markets</span>
+          <span className="la-list-sub">{topPartners.length} importers · tap to highlight</span>
         </div>
         <div className="la-list-scroll" ref={listRef}>
           {topPartners.map((p, i) => {
             const t     = p.value_usd / maxVal;
             const isSel = selected === p.code;
-            const bar   = barColour(p.code);
+            const share = total ? (p.value_usd / total * 100) : 0;
             return (
-              <div key={p.code} data-code={p.code}
+              <div key={p.codeStr ?? p.code} data-code={p.code}
                 className={`la-row${isSel ? ' la-row-sel' : ''}`}
-                style={isSel ? { background: `hsl(${HUES[p.code % 10]},60%,94%)` } : {}}
                 onClick={() => pick(p.code)}>
-                <div className="la-row-rank"
-                  style={isSel ? { color: bar } : {}}>
-                  {String(i + 1).padStart(2, '0')}
-                </div>
+                <div className="la-row-rank">{String(i + 1).padStart(2, '0')}</div>
                 <div className="la-row-body">
-                  <div className="la-row-name"
-                    style={isSel ? { color: bar, fontWeight: 700 } : {}}>
-                    {p.name}
-                  </div>
+                  <div className="la-row-name">{p.name}</div>
                   <div className="la-row-track">
-                    <div className="la-row-bar"
-                      style={{ width: `${Math.max(2, t * 100)}%`, background: bar }}/>
+                    <div className="la-row-bar" style={{ width: `${Math.max(2, t * 100)}%` }} />
                   </div>
                 </div>
-                <div className="la-row-val"
-                  style={isSel ? { color: bar, fontWeight: 700 } : {}}>
-                  {fmtUsd(p.value_usd)}
+                <div className="la-row-figs">
+                  <div className="la-row-val">{fmtUsd(p.value_usd)}</div>
+                  <div className="la-row-share">{share.toFixed(1)}%</div>
                 </div>
               </div>
             );

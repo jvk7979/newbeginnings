@@ -31,8 +31,12 @@ export default function WorldMarketPage({ onNavigate }) {
 
   const topPartners = useMemo(() => {
     if (!partnerData) return [];
+    // Keep the original entry key as `codeStr` for a guaranteed-unique React
+    // key. `Number(code)` is NaN for any non-numeric partner key, and two such
+    // rows collided on key={NaN} before — the source of the duplicate-key
+    // warning. `code` (numeric) is still used to match SVG country paths.
     return Object.entries(partnerData)
-      .map(([code, d]) => ({ code: Number(code), ...d }))
+      .map(([code, d]) => ({ code: Number(code), codeStr: code, ...d }))
       .sort((a, b) => b.value_usd - a.value_usd);
   }, [partnerData]);
 
