@@ -64,6 +64,15 @@ const ACTIVE_MAP = {
   'commodity-detail': 'markets',
 };
 
+// Mobile bottom tab bar — the five primary destinations, thumb-first. Icons
+// are reused from NAV_ITEMS; labels are shortened to fit the compact tabs.
+// Everything else (Calculations, Portfolio, Scenarios, Suppliers, World
+// Market, Settings, About, Access) stays one tap away in the hamburger drawer.
+const BOTTOM_NAV_IDS = ['dashboard', 'ideas', 'projects', 'markets', 'atlas'];
+const BOTTOM_NAV_LABELS = {
+  dashboard: 'Home', ideas: 'Ideas', projects: 'Projects', markets: 'Markets', atlas: 'Atlas',
+};
+
 const DARK_MODE_OPTIONS = [
   { id: 'light',  label: 'Light',  icon: '☀️' },
   { id: 'dark',   label: 'Dark',   icon: '🌙' },
@@ -448,6 +457,31 @@ export default function SideNav({ currentPage, onNavigate }) {
           </div>
         </>
       )}
+
+      {/* Mobile bottom tab bar — primary destinations, thumb-first. Hidden on
+          desktop via CSS; the hamburger drawer above still reaches everything
+          else. */}
+      <nav className="sidenav-bottombar" aria-label="Primary">
+        {BOTTOM_NAV_IDS.map(id => {
+          const item = NAV_ITEMS.find(n => n.id === id);
+          if (!item) return null;
+          const active = activeTab === id;
+          return (
+            <button key={id} className="nb-tab" onClick={() => onNavigate(id)}
+              aria-current={active ? 'page' : undefined}>
+              <span className="nb-tab-icon">{item.icon}</span>
+              <span>{BOTTOM_NAV_LABELS[id]}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Floating "new idea" action — always in thumb reach on mobile. */}
+      <button className="nb-fab" aria-label="New idea" onClick={() => onNavigate('new-idea')}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" width="22" height="22" aria-hidden="true" focusable="false">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
 
       {confirmSignOut && (
         <ConfirmModal title="Sign out?" message="You'll need to sign back in to access your workspace."

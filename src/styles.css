@@ -62,12 +62,83 @@ button, a, [role="button"] {
 }
 .main-with-sidebar { /* full height on desktop, offset top bar on mobile */ }
 
+/* Mobile bottom tab bar + floating action — hidden on desktop; the media
+   query below reveals them. Kept out of the query so the base state is an
+   explicit "off". Structural nav improvement shared by every theme; it reads
+   theme tokens so it repaints per palette + light/dark climate. */
+.sidenav-bottombar { display: none; }
+.nb-fab { display: none; }
+
 @media (max-width: 768px) {
   .sidenav-desktop { display: none !important; }
   .sidenav-topbar  { display: flex !important; }
   /* Top-bar height (54px) + iOS safe-area-inset-top so content starts
-     below both the notch and the chrome instead of under one of them. */
-  .main-with-sidebar { padding-top: calc(54px + env(safe-area-inset-top, 0px)); }
+     below both the notch and the chrome instead of under one of them.
+     padding-bottom reserves space for the bottom tab bar so the last row
+     of content + the footer clear it (the bar is fixed and overlays only
+     that reserved strip). */
+  .main-with-sidebar {
+    padding-top: calc(54px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Bottom tab bar — five primary destinations, thumb-first. */
+  .sidenav-bottombar {
+    display: flex;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 120;
+    background: var(--c-bg1);
+    border-top: 1px solid var(--c-border);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(4px + env(safe-area-inset-left, 0px));
+    padding-right: calc(4px + env(safe-area-inset-right, 0px));
+    box-shadow: 0 -6px 20px -12px rgba(0, 0, 0, 0.30);
+  }
+  .nb-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-height: 48px;
+    padding: 6px 2px;
+    border: none;
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+    color: var(--c-fg3);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: color 130ms ease;
+  }
+  .nb-tab-icon { display: flex; }
+  .nb-tab-icon svg { width: 22px; height: 22px; }
+  .nb-tab[aria-current="page"] { color: var(--c-accent); font-weight: 600; }
+  .nb-tab[aria-current="page"] .nb-tab-icon { color: var(--c-accent); }
+
+  /* Floating "new idea" action, sitting just above the bottom bar. Warm
+     mango→coral gradient in Godavari (theme warning→danger tokens). */
+  .nb-fab {
+    display: flex;
+    position: fixed;
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    z-index: 121;
+    width: 54px; height: 54px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--c-warning) 0%, var(--c-danger) 100%);
+    box-shadow: 0 12px 26px -8px rgba(0, 0, 0, 0.45);
+    transition: transform 130ms ease;
+  }
+  .nb-fab:active { transform: scale(0.94); }
 }
 
 /* ── DOCX inline render (mammoth output styled for readability) ────────── */
@@ -6620,6 +6691,13 @@ textarea.form-input {
   :root[data-theme="godavari"] .dh-hero-title   { color: #17201a; }
   :root[data-theme="godavari"] .dh-hero-welcome { color: #2c3428; }
   :root[data-theme="godavari"] .dh-hero-tagline { color: #34402f; }
+}
+
+/* Mobile — the hero drops below the photo onto the page background, so the
+   "Welcome back" eyebrow follows the theme (dark ink on Monsoon paper,
+   parchment on Delta) instead of the hardcoded dark it uses over the photo. */
+@media (max-width: 640px) {
+  :root[data-theme="godavari"] .dh-hero-welcome { color: var(--c-fg2); }
 }
 
 /* — KPI ribbon — drop the outer card so three colour blocks float like the
