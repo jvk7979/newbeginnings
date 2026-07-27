@@ -6790,3 +6790,23 @@ textarea.form-input {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px -6px rgba(46, 125, 83, 0.62);
 }
+
+/* ── Portfolio — bold Godavari treatment ─────────────────────────────────
+   Stat cards get the same top-accent / tinted / hover language as the
+   Calculations KPIs for a consistent Godavari signature. The cards set their
+   base geometry inline, so the overrides use !important; scoped to
+   [data-theme="godavari"] so other palettes are untouched. */
+:root[data-theme="godavari"] .pf-eyebrow { color: var(--c-accent-dim) !important; font-weight: 700; }
+:root[data-theme="godavari"] .pf-stat {
+  border-radius: 16px !important;
+  border: 1px solid var(--c-border) !important;
+  border-top: 4px solid var(--c-accent) !important;
+  padding: 16px 18px !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c-accent) 8%, var(--c-bg1)) 0%, var(--c-bg1) 55%) !important;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+:root[data-theme="godavari"] .pf-stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -18px rgba(0, 0, 0, 0.42);
+}
+:root[data-theme="godavari"] .pf-stat-value { font-size: 26px !important; }

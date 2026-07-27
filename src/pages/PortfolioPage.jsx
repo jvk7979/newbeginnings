@@ -106,7 +106,7 @@ export default function PortfolioPage() {
   return (
     <div className="page-pad" style={{ background: C.bg0, flex: 1, overflowY: 'auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.06em', color: C.fg3, marginBottom: 10, textTransform: 'uppercase' }}>
+        <div className="pf-eyebrow" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.06em', color: C.fg3, marginBottom: 10, textTransform: 'uppercase' }}>
           Portfolio
         </div>
         <h1 className="page-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>
@@ -134,9 +134,9 @@ export default function PortfolioPage() {
               { label: 'Combined NPV', value: fmtINR(summary.totalNPV), color: summary.totalNPV >= 0 ? C.chartPositive : C.chartNegative },
               { label: 'Average IRR', value: fmtPct(summary.avgIRR), color: C.fg1 },
             ].map(t => (
-              <div key={t.label} style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px' }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg3, marginBottom: 6 }}>{t.label}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 700, color: t.color }}>{t.value}</div>
+              <div key={t.label} className="pf-stat" style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px' }}>
+                <div className="pf-stat-label" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg3, marginBottom: 6 }}>{t.label}</div>
+                <div className="pf-stat-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 700, color: t.color }}>{t.value}</div>
               </div>
             ))}
           </div>
