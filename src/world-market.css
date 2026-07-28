@@ -350,22 +350,23 @@
 .wm-ap-val   { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-fg2); text-align: right; }
 
 /* ─── INDIA MAP ──────────────────────────────────────── */
+/* Small AP-state panel, pinned to the right of the flow map. */
 .im-root {
-  flex: 1; min-width: 0; display: flex; flex-direction: column;
-  overflow: hidden; background: #f5efe4;
-  border-right: 1.5px solid rgba(45,18,7,0.12);
+  flex: none; width: 340px; min-width: 0; display: flex; flex-direction: column;
+  overflow: hidden; background: var(--c-bg1);
+  border-left: 1px solid var(--c-border);
 }
 .im-header {
-  flex: none; padding: 10px 16px; border-bottom: 1px solid rgba(45,18,7,0.1);
-  display: flex; align-items: center; gap: 8px; background: #fffcf5;
+  flex: none; padding: 10px 16px; border-bottom: 1px solid var(--c-border);
+  display: flex; align-items: center; gap: 8px; background: var(--c-bg2);
 }
 .im-header-state {
-  font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: #2d1207;
+  font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: var(--c-fg1);
 }
-.im-header-sep { color: rgba(45,18,7,0.3); }
+.im-header-sep { color: var(--c-fg3); }
 .im-header-label {
   font-family: 'JetBrains Mono', monospace; font-size: 9px;
-  color: rgba(45,18,7,0.45); letter-spacing: 0.06em;
+  color: var(--c-fg3); letter-spacing: 0.06em;
 }
 .im-svg-wrap { flex: 1; min-height: 0; position: relative; overflow: hidden; }
 .im-svg { display: block; width: 100%; height: 100%; position: absolute; inset: 0; }
@@ -481,7 +482,8 @@
   .wm-header-selectors { border-left: 0; border-top: 1px solid var(--c-border); width: 100%; padding: 8px 16px; flex-wrap: wrap; }
   .wm-ap-body { flex-direction: column; }
   .wm-ap-list { width: 100%; border-right: 0; border-bottom: 1px solid var(--c-border); flex: none; height: 320px; }
-  .wm-dest-panel { flex: none; height: 380px; }
+  .wm-dest-panel { flex: none; height: 380px; order: 2; }
+  .im-root { width: 100%; flex: none; height: 300px; border-left: 0; border-top: 1px solid var(--c-border); order: 3; }
   .wm-dest-head { padding: 18px 20px 14px; }
   .wm-dest-bars { padding: 16px 20px; }
   .wm-dest-commodity-name { font-size: 24px; }

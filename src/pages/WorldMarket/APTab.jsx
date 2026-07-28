@@ -37,11 +37,11 @@ export default function APTab() {
         onSelect={setSelected}
       />
 
-      {/* Centre: India states map with AP highlighted */}
-      <IndiaMap commodity={selectedCommodity} />
-
-      {/* Right: world destination map + bar chart */}
+      {/* Centre (main): world destination flow map + ranked list */}
       <DestinationPanel commodity={selectedCommodity} />
+
+      {/* Right: small Andhra Pradesh state map */}
+      <IndiaMap commodity={selectedCommodity} />
     </div>
   );
 }
