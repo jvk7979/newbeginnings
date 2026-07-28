@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { loadPartnerTotals } from './comtradeDataset';
 import WorldMarketNavBar from './WorldMarketNavBar';
-import LayoutA from './LayoutA';
+import LayoutFlows from './LayoutFlows';
 import APTab from './APTab';
 import '../../world-market.css';
 import '../../layouts.css';
@@ -61,7 +61,7 @@ export default function WorldMarketPage({ onNavigate }) {
             ? <div className="wm-loading">Loading…</div>
             : error
               ? <div className="wm-error">Failed to load data: {error}</div>
-              : <LayoutA
+              : <LayoutFlows
                   partnerData={partnerData}
                   topPartners={topPartners}
                 />

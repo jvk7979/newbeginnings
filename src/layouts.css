@@ -151,6 +151,37 @@
   .la-legend { top: 10px; left: 10px; padding: 8px 10px; min-width: 130px; }
 }
 
+/* ══ LAYOUT FLOWS — dynamic trade-flow map ═══════════════════════════════
+   Faint real world map with value-weighted arcs curving from India to each
+   market; a gold pulse flows along each arc. Reuses .la-root + .la-list-col;
+   only the map column (.lf-*) is new. Token-driven for both climates. */
+.lf-map-col { flex: 6; min-width: 0; position: relative; overflow: hidden; background: var(--c-h-river-bg); }
+.lf-land { fill: var(--c-bg3); stroke: var(--c-bg0); stroke-width: 0.4; opacity: 0.55; }
+.lf-land-india { fill: var(--c-h-gold); opacity: 0.9; }
+.lf-arc { cursor: pointer; }
+.lf-arc-hit { fill: none; stroke: transparent; stroke-width: 14; }
+.lf-arc-base { fill: none; stroke: var(--c-accent); opacity: 0.30; stroke-linecap: round; transition: opacity 0.2s ease; }
+.lf-arc-flow { fill: none; stroke: var(--c-h-gold); stroke-linecap: round; stroke-dasharray: 2 12;
+  animation: lf-flow 1.1s linear infinite; opacity: 0.9; }
+@keyframes lf-flow { to { stroke-dashoffset: -14; } }
+.lf-node { fill: var(--c-accent); stroke: var(--c-bg1); stroke-width: 1.2; transition: r 0.18s ease; }
+.lf-arc.hot .lf-arc-base { opacity: 0.6; }
+.lf-arc.hot .lf-arc-flow { opacity: 1; animation-duration: 0.6s; }
+.lf-arc.hot .lf-node { fill: var(--c-h-gold); }
+.lf-hub-ring { fill: none; stroke: var(--c-h-gold); opacity: 0.5; animation: lf-pulse 2.4s ease-out infinite; }
+@keyframes lf-pulse { 0% { r: 12; opacity: 0.55; } 100% { r: 40; opacity: 0; } }
+.lf-hub-star { fill: var(--c-h-gold); stroke: var(--c-bg1); stroke-width: 1.4; }
+.lf-hub-label { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; fill: var(--c-fg1);
+  paint-order: stroke; stroke: var(--c-h-river-bg); stroke-width: 4px; }
+.lf-tip-name { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; fill: var(--c-fg1);
+  paint-order: stroke; stroke: var(--c-h-river-bg); stroke-width: 4px; }
+.lf-tip-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: var(--c-accent);
+  paint-order: stroke; stroke: var(--c-h-river-bg); stroke-width: 4px; }
+.lf-legend-row { display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--c-fg2); margin-top: 2px; }
+.lf-legend-arc { width: 16px; height: 0; border-top: 3px solid var(--c-h-gold); border-radius: 2px; }
+@media (prefers-reduced-motion: reduce) { .lf-arc-flow, .lf-hub-ring { animation: none; } }
+@media (max-width: 760px) { .lf-map-col { flex: none; height: 44vh; } }
+
 /* ══ LAYOUT B — Full-Screen Map ════════════════════════════ */
 .lb-root {
   flex: 1; position: relative; overflow: hidden; background: #f5efe4;
