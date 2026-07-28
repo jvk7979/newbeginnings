@@ -55,10 +55,20 @@ export default function LayoutFlows({ partnerData, topPartners }) {
       <div className="lf-map-col">
         <svg viewBox={`0 0 ${W} ${H}`} className="la-svg" preserveAspectRatio="xMidYMid meet">
           <rect width={W} height={H} className="la-ocean" />
-          {/* faint land */}
-          {COUNTRY_PATHS.map(({ code, d }, i) => (
-            <path key={i} d={d} className={`lf-land${code === INDIA_CODE ? ' lf-land-india' : ''}`} />
-          ))}
+          {/* Choropleth land — importing countries shaded by export value
+              (paddy scale), India gold, everyone else muted land. Visible
+              borders separate every country. Arcs render on top. */}
+          {COUNTRY_PATHS.map(({ code, d }, i) => {
+            const pd = partnerData?.[code];
+            const isIndia = code === INDIA_CODE;
+            const t = pd ? Math.pow(pd.value_usd / maxVal, 0.5) : 0;
+            const fill = isIndia
+              ? 'var(--c-h-gold)'
+              : pd
+                ? `color-mix(in srgb, var(--c-accent) ${(20 + t * 70).toFixed(0)}%, var(--c-bg3))`
+                : 'var(--c-bg3)';
+            return <path key={i} d={d} className="lf-land" style={{ fill }} />;
+          })}
           {/* arcs */}
           <g>
             {arcs.map(a => {
@@ -97,10 +107,12 @@ export default function LayoutFlows({ partnerData, topPartners }) {
           })()}
         </svg>
 
-        {/* legend */}
+        {/* legend — Crop-Atlas-style intensity scale + flow + origin */}
         <div className="la-legend">
-          <div className="la-legend-title">Trade flows</div>
-          <div className="lf-legend-row"><span className="lf-legend-arc" /> Export value → market</div>
+          <div className="la-legend-title">Export value</div>
+          <div className="la-legend-scale" />
+          <div className="la-legend-ends"><span>Low</span><span>Top importer</span></div>
+          <div className="lf-legend-row"><span className="lf-legend-arc" /> Trade flow → market</div>
           <div className="la-legend-origin"><span className="la-legend-origin-dot" /> India · origin</div>
         </div>
         <div className="la-map-credit">India Agricultural Exports · FY 2024–25 · top {arcs.length} routes</div>

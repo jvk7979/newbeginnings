@@ -58,6 +58,10 @@ export default function DestinationPanel({ commodity }) {
 
   const hov = hovered != null ? arcs.find(a => a.code === hovered) : null;
 
+  // code → destination, for the land choropleth.
+  const codeMap = {};
+  dests.forEach(dst => { const code = NAME_TO_CODE[dst.country]; if (code != null) codeMap[code] = dst; });
+
   return (
     <div className="wm-dest-panel">
       {/* Compact header */}
@@ -72,9 +76,18 @@ export default function DestinationPanel({ commodity }) {
       <div className="wm-dest-map-wrap">
         <svg viewBox={`0 0 ${W} ${H}`} className="wm-dest-svg" preserveAspectRatio="xMidYMid meet">
           <rect width={W} height={H} className="la-ocean" />
-          {COUNTRY_PATHS.map(({ code, d }, i) => (
-            <path key={i} d={d} className={`lf-land${code === 356 ? ' lf-land-india' : ''}`} />
-          ))}
+          {/* Choropleth — destination countries shaded by value in the
+              commodity's colour; India (origin) gold; everyone else muted. */}
+          {COUNTRY_PATHS.map(({ code, d }, i) => {
+            const dst = codeMap[code];
+            const t = dst ? Math.pow(dst.value_usd_m / max, 0.5) : 0;
+            const fill = code === 356
+              ? 'var(--c-h-gold)'
+              : dst
+                ? `color-mix(in srgb, ${color} ${(25 + t * 65).toFixed(0)}%, var(--c-bg3))`
+                : 'var(--c-bg3)';
+            return <path key={i} d={d} className="lf-land" style={{ fill }} />;
+          })}
           <g>
             {arcs.map(a => {
               const hot = hovered === a.code;
@@ -82,9 +95,9 @@ export default function DestinationPanel({ commodity }) {
                 <g key={a.code} className={`lf-arc${hot ? ' hot' : ''}`}
                    onMouseEnter={() => setHovered(a.code)} onMouseLeave={() => setHovered(null)}>
                   <path className="lf-arc-hit" d={a.d} />
-                  <path className="lf-arc-base" d={a.d} strokeWidth={a.w} style={{ stroke: color }} />
+                  <path className="lf-arc-base" d={a.d} strokeWidth={a.w} />
                   <path className="lf-arc-flow" d={a.d} strokeWidth={Math.max(1.2, a.w * 0.6)} style={{ animationDuration: `${a.dur}s` }} />
-                  <circle className="lf-node" cx={a.x} cy={a.y} r={a.r} style={{ fill: color }} />
+                  <circle className="lf-node" cx={a.x} cy={a.y} r={a.r} />
                 </g>
               );
             })}
