@@ -15,6 +15,16 @@ const INDIA_CODE = 356;
 // overlapping threads; the ranked list still carries every partner.
 const ARC_LIMIT = 40;
 
+// Vibrant, well-separated palette — each export market gets its own colour
+// (assigned by rank), so the map reads as distinct countries rather than one
+// value ramp. Cycles for the long tail; the top markets stay unique.
+const PALETTE = [
+  '#E0733A', '#3F9E6B', '#D6564F', '#4A90D9', '#C47F2A', '#9B59D4',
+  '#2BBFA0', '#E0913A', '#5B7FD4', '#B8A424', '#D64F94', '#3AA84A',
+  '#A048D4', '#3AA8C4', '#C44FB8', '#7AB83A', '#E04F66', '#3A7AC4',
+  '#8A6BD4', '#57A83A', '#E0A83A', '#3ABF9E', '#C46A2A', '#6A9E3A',
+];
+
 export default function LayoutFlows({ partnerData, topPartners }) {
   const [hover, setHover] = useState(null);
   const listRef = useRef(null);
@@ -23,6 +33,13 @@ export default function LayoutFlows({ partnerData, topPartners }) {
   const india = centroids[INDIA_CODE] || { x: W * 0.72, y: H * 0.42 };
   const maxVal = topPartners[0]?.value_usd || 1;
   const total = topPartners.reduce((s, p) => s + p.value_usd, 0);
+
+  // code → its own colour, by rank.
+  const colorByCode = useMemo(() => {
+    const m = {};
+    topPartners.forEach((p, i) => { m[p.code] = PALETTE[i % PALETTE.length]; });
+    return m;
+  }, [topPartners]);
 
   // Precompute arcs for the top markets that have a map centroid.
   const arcs = useMemo(() => {
@@ -59,14 +76,10 @@ export default function LayoutFlows({ partnerData, topPartners }) {
               (paddy scale), India gold, everyone else muted land. Visible
               borders separate every country. Arcs render on top. */}
           {COUNTRY_PATHS.map(({ code, d }, i) => {
-            const pd = partnerData?.[code];
             const isIndia = code === INDIA_CODE;
-            const t = pd ? Math.pow(pd.value_usd / maxVal, 0.5) : 0;
             const fill = isIndia
               ? 'var(--c-h-gold)'
-              : pd
-                ? `color-mix(in srgb, var(--c-accent) ${(20 + t * 70).toFixed(0)}%, var(--c-bg3))`
-                : 'var(--c-bg3)';
+              : (colorByCode[code] || 'var(--c-bg3)');
             return <path key={i} d={d} className="lf-land" style={{ fill }} />;
           })}
           {/* arcs */}
@@ -107,12 +120,10 @@ export default function LayoutFlows({ partnerData, topPartners }) {
           })()}
         </svg>
 
-        {/* legend — Crop-Atlas-style intensity scale + flow + origin */}
+        {/* legend — each country its own colour; gold arcs carry the flow */}
         <div className="la-legend">
-          <div className="la-legend-title">Export value</div>
-          <div className="la-legend-scale" />
-          <div className="la-legend-ends"><span>Low</span><span>Top importer</span></div>
-          <div className="lf-legend-row"><span className="lf-legend-arc" /> Trade flow → market</div>
+          <div className="la-legend-title">Trade flows</div>
+          <div className="lf-legend-row"><span className="lf-legend-arc" /> India → market</div>
           <div className="la-legend-origin"><span className="la-legend-origin-dot" /> India · origin</div>
         </div>
         <div className="la-map-credit">India Agricultural Exports · FY 2024–25 · top {arcs.length} routes</div>
@@ -137,7 +148,7 @@ export default function LayoutFlows({ partnerData, topPartners }) {
                 <div className="la-row-rank">{String(i + 1).padStart(2, '0')}</div>
                 <div className="la-row-body">
                   <div className="la-row-name">{p.name}</div>
-                  <div className="la-row-track"><div className="la-row-bar" style={{ width: `${Math.max(2, t * 100)}%` }} /></div>
+                  <div className="la-row-track"><div className="la-row-bar" style={{ width: `${Math.max(2, t * 100)}%`, background: colorByCode[p.code] || 'var(--c-accent)' }} /></div>
                 </div>
                 <div className="la-row-figs">
                   <div className="la-row-val">{fmtUsd(p.value_usd)}</div>
