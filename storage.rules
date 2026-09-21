@@ -27,6 +27,21 @@ service firebase.storage {
                  ));
     }
 
+    // Editor gate — mirrors isEditor() in firestore.rules. Allowed users whose
+    // allowedUsers doc carries role == 'Viewer' may READ attachments but not
+    // create, overwrite or delete them. An absent `role` field counts as
+    // Editor, same backward-compatible default as Firestore.
+    function isEditor() {
+      return isVerified()
+          && (isAdmin()
+              || (firestore.exists(
+                    /databases/(default)/documents/allowedUsers/$(userEmail())
+                  )
+                  && firestore.get(
+                       /databases/(default)/documents/allowedUsers/$(userEmail())
+                     ).data.get('role', 'Editor') != 'Viewer'));
+    }
+
     match /uploads/{blobId} {
       allow read: if isAllowed();
       // Image types added for Research Vault photo clips (AddClipModal
@@ -34,7 +49,7 @@ service firebase.storage {
       // because the allowlist only covered PDF + Word). HEIC is the
       // iPhone-camera default; webp is what modern Android phones save
       // when shared via the system share-sheet.
-      allow create, update: if isAllowed()
+      allow create, update: if isEditor()
         && request.resource.size < 50 * 1024 * 1024
         && request.resource.contentType in [
              'application/pdf',
@@ -47,7 +62,7 @@ service firebase.storage {
              'image/heif',
              'image/gif'
            ];
-      allow delete: if isAllowed();
+      allow delete: if isEditor();
     }
   }
 }

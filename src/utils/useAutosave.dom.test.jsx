@@ -13,10 +13,59 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useAutosave } from './useAutosave.js';
+import { useAutosave, stableJson } from './useAutosave.js';
 
 beforeEach(() => { vi.useFakeTimers(); });
 afterEach(() => { vi.useRealTimers(); });
+
+// Regression: stableJson used an array replacer (a key whitelist applied at
+// every depth), so nested values serialised as `{}` and edits inside them —
+// every Calculations input row — never registered as dirty.
+describe('stableJson — nested change detection', () => {
+  it('sees an edit inside a nested object', () => {
+    expect(stableJson({ calc: { price: 100 } }))
+      .not.toBe(stableJson({ calc: { price: 200 } }));
+  });
+
+  it('sees an edit inside an array of row objects', () => {
+    const a = { products: [{ name: 'Coir', price: 100, qty: 5 }] };
+    const b = { products: [{ name: 'Coir', price: 200, qty: 5 }] };
+    expect(stableJson(a)).not.toBe(stableJson(b));
+  });
+
+  it('ignores key order at every depth', () => {
+    const a = { z: 1, calc: { b: 2, a: { y: 1, x: 2 } } };
+    const b = { calc: { a: { x: 2, y: 1 }, b: 2 }, z: 1 };
+    expect(stableJson(a)).toBe(stableJson(b));
+  });
+
+  it('keeps array order significant', () => {
+    expect(stableJson({ rows: [1, 2] })).not.toBe(stableJson({ rows: [2, 1] }));
+  });
+
+  it('treats null and undefined alike, and handles primitives', () => {
+    expect(stableJson(null)).toBe('null');
+    expect(stableJson(undefined)).toBe('null');
+    expect(stableJson(5)).toBe('5');
+  });
+});
+
+describe('useAutosave — nested edits (Calculations-shaped value)', () => {
+  it('marks dirty and saves when a nested row value changes', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const initial = { capex: { items: [{ label: 'Machine', price: 100 }] }, note: 'x' };
+    const { result, rerender } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 100, key: 'k1' }),
+      { initialProps: { v: initial } }
+    );
+    const edited = { capex: { items: [{ label: 'Machine', price: 200 }] }, note: 'x' };
+    rerender({ v: edited });
+    expect(result.current.isDirty).toBe(true);
+    await advance(100);
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith(edited);
+  });
+});
 
 // Helper — drives time forward AND lets the microtask queue drain. Vitest's
 // fake timer needs the awaited act() so promise resolutions inside the

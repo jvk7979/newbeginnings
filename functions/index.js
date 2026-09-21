@@ -12,6 +12,7 @@ import { defineSecret } from 'firebase-functions/params';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { appendHistoryPoint, cooldownRemainingMs } from './logic.js';
 
 initializeApp();
 const db = getFirestore();
@@ -354,23 +355,31 @@ async function runAgmarknetSync(apiKey, trigger = 'auto') {
       const { price, state } = result;
       const rounded = Math.round(price * 100) / 100;
       // Every sync appends its own dated point — a full per-sync price
-      // history for trend comparison. Trimmed to the most-recent
-      // MAX_HISTORY points so the Firestore doc stays well under 1 MB.
-      const history = Array.isArray(commodity.history) ? commodity.history : [];
-      const next = [...history, { ts: syncTs, date: syncLabel, price: rounded, source: 'agmarknet', state, trigger }];
-      next.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-      const trimmed = next.length > MAX_HISTORY ? next.slice(next.length - MAX_HISTORY) : next;
+      // history for trend comparison, trimmed to MAX_HISTORY points.
+      //
+      // The append happens in a transaction that RE-READS the document. The
+      // `commodity` snapshot above was taken before the loop started and each
+      // iteration awaits a network call, so building history from it could
+      // overwrite a manual entry (or an overlapping sync's point) saved in the
+      // meantime. The fetch stays outside the transaction; only the
+      // read-modify-write is inside, and Firestore retries it on contention.
       // Note in the sync message when we had to fall back off Andhra Pradesh
       // so the user can tell why their "AP-averaged" feature pulled a
       // Tamil Nadu / Karnataka / Kerala price.
       const stateNote = state === 'Andhra Pradesh'
         ? 'AP average'
         : `${state} average — AP had no data this run`;
-      await ref.update({
-        history: trimmed,
-        sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (${stateNote}).` },
+      const point = { ts: syncTs, date: syncLabel, price: rounded, source: 'agmarknet', state, trigger };
+      const applied = await db.runTransaction(async (tx) => {
+        const fresh = await tx.get(ref);
+        if (!fresh.exists) return false; // deleted while we were fetching
+        tx.update(ref, {
+          history: appendHistoryPoint(fresh.data().history, point, MAX_HISTORY),
+          sync: { at: Date.now(), status: 'ok', message: `Synced ₹${rounded} from Agmarknet (${stateNote}).` },
+        });
+        return true;
       });
-      ok++;
+      if (applied) ok++;
     } catch (err) {
       console.error('[runAgmarknetSync]', commodity.name, err);
       errors++;
@@ -452,18 +461,23 @@ const COOLDOWN_MS_LIST = 120_000;    // 2 minutes between full list pulls
 async function enforceCooldown(uid, endpoint, cooldownMs) {
   if (!uid) return;
   const ref = db.doc(`userQuota/${uid}__${endpoint}`);
-  const snap = await ref.get();
-  const last = snap.exists ? Number(snap.data()?.lastCallAt || 0) : 0;
-  const now = Date.now();
-  const elapsed = now - last;
-  if (elapsed < cooldownMs) {
-    const secondsLeft = Math.ceil((cooldownMs - elapsed) / 1000);
+  // Check-and-stamp in ONE transaction. Done as a separate get() then set(),
+  // two concurrent requests could both read the old timestamp, both pass, and
+  // both run the expensive call — defeating the cooldown.
+  const waitMs = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const now = Date.now();
+    const remaining = cooldownRemainingMs(snap.exists ? snap.data()?.lastCallAt : 0, now, cooldownMs);
+    if (remaining > 0) return remaining;
+    tx.set(ref, { lastCallAt: now, endpoint }, { merge: true });
+    return 0;
+  });
+  if (waitMs > 0) {
     throw new HttpsError(
       'resource-exhausted',
-      `Please wait ${secondsLeft}s before calling ${endpoint} again.`
+      `Please wait ${Math.ceil(waitMs / 1000)}s before calling ${endpoint} again.`
     );
   }
-  await ref.set({ lastCallAt: now, endpoint }, { merge: true });
 }
 
 export const runAgmarknetSyncNow = onCall(marketsCallOpts, withAuth(async (req) => {

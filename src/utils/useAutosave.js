@@ -1,11 +1,23 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-// Stable JSON shape for "dirty" comparisons. Sorting keys keeps key
-// reordering from registering as a change.
-function stableJson(o) {
+// Stable JSON shape for "dirty" comparisons. Sorting keys at EVERY depth keeps
+// key reordering from registering as a change while still seeing nested edits.
+//
+// Do not pass an array as JSON.stringify's replacer here: an array replacer is
+// a key whitelist applied at all nesting levels, so `{ calc: { price: 100 } }`
+// serialised as `{"calc":{}}` and any edit inside a nested object (every
+// Calculations input row) was invisible to change detection.
+function sortKeys(_key, value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const sorted = {};
+    for (const k of Object.keys(value).sort()) sorted[k] = value[k];
+    return sorted;
+  }
+  return value;
+}
+export function stableJson(o) {
   if (o === null || o === undefined) return 'null';
-  if (typeof o !== 'object') return JSON.stringify(o);
-  return JSON.stringify(o, Object.keys(o).sort());
+  return JSON.stringify(o, sortKeys);
 }
 
 /**

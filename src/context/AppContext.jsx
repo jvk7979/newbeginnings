@@ -278,16 +278,24 @@ export function AppProvider({ children }) {
 
   const updatePlan = useCallback(async (id, patch) => {
     if (!user) return;
-    const snap = await getDoc(sharedRef('plans', id));
-    const existing = snap.exists() ? snap.data() : null;
-    const secs = patch.sections ?? existing?.sections ?? [];
-    await setDoc(sharedRef('plans', id), {
-      ...existing, ...patch, updated: todayStr(), sectionCount: secs.length,
-    });
-    // The existing-doc read above is already paid for, so detecting a real
-    // status transition is free — and autosave patches that repeat the same
-    // status don't spam the feed.
-    if (existing && patch.status && patch.status !== existing.status) {
+    const ref = sharedRef('plans', id);
+    // The pre-write read exists ONLY to detect a real status transition (so
+    // autosave patches repeating the same status don't spam the activity
+    // feed); it never feeds the write, and is skipped when no status is set.
+    let existing = null;
+    if (patch.status) {
+      const snap = await getDoc(ref);
+      existing = snap.exists() ? snap.data() : null;
+    }
+    // Write ONLY the fields being changed. This used to read the whole plan,
+    // merge the patch locally and setDoc() the result, so any change another
+    // user saved between our read and write was silently overwritten (and a
+    // plan deleted in that window was resurrected). updateDoc replaces just
+    // the named top-level fields and rejects if the plan no longer exists.
+    const changes = { ...patch, updated: todayStr() };
+    if (patch.sections) changes.sectionCount = patch.sections.length;
+    await updateDoc(ref, changes);
+    if (existing && patch.status !== existing.status) {
       logActivity('status', 'project', patch.title ?? existing.title, patch.status);
     }
   }, [user, logActivity]);
