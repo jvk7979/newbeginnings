@@ -63,6 +63,11 @@ export const ideaTopicCommentsCol = (db, topicId)           => collection(db, 'i
 export const marketsConfigRef   = (db, docId = 'autoFetch') => doc(db, 'marketsConfig', String(docId));
 export const marketsCalloutsRef = (db)                       => doc(db, 'marketsConfig', 'callouts');
 
+// First-run seeding marker (appMeta/seed) — records that the starter ideas /
+// projects / plans / commodities were already written, so emptying a
+// collection can never trigger a destructive reseed. See utils/seeding.js.
+export const appSeedMarkerRef = (db) => doc(db, 'appMeta', 'seed');
+
 // Access page — the allowedUsers roster (admin-managed).
 export const allowedUsersCol = (db) => collection(db, 'allowedUsers');
 export const allowedUserRef  = (db, email) => doc(db, 'allowedUsers', String(email).toLowerCase().trim());

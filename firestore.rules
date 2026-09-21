@@ -87,6 +87,13 @@ service cloud.firestore {
       allow read:  if request.auth != null && isAllowed();
       allow write: if request.auth != null && isEditor();
     }
+    // First-run seeding marker (appMeta/seed). Records that the starter data
+    // was written so emptying a collection can never trigger a destructive
+    // reseed. Same access model as the other shared docs.
+    match /appMeta/{doc} {
+      allow read:  if request.auth != null && isAllowed();
+      allow write: if request.auth != null && isEditor();
+    }
     match /ideaDiscussions/{ideaId}/{document=**} {
       allow read:  if request.auth != null && isAllowed();
       allow write: if request.auth != null && isEditor();

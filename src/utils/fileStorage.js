@@ -102,8 +102,14 @@ export async function listAllUploadedBlobs() {
   const items = await Promise.all(
     res.items.map(async (it) => {
       let size = 0;
-      try { size = (await getMetadata(it)).size || 0; } catch { /* ignore */ }
-      return { blobId: it.name, size, fullPath: it.fullPath };
+      let createdAt = null; // epoch ms; null when metadata is unavailable
+      try {
+        const meta = await getMetadata(it);
+        size = meta.size || 0;
+        const t = Date.parse(meta.timeCreated);
+        if (Number.isFinite(t)) createdAt = t;
+      } catch { /* ignore */ }
+      return { blobId: it.name, size, createdAt, fullPath: it.fullPath };
     })
   );
   return items;

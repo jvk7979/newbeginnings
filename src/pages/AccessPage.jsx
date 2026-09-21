@@ -3,7 +3,8 @@ import { C, alpha } from '../tokens';
 import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { db } from '../firebase';
 import { getDocs, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { allowedUsersCol, allowedUserRef, plansCol, ideasCol } from '../data/paths.js';
+import { allowedUsersCol, allowedUserRef, plansCol, ideasCol, projectsCol, planClipsCol } from '../data/paths.js';
+import { extractBlobIds, findOrphans } from '../utils/blobRefs.js';
 
 const ROLES = ['Editor', 'Viewer'];
 
@@ -38,28 +39,37 @@ export default function AccessPage() {
   const [confirmCleanup, setConfirmCleanup] = useState(false);
   const [cleanupResult,  setCleanupResult]  = useState('');
 
+  // Every blob id something currently points at: attachments on ideas,
+  // projects and plans, PLUS the PDFs and photos on Research Vault clips
+  // (a subcollection under each plan — the old scan never looked there, so
+  // live vault files were reported as orphans). Any failed read rejects the
+  // whole thing: an incomplete picture of what's referenced must never be
+  // used to decide what to delete.
+  const collectReferencedBlobIds = async () => {
+    const referenced = new Set();
+    const collect = (snap) => snap.docs.forEach(d => extractBlobIds(d.data()).forEach(id => referenced.add(id)));
+    const [plansSnap, ideasSnap, projectsSnap] = await Promise.all([
+      getDocs(plansCol(db)), getDocs(ideasCol(db)), getDocs(projectsCol(db)),
+    ]);
+    collect(plansSnap); collect(ideasSnap); collect(projectsSnap);
+    const clipSnaps = await Promise.all(plansSnap.docs.map(p => getDocs(planClipsCol(db, p.id))));
+    clipSnaps.forEach(collect);
+    return referenced;
+  };
+
   const scanForOrphans = async () => {
     setScanning(true);
     setScanError('');
     setCleanupResult('');
     try {
-      // The Documents feature (sharedFiles) was removed — only plan and idea
-      // attachments reference uploaded blobs now. Any sharedFiles-era blobs
-      // correctly surface as orphans for cleanup.
-      const [allBlobs, plansSnap, ideasSnap] = await Promise.all([
+      // The Documents feature (sharedFiles) was removed, so sharedFiles-era
+      // blobs correctly surface as orphans. Recently uploaded files are spared
+      // (their document may not be saved yet) — see findOrphans().
+      const [allBlobs, referenced] = await Promise.all([
         listAllUploadedBlobs(),
-        getDocs(plansCol(db)),
-        getDocs(ideasCol(db)),
+        collectReferencedBlobIds(),
       ]);
-      const referenced = new Set();
-      const collect = (snap) => snap.docs.forEach(d => {
-        const id = d.data()?.attachedFile?.blobId;
-        if (id) referenced.add(id);
-      });
-      collect(plansSnap);
-      collect(ideasSnap);
-      const orphanList = allBlobs.filter(b => !referenced.has(b.blobId));
-      setOrphans(orphanList);
+      setOrphans(findOrphans(allBlobs, referenced));
     } catch (e) {
       console.error('[scanForOrphans]', e);
       setScanError(e?.message || 'Scan failed.');
@@ -74,11 +84,26 @@ export default function AccessPage() {
     setCleanupResult('');
     let deleted = 0;
     let failed = 0;
-    for (const o of orphans) {
-      try { await deleteFileFromDB(o.blobId); deleted++; }
-      catch { failed++; }
+    let skipped = 0;
+    try {
+      // The scan may be minutes old. Re-check what is referenced NOW, so a
+      // file attached since the scan (or one the scan wrongly listed) is kept.
+      const referencedNow = await collectReferencedBlobIds();
+      for (const o of orphans) {
+        if (referencedNow.has(o.blobId)) { skipped++; continue; }
+        try { await deleteFileFromDB(o.blobId); deleted++; }
+        catch { failed++; }
+      }
+    } catch (e) {
+      console.error('[runCleanup]', e);
+      setCleanupResult('Cleanup cancelled — could not re-verify which files are in use. Nothing was deleted.');
+      setCleaning(false);
+      return;
     }
-    setCleanupResult(`Deleted ${deleted} orphan${deleted === 1 ? '' : 's'}${failed ? ` (${failed} failed)` : ''}.`);
+    setCleanupResult(
+      `Deleted ${deleted} orphan${deleted === 1 ? '' : 's'}` +
+      `${skipped ? `, kept ${skipped} now in use` : ''}${failed ? ` (${failed} failed)` : ''}.`
+    );
     setOrphans([]);
     setCleaning(false);
   };

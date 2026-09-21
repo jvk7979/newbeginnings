@@ -272,9 +272,18 @@ export default function IdeaDetailPage({ idea, onNavigate }) {
   };
 
   const handleDelete = () => setConfirmDel(true);
-  const confirmDeleteIdea = () => {
+  const confirmDeleteIdea = async () => {
     const backup = { ...idea };
-    deleteIdea(idea.id);
+    // Await the delete so success is only announced once it actually happened;
+    // its attachment is kept for the Undo window (see AppContext.deleteIdea).
+    try {
+      await deleteIdea(idea.id);
+    } catch (err) {
+      console.error('[deleteIdea]', err);
+      setConfirmDel(false);
+      showToast('Could not delete the idea. Please try again.', 'error');
+      return;
+    }
     showToast('Idea deleted', 'info', { label: 'Undo', onClick: () => restoreIdea(backup) });
     onNavigate('ideas');
   };

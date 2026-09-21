@@ -176,9 +176,18 @@ export default function PlanDetailPage({ plan, onNavigate }) {
   };
 
   const handleDelete = () => setConfirmDel(true);
-  const confirmDeletePlan = () => {
+  const confirmDeletePlan = async () => {
     const backup = { ...plan, sections: [...(plan.sections || [])] };
-    deletePlan(plan.id);
+    // Await the delete so success is only announced once it actually happened;
+    // its attachment is kept for the Undo window (see AppContext.deletePlan).
+    try {
+      await deletePlan(plan.id);
+    } catch (err) {
+      console.error('[deletePlan]', err);
+      setConfirmDel(false);
+      showToast('Could not delete the project. Please try again.', 'error');
+      return;
+    }
     showToast('Project deleted', 'info', { label: 'Undo', onClick: () => restorePlan(backup) });
     onNavigate('projects');
   };

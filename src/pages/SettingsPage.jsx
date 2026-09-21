@@ -9,31 +9,10 @@ import { useAuth } from '../context/AuthContext';
 //
 // Project-default fields (tax rate / discount rate / inflation rates)
 // are stored in localStorage so they survive sign-out and sync across
-// tabs. They're applied lazily — the engine reads them when a NEW
-// project is created. Existing projects keep whatever values they
-// were saved with.
-
-const DEFAULTS_KEY = 'nb_calc_defaults';
-const DEFAULT_DEFAULTS = {
-  taxRate: 25,
-  discountRate: 12,
-  interestRate: 12,
-  revenueInflationPct: 0,
-  costInflationPct: 0,
-};
-
-function loadDefaults() {
-  try {
-    const raw = localStorage.getItem(DEFAULTS_KEY);
-    if (!raw) return DEFAULT_DEFAULTS;
-    return { ...DEFAULT_DEFAULTS, ...JSON.parse(raw) };
-  } catch {
-    return DEFAULT_DEFAULTS;
-  }
-}
-function saveDefaults(next) {
-  try { localStorage.setItem(DEFAULTS_KEY, JSON.stringify(next)); } catch {}
-}
+// tabs. The Calculations page applies them (utils/calcDefaults.js) whenever
+// a NEW calculation starts — a project with no saved calc, or a reset.
+// Existing projects keep whatever values they were saved with.
+import { loadCalcDefaults as loadDefaults, saveCalcDefaults as saveDefaults } from '../utils/calcDefaults.js';
 
 const DARK_MODE_OPTIONS = [
   { id: 'light',  label: 'Light',  hint: 'Always light' },

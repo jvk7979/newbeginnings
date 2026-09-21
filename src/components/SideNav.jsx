@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.webp';
 import ConfirmModal from './ConfirmModal';
+import { validateBackup } from '../utils/backup.js';
 
 const NAV_ITEMS = [
   {
@@ -390,14 +391,14 @@ export default function SideNav({ currentPage, onNavigate }) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      try {
-        const data  = JSON.parse(ev.target.result);
-        const count = (data.ideas?.length || 0) + (data.projects?.length || 0) + (data.plans?.length || 0);
-        if (!Array.isArray(data.ideas) && !Array.isArray(data.projects) && !Array.isArray(data.plans)) {
-          alert('Invalid backup file.'); return;
-        }
-        setConfirmImport({ data, count });
-      } catch { alert('Could not read file. Use a JSON backup exported from this app.'); }
+      let data;
+      try { data = JSON.parse(ev.target.result); }
+      catch { alert('Could not read file. Use a JSON backup exported from this app.'); return; }
+      // Validate the WHOLE file up front, so a bad backup is rejected here
+      // rather than failing partway through an import.
+      const check = validateBackup(data);
+      if (!check.ok) { alert(`Invalid backup file. ${check.error}`); return; }
+      setConfirmImport({ data, count: check.total });
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -405,8 +406,13 @@ export default function SideNav({ currentPage, onNavigate }) {
 
   const doImport = async () => {
     if (!confirmImport) return;
-    await importData(confirmImport.data);
-    showToast('Data imported', 'success');
+    try {
+      await importData(confirmImport.data);
+      showToast('Data imported', 'success');
+    } catch (err) {
+      console.error('[import]', err);
+      showToast(err?.message || 'Import failed.', 'error');
+    }
     setConfirmImport(null);
   };
 

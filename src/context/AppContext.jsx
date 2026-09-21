@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { db } from '../firebase';
 import { useAuth } from './AuthContext';
 import { deleteFileFromDB } from '../utils/fileStorage';
+import { validateBackup, planImport, chunk, BACKUP_COLLECTIONS } from '../utils/backup.js';
+import { seedDecision } from '../utils/seeding.js';
 import {
   onSnapshot, setDoc, updateDoc, deleteDoc,
   getDocs, writeBatch, getDoc,
@@ -10,7 +12,7 @@ import {
   ideasCol, ideaRef, projectsCol, projectRef, plansCol, planRef,
   commoditiesCol, commodityRef, suppliersCol, supplierRef,
   legacyUserIdeasCol, legacyUserProjectsCol, legacyUserPlansCol,
-  activityRef,
+  activityRef, appSeedMarkerRef,
 } from '../data/paths.js';
 
 // ── Seed data ──────────────────────────────────────────────────────────────
@@ -54,6 +56,10 @@ const SEED_COMMODITIES = (() => {
   }));
 })();
 
+// How long an uploaded file outlives its deleted idea/project. The Undo toast
+// stays for 5s (ToastContext); this is comfortably longer.
+const UNDO_BLOB_DELETE_DELAY_MS = 15_000;
+
 function todayStr() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
@@ -79,10 +85,43 @@ const REF_BUILDERS = {
 const sharedCol = (name) => COL_BUILDERS[name](db);
 const sharedRef = (name, id) => REF_BUILDERS[name](db, id);
 
-// On first ever load, seed shared collections (migrating from per-user storage if present)
+// Seeding marker (appMeta/seed). Unreadable (offline, rules not yet deployed)
+// is reported as such so the caller can fail safe and skip seeding.
+async function readSeedMarker() {
+  try {
+    const snap = await getDoc(appSeedMarkerRef(db));
+    return { readable: true, data: snap.exists() ? snap.data() : {} };
+  } catch (err) {
+    console.warn('[seed] marker unreadable — skipping seeding', err);
+    return { readable: false, data: {} };
+  }
+}
+async function markSeeded(field) {
+  try {
+    await setDoc(appSeedMarkerRef(db), { [field]: true, [`${field}At`]: Date.now() }, { merge: true });
+  } catch (err) {
+    console.warn('[seed] could not write marker', err);
+  }
+}
+
+// On first ever load, seed shared collections (migrating from per-user storage
+// if present). Runs ONLY into a completely empty workspace that has never been
+// seeded — see utils/seeding.js. Emptying the ideas collection alone used to
+// count as "fresh install" and overwrote real projects with the samples.
 async function ensureSharedData(uid) {
-  const snap = await getDocs(sharedCol('ideas'));
-  if (!snap.empty) return; // shared data already exists
+  const marker = await readSeedMarker();
+  if (marker.readable && marker.data.workspace) return; // already seeded once
+
+  const [ideasSnap, projectsSnap, plansSnap] = await Promise.all([
+    getDocs(sharedCol('ideas')), getDocs(sharedCol('projects')), getDocs(sharedCol('plans')),
+  ]);
+  const decision = seedDecision({
+    markerReadable: marker.readable,
+    markerSeeded:   !!marker.data.workspace,
+    hasData: !ideasSnap.empty || !projectsSnap.empty || !plansSnap.empty,
+  });
+  if (decision === 'mark') { await markSeeded('workspace'); return; }
+  if (decision !== 'seed') return;
 
   // Try to migrate data the primary account already saved under users/{uid}/…
   const [uIdeas, uProjects, uPlans] = await Promise.all([
@@ -104,6 +143,7 @@ async function ensureSharedData(uid) {
   projects.forEach(p => batch.set(sharedRef('projects', p.id), p));
   plans.forEach(p    => batch.set(sharedRef('plans',    p.id), p));
   await batch.commit();
+  await markSeeded('workspace');
 
   localStorage.removeItem('nb_ideas');
   localStorage.removeItem('nb_projects');
@@ -114,11 +154,20 @@ async function ensureSharedData(uid) {
 // ensureSharedData's ideas/projects/plans migration so it also runs on
 // installs that already have idea data.
 async function ensureCommoditiesSeed() {
+  const marker = await readSeedMarker();
+  if (marker.readable && marker.data.commodities) return;
   const snap = await getDocs(sharedCol('commodities'));
-  if (!snap.empty) return;
+  const decision = seedDecision({
+    markerReadable: marker.readable,
+    markerSeeded:   !!marker.data.commodities,
+    hasData: !snap.empty,
+  });
+  if (decision === 'mark') { await markSeeded('commodities'); return; }
+  if (decision !== 'seed') return;
   const batch = writeBatch(db);
   SEED_COMMODITIES.forEach(c => batch.set(sharedRef('commodities', c.id), c));
   await batch.commit();
+  await markSeeded('commodities');
 }
 
 // ── Five separate contexts ─────────────────────────────────────────────────
@@ -224,23 +273,46 @@ export function AppProvider({ children }) {
     await updateDoc(sharedRef('ideas', id), patch);
   }, [user]);
 
+  // Deleting an idea/project removes its record immediately but keeps the
+  // uploaded file for the Undo window: the file used to be deleted FIRST, so
+  // Undo restored a record pointing at a file that no longer existed. The file
+  // is removed only after UNDO_BLOB_DELETE_DELAY_MS, and Undo cancels that.
+  const pendingBlobDeletes = useRef(new Map()); // blobId -> timeout id
+  const scheduleBlobDelete = useCallback((blobId) => {
+    if (!blobId) return;
+    clearTimeout(pendingBlobDeletes.current.get(blobId));
+    pendingBlobDeletes.current.set(blobId, setTimeout(() => {
+      pendingBlobDeletes.current.delete(blobId);
+      deleteFileFromDB(blobId);
+    }, UNDO_BLOB_DELETE_DELAY_MS));
+  }, []);
+  const cancelBlobDelete = useCallback((blobId) => {
+    if (!blobId) return;
+    clearTimeout(pendingBlobDeletes.current.get(blobId));
+    pendingBlobDeletes.current.delete(blobId);
+  }, []);
+
   const deleteIdea = useCallback(async (id) => {
     if (!user) return;
     let title = '';
+    let blobId = null;
     try {
       const snap = await getDoc(sharedRef('ideas', id));
       title = snap.data()?.title || '';
-      const blobId = snap.data()?.attachedFile?.blobId;
-      if (blobId) await deleteFileFromDB(blobId);
-    } catch { /* ignore — proceed with Firestore delete regardless */ }
+      blobId = snap.data()?.attachedFile?.blobId || null;
+    } catch { /* best-effort metadata — still delete the record */ }
+    // Rejects if the record can't be deleted, so callers must await this and
+    // only report success afterwards. The file is untouched in that case.
     await deleteDoc(sharedRef('ideas', id));
+    scheduleBlobDelete(blobId);
     logActivity('deleted', 'idea', title);
-  }, [user, logActivity]);
+  }, [user, logActivity, scheduleBlobDelete]);
 
   const restoreIdea = useCallback(async (idea) => {
     if (!user) return;
+    cancelBlobDelete(idea.attachedFile?.blobId); // Undo: keep the attachment
     await setDoc(sharedRef('ideas', idea.id), idea);
-  }, [user]);
+  }, [user, cancelBlobDelete]);
 
   // ── Projects (kept as scaffolding for a future feature) ──────────────────
   const addProject = useCallback(async (project) => {
@@ -303,20 +375,23 @@ export function AppProvider({ children }) {
   const deletePlan = useCallback(async (id) => {
     if (!user) return;
     let title = '';
+    let blobId = null;
     try {
       const snap = await getDoc(sharedRef('plans', id));
       title = snap.data()?.title || '';
-      const blobId = snap.data()?.attachedFile?.blobId;
-      if (blobId) await deleteFileFromDB(blobId);
-    } catch { /* ignore — proceed with Firestore delete regardless */ }
+      blobId = snap.data()?.attachedFile?.blobId || null;
+    } catch { /* best-effort metadata — still delete the record */ }
+    // See deleteIdea: await-able, and the file outlives the Undo window.
     await deleteDoc(sharedRef('plans', id));
+    scheduleBlobDelete(blobId);
     logActivity('deleted', 'project', title);
-  }, [user, logActivity]);
+  }, [user, logActivity, scheduleBlobDelete]);
 
   const restorePlan = useCallback(async (plan) => {
     if (!user) return;
+    cancelBlobDelete(plan.attachedFile?.blobId); // Undo: keep the attachment
     await setDoc(sharedRef('plans', plan.id), plan);
-  }, [user]);
+  }, [user, cancelBlobDelete]);
 
   // ── Commodities ──────────────────────────────────────────────────────────
   const addCommodity = useCallback(async (commodity) => {
@@ -377,23 +452,57 @@ export function AppProvider({ children }) {
   }, [user, suppliers, logActivity]);
 
   // ── Bulk import ──────────────────────────────────────────────────────────
+  // Applies set/delete operations in batches under Firestore's 500-op cap.
+  const commitOps = async (ops) => {
+    for (const part of chunk(ops, 400)) {
+      const batch = writeBatch(db);
+      for (const op of part) {
+        if (op.type === 'set') batch.set(op.ref, op.data);
+        else batch.delete(op.ref);
+      }
+      await batch.commit();
+    }
+  };
+
   const importData = useCallback(async (data) => {
     if (!user) return;
+    // 1. Validate the WHOLE backup before touching anything.
+    const check = validateBackup(data);
+    if (!check.ok) throw new Error(check.error);
+
+    // 2. Snapshot what exists so a failure can be undone.
     // Commodities are intentionally excluded — market price data is live, not part of a user backup.
-    for (const name of ['ideas', 'projects', 'plans']) {
+    const existing = {};
+    for (const name of BACKUP_COLLECTIONS) {
       const snap = await getDocs(sharedCol(name));
-      if (!snap.empty) {
-        const batch = writeBatch(db);
-        snap.docs.forEach(d => batch.delete(d.ref));
-        await batch.commit();
-      }
+      existing[name] = snap.docs.map(d => ({ id: d.id, data: d.data() }));
     }
-    if (Array.isArray(data.ideas) || Array.isArray(data.projects) || Array.isArray(data.plans)) {
-      const batch = writeBatch(db);
-      (data.ideas    || []).forEach(i => batch.set(sharedRef('ideas',    i.id), i));
-      (data.projects || []).forEach(i => batch.set(sharedRef('projects', i.id), i));
-      (data.plans    || []).forEach(i => batch.set(sharedRef('plans',    i.id), i));
-      await batch.commit();
+    const plan = planImport(existing, check.records);
+
+    // 3. Write the new records FIRST, then delete what the backup doesn't
+    //    contain. Deleting first is what used to leave an empty workspace.
+    const forward = [];
+    const restore = [];
+    for (const name of BACKUP_COLLECTIONS) {
+      plan[name].writes.forEach(w => forward.push({ type: 'set', ref: sharedRef(name, w.id), data: w.data }));
+      existing[name].forEach(e => restore.push({ type: 'set', ref: sharedRef(name, e.id), data: e.data }));
+      plan[name].created.forEach(id => restore.push({ type: 'delete', ref: sharedRef(name, id) }));
+    }
+    for (const name of BACKUP_COLLECTIONS) {
+      plan[name].stale.forEach(id => forward.push({ type: 'delete', ref: sharedRef(name, id) }));
+    }
+
+    try {
+      await commitOps(forward);
+    } catch (err) {
+      // 4. Roll back to the snapshot so a failed import never loses data.
+      try {
+        await commitOps(restore);
+      } catch (restoreErr) {
+        console.error('[importData] rollback failed', restoreErr);
+        throw new Error(`Import failed (${err.message}) and your previous data could not be fully restored. Re-import your last backup file.`);
+      }
+      throw new Error(`Import failed, so nothing was changed. (${err.message})`);
     }
   }, [user]);
 

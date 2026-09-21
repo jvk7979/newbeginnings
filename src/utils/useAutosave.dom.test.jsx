@@ -238,3 +238,156 @@ describe('useAutosave — change detection', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 });
+
+// ── Data-loss regressions from the second review ────────────────────────────
+describe('useAutosave — edit during a slow save', () => {
+  it('saves the newer edit after the in-flight save finishes and ends clean', async () => {
+    // First save stays pending until we release it.
+    let releaseFirst;
+    const onSave = vi.fn()
+      .mockImplementationOnce(() => new Promise(res => { releaseFirst = res; }))
+      .mockResolvedValue(undefined);
+    const { result, rerender } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 100, key: 'k1' }),
+      { initialProps: { v: { a: 1 } } }
+    );
+
+    rerender({ v: { a: 2 } });
+    await advance(100);                       // first save starts and hangs
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(result.current.status).toBe('saving');
+
+    rerender({ v: { a: 3 } });                // edit while the save is in flight
+    await advance(100);                       // debounce fires while still in flight
+    expect(onSave).toHaveBeenCalledTimes(1);  // not started twice concurrently
+
+    await act(async () => { releaseFirst(); });
+    await advance(0);
+
+    expect(onSave).toHaveBeenCalledTimes(2);
+    expect(onSave).toHaveBeenLastCalledWith({ a: 3 });   // the second edit was NOT dropped
+    expect(result.current.isDirty).toBe(false);
+  });
+
+  it('does not loop forever when a save fails', async () => {
+    const onSave = vi.fn().mockRejectedValue(new Error('boom'));
+    const { result, rerender } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 50, key: 'k1' }),
+      { initialProps: { v: { a: 1 } } }
+    );
+    rerender({ v: { a: 2 } });
+    await advance(50);
+    await advance(1000);
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(result.current.status).toBe('error');
+  });
+});
+
+describe('useAutosave — leaving the page before the debounce fires', () => {
+  it('flushes the pending edit on unmount (in-app navigation)', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { rerender, unmount } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 30000, key: 'k1' }),
+      { initialProps: { v: { a: 1 } } }
+    );
+    rerender({ v: { a: 2 } });
+    await advance(1000);                       // well inside the 30s debounce
+    expect(onSave).not.toHaveBeenCalled();
+    unmount();
+    await advance(0);
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith({ a: 2 });
+  });
+
+  it('saves nothing on unmount when nothing changed', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { unmount } = renderHook(() => useAutosave({ a: 1 }, onSave, { delay: 30000, key: 'k1' }));
+    unmount();
+    await advance(0);
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('does not save on unmount while disabled (e.g. a Viewer, or edit mode cancelled)', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { rerender, unmount } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 30000, enabled: false, key: 'k1' }),
+      { initialProps: { v: { a: 1 } } }
+    );
+    rerender({ v: { a: 2 } });
+    unmount();
+    await advance(0);
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('does not re-save on unmount after an explicit Save took over (cancelPending)', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { result, rerender, unmount } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 30000, key: 'k1' }),
+      { initialProps: { v: { a: 1 } } }
+    );
+    rerender({ v: { a: 2 } });
+    act(() => { result.current.cancelPending(); });
+    unmount();
+    await advance(0);
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('a genuine edit after cancelPending re-arms autosave', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { result, rerender, unmount } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 30000, key: 'k1' }),
+      { initialProps: { v: { a: 1 } } }
+    );
+    rerender({ v: { a: 2 } });
+    act(() => { result.current.cancelPending(); });
+    rerender({ v: { a: 3 } });
+    unmount();
+    await advance(0);
+    expect(onSave).toHaveBeenCalledWith({ a: 3 });
+  });
+
+  it('flushes when the tab is hidden', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { rerender } = renderHook(
+      ({ v }) => useAutosave(v, onSave, { delay: 30000, key: 'k1' }),
+      { initialProps: { v: { a: 1 } } }
+    );
+    rerender({ v: { a: 2 } });
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    await act(async () => { document.dispatchEvent(new Event('visibilitychange')); });
+    await advance(0);
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    expect(onSave).toHaveBeenCalledWith({ a: 2 });
+  });
+});
+
+describe('useAutosave — switching records with unsaved edits', () => {
+  it('saves the old record\'s edit with the OLD save fn, never into the new record', async () => {
+    const saveOld = vi.fn().mockResolvedValue(undefined);
+    const saveNew = vi.fn().mockResolvedValue(undefined);
+    const { rerender } = renderHook(
+      ({ v, s, k }) => useAutosave(v, s, { delay: 30000, key: k }),
+      { initialProps: { v: { name: 'A' }, s: saveOld, k: 'projA' } }
+    );
+    rerender({ v: { name: 'A edited' }, s: saveOld, k: 'projA' }); // unsaved edit on A
+    rerender({ v: { name: 'B' }, s: saveNew, k: 'projB' });        // user switches to B
+    await advance(0);
+
+    expect(saveOld).toHaveBeenCalledTimes(1);
+    expect(saveOld).toHaveBeenCalledWith({ name: 'A edited' });
+    expect(saveNew).not.toHaveBeenCalled();                        // B is untouched
+  });
+
+  it('does not save anything on a switch when there were no unsaved edits', async () => {
+    const saveOld = vi.fn().mockResolvedValue(undefined);
+    const saveNew = vi.fn().mockResolvedValue(undefined);
+    const { rerender } = renderHook(
+      ({ v, s, k }) => useAutosave(v, s, { delay: 30000, key: k }),
+      { initialProps: { v: { name: 'A' }, s: saveOld, k: 'projA' } }
+    );
+    rerender({ v: { name: 'B' }, s: saveNew, k: 'projB' });
+    await advance(0);
+    expect(saveOld).not.toHaveBeenCalled();
+    expect(saveNew).not.toHaveBeenCalled();
+  });
+});

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback, useDeferredValue, lazy, Susp
 import { C } from '../../tokens';
 import { usePlans } from '../../context/AppContext';
 import { runCalc, DEFAULT_CALC_INPUT, normalizeCalcInput } from '../../utils/calcEngine';
+import { applyCalcDefaults } from '../../utils/calcDefaults.js';
 import { useAutosave } from '../../utils/useAutosave';
 import ConfirmModal from '../../components/ConfirmModal';
 
@@ -44,7 +45,7 @@ export default function CalculationsPage({ onNavigate }) {
   const eligible = useMemo(() => plans.filter(p => p.eligibleForCalc), [plans]);
 
   const [selectedProjectId, setSelectedProjectId] = useState(null);
-  const [input, setInput] = useState(DEFAULT_CALC_INPUT);
+  const [input, setInput] = useState(() => applyCalcDefaults(DEFAULT_CALC_INPUT));
   const [openSections, setOpenSections] = useState(['capacity', 'products', 'costs', 'financing', 'subsidies', 'wc']);
   const [rightTab, setRightTab] = useState('quick');
   const [compareWithId, setCompareWithId] = useState(null);
@@ -77,7 +78,12 @@ export default function CalculationsPage({ onNavigate }) {
     // flag from DEFAULT_CALC_INPUT would mask legacy inputs and skip the
     // qty reset.
     const normalized = normalizeCalcInput(saved);
-    const merged = normalized && typeof normalized === 'object' ? { ...DEFAULT_CALC_INPUT, ...normalized } : DEFAULT_CALC_INPUT;
+    const hasSaved = normalized && typeof normalized === 'object' && Object.keys(normalized).length > 0;
+    // A saved calc wins over everything. Only a NEW calculation (nothing saved
+    // yet) starts from the defaults chosen on the Settings page.
+    const merged = hasSaved
+      ? { ...DEFAULT_CALC_INPUT, ...normalized }
+      : applyCalcDefaults(DEFAULT_CALC_INPUT);
     setInput(merged);
   }, [selectedProject?.id]);
 
@@ -120,7 +126,7 @@ export default function CalculationsPage({ onNavigate }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const handleResetToDefaults = () => setConfirmReset(true);
   const doResetToDefaults = () => {
-    setInput(DEFAULT_CALC_INPUT);
+    setInput(applyCalcDefaults(DEFAULT_CALC_INPUT));
     setConfirmReset(false);
   };
 

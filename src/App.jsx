@@ -7,6 +7,7 @@ import SideNav from './components/SideNav';
 import SignInPage from './pages/SignInPage';
 import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
+import { parseHashString } from './utils/hashRoute.js';
 
 // Code-split every authenticated page so initial JS only contains the
 // sign-in flow + chrome. Each page becomes its own chunk fetched on first
@@ -34,32 +35,10 @@ const AtlasPage           = lazy(() => import('./pages/Atlas'));
 const WorldMarketPage     = lazy(() => import('./pages/WorldMarket'));
 const ConceptsPage        = lazy(() => import('./pages/WorldMarket/ConceptsPage'));
 
-const LINKABLE = ['dashboard', 'ideas', 'projects', 'suppliers', 'markets', 'atlas', 'world-market', 'world-market-concepts', 'about', 'access', 'calculations', 'scenarios', 'portfolio', 'settings'];
-const DETAIL   = ['idea-detail', 'project-detail', 'new-idea', 'new-project', 'research', 'commodity-detail'];
-
-const parseHash = () => {
-  const hash = window.location.hash.replace(/^#\/?/, '');
-  const [page, idStr] = hash.split('/');
-  // parseInt('abc') returns NaN; treat that as "no id" rather than
-  // shipping NaN down to the detail page (where `plans.find(p => p.id == NaN)`
-  // returns undefined and the NotFound page renders with no explanation).
-  // Any DETAIL route hit without a valid id falls back to its list page.
-  const id = idStr ? parseInt(idStr, 10) : null;
-  const validId = Number.isFinite(id) ? id : null;
-  if (LINKABLE.includes(page)) return { page, itemId: null };
-  if (DETAIL.includes(page)) {
-    // research/{id} has its own NotFound surface; idStr=='' means user typed
-    // the bare route — let the NotFound page handle it. But idStr non-empty
-    // AND non-numeric (e.g. /idea-detail/abc) is almost always a stale link
-    // or a copy-paste mistake; route to the parent list page directly.
-    if (idStr && validId === null) {
-      const parentFor = { 'idea-detail': 'ideas', 'project-detail': 'projects', 'new-idea': 'ideas', 'new-project': 'projects', 'research': 'projects', 'commodity-detail': 'markets' };
-      return { page: parentFor[page] || 'dashboard', itemId: null };
-    }
-    return { page, itemId: validId };
-  }
-  return { page: 'dashboard', itemId: null };
-};
+// Route parsing lives in utils/hashRoute.js (unit tested). Ids stay strings
+// where a route allows them — e.g. the starter commodities' "seed-…" ids,
+// which parseInt used to turn into NaN and bounce back to Markets.
+const parseHash = () => parseHashString(window.location.hash);
 
 function Spinner({ label }) {
   return (
