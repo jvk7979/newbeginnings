@@ -99,20 +99,16 @@ function TopicActions({ topic, onEdit, onDelete, isOwn }) {
   if (!isOwn) return null;
   return (
     <>
-      <button onClick={(e) => { e.stopPropagation(); onEdit(topic); }}
+      <button className="hv-bg hv-fg" onClick={(e) => { e.stopPropagation(); onEdit(topic); }}
         aria-label={`Edit topic: ${topic.title}`}
         title="Edit topic"
-        style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+        style={{ '--hv-bg': C.bg2, '--hv-fg': C.accent, width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
-      <button onClick={(e) => { e.stopPropagation(); onDelete(topic.id); }}
+      <button className="hv-bg hv-fg" onClick={(e) => { e.stopPropagation(); onDelete(topic.id); }}
         aria-label={`Delete topic: ${topic.title}`}
         title="Delete topic"
-        style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.danger; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+        style={{ '--hv-bg': C.bg2, '--hv-fg': C.danger, width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       </button>
     </>
@@ -170,7 +166,7 @@ function BoardView({ topics, selectedId, onSelect, currentUserEmail, onEdit, onD
               </div>
             </div>
             {/* Title */}
-            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+            <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
               {t.title}
             </div>
             {/* Footer: author / time / built-in marker */}
@@ -207,13 +203,13 @@ function ListView({ topics, selectedId, onSelect, currentUserEmail, onEdit, onDe
           const isDragging = dragId === t.id;
           const isDragOver = dragOverId === t.id && dragId !== t.id;
           return (
-            <div key={t.id}
+            <div className={`${(!active) ? ' hv-bg' : ''}`} key={t.id}
               draggable={draggable}
               onDragStart={() => onDragStart(t.id)}
               onDragOver={(e) => onDragOver(e, t.id)}
               onDrop={() => onDrop(t.id)}
               onDragEnd={onDragEnd}
-              style={{
+              style={{ '--hv-bg': C.bg2,
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '8px 10px', borderRadius: 8,
                 background: active ? alpha(cat.color, 22) : 'transparent',
@@ -222,9 +218,7 @@ function ListView({ topics, selectedId, onSelect, currentUserEmail, onEdit, onDe
                 outline: isDragOver ? `2px solid ${C.accentDim}` : 'none',
                 cursor: 'pointer',
               }}
-              onClick={() => onSelect(t.id)}
-              onMouseEnter={e => { if (!active) e.currentTarget.style.background = C.bg2; }}
-              onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}>
+              onClick={() => onSelect(t.id)}>
               <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: cat.color, flexShrink: 0 }} />
               <span style={{ flex: 1, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: active ? 700 : 500, color: active ? cat.color : C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {t.title}
@@ -263,16 +257,14 @@ function ActiveThreadPanel({ topic, ideaId, onCloseDrawer = null, currentUserEma
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: cat.color, background: cat.bg, borderRadius: 4, padding: '2px 8px' }}>
           {cat.label}
         </span>
-        <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: C.fg1, lineHeight: 1.3, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {topic.title}
         </span>
         <div style={{ display: 'flex', gap: 2 }}>
           <TopicActions topic={topic} onEdit={onEdit} onDelete={onDelete} isOwn={isOwn} />
           {onCloseDrawer && (
-            <button onClick={onCloseDrawer} aria-label="Close thread"
-              style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, lineHeight: 1 }}
-              onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+            <button className="hv-bg hv-fg" onClick={onCloseDrawer} aria-label="Close thread"
+              style={{ '--hv-bg': C.bg2, '--hv-fg': C.fg1, width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: C.fg3, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, lineHeight: 1 }}>
               ×
             </button>
           )}
@@ -533,10 +525,8 @@ export default function IdeaTopics({ ideaId }) {
             onCancel={() => setCreating(false)}
             onSave={handleCreate} />
         ) : (
-          <button onClick={() => setCreating(true)}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.accent, background: 'transparent', border: `1.5px dashed ${alpha(C.accent, 55)}`, borderRadius: 12, padding: '12px 16px', cursor: 'pointer', transition: 'background 120ms, border-color 120ms' }}
-            onMouseEnter={e => { e.currentTarget.style.background = alpha(C.accent, 8); e.currentTarget.style.borderColor = C.accent; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = alpha(C.accent, 55); }}>
+          <button className="hv-bg hv-bd" onClick={() => setCreating(true)}
+            style={{ '--hv-bg': alpha(C.accent, 8), '--hv-bd': C.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: C.accent, background: 'transparent', border: `1.5px dashed ${alpha(C.accent, 55)}`, borderRadius: 12, padding: '12px 16px', cursor: 'pointer', transition: 'background 120ms, border-color 120ms' }}>
             <span aria-hidden="true" style={{ fontSize: 16, lineHeight: 1 }}>＋</span>
             Add topic
           </button>

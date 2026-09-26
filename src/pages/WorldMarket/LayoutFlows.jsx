@@ -26,6 +26,8 @@ const PALETTE = [
 ];
 
 export default function LayoutFlows({ partnerData, topPartners }) {
+  // Phones and tablets cannot hover — tell them to tap instead.
+  const canHover = typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches;
   const [hover, setHover] = useState(null);
   const listRef = useRef(null);
 
@@ -133,7 +135,7 @@ export default function LayoutFlows({ partnerData, topPartners }) {
       <div className="la-list-col">
         <div className="la-list-head">
           <span className="la-list-title">Ranked markets</span>
-          <span className="la-list-sub">{topPartners.length} importers · hover to trace</span>
+          <span className="la-list-sub">{topPartners.length} importers · {canHover ? 'hover' : 'tap'} to trace</span>
         </div>
         <div className="la-list-scroll" ref={listRef}>
           {topPartners.map((p, i) => {

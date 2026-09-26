@@ -41,7 +41,7 @@ test('empty state renders when no ideas exist', async ({ page }) => {
   // landed in the post-theme polish pass.
   await expect(page.locator('.empty-state').first()).toBeVisible();
   await expect(page.locator('.empty-state-title').filter({ hasText: /Your first venture/i })).toBeVisible();
-  await expect(page.locator('.empty-state .themed-cta').filter({ hasText: /Capture an idea/i })).toBeVisible();
+  await expect(page.locator('.empty-state .ui-btn--primary').filter({ hasText: /Capture an idea/i })).toBeVisible();
 });
 
 test('New Idea page — form renders with required fields', async ({ page }) => {

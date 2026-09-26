@@ -55,16 +55,14 @@ export default function SavedViewsBar({ scope, currentState, onApply, isStateEqu
               }}>
               {v.name}
             </button>
-            <button onClick={() => onDelete(v.id)}
+            <button className="hv-bg hv-fg" onClick={() => onDelete(v.id)}
               aria-label={`Delete saved view "${v.name}"`}
-              style={{
+              style={{ '--hv-bg': C.bg2, '--hv-fg': C.fg1,
                 width: 20, height: 20, borderRadius: '50%', border: 'none',
                 background: 'transparent', cursor: 'pointer', color: C.fg3,
                 fontSize: 14, lineHeight: 1, padding: 0,
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+              }}>
               ×
             </button>
           </span>

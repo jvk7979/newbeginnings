@@ -14,10 +14,8 @@ function SectionHeader({ label, actionLabel, onAction }) {
       </span>
       <div style={{ flex: 1, height: 1, background: C.border }} />
       {actionLabel && (
-        <button onClick={onAction}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+        <button className="hv-op" onClick={onAction}
+          style={{ '--hv-op': '0.75', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}>
           {actionLabel}
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
@@ -78,10 +76,10 @@ export default function AboutPage({ onNavigate }) {
       <div style={{ marginBottom: 32 }}>
         <SectionHeader label="Why I built this" />
         <div style={{ maxWidth: PROSE_MAX }}>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.75, margin: '0 0 14px 0' }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, color: C.fg2, lineHeight: 1.75, margin: '0 0 14px 0' }}>
             I built this so we'd have one place to capture every venture idea, talk it through as a family, and run the numbers without flipping between five apps. Half-finished spreadsheets, ideas lost in WhatsApp threads, feasibility reports buried in email — everything we used to scatter now lives in one trail.
           </p>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.75, margin: 0 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, color: C.fg2, lineHeight: 1.75, margin: 0 }}>
             Everything you see here started in our living-room conversations about what to build next in the Godavari and Konaseema region.
           </p>
         </div>
@@ -90,7 +88,7 @@ export default function AboutPage({ onNavigate }) {
       {/* Mission */}
       <div style={{ background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 10, padding: '24px 28px', marginBottom: 32, maxWidth: PROSE_MAX }}>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>Mission</div>
-        <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
+        <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 600, color: C.fg1, lineHeight: 1.65, margin: 0 }}>
           "To identify, evaluate, and build sustainable ventures that create local value —
           leveraging the agricultural abundance, craftsmanship, and community of the Godavari delta."
         </p>
@@ -122,15 +120,13 @@ export default function AboutPage({ onNavigate }) {
         <SectionHeader label="Page by page" />
         <div className="grid-2">
           {PAGES.map(p => (
-            <button key={p.title} onClick={() => onNavigate(p.dest)}
+            <button className="hv-bd hv-bg" key={p.title} onClick={() => onNavigate(p.dest)}
               aria-label={`Open ${p.title}`}
-              style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '20px 22px', display: 'flex', gap: 16, alignItems: 'flex-start', textAlign: 'left', cursor: 'pointer', transition: 'border 120ms, background 120ms' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = alpha(C.accent, 55); e.currentTarget.style.background = alpha(C.accent, 5); }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.background = C.bg1; }}>
+              style={{ '--hv-bd': alpha(C.accent, 55), '--hv-bg': alpha(C.accent, 5), background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '20px 22px', display: 'flex', gap: 16, alignItems: 'flex-start', textAlign: 'left', cursor: 'pointer', transition: 'border 120ms, background 120ms' }}>
               <span style={{ width: 48, height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${C.accentBg} 0%, ${C.bg2} 100%)`, border: `1px solid ${alpha(C.accent, 44)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent, flexShrink: 0 }}>{p.icon}</span>
               <div style={{ paddingTop: 4, flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: C.fg1 }}>{p.title}</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 700, color: C.fg1 }}>{p.title}</span>
                   <span aria-hidden="true" style={{ color: C.accent, fontSize: 16, flexShrink: 0 }}>→</span>
                 </div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.6 }}>{p.desc}</div>

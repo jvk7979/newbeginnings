@@ -119,7 +119,7 @@ export default function SignInPage() {
             <p style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(22px,3vw,32px)', fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: 16 }}>
               Your private workspace for Rajahmundry ventures.
             </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, color: C.fg2, lineHeight: 1.7, marginBottom: 40, maxWidth: 420 }}>
               Capture ideas rooted in the Godavari and Konaseema region, build projects,
               and manage documents — all in one place.
             </p>
@@ -160,7 +160,7 @@ export default function SignInPage() {
 
           <button onClick={handleSignIn} disabled={loading}
             className="auth-google-btn"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, width: '100%', padding: '14px 20px', borderRadius: 8, border: `1.5px solid ${C.borderLight}`, background: loading ? C.bg1 : '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 500, color: C.fg1, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, width: '100%', padding: '14px 20px', borderRadius: 8, border: `1.5px solid ${C.borderLight}`, background: loading ? C.bg1 : '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 500, color: C.fg1, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
               <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>

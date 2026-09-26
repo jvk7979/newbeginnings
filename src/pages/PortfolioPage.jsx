@@ -3,6 +3,9 @@ import { C, alpha } from '../tokens';
 import { usePlans } from '../context/AppContext';
 import { runCalc, DEFAULT_CALC_INPUT, normalizeCalcInput } from '../utils/calcEngine';
 import { fmtINR } from '../components/calc/primitives';
+import PageHeader from '../components/PageHeader';
+import EmptyState from '../components/EmptyState';
+import { IllCalc } from '../components/illustrations';
 
 const fmtPct = (v) => v == null || !isFinite(v) ? '—' : `${v.toFixed(1)}%`;
 const fmtYrs = (v) => v == null ? '> life' : `${v} yr${v === 1 ? '' : 's'}`;
@@ -62,7 +65,7 @@ const sortVal = (row, key) => {
 
 // Portfolio dashboard — every calc-eligible project's headline financials
 // in one sortable table, with a summary strip across the top.
-export default function PortfolioPage() {
+export default function PortfolioPage({ onNavigate }) {
   const { plans } = usePlans();
   const [sort, setSort] = useState({ key: 'irr', dir: 'desc' });
 
@@ -105,25 +108,21 @@ export default function PortfolioPage() {
 
   return (
     <div className="page-pad" style={{ background: C.bg0, flex: 1, overflowY: 'auto' }}>
-      <div style={{ marginBottom: 24 }}>
-        <div className="pf-eyebrow" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.06em', color: C.fg3, marginBottom: 10, textTransform: 'uppercase' }}>
-          Portfolio
-        </div>
-        <h1 className="page-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>
-          Project Portfolio
-        </h1>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 4 }}>
-          Headline financials for every calc-eligible project, side by side.
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Portfolio"
+        title="Project Portfolio"
+        subtitle="Headline financials for every calc-eligible project, side by side."
+      />
 
       {eligible.length === 0 ? (
-        <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: C.fg1, marginBottom: 6 }}>No projects to compare yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3 }}>
-            Mark a project as eligible for calculations, fill in its numbers, and it will appear here.
-          </div>
-        </div>
+        <EmptyState
+          art={<IllCalc size={40} />}
+          title="No projects to compare yet"
+          copy="Mark a project as eligible for calculations, fill in its numbers, and it will appear here."
+          actionLabel={onNavigate ? 'Go to Projects' : null}
+          actionIcon={null}
+          onAction={() => onNavigate?.('projects')}
+        />
       ) : (
         <>
           {/* Summary strip */}

@@ -19,6 +19,7 @@ function timeAgo(ts) {
 }
 import { listAllUploadedBlobs, deleteFileFromDB, fmtSize } from '../utils/fileStorage';
 import ConfirmModal from '../components/ConfirmModal';
+import PageHeader from '../components/PageHeader';
 
 export default function AccessPage() {
   const { user, isAdmin } = useAuth();
@@ -166,10 +167,11 @@ export default function AccessPage() {
     <div className="page-pad" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 680, margin: '0 auto', width: '100%' }}>
 
-        <div className="grad-text page-title" style={{ marginBottom: 6 }}>Access Control</div>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, margin: '0 0 28px 0', lineHeight: 1.6 }}>
-          Only invited users can sign in. Add their Gmail address below — they'll be able to sign in immediately on their next attempt.
-        </p>
+        <PageHeader
+          eyebrow="Admin"
+          title="Access Control"
+          subtitle="Only invited users can sign in. Add their Gmail address below — they can sign in on their next attempt."
+        />
 
         {/* Add user card */}
         <div style={{ background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '20px 22px', marginBottom: 28 }}>
@@ -310,10 +312,8 @@ function UserRow({ initials, name, email, badge, accent, role, lastSeenAt, onRem
         </select>
       ) : null}
       {onRemove && (
-        <button onClick={onRemove}
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 6, cursor: 'pointer', padding: '4px 10px', flexShrink: 0 }}
-          onMouseEnter={e => e.currentTarget.style.background = alpha(C.danger, 11)}
-          onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+        <button className="hv-bg" onClick={onRemove}
+          style={{ '--hv-bg': alpha(C.danger, 11), fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.danger, background: 'none', border: `1px solid ${alpha(C.danger, 33)}`, borderRadius: 6, cursor: 'pointer', padding: '4px 10px', flexShrink: 0 }}>
           Remove
         </button>
       )}

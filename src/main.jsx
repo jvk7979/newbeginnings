@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
 import './styles.css';
+import './ui.css';
 
 // Apply persisted theme before first paint to avoid a flash of the default palette
 try {

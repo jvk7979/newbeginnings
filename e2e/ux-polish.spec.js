@@ -1,7 +1,7 @@
 /**
  * UX polish tests — covers the four follow-up items beyond the theme system:
  *   #1 atmospheric propagation across pages (page-pad.page-hero-atmo)
- *   #3 themed empty states (.empty-state + .themed-cta)
+ *   #3 themed empty states (.empty-state + shared .ui-btn--primary CTA)
  *   #4 form pages polish (.form-input focus halo, .themed-cta save buttons)
  *   #6 page transitions (.page-enter wrapper around the route)
  *
@@ -71,14 +71,14 @@ test.describe('Themed empty states (#3)', () => {
   test('Ideas empty state has the .empty-state-art badge + .themed-cta', async ({ page }) => {
     await goto(page, 'ideas');
     await expect(page.locator('.empty-state-art').first()).toBeVisible();
-    await expect(page.locator('.empty-state .themed-cta').filter({ hasText: /Capture an idea/i }))
+    await expect(page.locator('.empty-state .ui-btn--primary').filter({ hasText: /Capture an idea/i }))
       .toBeVisible();
   });
 
   test('Projects empty state has the badge + themed CTA with new copy', async ({ page }) => {
     await goto(page, 'projects');
     await expect(page.locator('.empty-state-art').first()).toBeVisible();
-    await expect(page.locator('.empty-state .themed-cta').filter({ hasText: /Create a project/i }))
+    await expect(page.locator('.empty-state .ui-btn--primary').filter({ hasText: /Create a project/i }))
       .toBeVisible();
   });
 

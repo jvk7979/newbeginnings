@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.webp';
 import ConfirmModal from './ConfirmModal';
+import { prefetchPage } from '../pageLoaders.js';
 import { validateBackup } from '../utils/backup.js';
 
 const NAV_ITEMS = [
@@ -75,9 +76,9 @@ const BOTTOM_NAV_LABELS = {
 };
 
 const DARK_MODE_OPTIONS = [
-  { id: 'light',  label: 'Light',  icon: '☀️' },
-  { id: 'dark',   label: 'Dark',   icon: '🌙' },
-  { id: 'system', label: 'System', icon: '⚙️' },
+  { id: 'light',  label: 'Light',  icon: <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' aria-hidden='true'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg> },
+  { id: 'dark',   label: 'Dark',   icon: <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'><path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z'/></svg> },
+  { id: 'system', label: 'System', icon: <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'><rect x='3' y='4' width='18' height='12' rx='2'/><path d='M8 20h8M12 16v4'/></svg> },
 ];
 
 function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, setDarkMode, user, isAdmin, onSignOut, onExport, onImport, mobile = false }) {
@@ -124,6 +125,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
           const active = activeTab === item.id;
           return (
             <button key={item.id} onClick={() => onNavigate(item.id)}
+              onPointerEnter={() => prefetchPage(item.id)} onFocus={() => prefetchPage(item.id)} onTouchStart={() => prefetchPage(item.id)}
               className="sidenav-item"
               aria-current={active ? 'page' : undefined}
               style={{
@@ -135,9 +137,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
                 color: active ? C.accent : C.fg2,
                 background: active ? C.accentBg : 'transparent',
                 transition: 'all 130ms ease',
-              }}
-              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; } }}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; } }}>
+              }}>
               <span className="sidenav-item-icon" style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>{item.icon}</span>
               <span style={{ flex: 1 }}>{item.label}</span>
               {active && <span className="sidenav-item-bar" style={{ width: 3, height: 14, background: C.accent, borderRadius: 2, flexShrink: 0 }} />}
@@ -159,9 +159,7 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
                 color: active ? C.accent : C.fg2,
                 background: active ? C.accentBg : 'transparent',
                 transition: 'all 130ms ease',
-              }}
-              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; } }}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; } }}>
+              }}>
               <span className="sidenav-item-icon" style={{ color: active ? C.accent : C.fg3, flexShrink: 0, display: 'flex' }}>
                 <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </span>
@@ -177,20 +175,18 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
         {/* Dark mode toggle */}
         <div style={{ display: 'flex', gap: 3, marginBottom: 6, background: C.bg2, borderRadius: 7, padding: 3 }}>
           {DARK_MODE_OPTIONS.map(opt => (
-            <button key={opt.id} onClick={() => setDarkMode(opt.id)}
+            <button key={opt.id} onClick={() => setDarkMode(opt.id)} className="sidenav-mode-btn"
               aria-pressed={darkMode === opt.id}
               title={opt.label}
               style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '4px 0', borderRadius: 5, border: 'none', cursor: 'pointer', fontSize: 11, fontFamily: "'DM Sans', sans-serif", fontWeight: darkMode === opt.id ? 600 : 400, background: darkMode === opt.id ? C.bg1 : 'transparent', color: darkMode === opt.id ? C.fg1 : C.fg3, boxShadow: darkMode === opt.id ? `0 1px 3px rgba(0,0,0,0.12)` : 'none', transition: 'all 120ms' }}>
-              <span>{opt.icon}</span>
+              <span style={{ display: 'flex' }}>{opt.icon}</span>
               <span>{opt.label}</span>
             </button>
           ))}
         </div>
 
-        <button onClick={() => setThemeOpen(o => !o)}
-          style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 6, background: 'none', border: 'none', cursor: 'pointer', padding: '5px 8px', borderRadius: 6 }}
-          onMouseEnter={e => e.currentTarget.style.background = C.bg2}
-          onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+        <button onClick={() => setThemeOpen(o => !o)} className="sidenav-plain-btn"
+          style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 6, background: 'none', border: 'none', cursor: 'pointer', padding: '5px 8px', borderRadius: 6 }}>
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="1.5" strokeLinecap="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg3, flex: 1, textAlign: 'left' }}>Theme</span>
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={C.fg3} strokeWidth="2" strokeLinecap="round" width="10" height="10"
@@ -202,10 +198,8 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
           <div style={{ margin: '4px 0 2px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, padding: '0 2px' }}>
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.fg3 }}>Choose theme</span>
-              <button onClick={() => setThemeOpen(false)} aria-label="Close theme picker"
-                style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', color: C.fg3, width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, lineHeight: 1, flexShrink: 0 }}
-                onMouseEnter={e => { e.currentTarget.style.background = C.bg3; e.currentTarget.style.color = C.fg1; }}
-                onMouseLeave={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg3; }}>×</button>
+              <button onClick={() => setThemeOpen(false)} aria-label="Close theme picker" className="sidenav-menu-btn"
+                style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, cursor: 'pointer', color: C.fg3, width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, lineHeight: 1, flexShrink: 0 }}>×</button>
             </div>
           <div role="radiogroup" aria-label="Theme"
             style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
@@ -274,19 +268,15 @@ function NavContent({ activeTab, onNavigate, themes, theme, setTheme, darkMode, 
         </div>
         {settingsOpen && (
           <div style={{ background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden', marginBottom: 6 }}>
-            <button onClick={onExport}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 12px' }}
-              onMouseEnter={e => e.currentTarget.style.background = C.bg3}
-              onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+            <button onClick={onExport} className="sidenav-menu-btn"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 12px' }}>
               <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export backup
             </button>
             {/* S6: Import wipes shared collections via writeBatch.delete in
                 AppContext.importData. Restrict to admins only. */}
             {isAdmin && (
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, cursor: 'pointer', padding: '8px 12px', borderTop: `1px solid ${C.border}` }}
-                onMouseEnter={e => e.currentTarget.style.background = C.bg3}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+              <label className="sidenav-menu-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, cursor: 'pointer', padding: '8px 12px', borderTop: `1px solid ${C.border}` }}>
                 <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Import backup
                 <input type="file" accept=".json" style={{ display: 'none' }} onChange={onImport} />
@@ -473,7 +463,7 @@ export default function SideNav({ currentPage, onNavigate }) {
           if (!item) return null;
           const active = activeTab === id;
           return (
-            <button key={id} className="nb-tab" onClick={() => onNavigate(id)}
+            <button key={id} className="nb-tab" onClick={() => onNavigate(id)} onTouchStart={() => prefetchPage(id)} onPointerEnter={() => prefetchPage(id)}
               aria-current={active ? 'page' : undefined}>
               <span className="nb-tab-icon">{item.icon}</span>
               <span>{BOTTOM_NAV_LABELS[id]}</span>

@@ -10,6 +10,7 @@ import { useReveal } from '../utils/useReveal';
 import { useCountUp } from '../utils/useCountUp';
 import { fmtINR } from '../utils/format';
 import { planStatusLabel, ideaStatusLabel } from '../utils/status';
+import EmptyState from '../components/EmptyState';
 
 // Eyebrow label for the bottom "features card" — Heritage keeps the
 // Godavari brand prefix; other themes drop it so the eyebrow stays
@@ -196,7 +197,7 @@ export default function Dashboard({ onNavigate }) {
             <span className="dh-hero-title-italic">Endless possibilities.</span>
           </h1>
           <p className="dh-hero-tagline">
-            Turn your ideas into thriving businesses with clarity,<br />
+            Turn your ideas into thriving businesses with clarity,
             structure, and regional wisdom.
           </p>
           <div className="dh-hero-actions">
@@ -219,7 +220,7 @@ export default function Dashboard({ onNavigate }) {
               Reveal-fade fires once the strip scrolls into view; the three
               tile values count up from 0 in the same beat. */}
         <div ref={kpiReveal.ref}
-             className={`dh-kpi-strip reveal-fade${kpiReveal.visible ? ' is-visible' : ''}`}>
+             className={`dh-kpi-strip reveal-fade${kpiReveal.visible ? ' is-visible' : ''}${ideas.length + plans.length === 0 ? ' is-empty' : ''}`}>
           <KpiTile icon={ICON_LIGHTBULB} label="Total Ideas"     value={ideasCountAnim} />
           <KpiTile icon={ICON_PROJECT}   label="Active Projects" value={plansCountAnim} />
           <KpiTile icon={ICON_SPARKLE}   label="In Calculation"  value={eligibleCountAnim} />
@@ -242,11 +243,13 @@ export default function Dashboard({ onNavigate }) {
               onAction={() => onNavigate('ideas')}
             />
             {featuredIdeas.length === 0 ? (
-              <EmptyTile
-                copy="No ideas captured yet."
-                btn="+ New Idea"
+              <EmptyState
+                compact
                 art={<IllIdea />}
-                onClick={() => onNavigate('new-idea')}
+                title="No ideas yet"
+                copy="Capture your first one — even half-formed."
+                actionLabel="New Idea"
+                onAction={() => onNavigate('new-idea')}
               />
             ) : (
               <div className="dh-stack">
@@ -284,11 +287,13 @@ export default function Dashboard({ onNavigate }) {
               onAction={() => onNavigate('projects')}
             />
             {activeProjects.length === 0 ? (
-              <EmptyTile
-                copy="No active projects."
-                btn="+ New Project"
+              <EmptyState
+                compact
                 art={<IllPlan />}
-                onClick={() => onNavigate('new-project')}
+                title="No active projects"
+                copy="Promote an idea, or start a project from scratch."
+                actionLabel="New Project"
+                onAction={() => onNavigate('new-project')}
               />
             ) : (
               <div className="dh-stack">
@@ -477,12 +482,3 @@ export default function Dashboard({ onNavigate }) {
   );
 }
 
-function EmptyTile({ copy, btn, onClick, art }) {
-  return (
-    <div className="dh-empty">
-      {art && <div className="dh-empty-art" aria-hidden="true">{art}</div>}
-      <div className="dh-empty-copy">{copy}</div>
-      <button onClick={onClick} className="dh-btn dh-btn-primary dh-empty-btn">{btn}</button>
-    </div>
-  );
-}

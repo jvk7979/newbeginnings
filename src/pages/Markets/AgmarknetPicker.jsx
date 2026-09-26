@@ -159,10 +159,8 @@ export default function AgmarknetPicker() {
                   <div style={hintStyle}>{query.trim() ? 'No matches.' : 'Everything is already tracked.'}</div>
                 )}
                 {!loading && filtered.map(name => (
-                  <button key={name} onClick={() => addOne(name)} disabled={busy}
-                    style={{ display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, background: 'transparent', border: 'none', borderRadius: 6, padding: '7px 9px', cursor: busy ? 'not-allowed' : 'pointer' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = C.bg2; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+                  <button className="hv-bg" key={name} onClick={() => addOne(name)} disabled={busy}
+                    style={{ '--hv-bg': C.bg2, display: 'block', width: '100%', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg1, background: 'transparent', border: 'none', borderRadius: 6, padding: '7px 9px', cursor: busy ? 'not-allowed' : 'pointer' }}>
                     {name}
                   </button>
                 ))}

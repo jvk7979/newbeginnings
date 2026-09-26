@@ -14,15 +14,13 @@ export default function ConfirmModal({ title, message, confirmLabel = 'Delete', 
         {/* Top-right × close. Mobile users muscle-memory expect this; on
             small screens the bottom Cancel button isn't always reachable
             with one thumb. 44×44 meets HIG/WCAG touch-target minimums. */}
-        <button
+        <button className="hv-fg hv-bg"
           onClick={onCancel}
           aria-label="Close"
-          style={{ position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onMouseEnter={e => { e.currentTarget.style.color = C.fg1; e.currentTarget.style.background = C.bg2; }}
-          onMouseLeave={e => { e.currentTarget.style.color = C.fg3; e.currentTarget.style.background = 'none'; }}>
+          style={{ '--hv-fg': C.fg1, '--hv-bg': C.bg2, position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           ×
         </button>
-        <div id={titleId} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 19, fontWeight: 700, color: C.fg1, marginBottom: 10, paddingRight: 36 }}>{title}</div>
+        <div id={titleId} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 700, color: C.fg1, marginBottom: 10, paddingRight: 36 }}>{title}</div>
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg2, lineHeight: 1.65, marginBottom: 24 }}>{message}</div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button

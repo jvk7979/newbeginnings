@@ -23,10 +23,8 @@ export default function ClipCard({ clip, onOpen }) {
   const tags = Array.isArray(clip.tags) ? clip.tags : [];
   const isQuote = clip.type === 'quote';
   return (
-    <button onClick={() => onOpen(clip)}
-      style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: 18, cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 140ms' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = alpha(C.accent, 44); }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
+    <button className="hv-bd" onClick={() => onOpen(clip)}
+      style={{ '--hv-bd': alpha(C.accent, 44), textAlign: 'left', display: 'flex', flexDirection: 'column', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: 18, cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 140ms' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <ClipTypeBadge type={clip.type} />
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>{clip.date}</span>

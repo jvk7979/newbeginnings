@@ -102,9 +102,7 @@ export default function AddClipModal({ onClose, onAdd }) {
       onClick={e => e.target === e.currentTarget && onClose()}>
       <div {...dialogProps}
            style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 520, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
-        <button onClick={onClose} aria-label="Close"
-          onMouseEnter={e => { e.currentTarget.style.color = C.fg1; e.currentTarget.style.background = C.bg2; }}
-          onMouseLeave={e => { e.currentTarget.style.color = C.fg3; e.currentTarget.style.background = 'none'; }}
+        <button style={{ '--hv-fg': C.fg1, '--hv-bg': C.bg2 }} className="hv-fg hv-bg" onClick={onClose} aria-label="Close"
           style={{ position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           ×
         </button>
@@ -118,10 +116,8 @@ export default function AddClipModal({ onClose, onAdd }) {
             <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginBottom: 18 }}>Choose a clip type</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {TYPE_PICKER.map(({ type: t, blurb }) => (
-                <button key={t} onClick={() => { setType(t); setStep('fields'); }}
-                  style={{ textAlign: 'left', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 140ms' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = alpha(C.accent, 55); }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
+                <button className="hv-bd" key={t} onClick={() => { setType(t); setStep('fields'); }}
+                  style={{ '--hv-bd': alpha(C.accent, 55), textAlign: 'left', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 140ms' }}>
                   <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: C.fg1, marginBottom: 4 }}>
                     <span aria-hidden="true" style={{ marginRight: 6 }}>{CLIP_TYPES[t].glyph}</span>
                     {toTitleCase(CLIP_TYPES[t].label)}

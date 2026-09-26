@@ -7,6 +7,8 @@ import SavedViewsBar from '../components/SavedViewsBar';
 import ComparePanel from '../components/ComparePanel';
 import { IDEA_CATEGORIES } from '../utils/categoryStyles';
 import { IllIdea } from '../components/illustrations';
+import PageHeader, { PlusIcon } from '../components/PageHeader';
+import EmptyState from '../components/EmptyState';
 
 const FILTERS = [
   { id: 'all',        label: 'All' },
@@ -70,39 +72,25 @@ export default function IdeasPage({ onNavigate }) {
   return (
     <div className="page-pad page-hero-atmo" style={{ background: C.bg0 }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 10, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-          <div className="grad-text page-title">Ideas</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px', whiteSpace: 'nowrap' }}>
-            {search || filter !== 'all' || catFilter ? `${filtered.length} / ${ideas.length}` : ideas.length}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
-          <button onClick={() => setCompareOpen(true)}
+      <PageHeader
+        eyebrow="Pipeline"
+        title={<span className="grad-text">Ideas</span>}
+        count={search || filter !== 'all' || catFilter ? `${filtered.length} / ${ideas.length}` : ideas.length}
+        subtitle="Every venture starts here — capture it, tag it, and promote the promising ones to projects."
+        actions={<>
+          <button type="button" className="ui-btn ui-btn--secondary" onClick={() => setCompareOpen(true)}
             disabled={ideas.length < 2}
-            style={{
-              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
-              padding: '8px 14px', borderRadius: 8,
-              background: 'transparent', color: ideas.length < 2 ? C.fg3 : C.fg2,
-              border: `1px solid ${C.border}`,
-              cursor: ideas.length < 2 ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: 5,
-            }}
             title={ideas.length < 2 ? 'Need at least 2 ideas' : 'Compare ideas side by side'}>
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
               <rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/>
             </svg>
             Compare
           </button>
-          <button style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
-            onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-            onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={() => onNavigate('new-idea')}>
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            New Idea
+          <button type="button" className="ui-btn ui-btn--primary" onClick={() => onNavigate('new-idea')}>
+            <PlusIcon />New Idea
           </button>
-        </div>
-      </div>
+        </>}
+      />
 
       {/* Status tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
@@ -170,12 +158,13 @@ export default function IdeasPage({ onNavigate }) {
 
       {/* Empty states */}
       {ideas.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-art" aria-hidden="true"><IllIdea /></div>
-          <div className="empty-state-title">Your first venture starts here</div>
-          <div className="empty-state-copy">Capture an idea — even half-formed. You can always refine it later.</div>
-          <button className="themed-cta" onClick={() => onNavigate('new-idea')}>+ Capture an idea</button>
-        </div>
+        <EmptyState
+          art={<IllIdea />}
+          title="Your first venture starts here"
+          copy="Capture an idea — even half-formed. You can always refine it later."
+          actionLabel="Capture an idea"
+          onAction={() => onNavigate('new-idea')}
+        />
       ) : filtered.length === 0 ? (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginTop: 40, textAlign: 'center' }}>
           {search ? `No ideas matching "${search}"` : `No ideas with status "${FILTERS.find(f => f.id === filter)?.label ?? filter}".`}

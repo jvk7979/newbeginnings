@@ -4,6 +4,9 @@ import { useSuppliers, usePlans } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useDialogA11y } from '../utils/useDialogA11y';
+import PageHeader, { PlusIcon } from '../components/PageHeader';
+import EmptyState from '../components/EmptyState';
+import { IllDoc } from '../components/illustrations';
 
 const inputStyle = { width: '100%', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 6, color: C.fg1, fontFamily: "'DM Sans', sans-serif", fontSize: 15, padding: '9px 12px', outline: 'none', boxSizing: 'border-box' };
 const labelStyle = { fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: C.fg2, marginBottom: 5, display: 'block' };
@@ -240,41 +243,26 @@ export default function SuppliersPage() {
 
   return (
     <div className="page-pad" style={{ background: C.bg0, flex: 1, overflowY: 'auto' }}>
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.06em', color: C.fg3, marginBottom: 10, textTransform: 'uppercase' }}>
-          Directory
-        </div>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <h1 className="page-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 34, fontWeight: 600, color: C.fg1, margin: 0, lineHeight: 1.15 }}>
-              Suppliers
-            </h1>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginTop: 4 }}>
-              {suppliers.length} {suppliers.length === 1 ? 'supplier' : 'suppliers'} tracked
-            </div>
-          </div>
-          {canEdit && (
-            <button onClick={() => setModal('add')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '9px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-              + Add supplier
-            </button>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Directory"
+        title="Suppliers"
+        count={suppliers.length}
+        subtitle="The vendors who supply your raw materials, linked to the projects they feed."
+        actions={canEdit && (
+          <button type="button" className="ui-btn ui-btn--primary" onClick={() => setModal('add')}>
+            <PlusIcon />Add supplier
+          </button>
+        )}
+      />
 
       {suppliers.length === 0 ? (
-        <div style={{ background: C.bg1, border: `1px dashed ${C.border}`, borderRadius: 12, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 600, color: C.fg1, marginBottom: 6 }}>No suppliers yet</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg3, marginBottom: canEdit ? 18 : 0 }}>
-            Add the vendors who supply your raw materials and link them to the projects they feed.
-          </div>
-          {canEdit && (
-            <button onClick={() => setModal('add')}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '9px 18px', borderRadius: 6, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer' }}>
-              + Add your first supplier
-            </button>
-          )}
-        </div>
+        <EmptyState
+          art={<IllDoc />}
+          title="No suppliers yet"
+          copy="Add the vendors who supply your raw materials and link them to the projects they feed."
+          actionLabel={canEdit ? 'Add your first supplier' : null}
+          onAction={() => setModal('add')}
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
           {suppliers.map(s => (

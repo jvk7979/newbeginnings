@@ -82,7 +82,7 @@
   line-height: 1; letter-spacing: -0.02em;
 }
 .wm-kpi-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--c-fg3); margin-top: 3px;
 }
@@ -98,7 +98,7 @@
   border-radius: 7px; background: var(--c-bg1);
 }
 .wm-hsel-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-fg3);
 }
 .wm-hsel-select {
@@ -203,7 +203,7 @@
 }
 .wm-panel-name {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 17px; font-weight: 700; color: var(--c-fg1); margin: 0 0 2px;
+  font-size: 18px; font-weight: 700; color: var(--c-fg1); margin: 0 0 2px;
 }
 .wm-panel-big-val {
   font-family: 'Playfair Display', Georgia, serif;
@@ -295,7 +295,7 @@
 }
 .wm-tip-nodata { color: var(--c-fg3); }
 .wm-tip-prod-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--c-fg3); margin-bottom: 4px;
 }
@@ -320,7 +320,7 @@
   border-bottom: 1px solid var(--c-border);
 }
 .wm-ap-header-eye {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--c-fg3); margin-bottom: 4px;
 }
@@ -332,7 +332,7 @@
   flex: none; display: grid;
   grid-template-columns: 32px 1fr 80px;
   padding: 6px 14px; border-bottom: 1px solid var(--c-bg2);
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.08em; color: var(--c-fg3); text-transform: uppercase;
 }
 .wm-ap-rows { flex: 1; overflow-y: auto; }
@@ -346,7 +346,7 @@
 .wm-ap-row.active { background: var(--c-accentBg); }
 .wm-ap-rank  { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--c-fg3); }
 .wm-ap-name  { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--c-fg1); }
-.wm-ap-badge { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.04em; margin-top: 2px; }
+.wm-ap-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.04em; margin-top: 2px; }
 .wm-ap-val   { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-fg2); text-align: right; }
 
 /* ─── INDIA MAP ──────────────────────────────────────── */
@@ -393,7 +393,7 @@
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
 .im-legend-text {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px; color: rgba(45,18,7,0.5);
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(45,18,7,0.5);
   letter-spacing: 0.06em;
 }
 
@@ -490,7 +490,7 @@
   .wm-scroll-map { overflow-y: auto !important; }
 }
 @media (max-width: 600px) {
-  .wm-kpi-label { font-size: 7px; }
-  .wm-title { font-size: 17px; }
+  .wm-kpi-label { font-size: 9px; }
+  .wm-title { font-size: 18px; }
   .wm-panel { width: 100%; height: 340px; }
 }

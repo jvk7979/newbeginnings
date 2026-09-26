@@ -1,0 +1,362 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * ui.css — shared design system layer (2026-09 polish pass).
+ *
+ * One small set of sizes, corners, motion and components that every page
+ * uses, so the app reads as one product instead of per-page one-offs.
+ * Colours still come from the theme tokens in themes.css (--c-*).
+ * Imported after styles.css in main.jsx.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Type scale — 7 steps. Use these instead of ad-hoc px sizes. */
+  --fs-2xs: 11px;   /* mono eyebrows, micro labels */
+  --fs-xs:  12px;   /* meta, chips */
+  --fs-sm:  13px;   /* secondary UI */
+  --fs-md:  15px;   /* body, buttons */
+  --fs-lg:  18px;   /* card titles */
+  --fs-xl:  24px;   /* section titles */
+  --fs-2xl: clamp(28px, 4vw, 36px); /* page titles */
+
+  /* Corners — 3 steps. */
+  --r-sm:   6px;    /* inputs, buttons, chips */
+  --r-md:   12px;   /* cards, panels */
+  --r-pill: 999px;  /* pills, segmented controls */
+
+  /* Motion. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur:      180ms;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ── Page arrival: ONE short fade. The per-page `.page-pad` fade stacked a
+   second animation on top of the route wrapper's, which made navigation
+   feel slow. Keep only the wrapper's, and make it quicker. ─────────────── */
+.page-pad { animation: none; }
+.page-enter { animation-duration: var(--dur); animation-timing-function: var(--ease-out); }
+
+/* ── Route loading: an in-page placeholder instead of the full-screen logo
+   splash that used to appear the first time any page was opened. ──────── */
+.route-loading {
+  flex: 1;
+  padding: 32px clamp(16px, 4vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  animation: route-loading-in var(--dur) var(--ease-out) 120ms both;
+}
+@keyframes route-loading-in { from { opacity: 0; } to { opacity: 1; } }
+.route-loading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 10px; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: 1;
+  padding: 10px 18px;
+  min-height: 40px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--dur-fast), border-color var(--dur-fast),
+              color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast);
+}
+.ui-btn svg { flex-shrink: 0; }
+.ui-btn:active:not(:disabled) { transform: translateY(1px) scale(0.985); }
+.ui-btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.ui-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.ui-btn--primary { background: var(--c-accent); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.ui-btn--primary:hover:not(:disabled) { background: var(--c-accent-dim); box-shadow: 0 6px 16px -6px rgba(var(--c-accent-rgb) / 0.55); }
+:root[data-mode="dark"] .ui-btn--primary { color: var(--c-bg0); }
+
+.ui-btn--secondary { background: var(--c-bg1); color: var(--c-fg1); border-color: var(--c-border); }
+.ui-btn--secondary:hover:not(:disabled) { border-color: rgba(var(--c-accent-rgb) / 0.45); color: var(--c-accent); }
+
+.ui-btn--ghost { background: transparent; color: var(--c-fg2); }
+.ui-btn--ghost:hover:not(:disabled) { background: var(--c-bg2); color: var(--c-fg1); }
+
+.ui-btn--sm { font-size: var(--fs-sm); padding: 7px 12px; min-height: 32px; }
+.ui-btn--lg { font-size: 16px; padding: 12px 22px; min-height: 46px; }
+
+/* Segmented control (e.g. Today's Mandi / Commodity Watch). */
+.ui-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+}
+.ui-seg > button {
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--c-fg2);
+  cursor: pointer;
+  transition: background-color var(--dur-fast), color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.ui-seg > button:hover { color: var(--c-fg1); }
+.ui-seg > button[aria-pressed="true"] { background: var(--c-bg1); color: var(--c-accent); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.10); }
+.ui-seg > button:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 1px; }
+
+/* ── Dropdowns: replace the browser's grey arrow with a themed chevron on
+   every native <select>. `!important` is needed because many selects set
+   `background` inline, and that shorthand would otherwise wipe the arrow. */
+select:not([multiple]):not([size]) {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8577' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 12px 12px !important;
+  padding-right: 32px !important;
+  cursor: pointer;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+select:not([multiple]):not([size]):hover { border-color: rgba(var(--c-accent-rgb) / 0.45) !important; }
+select:not([multiple]):not([size]):focus-visible {
+  outline: none;
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 3px rgba(var(--c-accent-rgb) / 0.18);
+}
+select::-ms-expand { display: none; }
+
+/* ── Page header — one layout for every list/tool page ──────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.page-header-text { min-width: 0; }
+.page-header-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin: 0 0 8px;
+}
+.page-header-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--c-fg1);
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.page-header-count {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--c-fg3);
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  padding: 2px 10px;
+  transform: translateY(-4px);
+}
+.page-header-sub {
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  color: var(--c-fg2);
+  margin: 6px 0 0;
+  max-width: 64ch;
+  line-height: 1.5;
+}
+.page-header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .page-header { align-items: stretch; margin-bottom: 18px; }
+  .page-header-actions { width: 100%; }
+  .page-header-actions > .ui-btn--primary { flex: 1; }
+}
+
+/* ── Empty state container used by the shared <EmptyState>. The visual
+   (badge, halo, title, copy) comes from .empty-state in styles.css. */
+.empty-state-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.empty-state-wrap { display: flex; justify-content: center; }
+.empty-state-wrap > .empty-state { width: 100%; max-width: 640px; }
+
+/* ── Shared hover / press feedback for clickable cards ───────────────── */
+.card-interactive { transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), border-color var(--dur); }
+.card-interactive:active { transform: translateY(0) scale(0.995); }
+
+/* ── Sidebar: CSS hover states (previously wired with JS mouse handlers) */
+.sidenav-item:not([aria-current="page"]):hover { background: var(--c-bg2) !important; color: var(--c-fg1) !important; }
+.sidenav-item:not([aria-current="page"]):hover .sidenav-item-icon { color: var(--c-fg2) !important; }
+.sidenav-item { transition: background-color var(--dur-fast), color var(--dur-fast); }
+.sidenav-plain-btn:hover { background: var(--c-bg2) !important; }
+.sidenav-menu-btn:hover { background: var(--c-bg3) !important; }
+.sidenav-mode-btn svg { width: 12px; height: 12px; }
+
+/* ── Footer: on phones the bottom tab bar is the chrome; a pinned footer
+   above it cost ~75px of a 844px screen and its text was clipped. ─────── */
+@media (max-width: 768px) {
+  .app-footer { display: none !important; }
+}
+
+/* ── Dashboard: when every count is 0 the three bright KPI tiles were the
+   loudest thing on the page. Until there is real data they become quiet
+   outlined tiles; each keeps its colour only in the icon. */
+.dh-kpi-strip.is-empty .dh-kpi-tile:nth-child(n) {
+  background: var(--c-bg1) !important;
+  box-shadow: inset 0 0 0 1px var(--c-border) !important;
+}
+.dh-kpi-strip.is-empty .dh-kpi-tile .dh-kpi-value { color: var(--c-fg3) !important; }
+.dh-kpi-strip.is-empty .dh-kpi-tile .dh-kpi-label { color: var(--c-fg3) !important; opacity: 1 !important; }
+.dh-kpi-strip.is-empty .dh-kpi-tile:nth-child(1) .dh-kpi-icon { background: var(--c-warning-bg) !important; color: var(--c-warning) !important; border-color: transparent !important; }
+.dh-kpi-strip.is-empty .dh-kpi-tile:nth-child(2) .dh-kpi-icon { background: var(--c-accent-bg) !important; color: var(--c-accent) !important; border-color: transparent !important; }
+.dh-kpi-strip.is-empty .dh-kpi-tile:nth-child(3) .dh-kpi-icon { background: var(--c-info-bg) !important; color: var(--c-info) !important; border-color: transparent !important; }
+
+/* Empty-state glow: the ellipse was larger than its box, so the halo was
+   clipped into a visible rectangle (most obvious in the compact cards). */
+.empty-state::before {
+  background: radial-gradient(closest-side, rgba(var(--c-accent-rgb) / 0.12), transparent) !important;
+}
+
+/* ── Dashboard hero (Godavari): two typefaces instead of three. The title
+   was Cormorant italic ALL-CAPS, the second line Cormorant italic caps in
+   green, and the tagline DM Sans — three voices in three lines. Now: one
+   Playfair headline with the italic accent line, and DM Sans for the
+   tagline. Other themes keep their own hero treatments. */
+:root[data-theme="godavari"] .dh-hero-title {
+  font-family: var(--font-display);
+  font-style: normal;
+  text-transform: none;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  font-size: clamp(34px, 4.6vw, 58px);
+  line-height: 1.04;
+  color: var(--c-fg1);
+}
+:root[data-theme="godavari"] .dh-hero-title-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: clamp(26px, 3.4vw, 44px);
+  color: var(--c-accent);
+  margin-top: 2px;
+}
+:root[data-theme="godavari"] .dh-hero-tagline {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: clamp(15px, 1.4vw, 17px);
+  color: var(--c-fg2);
+  max-width: 44ch;
+}
+
+/* ── World Market on phones: the KPI chips were cramped into one row. Let
+   them wrap into a tidy 3-up grid with readable labels. */
+@media (max-width: 640px) {
+  .wm-kpi-chips { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
+  .wm-kpi-chip { align-items: flex-start; padding: 8px 12px; }
+  .wm-kpi-chip:last-child { border-right: 0; }
+  .wm-kpi-label { font-size: 9px; }
+}
+
+/* ── Crop Atlas on phones: the category list used to fill a whole screen
+   before the map appeared. It becomes one swipeable row of chips, and the
+   intensity key sits on a single line, so the map shows almost at once. */
+@media (max-width: 600px) {
+  .atlas-sidebar { padding: 10px 0 12px !important; }
+  .atlas-sidebar .as-block { margin-bottom: 8px !important; padding: 0 16px; }
+  .atlas-sidebar .as-block:last-child { padding: 0; margin-bottom: 0 !important; }
+  .atlas-sidebar .as-block:last-child .as-label { padding: 0 16px; }
+  .atlas-sidebar .as-cats {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    overflow-x: auto;
+    padding: 2px 16px 4px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .atlas-sidebar .as-cats::-webkit-scrollbar { display: none; }
+  .atlas-sidebar .as-cat {
+    flex: none;
+    width: auto !important;
+    gap: 6px;
+    padding: 7px 12px !important;
+    border: 1px solid var(--c-border) !important;
+    border-radius: var(--r-pill) !important;
+    background: var(--c-bg1);
+    scroll-snap-align: start;
+    white-space: nowrap;
+  }
+  .atlas-sidebar .as-cat.on { border-color: transparent !important; }
+  .atlas-sidebar .as-cat.dim { display: none; }
+  .atlas-sidebar .as-cat .ct { margin-left: 2px; }
+}
+
+/* The Atlas filter bar (crop, metric, year, search) was being squeezed to
+   ~25px by its flex parent on narrow screens, clipping its controls into a
+   stray white box above the legend. It keeps its natural height now. */
+@media (max-width: 900px) {
+  .atlas-filterbar { flex-shrink: 0 !important; height: auto !important; padding: 10px 16px !important; gap: 8px 10px !important; }
+}
+
+/* ── Hover utilities. Replace ~30 JavaScript onMouseEnter/onMouseLeave
+   handlers that poked element styles directly. The element declares WHAT
+   its hover looks like via a custom property (style={{ '--hv-bg': C.bg2 }})
+   and one of these classes applies it. Real CSS :hover means no JS on every
+   mouse move, keyboard focus gets the same look, and touch screens don't get
+   "stuck" hover colours after a tap. */
+.hv-bg, .hv-fg, .hv-bd, .hv-op, .hv-sh, .hv-tf {
+  transition: background-color var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast),
+              opacity var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast);
+}
+@media (hover: hover) {
+  .hv-bg:hover:not(:disabled) { background: var(--hv-bg) !important; }
+  .hv-fg:hover:not(:disabled) { color: var(--hv-fg) !important; }
+  .hv-bd:hover:not(:disabled) { border-color: var(--hv-bd) !important; }
+  .hv-op:hover:not(:disabled) { opacity: var(--hv-op) !important; }
+  .hv-ul:hover { text-decoration: var(--hv-ul) !important; }
+  .hv-sh:hover:not(:disabled) { box-shadow: var(--hv-sh) !important; }
+  .hv-tf:hover:not(:disabled) { transform: var(--hv-tf) !important; }
+}
+.hv-bg:focus-visible { background: var(--hv-bg) !important; }
+.hv-fg:focus-visible { color: var(--hv-fg) !important; }
+.hv-bd:focus-visible { border-color: var(--hv-bd) !important; }
+
+/* Where the hero text sits ON the bright photo (web / iPad), it must stay
+   dark ink in BOTH light and dark mode — theme colours flip light in dark
+   mode and vanish over the sky. On phones the text drops below the photo
+   onto the page background, so it keeps the theme colours above. */
+@media (min-width: 641px) {
+  :root[data-theme="godavari"] .dh-hero-title        { color: #17201a; }
+  :root[data-theme="godavari"] .dh-hero-title-italic { color: #2E7D53; }
+  :root[data-theme="godavari"] .dh-hero-tagline      { color: #34402f; }
+}
+@media (max-width: 640px) {
+  :root[data-theme="godavari"] .dh-hero-title { font-size: 32px; }
+  :root[data-theme="godavari"] .dh-hero-title-italic { font-size: 24px; }
+}

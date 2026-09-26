@@ -75,13 +75,11 @@ export default function ComparePanel({ open, onClose, items, kind, onOpen }) {
               {picked.length}/{MAX_SLOTS}
             </span>
           </div>
-          <button onClick={onClose} aria-label="Close compare"
-            style={{
+          <button className="hv-bg hv-fg" onClick={onClose} aria-label="Close compare"
+            style={{ '--hv-bg': C.bg2, '--hv-fg': C.fg1,
               width: 36, height: 36, borderRadius: 8, border: 'none',
               background: 'transparent', color: C.fg2, fontSize: 22, lineHeight: 1, cursor: 'pointer',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; }}>
+            }}>
             ×
           </button>
         </div>
@@ -165,14 +163,12 @@ function CompareColumn({ item, kind, onOpen, onRemove }) {
         <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 16, fontWeight: 700, color: C.fg1, lineHeight: 1.3, minWidth: 0, overflowWrap: 'anywhere' }}>
           {item.title}
         </div>
-        <button onClick={onRemove} aria-label="Remove from comparison"
-          style={{
+        <button className="hv-bg hv-fg" onClick={onRemove} aria-label="Remove from comparison"
+          style={{ '--hv-bg': C.bg2, '--hv-fg': C.fg1,
             width: 24, height: 24, borderRadius: '50%', border: 'none',
             background: 'transparent', color: C.fg3, fontSize: 18, lineHeight: 1,
             cursor: 'pointer', flexShrink: 0,
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.fg1; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg3; }}>
+          }}>
           ×
         </button>
       </div>

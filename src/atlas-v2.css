@@ -260,7 +260,7 @@
 .compare-card .stat[data-role="time"]     { border-top-color: var(--c-warning); }
 .compare-card .stat[data-role="category"] { border-top-color: var(--c-accent-2); }
 .compare-card .stat .v {
-  font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 700; color: var(--c-fg1);
+  font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--c-fg1);
 }
 .compare-card .stat .l {
   font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.12em;
@@ -456,7 +456,7 @@
   letter-spacing: 0.16em; text-transform: uppercase; color: var(--c-fg3);
 }
 .rank-head .rk-title {
-  font-family: 'Playfair Display', Georgia, serif; font-size: 17px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 18px;
   font-weight: 600; color: var(--c-fg1); margin: 5px 0 0;
   line-height: 1.18; letter-spacing: -0.02em;
 }
@@ -507,7 +507,7 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .rank-card .rk-crop {
-  font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.08em; color: var(--c-fg3);
 }
 .rank-card .rk-val {
@@ -578,8 +578,8 @@
 @media (max-width: 600px) {
   /* Header: hide the subhead to save vertical space; compact title */
   .atlas-header-text .atlas-subhead { display: none; }
-  .atlas-header-text .atlas-title { font-size: 19px; }
-  .atlas-kpi-label { font-size: 7px; letter-spacing: 0.1em; }
+  .atlas-header-text .atlas-title { font-size: 18px; }
+  .atlas-kpi-label { font-size: 9px; letter-spacing: 0.1em; }
 
   /* Sidebar: hide the verbose colour-scale explanation note.
    * The intensity ramp itself stays so the legend is still readable. */
@@ -649,7 +649,7 @@
 }
 .atlas-navbar-tab.active .atlas-navbar-idx { color: rgba(255,255,255,0.6); }
 .atlas-navbar-badge {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   padding: 1px 5px; border-radius: 2px; letter-spacing: 0.08em;
   background: rgba(255,80,60,0.8); color: #fff; text-transform: uppercase;
 }
@@ -724,7 +724,7 @@
   margin-left: 2px; letter-spacing: 0;
 }
 .atlas-kpi-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--c-fg3); margin-top: 5px;
 }
@@ -756,7 +756,7 @@
   background: var(--c-bg1);
 }
 .atlas-panel-tab-idx {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
   letter-spacing: 0.12em; color: var(--c-fg3); opacity: 0.5;
 }
 .atlas-panel-tab.active .atlas-panel-tab-idx { color: var(--c-accent); opacity: 1; }

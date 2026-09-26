@@ -69,18 +69,16 @@ export default function IdeaCard({
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Badge status={status} />
           {onStartEdit && (
-            <button
+            <button className="hv-bg hv-fg"
               type="button"
               aria-label={`Quick edit ${title}`}
               title="Quick edit"
               onClick={e => { e.stopPropagation(); onStartEdit(); }}
-              style={{
+              style={{ '--hv-bg': C.bg2, '--hv-fg': C.accent,
                 width: 32, height: 32, borderRadius: 6, border: 'none',
                 background: 'transparent', color: C.fg2, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; }}>
+              }}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -90,7 +88,7 @@ export default function IdeaCard({
         </div>
       </div>
 
-      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: desc ? 8 : 0, flex: desc ? 'none' : 1 }}>
+      <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: C.fg1, lineHeight: 1.35, marginBottom: desc ? 8 : 0, flex: desc ? 'none' : 1 }}>
         {title}
       </div>
 

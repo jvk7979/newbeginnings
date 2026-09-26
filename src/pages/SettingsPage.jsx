@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 // a NEW calculation starts — a project with no saved calc, or a reset.
 // Existing projects keep whatever values they were saved with.
 import { loadCalcDefaults as loadDefaults, saveCalcDefaults as saveDefaults } from '../utils/calcDefaults.js';
+import PageHeader from '../components/PageHeader';
 
 const DARK_MODE_OPTIONS = [
   { id: 'light',  label: 'Light',  hint: 'Always light' },
@@ -31,6 +32,13 @@ const DARK_MODE_OPTIONS = [
 // `accents` is the [primary, secondary-1, secondary-2] triplet the dashboard
 // rotates through (KPI icons, card-row leaves).
 const THEME_PREVIEW = {
+  godavari: {
+    bg0: '#FBF7EF', bg1: '#FFFFFF', bg2: '#F3ECDD', bg3: '#E7DCC5',
+    fg1: '#20261F', accent: '#2E7D53', border: '#EFE7D4',
+    accents: ['#2E7D53', '#DE9A2E', '#2F80A8'], // paddy / mango / river
+    atmosphere: 'editorial',
+    desc: 'Warm paper + paddy green + mango + river blue by day; a fertile near-black "Delta" palette in dark mode. The default.',
+  },
   heritage: {
     bg0: '#F6F1E7', bg1: '#FDFAF2', bg2: '#EDE5D2', bg3: '#DDD0B5',
     fg1: '#2D2A26', accent: '#2F6B4F', border: '#E5DDC9',
@@ -66,43 +74,12 @@ const THEME_PREVIEW = {
     },
     desc: 'Brass + sage + parchment on near-black slate. First-class dark theme — library-after-dark editorial mood.',
   },
-  coastal: {
-    bg0: '#F4F7F9', bg1: '#FFFFFF', bg2: '#E8EEF2', bg3: '#D4DEE5',
-    fg1: '#1B2A33', accent: '#3B6E8F', border: '#DCE5EC',
-    accents: ['#3B6E8F', '#E8896B', '#4F8A8B'], // slate / coral / muted teal
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#3B6E8F', to: '#E8896B',
-      ctaFrom: '#3B6E8F', ctaTo: '#2A536D',
-      glowRgb: '59,110,143', glowRgb2: '232,137,107',
-    },
-    desc: 'Slate ocean blue + sunset coral on fog gray. Pacific Northwest calm — trustworthy and quiet.',
-  },
-  plum: {
-    bg0: '#F7F2F6', bg1: '#FFFDFE', bg2: '#EFE5EE', bg3: '#DECCDC',
-    fg1: '#2C1828', accent: '#5A2A52', border: '#E5D5E1',
-    accents: ['#5A2A52', '#C49A6C', '#D4A6A0'], // aubergine / brass / dusty rose
-    atmosphere: 'vibrant',
-    gradient: {
-      from: '#5A2A52', to: '#C49A6C',
-      ctaFrom: '#5A2A52', ctaTo: '#401A39',
-      glowRgb: '90,42,82', glowRgb2: '196,154,108',
-    },
-    desc: 'Deep aubergine + brass + dusty rose on pale lilac. Romantic, jewel-tone, boutique luxury.',
-  },
   terracotta: {
     bg0: '#FBF5EE', bg1: '#FFFCF6', bg2: '#F4E8D7', bg3: '#E5D2B2',
     fg1: '#3A2418', accent: '#B5532A', border: '#ECDCC2',
     accents: ['#B5532A', '#739E7A', '#C9943F'], // sienna / sage / deep gold
     atmosphere: 'editorial',
     desc: 'Burnt sienna + sage + deep gold on warm sand. Mediterranean sun-baked clay — Heritage warmer / southern.',
-  },
-  mono: {
-    bg0: '#FAFAFA', bg1: '#FFFFFF', bg2: '#F0F0F0', bg3: '#DCDCDC',
-    fg1: '#1A1A1A', accent: '#111111', border: '#E5E5E5',
-    accents: ['#111111', '#C9302C', '#2D6A3F'], // ink / red pop / forest
-    atmosphere: 'editorial',
-    desc: 'Ink black + one red pop on paper. Sunday Times newspaper — maximum typography, zero color noise.',
   },
 };
 
@@ -129,15 +106,11 @@ export default function SettingsPage() {
     <div className="page-pad page-hero-atmo" style={{ background: C.bg0, minHeight: '100%' }}>
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
 
-        {/* Page header */}
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 36, fontWeight: 800, color: C.fg1, marginBottom: 6, letterSpacing: '-0.02em' }}>
-            Settings
-          </h1>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.5, maxWidth: 580 }}>
-            Personalise the look, control dark mode, and set defaults that bias new Calculations projects.
-          </p>
-        </div>
+        <PageHeader
+          eyebrow="Preferences"
+          title="Settings"
+          subtitle="Personalise the look, choose light or dark, and set the defaults new calculations start from."
+        />
 
         {/* Identity block */}
         {user && (
@@ -167,7 +140,7 @@ export default function SettingsPage() {
             comparable. */}
         <SectionCard
           title="Theme"
-          subtitle="Eight palettes — Heritage is the default. Editorial typography is the same across all of them; only the colour and atmospheric layer change. Midnight is the dark option."
+          subtitle="Godavari is the default — warm by day, the fertile Delta palette in dark mode. The other palettes change colour and atmosphere; the typography stays the same."
         >
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             {themes.map(t => {
@@ -212,7 +185,7 @@ export default function SettingsPage() {
                     fontFamily: "'Cormorant Garamond', 'Cormorant', Georgia, serif",
                     fontStyle: 'italic',
                     fontWeight: 600,
-                    fontSize: 19,
+                    fontSize: 18,
                     letterSpacing: '1.2px',
                     textTransform: 'uppercase',
                     color: p.fg1,

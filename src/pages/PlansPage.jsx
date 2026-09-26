@@ -9,6 +9,8 @@ import ComparePanel from '../components/ComparePanel';
 import { CATEGORIES, getCategoryStyle } from '../utils/categoryStyles';
 import { IllPlan } from '../components/illustrations';
 import { PLAN_STATUSES as RAW_PLAN_STATUSES } from '../utils/status';
+import PageHeader, { PlusIcon } from '../components/PageHeader';
+import EmptyState from '../components/EmptyState';
 
 const FILTERS = [
   { id: 'all',       label: 'All' },
@@ -74,18 +76,16 @@ function PlanCard({ plan, onNavigate, editing, onStartEdit, onCancelEdit, onSave
             </span>
           )}
           <Badge status={plan.status} />
-          <button
+          <button className="hv-bg hv-fg"
             type="button"
             aria-label={`Quick edit ${plan.title}`}
             title="Quick edit"
             onClick={e => { e.stopPropagation(); onStartEdit?.(); }}
-            style={{
+            style={{ '--hv-bg': C.bg2, '--hv-fg': C.accent,
               width: 32, height: 32, borderRadius: 6, border: 'none',
               background: 'transparent', color: C.fg2, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = C.bg2; e.currentTarget.style.color = C.accent; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.fg2; }}>
+            }}>
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -153,41 +153,26 @@ export default function PlansPage({ onNavigate }) {
   return (
     <div className="page-pad page-hero-atmo" style={{ background: C.bg0, minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%' }}>
-      <div className="plans-page-header">
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
-          <div className="grad-text page-title">Projects</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: C.fg3, background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 5, padding: '1px 8px', whiteSpace: 'nowrap' }}>
-            {search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} / ${plans.length}` : plans.length}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
-          <button onClick={() => setCompareOpen(true)}
+      <PageHeader
+        className="plans-page-header"
+        eyebrow="In motion"
+        title={<span className="grad-text">Projects</span>}
+        count={search || filter !== 'all' || catFilter !== 'All' ? `${filtered.length} / ${plans.length}` : plans.length}
+        subtitle="Structured plans with sections, documents and the numbers behind them."
+        actions={<>
+          <button type="button" className="ui-btn ui-btn--secondary" onClick={() => setCompareOpen(true)}
             disabled={plans.length < 2}
-            style={{
-              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
-              padding: '8px 14px', borderRadius: 8,
-              background: 'transparent', color: plans.length < 2 ? C.fg3 : C.fg2,
-              border: `1px solid ${C.border}`,
-              cursor: plans.length < 2 ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: 5,
-            }}
             title={plans.length < 2 ? 'Need at least 2 projects' : 'Compare projects side by side'}>
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
               <rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/>
             </svg>
             Compare
           </button>
-          <button className="plans-new-btn"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, padding: '8px 18px', borderRadius: 8, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}
-            onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-            onMouseLeave={e => e.currentTarget.style.background = C.accent}
-            onClick={() => onNavigate('new-project')}
-            aria-label="New project">
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span className="plans-new-btn-label">New Project</span>
+          <button type="button" className="ui-btn ui-btn--primary plans-new-btn" onClick={() => onNavigate('new-project')} aria-label="New project">
+            <PlusIcon /><span className="plans-new-btn-label">New Project</span>
           </button>
-        </div>
-      </div>
+        </>}
+      />
 
       {/* Search */}
       <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -247,12 +232,13 @@ export default function PlansPage({ onNavigate }) {
 
       {/* Empty states */}
       {plans.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-art" aria-hidden="true"><IllPlan /></div>
-          <div className="empty-state-title">Plan your first venture</div>
-          <div className="empty-state-copy">Build a structured project plan with sections, KPIs, and supporting documents.</div>
-          <button className="themed-cta" onClick={() => onNavigate('new-project')}>+ Create a project</button>
-        </div>
+        <EmptyState
+          art={<IllPlan />}
+          title="Plan your first venture"
+          copy="Build a structured project plan with sections, KPIs and supporting documents."
+          actionLabel="Create a project"
+          onAction={() => onNavigate('new-project')}
+        />
       ) : filtered.length === 0 ? (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: C.fg3, marginTop: 40, textAlign: 'center' }}>
           {search ? `No projects matching "${search}"` : `No projects with status "${filter}".`}

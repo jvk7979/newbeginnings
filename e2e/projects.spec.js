@@ -44,7 +44,7 @@ test('empty state renders when no projects exist', async ({ page }) => {
   // In e2e mode there is no Firestore data, so the themed empty state shows.
   await expect(page.locator('.empty-state').first()).toBeVisible();
   await expect(page.locator('.empty-state-title').filter({ hasText: /Plan your first venture/i })).toBeVisible();
-  await expect(page.locator('.empty-state .themed-cta').filter({ hasText: /Create a project/i })).toBeVisible();
+  await expect(page.locator('.empty-state .ui-btn--primary').filter({ hasText: /Create a project/i })).toBeVisible();
 });
 
 test('New Project page — form renders', async ({ page }) => {

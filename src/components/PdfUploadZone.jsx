@@ -216,7 +216,7 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
 
               {pdfState === 'idle' && <>
                 <div style={{ color: C.fg3, marginBottom: 12 }}><UploadIcon /></div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 500, color: C.fg1, marginBottom: 6 }}>Drop your PDF here</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 500, color: C.fg1, marginBottom: 6 }}>Drop your PDF here</div>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg3, marginBottom: 16 }}>or click to browse files</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.accent, background: C.accentBg, border: `1px solid ${alpha(C.accent, 33)}`, borderRadius: 6, padding: '6px 14px' }}>
                   PDF only · Attach to this entry on Save
@@ -265,10 +265,8 @@ export default function PdfUploadZone({ mode = 'plan', onExtracted, onFileAttach
                     style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 6, cursor: 'pointer', padding: '7px 14px' }}>
                     Cancel
                   </button>
-                  <button onClick={savePdf}
-                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: '#fff', background: C.accent, border: 'none', borderRadius: 6, cursor: 'pointer', padding: '7px 16px' }}
-                    onMouseEnter={e => e.currentTarget.style.background = C.accentDim}
-                    onMouseLeave={e => e.currentTarget.style.background = C.accent}>
+                  <button className="hv-bg" onClick={savePdf}
+                    style={{ '--hv-bg': C.accentDim, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: '#fff', background: C.accent, border: 'none', borderRadius: 6, cursor: 'pointer', padding: '7px 16px' }}>
                     Save
                   </button>
                 </div>

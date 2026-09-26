@@ -8,32 +8,34 @@ import SignInPage from './pages/SignInPage';
 import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
 import { parseHashString } from './utils/hashRoute.js';
+import { loadPage, warmCommonPages } from './pageLoaders.js';
+import RouteLoading from './components/RouteLoading';
 
 // Code-split every authenticated page so initial JS only contains the
 // sign-in flow + chrome. Each page becomes its own chunk fetched on first
 // navigation; subsequent visits use the HTTP cache. Cuts initial JS by
 // roughly 60% and means pdfjs / mammoth / Gemini SDK only load when their
 // owning page is visited.
-const Dashboard       = lazy(() => import('./pages/Dashboard'));
-const IdeasPage       = lazy(() => import('./pages/IdeasPage'));
-const NewIdeaPage     = lazy(() => import('./pages/NewIdeaPage'));
-const IdeaDetailPage  = lazy(() => import('./pages/IdeaDetailPage'));
-const PlansPage       = lazy(() => import('./pages/PlansPage'));
-const PlanDetailPage  = lazy(() => import('./pages/PlanDetailPage'));
-const NewPlanPage     = lazy(() => import('./pages/NewPlanPage'));
-const AboutPage       = lazy(() => import('./pages/AboutPage'));
-const AccessPage      = lazy(() => import('./pages/AccessPage'));
-const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
-const ScenariosPage    = lazy(() => import('./pages/ScenariosPage'));
-const SettingsPage     = lazy(() => import('./pages/SettingsPage'));
-const ResearchVaultPage = lazy(() => import('./pages/ResearchVault'));
-const MarketsPage         = lazy(() => import('./pages/Markets'));
-const CommodityDetailPage = lazy(() => import('./pages/Markets/CommodityDetailPage'));
-const SuppliersPage       = lazy(() => import('./pages/SuppliersPage'));
-const PortfolioPage       = lazy(() => import('./pages/PortfolioPage'));
-const AtlasPage           = lazy(() => import('./pages/Atlas'));
-const WorldMarketPage     = lazy(() => import('./pages/WorldMarket'));
-const ConceptsPage        = lazy(() => import('./pages/WorldMarket/ConceptsPage'));
+const Dashboard = lazy(() => loadPage('dashboard'));
+const IdeasPage = lazy(() => loadPage('ideas'));
+const NewIdeaPage = lazy(() => loadPage('new-idea'));
+const IdeaDetailPage = lazy(() => loadPage('idea-detail'));
+const PlansPage = lazy(() => loadPage('projects'));
+const PlanDetailPage = lazy(() => loadPage('project-detail'));
+const NewPlanPage = lazy(() => loadPage('new-project'));
+const AboutPage = lazy(() => loadPage('about'));
+const AccessPage = lazy(() => loadPage('access'));
+const CalculationsPage = lazy(() => loadPage('calculations'));
+const ScenariosPage = lazy(() => loadPage('scenarios'));
+const SettingsPage = lazy(() => loadPage('settings'));
+const ResearchVaultPage = lazy(() => loadPage('research'));
+const MarketsPage = lazy(() => loadPage('markets'));
+const CommodityDetailPage = lazy(() => loadPage('commodity-detail'));
+const SuppliersPage = lazy(() => loadPage('suppliers'));
+const PortfolioPage = lazy(() => loadPage('portfolio'));
+const AtlasPage = lazy(() => loadPage('atlas'));
+const WorldMarketPage = lazy(() => loadPage('world-market'));
+const ConceptsPage = lazy(() => loadPage('world-market-concepts'));
 
 // Route parsing lives in utils/hashRoute.js (unit tested). Ids stay strings
 // where a route allows them — e.g. the starter commodities' "seed-…" ids,
@@ -203,6 +205,12 @@ export default function App() {
     } catch { /* private mode */ }
   }, []);
 
+  // Once signed in and the workspace has loaded, quietly download the pages
+  // people open most so the first visit to each opens instantly.
+  useEffect(() => {
+    if (user && !dataLoading) warmCommonPages();
+  }, [user, dataLoading]);
+
   const navigate = (dest, data = null) => {
     const id = data?.id || null;
     setPage(dest); setItemId(id);
@@ -275,7 +283,7 @@ export default function App() {
             the skip link without inserting it into the natural tab order. */}
         <main id="main-content" tabIndex={-1} style={{ flex: 1, overflow: 'hidden', display: 'flex', minWidth: 0 }}>
           <ErrorBoundary>
-            <Suspense fallback={<Spinner />}>
+            <Suspense fallback={<RouteLoading />}>
               {/* `key={page}` remounts the wrapper on each route change so the
                   CSS enter animation fires per navigation. The wrapper takes
                   flex:1 + display:flex so the inner page still gets the full
@@ -287,7 +295,7 @@ export default function App() {
             </Suspense>
           </ErrorBoundary>
         </main>
-        <Footer />
+        <Footer className="app-footer" />
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onNavigate={navigate} />
     </div>

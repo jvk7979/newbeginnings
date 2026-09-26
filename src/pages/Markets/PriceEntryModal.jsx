@@ -65,10 +65,8 @@ export default function PriceEntryModal({ mode, commodity, onClose, onSubmitPric
       onClick={e => e.target === e.currentTarget && onClose()}>
       <div {...dialogProps}
            style={{ position: 'relative', background: C.bg0, borderRadius: 12, padding: '26px 24px', width: '100%', maxWidth: 440, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.22)', animation: 'fadeIn 160ms ease' }}>
-        <button onClick={onClose} aria-label="Close"
-          style={{ position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onMouseEnter={e => { e.currentTarget.style.color = C.fg1; e.currentTarget.style.background = C.bg2; }}
-          onMouseLeave={e => { e.currentTarget.style.color = C.fg3; e.currentTarget.style.background = 'none'; }}>×</button>
+        <button className="hv-fg hv-bg" onClick={onClose} aria-label="Close"
+          style={{ '--hv-fg': C.fg1, '--hv-bg': C.bg2, position: 'absolute', top: 6, right: 6, width: 44, height: 44, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.fg3, fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
 
         <div id={titleId} style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 21, fontWeight: 600, color: C.fg1, marginBottom: 18, paddingRight: 36 }}>
           {mode === 'price' ? 'Add a Price' : 'Edit Commodity'}

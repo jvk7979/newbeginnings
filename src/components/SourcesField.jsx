@@ -68,10 +68,8 @@ export function SourcesView({ sources }) {
     <ul style={{ listStyle: 'disc', paddingLeft: 20, margin: 0 }}>
       {valid.map((url, i) => (
         <li key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: C.fg2, lineHeight: 1.7, wordBreak: 'break-all' }}>
-          <a href={url} target="_blank" rel="noreferrer noopener"
-            style={{ color: C.accent, textDecoration: 'none' }}
-            onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
-            onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
+          <a className="hv-ul" href={url} target="_blank" rel="noreferrer noopener"
+            style={{ '--hv-ul': 'underline', color: C.accent, textDecoration: 'none' }}>
             {url}
           </a>
         </li>

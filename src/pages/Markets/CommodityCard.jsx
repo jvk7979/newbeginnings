@@ -22,16 +22,14 @@ export default function CommodityCard({ commodity, onOpen }) {
   const changeColor = change == null ? C.fg3 : up ? C.success : C.danger;
 
   return (
-    <button onClick={() => onOpen(commodity)}
-      style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 12, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 140ms' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = alpha(C.accent, 44); }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
+    <button className="hv-bd" onClick={() => onOpen(commodity)}
+      style={{ '--hv-bd': alpha(C.accent, 44), textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 12, background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 140ms' }}>
 
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 3, background: color, flexShrink: 0 }} />
-            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 19, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{commodity.name}</span>
+            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 600, color: C.fg1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{commodity.name}</span>
           </div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3 }}>
             {commodity.unit}{commodity.mandi ? ` · ${commodity.mandi}` : ''}

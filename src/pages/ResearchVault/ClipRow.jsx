@@ -9,10 +9,8 @@ export default function ClipRow({ clip, onOpen }) {
     <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
       {/* Timeline marker */}
       <span aria-hidden="true" style={{ width: 11, height: 11, borderRadius: '50%', border: `2px solid ${C.accent}`, background: C.bg0, flexShrink: 0, marginTop: 20 }} />
-      <button onClick={() => onOpen(clip)}
-        style={{ flex: 1, textAlign: 'left', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 18px', cursor: 'pointer', fontFamily: 'inherit', minWidth: 0, transition: 'border-color 140ms' }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = alpha(C.accent, 44); }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}>
+      <button className="hv-bd" onClick={() => onOpen(clip)}
+        style={{ '--hv-bd': alpha(C.accent, 44), flex: 1, textAlign: 'left', background: C.bg1, border: `1px solid ${C.border}`, borderRadius: 10, padding: '16px 18px', cursor: 'pointer', fontFamily: 'inherit', minWidth: 0, transition: 'border-color 140ms' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.accent }}>{clip.date}</span>
           <span style={{ color: C.fg3 }}>·</span>

@@ -4,6 +4,7 @@ import { usePlans } from '../context/AppContext';
 import { runCalc, DEFAULT_CALC_INPUT } from '../utils/calcEngine';
 import Scenarios from './Calculations/tabs/Scenarios';
 import { EmptyNoEligible, EmptyNoSelection } from './Calculations/EmptyStates';
+import PageHeader from '../components/PageHeader';
 
 // Top-level Scenarios route. Re-mounts the same Scenarios component the
 // Calculations workspace uses inside its 4th tab — but lifted out so
@@ -59,36 +60,20 @@ export default function ScenariosPage({ onNavigate }) {
     <div className="page-pad page-hero-atmo" style={{ background: C.bg0, minHeight: '100%' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
-        {/* Page header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 18, marginBottom: 22, flexWrap: 'wrap' }}>
-          <div>
-            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 36, fontWeight: 800, color: C.fg1, marginBottom: 6, letterSpacing: '-0.02em' }}>
-              Scenarios
-            </h1>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.fg2, lineHeight: 1.5, maxWidth: 580 }}>
-              Save snapshots of your calc input set, name them, and battle-compare side by side. Snapshots live in your browser's localStorage — they don't sync across devices.
-            </p>
-          </div>
-          <select
-            value={selectedProjectId || ''}
-            onChange={e => setSelectedProjectId(Number(e.target.value))}
-            aria-label="Project"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13,
-              fontWeight: 600,
-              padding: '8px 12px',
-              border: `1px solid ${C.border}`,
-              borderRadius: 8,
-              background: C.bg1,
-              color: C.fg1,
-              cursor: 'pointer',
-              outline: 'none',
-              minWidth: 220,
-            }}>
-            {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-          </select>
-        </div>
+        <PageHeader
+          eyebrow="What-if"
+          title="Scenarios"
+          subtitle="Save named snapshots of a project's calculation and compare them side by side. Snapshots sync across your devices."
+          actions={
+            <select
+              value={selectedProjectId || ''}
+              onChange={e => setSelectedProjectId(Number(e.target.value))}
+              aria-label="Project"
+              style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 'var(--r-sm)', background: C.bg1, color: C.fg1, minWidth: 220 }}>
+              {eligible.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+            </select>
+          }
+        />
 
         {/* Body — re-uses the existing Scenarios component */}
         <Scenarios
