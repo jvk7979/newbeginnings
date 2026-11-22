@@ -57,13 +57,13 @@ test.describe('Optimised assets (#Tier 1)', () => {
 
   test('Dashboard hero image is .webp, not .png', async ({ page }) => {
     await goto(page, 'dashboard');
-    const heroSrc = await page.locator('.dh-hero-img').first().getAttribute('src');
+    const heroSrc = await page.locator('.db-band-img').first().getAttribute('src');
     expect(heroSrc).toMatch(/\.webp(\?|$)/);
   });
 
   test('Dashboard hero fetches successfully and is dramatically smaller than the old PNG', async ({ page }) => {
     await goto(page, 'dashboard');
-    const heroSrc = await page.locator('.dh-hero-img').first().getAttribute('src');
+    const heroSrc = await page.locator('.db-band-img').first().getAttribute('src');
     // Resolve to absolute URL.
     const url = await page.evaluate(s => new URL(s, document.baseURI).href, heroSrc);
     const res = await page.request.get(url);

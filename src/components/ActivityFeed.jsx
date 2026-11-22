@@ -43,13 +43,35 @@ const KIND_ICONS = {
   status: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="12" height="12" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
 };
 
-export default function ActivityFeed() {
+//  renders a plain list for the new Dashboard's
+// "Recent changes" column (its heading lives on the Dashboard), and shows a
+// short hint instead of disappearing when there is no activity yet.
+export default function ActivityFeed({ variant }) {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const q = query(activityCol(db), orderBy('at', 'desc'), limit(FEED_LIMIT));
     return onSnapshot(q, (snap) => setEvents(snap.docs.map(d => d.data())), () => setEvents([]));
   }, []);
+
+  if (variant === 'dashboard') {
+    if (events.length === 0) {
+      return <p className="db-calm">When anyone adds, deletes or moves an idea or project, it shows up here.</p>;
+    }
+    return (
+      <ul className="db-recent">
+        {events.map(ev => {
+          const who = (ev.by || 'Someone').split(/\s+/)[0];
+          return (
+            <li key={ev.id}>
+              <span className="db-who" aria-hidden="true">{who.charAt(0).toUpperCase()}</span>
+              <p><strong>{who}</strong> {describe(ev)}<time>{relativeTime(ev.at)}</time></p>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
 
   if (events.length === 0) return null;
 

@@ -194,6 +194,22 @@ export function AppProvider({ children }) {
   const loadedCount = useRef(0);
 
   useEffect(() => {
+    // DEV only: `?e2e=1&demo=1` fills the signed-out e2e view with a sample
+    // workspace so layouts can be reviewed with realistic content.
+    // import.meta.env.DEV is false in production builds, so the dynamic
+    // import (and the demo data) is dropped from the live site entirely.
+    if (!user && import.meta.env.DEV) {
+      const qs = new URLSearchParams(window.location.search);
+      if (qs.get('e2e') === '1' && qs.get('demo') === '1') {
+        let cancelled = false;
+        import('../data/demoWorkspace.js').then(({ DEMO_IDEAS, DEMO_PLANS }) => {
+          if (cancelled) return;
+          setIdeas(DEMO_IDEAS); setPlans(DEMO_PLANS); setProjects([]); setCommodities([]); setSuppliers([]);
+          setDataLoading(false);
+        });
+        return () => { cancelled = true; };
+      }
+    }
     if (!user) { setIdeas([]); setProjects([]); setPlans([]); setCommodities([]); setSuppliers([]); setDataLoading(false); return; }
 
     loadedCount.current = 0;

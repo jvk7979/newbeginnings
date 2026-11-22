@@ -1,0 +1,196 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * Dashboard — the "stream" layout (2026-11 redesign).
+ *
+ *   slim photo band + greeting  →  the venture stream (one channel, five
+ *   stages, widening downstream like the delta)  →  two quiet columns
+ *   (needs attention / recent changes)  →  strongest case.
+ *
+ * Left-aligned throughout. Colours come only from theme tokens (--c-*), so
+ * every palette and both light/dark modes work. The stream is the one bold
+ * element; nothing else gets cards, shadows or motion.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+.db-page { flex: 1; min-width: 0; overflow-y: auto; background: var(--c-bg0); padding-bottom: 56px; }
+.db-wrap { width: 100%; max-width: 1120px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
+
+/* ── Band ─────────────────────────────────────────────────────────────── */
+.db-band {
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg2);
+}
+.db-band-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: 70% 80%;
+}
+/* Paper fade behind the greeting so it reads over the bright sky in both
+   light and dark mode. */
+.db-band::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--c-bg0) 94%, transparent) 0%,
+    color-mix(in srgb, var(--c-bg0) 90%, transparent) 36%,
+    transparent 74%);
+}
+.db-band-inner {
+  position: relative; z-index: 2;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px 24px; flex-wrap: wrap;
+  padding-block: 30px 26px;
+}
+.db-greet { min-width: 0; }
+.db-greet h1 {
+  margin: 0;
+  font: 700 clamp(30px, 3.6vw, 40px)/1.08 var(--font-display);
+  letter-spacing: -0.015em;
+  color: var(--c-fg1);
+  text-wrap: balance;
+}
+.db-greet p { margin: 8px 0 0; max-width: 48ch; font: 400 var(--fs-md)/1.55 var(--font-body); color: var(--c-fg2); }
+.db-greet p strong { color: var(--c-fg1); font-weight: 600; }
+.db-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Section heads ────────────────────────────────────────────────────── */
+.db-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.db-head h2 { margin: 0; font: 700 var(--fs-xl)/1.2 var(--font-display); letter-spacing: -0.01em; color: var(--c-fg1); }
+.db-head p { margin: 0; font: 400 var(--fs-sm)/1.4 var(--font-body); color: var(--c-fg3); }
+
+/* ── The stream ───────────────────────────────────────────────────────── */
+.db-stream { padding-block: 40px 0; }
+.db-stages { position: relative; }
+.db-stage-list {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0 18px;
+}
+/* The channel sits behind the row of stage counts. */
+.db-channel { position: absolute; left: 0; right: 0; top: 66px; height: 40px; pointer-events: none; }
+.db-channel svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.db-water { fill: color-mix(in srgb, var(--c-info) 22%, transparent); }
+.db-current { fill: none; stroke: var(--c-info); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1400; stroke-dashoffset: 0; vector-effect: non-scaling-stroke; }
+
+.db-stage { position: relative; display: flex; flex-direction: column; min-width: 0; }
+.db-stage-name { font: 600 var(--fs-md)/1.3 var(--font-body); color: var(--c-fg1); }
+.db-stage-note { font: 400 var(--fs-sm)/1.35 var(--font-body); color: var(--c-fg3); min-height: 2.7em; }
+.db-count {
+  position: relative; z-index: 1;
+  margin-top: 4px;
+  width: 54px; height: 54px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--c-bg1);
+  border: 2px solid var(--c-info);
+  font: 700 var(--fs-xl)/1 var(--font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--c-fg1);
+}
+.db-stage.is-last .db-count { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-bg1); }
+
+.db-ventures { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.db-ventures button {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  color: var(--c-fg1);
+  font: 500 var(--fs-sm)/1.35 var(--font-body);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: border-color var(--dur-fast);
+}
+.db-ventures button:hover { border-color: var(--c-info); }
+.db-ventures button span { display: block; margin-top: 2px; font-size: var(--fs-xs); font-weight: 400; color: var(--c-fg3); }
+.db-ventures button span.is-good  { color: var(--c-success); }
+.db-ventures button span.is-below { color: var(--c-danger); }
+.db-ventures button span.is-todo  { color: var(--c-warning); }
+.db-ventures .db-more { background: transparent; border-style: dashed; color: var(--c-fg2); }
+
+/* One orchestrated moment: the current draws downstream, the stage counts
+   land in order. Nothing else on the page moves on load. */
+@media (prefers-reduced-motion: no-preference) {
+  .db-current { animation: db-flow 1.4s cubic-bezier(.35, .1, .25, 1) both; }
+  .db-count { animation: db-land .5s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 0.22s + 0.15s); }
+}
+@keyframes db-flow { from { stroke-dashoffset: 1400; } to { stroke-dashoffset: 0; } }
+@keyframes db-land { from { transform: scale(.6); } 60% { transform: scale(1.08); } to { transform: scale(1); } }
+
+/* ── Lower: attention + recent ───────────────────────────────────────── */
+.db-lower { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 40px; padding-block: 44px 0; }
+.db-calm { margin: 0; padding: 14px 0; border-top: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); font: 400 var(--fs-sm)/1.5 var(--font-body); color: var(--c-fg3); max-width: 60ch; }
+
+.db-attention, .db-recent { list-style: none; margin: 0; padding: 0; }
+.db-attention li {
+  display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 0 14px; align-items: start;
+  padding: 14px 0; border-top: 1px solid var(--c-border);
+}
+.db-attention li:last-child { border-bottom: 1px solid var(--c-border); }
+.db-stripe { align-self: stretch; border-radius: 2px; background: var(--c-warning); }
+.db-attention li.is-below .db-stripe { background: var(--c-danger); }
+.db-attention h3 { margin: 0; font: 600 var(--fs-md)/1.35 var(--font-body); color: var(--c-fg1); }
+.db-attention p { margin: 3px 0 0; font: 400 var(--fs-sm)/1.5 var(--font-body); color: var(--c-fg2); max-width: 60ch; }
+.db-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.db-go {
+  border: 0; background: none; padding: 2px 0; cursor: pointer;
+  font: 600 var(--fs-sm)/1.3 var(--font-body); color: var(--c-info); white-space: nowrap;
+}
+.db-go:hover { text-decoration: underline; }
+
+.db-recent li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--c-border); }
+.db-recent li:last-child { border-bottom: 1px solid var(--c-border); }
+.db-who { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--c-bg2); color: var(--c-fg2); font: 700 var(--fs-sm)/1 var(--font-body); }
+.db-recent p { margin: 0; font: 400 var(--fs-sm)/1.45 var(--font-body); color: var(--c-fg2); overflow-wrap: anywhere; }
+.db-recent strong { color: var(--c-fg1); font-weight: 600; }
+.db-recent time { display: block; margin-top: 2px; font-size: var(--fs-xs); color: var(--c-fg3); }
+
+/* ── Strongest case — the only panel with a fill, because it is the one
+   result worth setting apart. ─────────────────────────────────────────── */
+.db-best {
+  margin-top: 44px;
+  padding: 26px 28px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 32px; align-items: end;
+}
+.db-best h2 { margin: 0; font: 700 var(--fs-xl)/1.2 var(--font-display); color: var(--c-fg1); text-wrap: balance; }
+.db-best p { margin: 6px 0 0; font: 400 var(--fs-md)/1.55 var(--font-body); color: var(--c-fg2); max-width: 58ch; }
+.db-figures { display: flex; flex-wrap: wrap; gap: 14px 32px; margin: 18px 0 0; }
+.db-figures div { min-width: 0; }
+.db-figures dt { font: 400 var(--fs-sm)/1.3 var(--font-body); color: var(--c-fg3); }
+.db-figures dd { margin: 2px 0 0; font: 700 var(--fs-xl)/1.1 var(--font-display); font-variant-numeric: lining-nums tabular-nums; color: var(--c-success); }
+.db-best-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Tablet & phone ──────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .db-lower { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .db-best { grid-template-columns: minmax(0, 1fr); align-items: start; }
+}
+@media (max-width: 720px) {
+  /* The stream turns vertical: the channel runs down the left edge. */
+  .db-channel { display: none; }
+  .db-stage-list { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .db-stage { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 0 16px; padding-bottom: 22px; }
+  .db-stage::before {
+    content: ''; position: absolute; left: 25px; top: 0; bottom: 0; width: 4px; border-radius: 2px;
+    background: color-mix(in srgb, var(--c-info) 18%, transparent);
+  }
+  .db-stage.is-last::before { bottom: auto; height: 54px; }
+  .db-stage > .db-count { grid-column: 1; grid-row: 1 / span 3; margin-top: 0; }
+  .db-stage-name, .db-stage-note, .db-ventures { grid-column: 2; }
+  .db-stage-note { min-height: 0; }
+  .db-ventures { margin-top: 10px; }
+  .db-band { min-height: 230px; }
+  .db-band::before {
+    background: linear-gradient(0deg,
+      color-mix(in srgb, var(--c-bg0) 95%, transparent) 0%,
+      color-mix(in srgb, var(--c-bg0) 90%, transparent) 55%,
+      transparent 100%);
+  }
+  .db-best { padding: 20px; }
+}

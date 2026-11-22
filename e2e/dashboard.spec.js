@@ -1,56 +1,52 @@
 /**
- * Dashboard tests — heritage redesign: hero, three-column body, closing banner.
+ * Dashboard — the "stream" layout: photo band with greeting, the venture
+ * stream (five stages from Ideas to Underway), "Needs your attention",
+ * "Recent changes", and the strongest case. In e2e mode there is no
+ * Firestore data, so these tests cover the structure and the empty states;
+ * the stage / attention / strongest-case logic is unit tested in
+ * src/utils/dashboardModel.test.js.
  */
 import { test, expect } from '@playwright/test';
-import { goto } from './helpers.js';
+import { goto, expectNoOverflow } from './helpers.js';
 
 test.beforeEach(async ({ page }) => {
   await goto(page, 'dashboard');
 });
 
-test('hero section renders', async ({ page }) => {
-  await expect(page.locator('.dh-hero').first()).toBeVisible();
-  await expect(page.locator('.dh-hero-title').filter({ hasText: 'A fresh start.' })).toBeVisible();
+test('photo band shows a time-of-day greeting and the status line', async ({ page }) => {
+  await expect(page.locator('.db-band').first()).toBeVisible();
+  await expect(page.locator('.db-greet h1')).toHaveText(/^Good (morning|afternoon|evening)/);
+  await expect(page.locator('.db-greet p')).toContainText(/Capture your first idea|ventures? on the go/);
 });
 
-test('hero CTA buttons are present', async ({ page }) => {
-  await expect(page.locator('.dh-hero button').filter({ hasText: 'New Idea' }).first()).toBeVisible();
-  await expect(page.locator('.dh-hero button').filter({ hasText: 'Explore Ideas' }).first()).toBeVisible();
+test('band actions are present', async ({ page }) => {
+  await expect(page.locator('.db-actions button').filter({ hasText: 'New idea' })).toBeVisible();
+  await expect(page.locator('.db-actions button').filter({ hasText: 'Browse ideas' })).toBeVisible();
 });
 
-test('KPI strip renders below the hero with three count tiles', async ({ page }) => {
-  await expect(page.locator('.dh-kpi-strip').first()).toBeVisible();
-  const tiles = page.locator('.dh-kpi-tile');
-  await expect(tiles).toHaveCount(3);
-  await expect(page.locator('.dh-kpi-label').filter({ hasText: /Total Ideas/i })).toBeVisible();
-  await expect(page.locator('.dh-kpi-label').filter({ hasText: /Active Projects/i })).toBeVisible();
-  await expect(page.locator('.dh-kpi-label').filter({ hasText: /In Calculation/i })).toBeVisible();
-  // Strip must NOT overlap the hero — its top must sit at or below the hero's bottom.
-  const heroBox = await page.locator('.dh-hero').first().boundingBox();
-  const stripBox = await page.locator('.dh-kpi-strip').first().boundingBox();
-  expect(stripBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 1);
+test('the stream shows all five stages in order', async ({ page }) => {
+  const names = page.locator('.db-stage-name');
+  await expect(names).toHaveCount(5);
+  await expect(names).toHaveText(['Ideas', 'Shortlisted', 'Planning', 'Running numbers', 'Underway']);
+  await expect(page.locator('.db-count').first()).toHaveText('0');
+});
+
+test('attention and recent-changes columns render their empty states', async ({ page }) => {
+  await expect(page.locator('#db-att-title')).toHaveText('Needs your attention');
+  await expect(page.locator('#db-recent-title')).toHaveText('Recent changes');
+  await expect(page.locator('.db-calm').first()).toBeVisible();
+});
+
+test('no strongest-case panel without modelled projects', async ({ page }) => {
+  await expect(page.locator('.db-best')).toHaveCount(0);
 });
 
 test('page does not overflow horizontally', async ({ page }) => {
-  const overflows = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
-  expect(overflows).toBe(false);
+  await expectNoOverflow(page, 'dashboard');
 });
 
-test('two-column body sections render', async ({ page }) => {
-  await expect(page.locator('.dh-section-title').filter({ hasText: 'Featured Ideas' })).toBeVisible();
-  await expect(page.locator('.dh-section-title').filter({ hasText: 'Active Projects' })).toBeVisible();
-});
-
-test('features card renders with the three CTA cards', async ({ page }) => {
-  await expect(page.locator('.dh-features').first()).toBeVisible();
-  await expect(page.locator('.dh-features-title').filter({ hasText: 'Build your next venture' })).toBeVisible();
-  await expect(page.locator('.dh-feature-title').filter({ hasText: 'Explore Ideas' })).toBeVisible();
-  await expect(page.locator('.dh-feature-title').filter({ hasText: 'Manage Projects' })).toBeVisible();
-  await expect(page.locator('.dh-feature-title').filter({ hasText: 'Run Calculations' })).toBeVisible();
-});
-
-test('hero New Idea button navigates to new-idea', async ({ page }) => {
-  await page.locator('.dh-hero button').filter({ hasText: /^\+?\s*New Idea$/ }).first().click();
+test('New idea button navigates to the new-idea form', async ({ page }) => {
+  await page.locator('.db-actions button').filter({ hasText: 'New idea' }).click();
   await page.waitForTimeout(400);
   await expect(page.locator('text=Capture New Idea')).toBeVisible();
 });

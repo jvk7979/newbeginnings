@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { C, alpha } from '../tokens';
 import { usePlans } from '../context/AppContext';
-import { runCalc, DEFAULT_CALC_INPUT, normalizeCalcInput } from '../utils/calcEngine';
+import { projectRow } from '../utils/projectMetrics';
 import { fmtINR } from '../components/calc/primitives';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
@@ -11,34 +11,8 @@ const fmtPct = (v) => v == null || !isFinite(v) ? '—' : `${v.toFixed(1)}%`;
 const fmtYrs = (v) => v == null ? '> life' : `${v} yr${v === 1 ? '' : 's'}`;
 const fmtCap = (v) => v == null || !isFinite(v) ? '—' : `${Math.round(v)}%`;
 
-// Run the engine on one project's saved calc and reduce it to the row
-// the portfolio table needs. Mirrors the load path in CalculationsPage:
-// normalize the saved input (kg/ton migration) before merging defaults.
-function projectRow(plan) {
-  const normalized = normalizeCalcInput(plan.calc);
-  const input = normalized && typeof normalized === 'object'
-    ? { ...DEFAULT_CALC_INPUT, ...normalized }
-    : DEFAULT_CALC_INPUT;
-  const calc = runCalc(input);
-  const hurdle = Number(input.discountRate) || 0;
-  const hasData = calc.revenue > 0 || calc.effectiveCapex > 0;
-
-  let verdict; // 'Viable' | 'Below hurdle' | 'No data'
-  if (!hasData || calc.irr == null) verdict = !hasData ? 'No data' : 'Below hurdle';
-  else verdict = calc.irr > hurdle ? 'Viable' : 'Below hurdle';
-
-  return {
-    id: plan.id,
-    title: plan.title || 'Untitled project',
-    irr: calc.irr,
-    npv: isFinite(calc.npv) ? calc.npv : null,
-    payback: calc.payback,
-    operatingProfit: calc.ebitda,
-    netProfit: calc.netProfitY1 ?? 0,
-    breakEven: calc.breakEvenCapacity,
-    verdict,
-  };
-}
+// projectRow() lives in utils/projectMetrics.js so the Dashboard uses the
+// exact same numbers.
 
 const COLUMNS = [
   { key: 'title',           label: 'Project',    align: 'left',  fmt: (v) => v },

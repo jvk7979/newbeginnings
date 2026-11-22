@@ -169,12 +169,12 @@ test.describe('Theme system — every theme renders the dashboard without errors
       await page.reload();
       await page.waitForLoadState("networkidle");
 
-      // The hero photo + KPI strip are the most theme-sensitive surfaces.
-      // If the theme overrides break stacking or the photo wash, these go
-      // missing or land at impossible coordinates.
-      await expect(page.locator('.dh-hero').first()).toBeVisible();
-      await expect(page.locator('.dh-kpi-strip').first()).toBeVisible();
-      await expect(page.locator('.dh-kpi-tile')).toHaveCount(3);
+      // The photo band and the venture stream are the most theme-sensitive
+      // surfaces. If the theme overrides break stacking or the photo fade,
+      // these go missing or land at impossible coordinates.
+      await expect(page.locator('.db-band').first()).toBeVisible();
+      await expect(page.locator('.db-stage-list').first()).toBeVisible();
+      await expect(page.locator('.db-stage')).toHaveCount(5);
 
       // Confirm the active theme actually got applied.
       const applied = await page.evaluate(() => document.documentElement.dataset.theme);
