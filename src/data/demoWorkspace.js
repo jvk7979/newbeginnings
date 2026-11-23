@@ -38,3 +38,18 @@ export const DEMO_PLANS = [
     sections: [{ title: 'Summary', content: '' }], updated: 'May 15, 2026',
     calc: calc({ capex: 12000000, price: 35, qty: 80, fixed: 3000000 }) },
 ];
+
+// Sample tracked commodities: two linked to Agmarknet (live refresh), one
+// typed by hand. Prices in ₹ per quintal unless the unit says otherwise.
+const day = (iso, price, extra = {}) => ({ ts: Date.parse(`${iso}T12:00:00Z`), date: iso, price, ...extra });
+export const DEMO_COMMODITIES = [
+  { id: 'seed-copra-milling', name: 'Copra (Milling)', unit: '₹/quintal', mandi: 'Rajahmundry mandi', color: 'clay',
+    agmarknet: { name: 'Copra' },
+    history: [day('2026-08-30', 11200), day('2026-09-27', 11450), day('2026-10-25', 11800),
+      day('2026-11-21', 11850, { source: 'agmarknet', state: 'Andhra Pradesh', arrivalISO: '2026-11-21' })] },
+  { id: 'seed-coconut-husk', name: 'Coconut Husk', unit: '₹/piece', mandi: 'Rajahmundry mandi', color: 'amber',
+    history: [day('2026-09-15', 0.85), day('2026-10-15', 0.92), day('2026-11-15', 0.95, { source: 'manual' })] },
+  { id: 'seed-coconut', name: 'Coconut', unit: '₹/quintal', mandi: 'Amalapuram', color: 'sage',
+    agmarknet: { name: 'Coconut' },
+    history: [day('2026-10-01', 2400), day('2026-11-02', 2550, { source: 'agmarknet', state: 'Tamil Nadu', arrivalISO: '2026-11-02' })] },
+];

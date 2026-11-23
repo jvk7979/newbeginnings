@@ -2,6 +2,7 @@ import { C, alpha } from '../../tokens';
 import Sparkline from './Sparkline';
 import { colorFor } from './commodityColors';
 import { currentPrice, pctChange, range52w } from './marketsMath';
+import { freshnessLabel } from '../../utils/agmarknetFeed';
 
 // ₹ formatting — thousands grouping; up to 2 decimals for sub-rupee prices.
 const fmtPrice = (n) => {
@@ -20,6 +21,7 @@ export default function CommodityCard({ commodity, onOpen }) {
   const points  = Array.isArray(commodity.history) ? commodity.history.length : 0;
   const up = change != null && change >= 0;
   const changeColor = change == null ? C.fg3 : up ? C.success : C.danger;
+  const fresh   = freshnessLabel(commodity.history);
 
   return (
     <button className="hv-bd" onClick={() => onOpen(commodity)}
@@ -52,6 +54,8 @@ export default function CommodityCard({ commodity, onOpen }) {
         : <div style={{ height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: C.fg3, fontStyle: 'italic' }}>
             {hasData ? 'one price point — add more to see the trend' : 'awaiting first price'}
           </div>}
+
+      {fresh && <div className={`mk-fresh${fresh.fresh ? ' is-fresh' : ''}`}>{fresh.text}</div>}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.fg3 }}>
         <span>52w low {range ? fmtPrice(range.low) : '—'}</span>

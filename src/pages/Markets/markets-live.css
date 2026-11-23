@@ -1,0 +1,58 @@
+/* Live mandi prices: status bar, card freshness line, and the
+   "Update today's prices" sheet. Theme tokens only. */
+
+.mk-live {
+  display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap;
+  margin-bottom: 18px; padding: 12px 14px;
+  background: var(--c-bg1);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+}
+.mk-live-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--c-fg3); }
+.mk-live--ok   .mk-live-dot { background: var(--c-success); }
+.mk-live--warn .mk-live-dot { background: var(--c-warning); }
+.mk-live--busy .mk-live-dot { background: var(--c-info); }
+@media (prefers-reduced-motion: no-preference) {
+  .mk-live--busy .mk-live-dot { animation: mk-pulse 1.1s ease-in-out infinite; }
+}
+@keyframes mk-pulse { 50% { opacity: .35; } }
+.mk-live-text { flex: 1 1 260px; min-width: 0; margin: 0; font: 400 var(--fs-sm)/1.45 var(--font-body); color: var(--c-fg2); }
+.mk-live-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Card freshness line */
+.mk-fresh { display: flex; align-items: center; gap: 7px; font: 400 var(--fs-xs)/1.35 var(--font-body); color: var(--c-fg3); }
+.mk-fresh::before { content: ''; width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--c-fg3); }
+.mk-fresh.is-fresh { color: var(--c-fg2); }
+.mk-fresh.is-fresh::before { background: var(--c-success); }
+
+/* Sheet */
+.mk-sheet-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.mk-sheet {
+  width: min(560px, 100%); max-height: calc(100vh - 32px); overflow-y: auto;
+  background: var(--c-bg1); color: var(--c-fg1);
+  border: 1px solid var(--c-border); border-radius: var(--r-md);
+  padding: 22px 22px 18px;
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.5);
+}
+.mk-sheet-head h2 { margin: 0; font: 700 var(--fs-xl)/1.2 var(--font-display); }
+.mk-sheet-head p { margin: 6px 0 0; font: 400 var(--fs-sm)/1.5 var(--font-body); color: var(--c-fg2); }
+.mk-sheet-date { display: flex; align-items: center; gap: 10px; margin: 16px 0 6px; font: 500 var(--fs-sm)/1 var(--font-body); color: var(--c-fg2); }
+.mk-sheet input {
+  font: 400 var(--fs-md)/1.2 var(--font-body); color: var(--c-fg1);
+  background: var(--c-bg0); border: 1px solid var(--c-border); border-radius: var(--r-sm);
+  padding: 9px 11px;
+}
+.mk-sheet input:focus-visible { outline: none; border-color: var(--c-accent); box-shadow: 0 0 0 3px rgba(var(--c-accent-rgb) / 0.18); }
+.mk-sheet input[aria-invalid="true"] { border-color: var(--c-danger); }
+.mk-sheet-rows { list-style: none; margin: 8px 0 0; padding: 0; }
+.mk-sheet-rows li { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--c-border); }
+.mk-sheet-rows input { width: 100%; text-align: right; font-variant-numeric: tabular-nums; }
+.mk-sheet-name { display: block; font: 600 var(--fs-md)/1.3 var(--font-body); }
+.mk-sheet-meta { display: block; font: 400 var(--fs-xs)/1.4 var(--font-body); color: var(--c-fg3); }
+.mk-sheet-error { margin: 10px 0 0; font: 500 var(--fs-sm)/1.4 var(--font-body); color: var(--c-danger); }
+.mk-sheet-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }

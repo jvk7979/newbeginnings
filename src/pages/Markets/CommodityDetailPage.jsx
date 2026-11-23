@@ -28,6 +28,13 @@ const relTime = (ms) => {
 // Derives the sync-indicator text + colour from a commodity's `sync` field.
 // Only called for commodities with an `agmarknet` mapping.
 const syncIndicator = (commodity, dangerColor, mutedColor) => {
+  // Live prices are now fetched from the browser (Markets page) and recorded
+  // under `feed`; the older cloud-sync `sync` field is only a fallback.
+  const feed = commodity.feed;
+  if (feed?.fetchedAt) {
+    if (feed.status === 'ok')      return { text: `Live mandi price checked ${relTime(feed.fetchedAt)}${feed.message ? ` · ${feed.message}` : ''}`, color: mutedColor };
+    if (feed.status === 'no-data') return { text: `Checked ${relTime(feed.fetchedAt)}: no mandi reported this commodity`, color: mutedColor };
+  }
   const sync = commodity.sync;
   if (!sync)                     return { text: 'Auto-fetch enabled — first sync pending', color: mutedColor };
   if (sync.status === 'ok')      return { text: `Auto-synced from Agmarknet · ${relTime(sync.at)}`, color: mutedColor };

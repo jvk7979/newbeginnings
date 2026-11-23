@@ -360,3 +360,11 @@ select::-ms-expand { display: none; }
   :root[data-theme="godavari"] .dh-hero-title { font-size: 32px; }
   :root[data-theme="godavari"] .dh-hero-title-italic { font-size: 24px; }
 }
+
+/* While any dialog is open on a phone, hide the floating "+" button and the
+   bottom tab bar — they sat on top of bottom-sheet dialogs and covered their
+   action buttons (e.g. "Save" in Update today's prices). */
+@media (max-width: 768px) {
+  body:has(.nb-dialog) .nb-fab,
+  body:has(.nb-dialog) .sidenav-bottombar { display: none !important; }
+}

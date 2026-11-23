@@ -4,9 +4,10 @@ import { useAuth } from './AuthContext';
 import { deleteFileFromDB } from '../utils/fileStorage';
 import { validateBackup, planImport, chunk, BACKUP_COLLECTIONS } from '../utils/backup.js';
 import { seedDecision } from '../utils/seeding.js';
+import { appendFeedPoint } from '../utils/agmarknetFeed.js';
 import {
   onSnapshot, setDoc, updateDoc, deleteDoc,
-  getDocs, writeBatch, getDoc,
+  getDocs, writeBatch, getDoc, runTransaction,
 } from 'firebase/firestore';
 import {
   ideasCol, ideaRef, projectsCol, projectRef, plansCol, planRef,
@@ -202,9 +203,9 @@ export function AppProvider({ children }) {
       const qs = new URLSearchParams(window.location.search);
       if (qs.get('e2e') === '1' && qs.get('demo') === '1') {
         let cancelled = false;
-        import('../data/demoWorkspace.js').then(({ DEMO_IDEAS, DEMO_PLANS }) => {
+        import('../data/demoWorkspace.js').then(({ DEMO_IDEAS, DEMO_PLANS, DEMO_COMMODITIES }) => {
           if (cancelled) return;
-          setIdeas(DEMO_IDEAS); setPlans(DEMO_PLANS); setProjects([]); setCommodities([]); setSuppliers([]);
+          setIdeas(DEMO_IDEAS); setPlans(DEMO_PLANS); setProjects([]); setCommodities(DEMO_COMMODITIES); setSuppliers([]);
           setDataLoading(false);
         });
         return () => { cancelled = true; };
@@ -429,6 +430,41 @@ export function AppProvider({ children }) {
     await updateDoc(sharedRef('commodities', id), patch);
   }, [user]);
 
+  // Live mandi price fetched in the browser (see utils/agmarknetFeed.js).
+  // A transaction re-reads the commodity so two family members refreshing at
+  // once cannot overwrite each other, and a repeat of the same mandi day and
+  // price is skipped. Always stamps feed.fetchedAt so the page knows it
+  // checked, even when the price was unchanged or the feed had no data.
+  const saveFeedResult = useCallback(async (id, { point, fetchedAt, status, message }) => {
+    if (!user) return { added: false };
+    const ref = sharedRef('commodities', id);
+    return runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) return { added: false };
+      const feed = { fetchedAt, status, message: message || null };
+      if (!point) { tx.update(ref, { feed }); return { added: false }; }
+      const { next, added } = appendFeedPoint(snap.data().history, point);
+      tx.update(ref, added ? { history: next, feed } : { feed });
+      return { added };
+    });
+  }, [user]);
+
+  // Several hand-entered prices at once (the "Update today's prices" sheet).
+  // One transaction per commodity, each re-reading before it appends.
+  const addManualPrices = useCallback(async (entries) => {
+    if (!user) return;
+    for (const { id, point } of entries) {
+      const ref = sharedRef('commodities', id);
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if (!snap.exists()) return;
+        const history = Array.isArray(snap.data().history) ? snap.data().history : [];
+        const next = [...history, point].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+        tx.update(ref, { history: next });
+      });
+    }
+  }, [user]);
+
   const deleteCommodity = useCallback(async (id) => {
     if (!user) return;
     const name = commodities.find(c => c.id === id)?.name || '';
@@ -533,8 +569,8 @@ export function AppProvider({ children }) {
     [projects, addProject, updateProject, deleteProject, restoreProject]);
   const backupValue      = useMemo(() => ({ dataLoading, importData }),
     [dataLoading, importData]);
-  const commoditiesValue = useMemo(() => ({ commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity }),
-    [commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity]);
+  const commoditiesValue = useMemo(() => ({ commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity, saveFeedResult, addManualPrices }),
+    [commodities, addCommodity, updateCommodity, deleteCommodity, restoreCommodity, saveFeedResult, addManualPrices]);
   const suppliersValue   = useMemo(() => ({ suppliers, addSupplier, updateSupplier, deleteSupplier }),
     [suppliers, addSupplier, updateSupplier, deleteSupplier]);
 
